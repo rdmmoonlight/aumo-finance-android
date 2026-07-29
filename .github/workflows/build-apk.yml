@@ -1,0 +1,57 @@
+name: Build Android APK (Production)
+
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
+
+jobs:
+  build-android:
+    runs-on: windows-latest
+
+    steps:
+    # 1. Checkout repository
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Setup Java JDK 17
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+
+    # 3. Setup .NET SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+        include-prerelease: true
+
+    # 4. Install MAUI Android Workload
+    - name: Install Workloads
+      run: dotnet workload install maui-android
+
+    # 5. Restore Dependencies (Langsung dari Root)
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    # 6. Build & Publish APK
+    - name: Build Android APK
+      run: >
+        dotnet publish
+        -c Release
+        -p:AndroidPackageFormat=apk
+
+    # 7. Upload APK Artifact
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: AumoFinance-Android-APK
+        path: "**/bin/Release/*-android/publish/*.apk"
