@@ -1,29 +1,44 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AumoFinance.MainPage"
+             x:Class="Aumo.MainPage"
              Title="Aumo Finance"
              BackgroundColor="#0F172A">
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="16">
             
-            <!-- Header -->
+            <!-- Header dengan Tombol Refresh & Settings -->
             <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
                 <VerticalStackLayout Grid.Column="0">
                     <Label Text="Financial Overview" FontSize="20" FontAttributes="Bold" TextColor="White" />
-                    <Label x:Name="PeriodLabel" Text="Periode: -" FontSize="12" TextColor="#94A3B8" />
+                    <HorizontalStackLayout Spacing="6">
+                        <Label x:Name="PeriodLabel" Text="Periode: -" FontSize="12" TextColor="#94A3B8" />
+                        <Label Text="•" FontSize="12" TextColor="#64748B" />
+                        <Label x:Name="ServerLabel" Text="Server: Production" FontSize="12" TextColor="#38BDF8" FontAttributes="Bold" />
+                    </HorizontalStackLayout>
                 </VerticalStackLayout>
                 
-                <Button Grid.Column="1" 
-                        Text="🔄" 
-                        Clicked="OnRefreshClicked" 
-                        BackgroundColor="#1E293B" 
-                        TextColor="White" 
-                        CornerRadius="20" 
-                        WidthRequest="40" 
-                        HeightRequest="40" 
-                        Padding="0" />
+                <!-- Action Buttons: Refresh & Switch Environment -->
+                <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                    <Button Text="🔄" 
+                            Clicked="OnRefreshClicked" 
+                            BackgroundColor="#1E293B" 
+                            TextColor="White" 
+                            CornerRadius="20" 
+                            WidthRequest="40" 
+                            HeightRequest="40" 
+                            Padding="0" />
+                            
+                    <Button Text="⚙️" 
+                            Clicked="OnSwitchEnvironmentClicked" 
+                            BackgroundColor="#1E293B" 
+                            TextColor="White" 
+                            CornerRadius="20" 
+                            WidthRequest="40" 
+                            HeightRequest="40" 
+                            Padding="0" />
+                </HorizontalStackLayout>
             </Grid>
 
             <!-- Card 1: Total Cash -->
