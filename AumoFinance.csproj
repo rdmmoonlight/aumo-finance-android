@@ -15,7 +15,7 @@
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
 		<!-- Display name -->
-		<ApplicationTitle>AumoFinance</ApplicationTitle>
+		<ApplicationTitle>Aumo</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.aumofinance</ApplicationId>
