@@ -36,7 +36,7 @@ jobs:
 
     # 5. Restore Dependencies
     - name: Restore Dependencies
-      run: dotnet restore AumoFinance/AumoFinance.csproj
+      run: dotnet restore AumoFinance.csproj
 
     # 6. Build APK
     - name: Build Android APK
