@@ -1,13 +1,27 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AumoFinance.MainPage"
-             BackgroundColor="#FFFFFF">
+using AumoFinance.Services;
 
-    <!-- WebView memuat seluruh tampilan web & menangani Cookie Auth otomatis -->
-    <WebView x:Name="WebEngine"
-             Source="https://aumo.up.railway.app"
-             HorizontalOptions="FillAndExpand"
-             VerticalOptions="FillAndExpand" />
+namespace AumoFinance;
 
-</ContentPage>
+public partial class MainPage : ContentPage
+{
+    private readonly ApiService _apiService = new();
+
+    public MainPage()
+    {
+        InitializeComponent();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Ambil data dari Backend Web
+        var data = await _apiService.GetDashboardAsync();
+
+        if (data != null)
+        {
+            // Tampilkan ke komponen UI Native Android
+            CashLabel.Text = data.TotalCash.ToString("C0");
+        }
+    }
+}
