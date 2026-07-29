@@ -1,18 +1,22 @@
 using System.Net.Http.Json;
-using AumoFinance.Models;
+using Aumo.Models;
 
-namespace AumoFinance.Services;
+namespace Aumo.Services;
 
 public class ApiService
 {
     private readonly HttpClient _http;
     
-    // Ganti dengan URL domain/IP Backend Web Anda (misal: http://10.0.2.2:5000/api/mobile/ jika local emulator)
+    // Kunci langsung ke Production Domain
     private const string BaseUrl = "https://aumo.up.railway.app/api/mobile/";
 
     public ApiService()
     {
-        _http = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+        _http = new HttpClient 
+        { 
+            BaseAddress = new Uri(BaseUrl),
+            Timeout = TimeSpan.FromSeconds(10)
+        };
     }
 
     public async Task<DashboardModel?> GetDashboardAsync()
@@ -23,7 +27,7 @@ public class ApiService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching dashboard: {ex.Message}");
+            Console.WriteLine($"[API Error] {ex.Message}");
             return null;
         }
     }
