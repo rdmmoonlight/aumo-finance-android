@@ -2,54 +2,53 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.InputJournalPage"
-             Title="Journal Entry"
+             Title="Transaksi Baru"
              BackgroundColor="#0F172A">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="16">
 
-            <Label Text="Journal Entry" FontSize="20" FontAttributes="Bold" TextColor="White" />
+            <Label Text="Transaksi Baru" FontSize="20" FontAttributes="Bold" TextColor="White" />
+
+            <!-- Toggle Pemasukan / Pengeluaran -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                <Button x:Name="IncomeButton"
+                        Grid.Column="0"
+                        Text="Pemasukan"
+                        Clicked="OnIncomeSelected"
+                        BackgroundColor="#22C55E"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="48" />
+                <Button x:Name="ExpenseButton"
+                        Grid.Column="1"
+                        Text="Pengeluaran"
+                        Clicked="OnExpenseSelected"
+                        BackgroundColor="#334155"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="48" />
+            </Grid>
 
             <VerticalStackLayout Spacing="2">
+                <Label Text="Tanggal" TextColor="#94A3B8" FontSize="12" />
                 <DatePicker x:Name="EntryDatePicker" TextColor="White" Format="dd/MM/yyyy" />
                 <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Black, Dark=White}" />
             </VerticalStackLayout>
 
-            <!-- Baris 1: Debit -->
-            <Border BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="14">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="DEBIT" TextColor="#38BDF8" FontAttributes="Bold" FontSize="12" />
-                    <Picker x:Name="AccountPicker1" Title="Akun" ItemDisplayBinding="{Binding DisplayText}" TextColor="White" />
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Nominal (Rp)" TextColor="#94A3B8" FontSize="12" />
+                <Entry x:Name="AmountEntry" Placeholder="0" Keyboard="Numeric" TextColor="White" PlaceholderColor="#64748B" />
+                <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Black, Dark=White}" />
+            </VerticalStackLayout>
 
-                    <VerticalStackLayout Spacing="2">
-                        <Entry x:Name="DescEntry1" Placeholder="Catatan" TextColor="White" PlaceholderColor="#64748B" />
-                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Black, Dark=White}" />
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="2">
-                        <Entry x:Name="DebitEntry1" Placeholder="Nominal (Rp)" Keyboard="Numeric" TextColor="#22C55E" PlaceholderColor="#64748B" />
-                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Black, Dark=White}" />
-                    </VerticalStackLayout>
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Baris 2: Kredit -->
-            <Border BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="14">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="KREDIT" TextColor="#F59E0B" FontAttributes="Bold" FontSize="12" />
-                    <Picker x:Name="AccountPicker2" Title="Akun" ItemDisplayBinding="{Binding DisplayText}" TextColor="White" />
-
-                    <VerticalStackLayout Spacing="2">
-                        <Entry x:Name="DescEntry2" Placeholder="Catatan" TextColor="White" PlaceholderColor="#64748B" />
-                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Black, Dark=White}" />
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="2">
-                        <Entry x:Name="CreditEntry2" Placeholder="Nominal (Rp)" Keyboard="Numeric" TextColor="#EF4444" PlaceholderColor="#64748B" />
-                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Black, Dark=White}" />
-                    </VerticalStackLayout>
-                </VerticalStackLayout>
-            </Border>
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Catatan (opsional)" TextColor="#94A3B8" FontSize="12" />
+                <Entry x:Name="NoteEntry" Placeholder="mis. jual barang" TextColor="White" PlaceholderColor="#64748B" />
+                <BoxView HeightRequest="1" Color="{AppThemeBinding Light=Black, Dark=White}" />
+            </VerticalStackLayout>
 
             <Button Text="Simpan"
                     Clicked="OnSaveJournalClicked"
