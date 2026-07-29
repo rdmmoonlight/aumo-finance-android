@@ -1,7 +1,7 @@
 using System.Globalization;
 using AumoFinance.Services;
 
-namespace AumoAumoFinance;
+namespace AumoFinance;
 
 public partial class MainPage : ContentPage
 {
@@ -33,7 +33,7 @@ public partial class MainPage : ContentPage
         }
         else
         {
-            await DisplayAlert("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+            await DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
         }
     }
 
@@ -44,6 +44,7 @@ public partial class MainPage : ContentPage
 
     private async void OnInputJournalClicked(object sender, EventArgs e)
     {
-        await DisplayAlert("Fitur", "Navigasi ke Halaman Input Jurnal", "OK");
+        // Navigasi instan ke Halaman Input Jurnal
+        await Navigation.PushAsync(new InputJournalPage());
     }
 }
