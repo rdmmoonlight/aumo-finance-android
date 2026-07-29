@@ -12,6 +12,9 @@ jobs:
   build-android:
     runs-on: windows-latest
 
+    permissions:
+      contents: write # Izin untuk membuat GitHub Release otomatis
+
     steps:
     # 1. Checkout repository
     - name: Checkout Code
@@ -34,24 +37,37 @@ jobs:
           10.0.x
         include-prerelease: true
 
-    # 4. Install MAUI Android Workload
+    # 4. Install Workload MAUI Android
     - name: Install Workloads
       run: dotnet workload install maui-android
 
-    # 5. Restore Dependencies (Langsung dari Root)
+    # 5. Restore Dependencies
     - name: Restore Dependencies
       run: dotnet restore
 
-    # 6. Build & Publish APK
+    # 6. Build APK Release
     - name: Build Android APK
       run: >
         dotnet publish
         -c Release
+        -f net10.0-android
         -p:AndroidPackageFormat=apk
 
-    # 7. Upload APK Artifact
-    - name: Upload APK Artifact
+    # 7. Upload Murni File -Signed.apk ke GitHub Releases (Sangat Direkomendasikan - Langsung .apk)
+    - name: Upload Signed APK to GitHub Releases
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: release-${{ github.run_number }}
+        name: Aumo Release v1.0.${{ github.run_number }}
+        # Kunci hanya ke file *-Signed.apk
+        files: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # 8. Backup Artifact (Hanya file -Signed.apk)
+    - name: Upload Signed APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: AumoFinance-Android-APK
-        path: "**/bin/Release/*-android/publish/*.apk"
+        name: Aumo-Signed-APK
+        path: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
+        if-no-files-found: error
