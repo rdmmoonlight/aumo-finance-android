@@ -53,7 +53,7 @@ public partial class InputJournalPage : ContentPage
 
         var dto = new CreateJournalDto
         {
-            EntryDate = EntryDatePicker.Date,
+            EntryDate = EntryDatePicker.Date ?? DateTime.Today,
             Lines = new List<CreateJournalLineDto>
             {
                 new() { AccountId = acc1.Id, LineDescription = DescEntry1.Text, Debit = debit, Credit = 0 },
