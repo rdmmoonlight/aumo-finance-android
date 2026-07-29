@@ -1,7 +1,7 @@
 using System.Globalization;
-using Aumo.Services;
+using AumoFinance.Services;
 
-namespace Aumo;
+namespace AumoAumoFinance;
 
 public partial class MainPage : ContentPage
 {
