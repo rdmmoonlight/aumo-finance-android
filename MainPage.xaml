@@ -8,37 +8,23 @@
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="16">
             
-            <!-- Header dengan Tombol Refresh & Settings -->
+            <!-- Header -->
             <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
                 <VerticalStackLayout Grid.Column="0">
                     <Label Text="Financial Overview" FontSize="20" FontAttributes="Bold" TextColor="White" />
-                    <HorizontalStackLayout Spacing="6">
-                        <Label x:Name="PeriodLabel" Text="Periode: -" FontSize="12" TextColor="#94A3B8" />
-                        <Label Text="•" FontSize="12" TextColor="#64748B" />
-                        <Label x:Name="ServerLabel" Text="Server: Production" FontSize="12" TextColor="#38BDF8" FontAttributes="Bold" />
-                    </HorizontalStackLayout>
+                    <Label x:Name="PeriodLabel" Text="Periode: -" FontSize="12" TextColor="#94A3B8" />
                 </VerticalStackLayout>
                 
-                <!-- Action Buttons: Refresh & Switch Environment -->
-                <HorizontalStackLayout Grid.Column="1" Spacing="8">
-                    <Button Text="🔄" 
-                            Clicked="OnRefreshClicked" 
-                            BackgroundColor="#1E293B" 
-                            TextColor="White" 
-                            CornerRadius="20" 
-                            WidthRequest="40" 
-                            HeightRequest="40" 
-                            Padding="0" />
-                            
-                    <Button Text="⚙️" 
-                            Clicked="OnSwitchEnvironmentClicked" 
-                            BackgroundColor="#1E293B" 
-                            TextColor="White" 
-                            CornerRadius="20" 
-                            WidthRequest="40" 
-                            HeightRequest="40" 
-                            Padding="0" />
-                </HorizontalStackLayout>
+                <!-- Refresh Button -->
+                <Button Grid.Column="1" 
+                        Text="🔄" 
+                        Clicked="OnRefreshClicked" 
+                        BackgroundColor="#1E293B" 
+                        TextColor="White" 
+                        CornerRadius="20" 
+                        WidthRequest="40" 
+                        HeightRequest="40" 
+                        Padding="0" />
             </Grid>
 
             <!-- Card 1: Total Cash -->
@@ -49,7 +35,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Card 2: Net Income (Highlight Card) -->
+            <!-- Card 2: Net Income -->
             <Border StrokeShape="RoundRectangle 16" StrokeThickness="0" Padding="16">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
