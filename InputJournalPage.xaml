@@ -2,13 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.InputJournalPage"
-             Title="Input Jurnal Baru"
+             Title="Journal Entry"
              BackgroundColor="#0F172A">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="16">
 
-            <Label Text="Input Journal Entry" FontSize="20" FontAttributes="Bold" TextColor="White" />
+            <Label Text="Journal Entry" FontSize="20" FontAttributes="Bold" TextColor="White" />
 
             <DatePicker x:Name="EntryDatePicker" TextColor="White" Format="dd/MM/yyyy" />
 
@@ -16,9 +16,9 @@
             <Border BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="14">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="DEBIT" TextColor="#38BDF8" FontAttributes="Bold" FontSize="12" />
-                    <Picker x:Name="AccountPicker1" Title="Pilih Akun Debit..." ItemDisplayBinding="{Binding DisplayText}" TextColor="White" />
-                    <Entry x:Name="DescEntry1" Placeholder="Catatan..." TextColor="White" PlaceholderColor="#64748B" />
-                    <Entry x:Name="DebitEntry1" Placeholder="Jumlah (Rp)" Keyboard="Numeric" TextColor="#22C55E" PlaceholderColor="#64748B" />
+                    <Picker x:Name="AccountPicker1" Title="Akun" ItemDisplayBinding="{Binding DisplayText}" TextColor="White" />
+                    <Entry x:Name="DescEntry1" Placeholder="Catatan" TextColor="White" PlaceholderColor="#64748B" />
+                    <Entry x:Name="DebitEntry1" Placeholder="Nominal (Rp)" Keyboard="Numeric" TextColor="#22C55E" PlaceholderColor="#64748B" />
                 </VerticalStackLayout>
             </Border>
 
@@ -26,13 +26,13 @@
             <Border BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="14">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="KREDIT" TextColor="#F59E0B" FontAttributes="Bold" FontSize="12" />
-                    <Picker x:Name="AccountPicker2" Title="Pilih Akun Kredit..." ItemDisplayBinding="{Binding DisplayText}" TextColor="White" />
-                    <Entry x:Name="DescEntry2" Placeholder="Catatan..." TextColor="White" PlaceholderColor="#64748B" />
-                    <Entry x:Name="CreditEntry2" Placeholder="Jumlah (Rp)" Keyboard="Numeric" TextColor="#EF4444" PlaceholderColor="#64748B" />
+                    <Picker x:Name="AccountPicker2" Title="Akun" ItemDisplayBinding="{Binding DisplayText}" TextColor="White" />
+                    <Entry x:Name="DescEntry2" Placeholder="Catatan" TextColor="White" PlaceholderColor="#64748B" />
+                    <Entry x:Name="CreditEntry2" Placeholder="Nominal (Rp)" Keyboard="Numeric" TextColor="#EF4444" PlaceholderColor="#64748B" />
                 </VerticalStackLayout>
             </Border>
 
-            <Button Text="Simpan Jurnal Entry"
+            <Button Text="Simpan"
                     Clicked="OnSaveJournalClicked"
                     BackgroundColor="#22C55E"
                     TextColor="White"
