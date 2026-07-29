@@ -1,13 +1,13 @@
 using System.Net.Http.Json;
-using Aumo.Models;
+using AumoFinance.Models; // <-- Ubah dari Aumo.Models ke AumoFinance.Models
 
-namespace Aumo.Services;
+namespace AumoFinance.Services; // <-- Ubah dari Aumo.Services ke AumoFinance.Services
 
 public class ApiService
 {
     private readonly HttpClient _http;
     
-    // Kunci langsung ke Production Domain
+    // Kunci langsung ke Production Domain Railway
     private const string BaseUrl = "https://aumo.up.railway.app/api/mobile/";
 
     public ApiService()
