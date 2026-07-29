@@ -17,39 +17,41 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 2. Setup Java JDK (Dibutuhkan untuk build Android)
+    # 2. Setup Java JDK 17
     - name: Setup Java JDK
       uses: actions/setup-java@v4
       with:
         distribution: 'microsoft'
         java-version: '17'
 
-    # 3. Setup .NET SDK (Menyesuaikan SDK 10)
+    # 3. Setup .NET SDK
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+        include-prerelease: true
 
     # 4. Install MAUI Android Workload
     - name: Install Workloads
       run: dotnet workload install maui-android
 
-    # 5. Restore Dependencies
+    # 5. Restore Dependencies (Langsung dari Root)
     - name: Restore Dependencies
-      run: dotnet restore AumoFinance.csproj
+      run: dotnet restore
 
-    # 6. Build APK
+    # 6. Build & Publish APK
     - name: Build Android APK
       run: >
-        dotnet publish AumoFinance/AumoFinance.csproj
+        dotnet publish
         -c Release
-        -f net10.0-android
         -p:AndroidPackageFormat=apk
-        -p:AndroidEnablePretyPrint=true
 
-    # 7. Upload APK sebagai Artifact GitHub Actions
+    # 7. Upload APK Artifact
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: AumoFinance-Android-APK
-        path: AumoFinance/bin/Release/net10.0-android/publish/*.apk
+        path: "**/bin/Release/*-android/publish/*.apk"
