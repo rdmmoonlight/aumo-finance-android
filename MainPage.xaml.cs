@@ -44,6 +44,7 @@ public partial class MainPage : ContentPage
 
     private async void OnInputJournalClicked(object sender, EventArgs e)
     {
-        await DisplayAlertAsync("Fitur", "Navigasi ke Halaman Input Jurnal", "OK");
+        // Navigasi instan ke Halaman Input Jurnal
+        await Navigation.PushAsync(new InputJournalPage());
     }
 }
