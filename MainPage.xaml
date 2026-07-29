@@ -1,49 +1,81 @@
-using System.Globalization;
-using AumoFinance.Services;
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AumoFinance.MainPage"
+             Title="Aumo Finance"
+             BackgroundColor="#0F172A">
 
-namespace AumoFinance;
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
 
-public partial class MainPage : ContentPage
-{
-    private readonly ApiService _apiService = new();
-    private readonly CultureInfo _idrCulture = new("id-ID");
+            <Label x:Name="PeriodLabel"
+                   Text="Periode: -"
+                   FontSize="14"
+                   TextColor="#94A3B8" />
 
-    public MainPage()
-    {
-        InitializeComponent();
-    }
+            <Border BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="KAS SAAT INI" TextColor="#94A3B8" FontSize="12" FontAttributes="Bold" />
+                    <Label x:Name="CashLabel"
+                           Text="Rp 0"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await LoadDashboardDataAsync();
-    }
+            <Border BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="LABA BERSIH" TextColor="#94A3B8" FontSize="12" FontAttributes="Bold" />
+                    <Label x:Name="NetIncomeLabel"
+                           Text="Rp 0"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="#22C55E" />
+                </VerticalStackLayout>
+            </Border>
 
-    private async Task LoadDashboardDataAsync()
-    {
-        var data = await _apiService.GetDashboardAsync();
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Border Grid.Column="0" BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="14">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="PENDAPATAN" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
+                        <Label x:Name="RevenueLabel"
+                               Text="Rp 0"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#38BDF8" />
+                    </VerticalStackLayout>
+                </Border>
 
-        if (data != null)
-        {
-            PeriodLabel.Text = $"Periode: {data.ActivePeriod}";
-            CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
-            NetIncomeLabel.Text = data.NetIncome.ToString("C0", _idrCulture);
-            RevenueLabel.Text = data.Revenue.ToString("C0", _idrCulture);
-            ExpenseLabel.Text = data.Expenses.ToString("C0", _idrCulture);
-        }
-        else
-        {
-            await DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
-        }
-    }
+                <Border Grid.Column="1" BackgroundColor="#1E293B" StrokeShape="RoundRectangle 12" Padding="14">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="BEBAN" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
+                        <Label x:Name="ExpenseLabel"
+                               Text="Rp 0"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#EF4444" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
 
-    private async void OnRefreshClicked(object? sender, EventArgs e) // CS8622 Fix
-    {
-        await LoadDashboardDataAsync();
-    }
+            <Button Text="Muat Ulang Data"
+                    Clicked="OnRefreshClicked"
+                    BackgroundColor="#334155"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    HeightRequest="50" />
 
-    private async void OnInputJournalClicked(object? sender, EventArgs e) // CS8622 Fix
-    {
-        await Navigation.PushAsync(new InputJournalPage());
-    }
-}
+            <Button Text="Input Jurnal Baru"
+                    Clicked="OnInputJournalClicked"
+                    BackgroundColor="#22C55E"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    HeightRequest="50" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

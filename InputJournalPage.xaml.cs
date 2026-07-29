@@ -11,7 +11,6 @@ public partial class InputJournalPage : ContentPage
     public InputJournalPage()
     {
         InitializeComponent();
-        JournalTypePicker.SelectedIndex = 0;
     }
 
     protected override async void OnAppearing()
@@ -54,8 +53,7 @@ public partial class InputJournalPage : ContentPage
 
         var dto = new CreateJournalDto
         {
-            JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-            EntryDate = EntryDatePicker.Date ?? DateTime.Today, // CS0266 Fix (?? DateTime.Today)
+            EntryDate = EntryDatePicker.Date ?? DateTime.Today,
             Lines = new List<CreateJournalLineDto>
             {
                 new() { AccountId = acc1.Id, LineDescription = DescEntry1.Text, Debit = debit, Credit = 0 },

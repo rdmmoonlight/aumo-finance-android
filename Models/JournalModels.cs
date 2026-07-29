@@ -5,22 +5,19 @@ namespace AumoFinance.Models;
 public class AccountLookupModel
 {
     [JsonPropertyName("id")]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     [JsonPropertyName("accountName")]
     public string AccountName { get; set; } = string.Empty;
 
     [JsonPropertyName("referenceNumber")]
-    public string ReferenceNumber { get; set; } = string.Empty;
+    public int ReferenceNumber { get; set; }
 
     public string DisplayText => $"[{ReferenceNumber}] {AccountName}";
 }
 
 public class CreateJournalDto
 {
-    [JsonPropertyName("journalType")]
-    public string JournalType { get; set; } = "General";
-
     [JsonPropertyName("entryDate")]
     public DateTime EntryDate { get; set; } = DateTime.Today;
 
@@ -31,7 +28,7 @@ public class CreateJournalDto
 public class CreateJournalLineDto
 {
     [JsonPropertyName("accountId")]
-    public Guid AccountId { get; set; }
+    public int AccountId { get; set; }
 
     [JsonPropertyName("lineDescription")]
     public string? LineDescription { get; set; }
