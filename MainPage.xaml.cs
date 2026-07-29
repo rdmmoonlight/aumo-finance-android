@@ -1,23 +1,21 @@
-﻿namespace AumoFinance;
+namespace AumoFinance;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
+    public MainPage()
+    {
+        InitializeComponent();
+    }
 
-	public MainPage()
-	{
-		InitializeComponent();
-	}
+    // Menangani tombol back fisik Android
+    protected override bool OnBackButtonPressed()
+    {
+        if (WebEngine.CanGoBack)
+        {
+            WebEngine.GoBack();
+            return true; // Cegah aplikasi keluar
+        }
 
-	private void OnCounterClicked(object? sender, EventArgs e)
-	{
-		count++;
-
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+        return base.OnBackButtonPressed(); // Keluar aplikasi jika sudah di halaman utama web
+    }
 }
