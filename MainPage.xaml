@@ -1,84 +1,49 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AumoFinance.MainPage"
-             Title="Aumo Finance"
-             BackgroundColor="#0F172A">
+using System.Globalization;
+using AumoFinance.Services;
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="16">
-            
-            <!-- Header -->
-            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                <VerticalStackLayout Grid.Column="0">
-                    <Label Text="Financial Overview" FontSize="20" FontAttributes="Bold" TextColor="White" />
-                    <Label x:Name="PeriodLabel" Text="Periode: -" FontSize="12" TextColor="#94A3B8" />
-                </VerticalStackLayout>
-                
-                <!-- Refresh Button -->
-                <Button Grid.Column="1" 
-                        Text="🔄" 
-                        Clicked="OnRefreshClicked" 
-                        BackgroundColor="#1E293B" 
-                        TextColor="White" 
-                        CornerRadius="20" 
-                        WidthRequest="40" 
-                        HeightRequest="40" 
-                        Padding="0" />
-            </Grid>
+namespace AumoFinance;
 
-            <!-- Card 1: Total Cash -->
-            <Border BackgroundColor="#1E293B" StrokeShape="RoundRectangle 16" StrokeThickness="0" Padding="16">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="CASH &amp; EQUIVALENTS" FontSize="11" TextColor="#94A3B8" FontAttributes="Bold" />
-                    <Label x:Name="CashLabel" Text="Rp 0" FontSize="26" FontAttributes="Bold" TextColor="#22C55E" />
-                </VerticalStackLayout>
-            </Border>
+public partial class MainPage : ContentPage
+{
+    private readonly ApiService _apiService = new();
+    private readonly CultureInfo _idrCulture = new("id-ID");
 
-            <!-- Card 2: Net Income -->
-            <Border StrokeShape="RoundRectangle 16" StrokeThickness="0" Padding="16">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#2563EB" Offset="0.0" />
-                        <GradientStop Color="#1D4ED8" Offset="1.0" />
-                    </LinearGradientBrush>
-                </Border.Background>
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="NET INCOME" FontSize="11" TextColor="#93C5FD" FontAttributes="Bold" />
-                    <Label x:Name="NetIncomeLabel" Text="Rp 0" FontSize="26" FontAttributes="Bold" TextColor="White" />
-                </VerticalStackLayout>
-            </Border>
+    public MainPage()
+    {
+        InitializeComponent();
+    }
 
-            <!-- Grid 2 Column: Revenue & Expenses -->
-            <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-                <!-- Revenue -->
-                <Border Grid.Column="0" BackgroundColor="#1E293B" StrokeShape="RoundRectangle 16" StrokeThickness="0" Padding="14">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="REVENUE" FontSize="10" TextColor="#94A3B8" FontAttributes="Bold" />
-                        <Label x:Name="RevenueLabel" Text="Rp 0" FontSize="16" FontAttributes="Bold" TextColor="#38BDF8" />
-                    </VerticalStackLayout>
-                </Border>
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await LoadDashboardDataAsync();
+    }
 
-                <!-- Expenses -->
-                <Border Grid.Column="1" BackgroundColor="#1E293B" StrokeShape="RoundRectangle 16" StrokeThickness="0" Padding="14">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="EXPENSES" FontSize="10" TextColor="#94A3B8" FontAttributes="Bold" />
-                        <Label x:Name="ExpenseLabel" Text="Rp 0" FontSize="16" FontAttributes="Bold" TextColor="#EF4444" />
-                    </VerticalStackLayout>
-                </Border>
-            </Grid>
+    private async Task LoadDashboardDataAsync()
+    {
+        var data = await _apiService.GetDashboardAsync();
 
-            <!-- Quick Action Button -->
-            <Button Text="+ Input Jurnal Baru" 
-                    Clicked="OnInputJournalClicked"
-                    BackgroundColor="#F59E0B" 
-                    TextColor="Black" 
-                    FontAttributes="Bold" 
-                    CornerRadius="12" 
-                    HeightRequest="50" 
-                    Margin="0,10,0,0" />
+        if (data != null)
+        {
+            PeriodLabel.Text = $"Periode: {data.ActivePeriod}";
+            CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
+            NetIncomeLabel.Text = data.NetIncome.ToString("C0", _idrCulture);
+            RevenueLabel.Text = data.Revenue.ToString("C0", _idrCulture);
+            ExpenseLabel.Text = data.Expenses.ToString("C0", _idrCulture);
+        }
+        else
+        {
+            await DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+        }
+    }
 
-        </VerticalStackLayout>
-    </ScrollView>
+    private async void OnRefreshClicked(object? sender, EventArgs e) // CS8622 Fix
+    {
+        await LoadDashboardDataAsync();
+    }
 
-</ContentPage>
+    private async void OnInputJournalClicked(object? sender, EventArgs e) // CS8622 Fix
+    {
+        await Navigation.PushAsync(new InputJournalPage());
+    }
+}

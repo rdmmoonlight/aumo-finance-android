@@ -23,7 +23,7 @@ public partial class InputJournalPage : ContentPage
         AccountPicker2.ItemsSource = _accounts;
     }
 
-    private async void OnSaveJournalClicked(object sender, EventArgs e)
+    private async void OnSaveJournalClicked(object? sender, EventArgs e) // CS8622 Fix (object? sender)
     {
         var acc1 = AccountPicker1.SelectedItem as AccountLookupModel;
         var acc2 = AccountPicker2.SelectedItem as AccountLookupModel;
@@ -55,7 +55,7 @@ public partial class InputJournalPage : ContentPage
         var dto = new CreateJournalDto
         {
             JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-            EntryDate = EntryDatePicker.Date,
+            EntryDate = EntryDatePicker.Date ?? DateTime.Today, // CS0266 Fix (?? DateTime.Today)
             Lines = new List<CreateJournalLineDto>
             {
                 new() { AccountId = acc1.Id, LineDescription = DescEntry1.Text, Debit = debit, Credit = 0 },
@@ -68,7 +68,7 @@ public partial class InputJournalPage : ContentPage
         if (success)
         {
             await DisplayAlertAsync("Sukses", message, "OK");
-            await Navigation.PopAsync(); // Kembali ke Dashboard Utama
+            await Navigation.PopAsync();
         }
         else
         {
