@@ -33,7 +33,7 @@ public class ApiService
         catch { return new(); }
     }
 
-    // Post Jurnal Baru
+    // Post Jurnal Baru (double-entry penuh, masih dipertahankan untuk keperluan lain)
     public async Task<(bool success, string message)> PostJournalAsync(CreateJournalDto dto)
     {
         try
@@ -45,6 +45,25 @@ public class ApiService
             }
             var err = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
             return (false, err != null && err.ContainsKey("message") ? err["message"].ToString()! : "Gagal menyimpan jurnal.");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Error koneksi: {ex.Message}");
+        }
+    }
+
+    // Post transaksi sederhana (Pemasukan/Pengeluaran) dari Android
+    public async Task<(bool success, string message)> PostSimpleTransactionAsync(CreateSimpleTransactionDto dto)
+    {
+        try
+        {
+            var response = await _http.PostAsJsonAsync("simple-transaction", dto);
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, "Transaksi berhasil disimpan!");
+            }
+            var err = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            return (false, err != null && err.ContainsKey("message") ? err["message"].ToString()! : "Gagal menyimpan transaksi.");
         }
         catch (Exception ex)
         {
