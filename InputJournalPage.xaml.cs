@@ -40,13 +40,13 @@ public partial class InputJournalPage : ContentPage
     {
         if (!decimal.TryParse(AmountEntry.Text, out decimal amount) || amount <= 0)
         {
-            await DisplayAlertAsync("Peringatan", "Nominal harus lebih besar dari 0.", "OK");
+            await DisplayAlert("Peringatan", "Nominal harus lebih besar dari 0.", "OK");
             return;
         }
 
         var dto = new CreateSimpleTransactionDto
         {
-            EntryDate = EntryDatePicker.Date ?? DateTime.Today,
+            EntryDate = EntryDatePicker.Date,
             Type = _selectedType,
             Amount = amount,
             Note = string.IsNullOrWhiteSpace(NoteEntry.Text) ? null : NoteEntry.Text
@@ -56,12 +56,12 @@ public partial class InputJournalPage : ContentPage
 
         if (success)
         {
-            await DisplayAlertAsync("Sukses", message, "OK");
+            await DisplayAlert("Sukses", message, "OK");
             await Navigation.PopAsync();
         }
         else
         {
-            await DisplayAlertAsync("Gagal", message, "OK");
+            await DisplayAlert("Gagal", message, "OK");
         }
     }
 }
