@@ -46,7 +46,7 @@ public partial class InputJournalPage : ContentPage
 
         var dto = new CreateSimpleTransactionDto
         {
-            EntryDate = EntryDatePicker.Date ?? DateTime.Today,
+            EntryDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today),
             Type = _selectedType,
             Amount = amount,
             Note = string.IsNullOrWhiteSpace(NoteEntry.Text) ? null : NoteEntry.Text
