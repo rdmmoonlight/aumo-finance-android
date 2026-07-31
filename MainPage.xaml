@@ -151,12 +151,12 @@
                     </Button.Shadow>
                 </Button>
 
-                <!-- Secondary Button -->
+                <!-- Secondary Button (Fixed) -->
                 <Button Text="🔄  Muat Ulang Data"
                         Clicked="OnRefreshClicked"
                         BackgroundColor="#1E293B"
-                        Stroke="#334155"
-                        StrokeThickness="1"
+                        BorderColor="#334155"
+                        BorderWidth="1"
                         TextColor="#94A3B8"
                         FontAttributes="Bold"
                         FontSize="14"
