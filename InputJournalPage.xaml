@@ -9,7 +9,7 @@
         <VerticalStackLayout Spacing="20">
 
             <!-- Title Header -->
-            <Label Text="Input Transaksi Cepat" 
+            <Label Text="Input Transaksi" 
                    FontSize="20" 
                    FontAttributes="Bold" 
                    TextColor="White" />
@@ -30,7 +30,7 @@
                 <!-- Button Pemasukan -->
                 <Button x:Name="IncomeBtn"
                         Grid.Column="1"
-                        Text="🤑 Pemasukan"
+                        Text="💰 Pemasukan"
                         Clicked="OnIncomeTypeSelected"
                         BackgroundColor="#1E293B"
                         BorderColor="#334155"
@@ -71,9 +71,9 @@
                     StrokeShape="RoundRectangle 12"
                     Padding="14,8">
                 <VerticalStackLayout Spacing="4">
-                    <Label Text="Catatan / Keterangan" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
+                    <Label Text="Catatan" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
                     <Entry x:Name="NoteEntry"
-                           Placeholder="Contoh: Beli bensin, Bayar listrik"
+                           Placeholder="Contoh: Beli makanan, Bayar listrik"
                            PlaceholderColor="#64748B"
                            TextColor="White"
                            FontSize="14" />
@@ -96,7 +96,7 @@
 
                 <!-- Simpan -->
                 <Button Grid.Column="1"
-                        Text="Simpan Transaksi"
+                        Text="Simpan"
                         Clicked="OnSaveClicked"
                         BackgroundColor="#10B981"
                         TextColor="White"
