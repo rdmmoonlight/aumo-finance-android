@@ -2,69 +2,81 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.InputJournalPage"
-             Title="Input Jurnal"
+             Title="Input Transaksi"
              BackgroundColor="#0F172A">
 
     <ScrollView Padding="20">
-        <VerticalStackLayout Spacing="16">
+        <VerticalStackLayout Spacing="20">
 
             <!-- Title Header -->
-            <Label Text="Form Transaksi Baru" 
+            <Label Text="Input Transaksi Cepat" 
                    FontSize="20" 
                    FontAttributes="Bold" 
                    TextColor="White" />
 
-            <!-- Field Keterangan -->
+            <!-- Selector Pemasukan / Pengeluaran -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <!-- Button Pengeluaran (Default Selected) -->
+                <Button x:Name="ExpenseBtn"
+                        Grid.Column="0"
+                        Text="💸 Pengeluaran"
+                        Clicked="OnExpenseTypeSelected"
+                        BackgroundColor="#EF4444"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="48" />
+
+                <!-- Button Pemasukan -->
+                <Button x:Name="IncomeBtn"
+                        Grid.Column="1"
+                        Text="🤑 Pemasukan"
+                        Clicked="OnIncomeTypeSelected"
+                        BackgroundColor="#1E293B"
+                        BorderColor="#334155"
+                        BorderWidth="1"
+                        TextColor="#94A3B8"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="48" />
+            </Grid>
+
+            <!-- Field Nominal -->
             <Border BackgroundColor="#1E293B"
                     Stroke="#334155"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 12"
-                    Padding="12,4">
+                    Padding="14,8">
                 <VerticalStackLayout Spacing="4">
-                    <Label Text="Keterangan / Memot" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
-                    <Entry x:Name="DescriptionEntry"
-                           Placeholder="Contoh: Pembelian ATK Kantor"
+                    <Label x:Name="AmountTypeLabel" 
+                           Text="Nominal Pengeluaran (Rp)" 
+                           TextColor="#F87171" 
+                           FontSize="11" 
+                           FontAttributes="Bold" />
+                    <Entry x:Name="AmountEntry"
+                           Placeholder="0"
+                           PlaceholderColor="#64748B"
+                           Keyboard="Numeric"
+                           TextChanged="OnAmountTextChanged"
+                           TextColor="White"
+                           FontSize="20"
+                           FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Field Catatan -->
+            <Border BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14,8">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Catatan / Keterangan" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
+                    <Entry x:Name="NoteEntry"
+                           Placeholder="Contoh: Beli bensin, Bayar listrik"
                            PlaceholderColor="#64748B"
                            TextColor="White"
                            FontSize="14" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Field Debit -->
-            <Border BackgroundColor="#1E293B"
-                    Stroke="#334155"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="12,4">
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="Nominal Debit (Rp)" TextColor="#38BDF8" FontSize="11" FontAttributes="Bold" />
-                    <Entry x:Name="DebitEntry"
-                           Placeholder="0"
-                           PlaceholderColor="#64748B"
-                           Keyboard="Numeric"
-                           TextChanged="OnAmountTextChanged"
-                           TextColor="White"
-                           FontSize="16"
-                           FontAttributes="Bold" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Field Kredit -->
-            <Border BackgroundColor="#1E293B"
-                    Stroke="#334155"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="12,4">
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="Nominal Kredit (Rp)" TextColor="#F87171" FontSize="11" FontAttributes="Bold" />
-                    <Entry x:Name="CreditEntry"
-                           Placeholder="0"
-                           PlaceholderColor="#64748B"
-                           Keyboard="Numeric"
-                           TextChanged="OnAmountTextChanged"
-                           TextColor="White"
-                           FontSize="16"
-                           FontAttributes="Bold" />
                 </VerticalStackLayout>
             </Border>
 
@@ -84,7 +96,7 @@
 
                 <!-- Simpan -->
                 <Button Grid.Column="1"
-                        Text="Simpan Data"
+                        Text="Simpan Transaksi"
                         Clicked="OnSaveClicked"
                         BackgroundColor="#10B981"
                         TextColor="White"
