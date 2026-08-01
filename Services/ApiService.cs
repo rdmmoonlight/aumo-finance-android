@@ -17,8 +17,7 @@ public class ApiService
     // terbatas (hanya INSERT ke MobileJournalEntries/Lines + SELECT ke
     // ChartOfAccounts/JournalEntries/Periods untuk dashboard), jangan role
     // admin/owner database.
-    private const string ConnectionString =
-        "Host=ep-wandering-bread-ao1sazxn-pooler.c-2.ap-southeast-1.aws.neon.tech;Port=5432;Database=neondb;Username=neondb_mobile;Password=npg_exhf4N9TaStH;SSL Mode=Require;Trust Server Certificate=true";
+    private const string ConnectionString = "__NEON_CONNECTION_STRING__";
 
     private static NpgsqlConnection CreateConnection() => new(ConnectionString);
 
