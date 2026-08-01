@@ -70,28 +70,21 @@ public partial class InputJournalPage : ContentPage
             if (decimal.TryParse(rawText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
             {
                 string formatted = string.Format(_idrCulture, "{0:N0}", value);
-                entry.Text = formatted;
 
-                // Set CursorPosition langsung sesudah Text diubah bisa membuat
-                // native Entry di Android melempar exception (native control
-                // belum sinkron dengan panjang teks baru) -- persis kejadian
-                // saat nominal baru menambah pemisah ribuan (mis. 999 -> 1.000)
-                // sehingga panjang teksnya bertambah. Tunda lewat Dispatcher
-                // dan validasi dulu supaya tidak crash.
-                entry.Dispatcher.Dispatch(() =>
+                // Hanya update jika benar-benar berbeda, untuk menghindari
+                // TextChanged berulang tanpa perlu.
+                if (entry.Text != formatted)
                 {
-                    try
-                    {
-                        if (entry.Text == formatted)
-                        {
-                            entry.CursorPosition = formatted.Length;
-                        }
-                    }
-                    catch
-                    {
-                        // Abaikan kegagalan set posisi kursor, ini tidak kritikal.
-                    }
-                });
+                    entry.Text = formatted;
+                }
+
+                // CATATAN PENTING: JANGAN set entry.CursorPosition di sini.
+                // Root cause crash saat nominal menyentuh ribuan (mis. 999 -> 1.000):
+                // panjang teks berubah karena pemisah ribuan baru muncul, lalu kode
+                // lama mencoba mengatur CursorPosition sebelum native EditText
+                // Android sempat sinkron dengan teks barunya -> native exception,
+                // aplikasi force-close (terutama di Oppo/Xiaomi tertentu).
+                // Biarkan cursor mengikuti posisi alami dari native control.
             }
         }
         catch (Exception ex)
