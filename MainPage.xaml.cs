@@ -37,13 +37,11 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                // Menggunakan DisplayAlertAsync untuk .NET 10
                 await this.DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
             }
         }
         catch (Exception ex)
         {
-            // Menggunakan DisplayAlertAsync untuk .NET 10
             await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
     }
@@ -59,7 +57,7 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Dipanggil dari InputJournalPage saat user klik Simpan
+    /// Dipanggil dari InputJournalPage untuk memproses antrean sync 10 detik.
     /// </summary>
     public async Task ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
@@ -69,8 +67,9 @@ public partial class MainPage : ContentPage
             data: transactionDto,
             uploadTask: async (dto) =>
             {
-                // Memanggil method yang ADA di ApiService.cs Anda
-                return await _apiService.CreateSimpleTransactionAsync(dto);
+                // Memanggil PostSimpleTransactionAsync sesuai dengan yang ada di ApiService.cs
+                var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
+                return success;
             },
             onDeleteLocalData: (dto) =>
             {
@@ -83,11 +82,11 @@ public partial class MainPage : ContentPage
 
     private void SaveToLocalMemory(CreateSimpleTransactionDto dto)
     {
-        // Simpan sementara
+        // Logika simpan sementara ke SQLite / List Lokal
     }
 
     private void RemoveFromLocalMemory(CreateSimpleTransactionDto dto)
     {
-        // Hapus jika gagal
+        // Logika hapus otomatis dari SQLite / List Lokal saat gagal upload
     }
 }
