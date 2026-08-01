@@ -1,9 +1,19 @@
+using System.Text.Json.Serialization;
+
 namespace AumoFinance.Models;
 
 public class CreateSimpleTransactionDto
 {
-    public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
-    public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("entryDate")]
+    public DateTime EntryDate { get; set; } = DateTime.Today;
+
+    // "Income" atau "Expense"
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = "Income";
+
+    [JsonPropertyName("amount")]
     public decimal Amount { get; set; }
-    public string TransactionType { get; set; } = "Expense"; // "Income" atau "Expense"
+
+    [JsonPropertyName("note")]
+    public string? Note { get; set; }
 }
