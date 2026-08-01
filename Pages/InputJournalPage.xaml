@@ -68,22 +68,26 @@
                            TextColor="#F87171" 
                            FontSize="11" 
                            FontAttributes="Bold" />
-                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                        <Label Text="Rp"
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" VerticalOptions="Center">
+                        <Label Grid.Column="0"
+                               Text="Rp"
                                TextColor="#94A3B8"
                                FontSize="20"
                                FontAttributes="Bold"
                                VerticalOptions="Center" />
                         <Entry x:Name="AmountEntry"
+                               Grid.Column="1"
                                Placeholder="0"
                                PlaceholderColor="#64748B"
                                Keyboard="Numeric"
                                TextChanged="OnAmountTextChanged"
+                               Focused="OnAmountFocused"
+                               Unfocused="OnAmountUnfocused"
                                TextColor="White"
                                FontSize="20"
                                FontAttributes="Bold"
-                               HorizontalOptions="FillAndExpand" />
-                    </HorizontalStackLayout>
+                               HorizontalOptions="Fill" />
+                    </Grid>
                     <Label x:Name="AmountValidationLabel"
                            Text="Nominal harus lebih besar dari 0"
                            TextColor="#F87171"
