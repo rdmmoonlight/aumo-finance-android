@@ -1,7 +1,7 @@
 using System.Globalization;
 using AumoFinance.Models;
 
-namespace AumoFinance;
+namespace AumoFinance.Pages;
 
 public partial class InputJournalPage : ContentPage
 {
@@ -12,6 +12,7 @@ public partial class InputJournalPage : ContentPage
     public InputJournalPage()
     {
         InitializeComponent();
+        EntryDatePicker.Date = DateTime.Today;
     }
 
     private void OnExpenseTypeSelected(object? sender, EventArgs e)
@@ -95,7 +96,7 @@ public partial class InputJournalPage : ContentPage
 
         var transactionDto = new CreateSimpleTransactionDto
         {
-            EntryDate = DateTime.Today,
+            EntryDate = EntryDatePicker.Date,
             Type = _selectedType,
             Amount = amount,
             Note = note

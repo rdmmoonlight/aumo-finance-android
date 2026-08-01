@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AumoFinance.InputJournalPage"
-             Title="Input Transaksi"
+             x:Class="AumoFinance.Pages.InputJournalPage"
+             NavigationPage.HasNavigationBar="False"
              BackgroundColor="#0F172A">
 
     <ScrollView Padding="20">
@@ -40,6 +40,21 @@
                         CornerRadius="12"
                         HeightRequest="48" />
             </Grid>
+
+            <!-- Field Tanggal -->
+            <Border BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14,8">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Tanggal" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
+                    <DatePicker x:Name="EntryDatePicker"
+                                TextColor="White"
+                                FontSize="16"
+                                FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Border>
 
             <!-- Field Nominal -->
             <Border BackgroundColor="#1E293B"

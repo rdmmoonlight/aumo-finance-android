@@ -14,14 +14,6 @@ public partial class TopBarView : ContentView
     public TopBarView()
     {
         InitializeComponent();
-        LoadAppVersion();
-    }
-
-    private void LoadAppVersion()
-    {
-        var version = AppInfo.Current.VersionString;
-        var build = AppInfo.Current.BuildString;
-        VersionLabel.Text = $"v{version} ({build})";
     }
 
     public string PeriodText
@@ -88,10 +80,16 @@ public partial class TopBarView : ContentView
         }
         finally
         {
-            // Reset Tampilan Sync Badge
-            SyncBadge.IsVisible = false;
-            SyncBadge.BackgroundColor = _darkBg;
-            SyncIcon.Rotation = 0;
+            // Hanya reset tampilan jika task ini belum digantikan oleh task sync berikutnya.
+            // Tanpa guard ini, task lama yang dibatalkan tetap sampai ke sini dan menimpa
+            // (menyembunyikan) badge milik task baru yang sedang berjalan -> indikator sync
+            // terlihat tidak berfungsi / berkedip hilang.
+            if (!token.IsCancellationRequested)
+            {
+                SyncBadge.IsVisible = false;
+                SyncBadge.BackgroundColor = _darkBg;
+                SyncIcon.Rotation = 0;
+            }
         }
     }
 
