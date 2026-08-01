@@ -1,6 +1,6 @@
 using System.Globalization;
-using AumoFinance.Services;
 using AumoFinance.Models;
+using AumoFinance.Services;
 
 namespace AumoFinance;
 
@@ -28,7 +28,6 @@ public partial class MainPage : ContentPage
 
             if (data != null)
             {
-                // Update label periode melalui komponen TopHeader
                 TopHeader.PeriodText = data.ActivePeriod ?? "-";
                 
                 CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
@@ -38,12 +37,12 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                await DisplayAlert("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+                await this.DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
     }
 
@@ -54,44 +53,39 @@ public partial class MainPage : ContentPage
 
     private async void OnInputJournalClicked(object? sender, EventArgs e)
     {
-        // Navigasi ke halaman input jurnal
         await Navigation.PushAsync(new InputJournalPage());
     }
 
     /// <summary>
-    /// Contoh Method Helper yang dipanggil setelah pengguna selesai menginput jurnal baru 
-    /// untuk menjalankan antrean sync 10 detik via TopHeader.
+    /// Dipanggil dari InputJournalPage untuk memproses antrean sync 10 detik.
     /// </summary>
-    public async Task ProcessNewJournalEntryAsync(JournalEntryModel newEntry)
+    public async Task ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
-        // 1. Simpan sementara ke penyimpanan/list lokal (jika ada)
-        SaveToLocalMemory(newEntry);
+        SaveToLocalMemory(transactionDto);
 
-        // 2. Kirim ke antrean TopBar (Queue 10 detik dengan warna Orange Ketela)
         await TopHeader.QueueAndUploadDataAsync(
-            data: newEntry,
-            uploadTask: async (entry) =>
+            data: transactionDto,
+            uploadTask: async (dto) =>
             {
-                // Panggil ApiService untuk simpan ke database Neon/PostgreSQL
-                return await _apiService.SaveJournalEntryAsync(entry);
+                // Memanggil PostSimpleTransactionAsync sesuai dengan yang ada di ApiService.cs
+                var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
+                return success;
             },
-            onDeleteLocalData: (entry) =>
+            onDeleteLocalData: (dto) =>
             {
-                // Callback jika gagal upload: Hapus data otomatis dari memori lokal
-                RemoveFromLocalMemory(entry);
+                RemoveFromLocalMemory(dto);
             }
         );
 
-        // 3. Refresh dashboard jika sync berhasil
         await LoadDashboardDataAsync();
     }
 
-    private void SaveToLocalMemory(JournalEntryModel entry)
+    private void SaveToLocalMemory(CreateSimpleTransactionDto dto)
     {
         // Logika simpan sementara ke SQLite / List Lokal
     }
 
-    private void RemoveFromLocalMemory(JournalEntryModel entry)
+    private void RemoveFromLocalMemory(CreateSimpleTransactionDto dto)
     {
         // Logika hapus otomatis dari SQLite / List Lokal saat gagal upload
     }
