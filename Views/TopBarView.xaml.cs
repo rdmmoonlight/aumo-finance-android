@@ -43,6 +43,7 @@ public partial class TopBarView : ContentView
             SyncBadge.Stroke = _orangeKetela;
 
             // 2. Countdown Queue 10 Detik
+            SyncIcon.Text = "🕓"; // menunggu di antrean
             for (int i = 10; i > 0; i--)
             {
                 if (token.IsCancellationRequested) return;
@@ -53,6 +54,7 @@ public partial class TopBarView : ContentView
             }
 
             // 3. Status Berubah Jadi Syncing
+            SyncIcon.Text = "☁️"; // sedang mengunggah
             SyncLabel.Text = "Uploading...";
             await SyncIcon.RotateToAsync(360, 800, Easing.Linear);
 
@@ -64,6 +66,7 @@ public partial class TopBarView : ContentView
                 // Sukses: Ubah warna jadi hijau sejenak lalu sembunyikan
                 SyncBadge.BackgroundColor = _greenSuccess;
                 SyncBadge.Stroke = _greenSuccess;
+                SyncIcon.Text = "✅"; // berhasil tersinkron
                 SyncLabel.Text = "Synced!";
                 await Task.Delay(2000);
             }
@@ -89,6 +92,7 @@ public partial class TopBarView : ContentView
                 SyncBadge.IsVisible = false;
                 SyncBadge.BackgroundColor = _darkBg;
                 SyncIcon.Rotation = 0;
+                SyncIcon.Text = "🔄";
             }
         }
     }

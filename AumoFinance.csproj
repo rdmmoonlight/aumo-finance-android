@@ -28,6 +28,12 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
+	<!-- Build Release: kurangi ukuran APK lewat trimming + Android link mode -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' AND $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<PublishTrimmed>true</PublishTrimmed>
+		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" 

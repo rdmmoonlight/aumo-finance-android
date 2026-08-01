@@ -56,7 +56,8 @@
             </Border>
 
             <!-- Field Nominal -->
-            <Border BackgroundColor="#1E293B"
+            <Border x:Name="AmountFieldBorder"
+                    BackgroundColor="#1E293B"
                     Stroke="#334155"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 12"
@@ -67,14 +68,27 @@
                            TextColor="#F87171" 
                            FontSize="11" 
                            FontAttributes="Bold" />
-                    <Entry x:Name="AmountEntry"
-                           Placeholder="0"
-                           PlaceholderColor="#64748B"
-                           Keyboard="Numeric"
-                           TextChanged="OnAmountTextChanged"
-                           TextColor="White"
-                           FontSize="20"
-                           FontAttributes="Bold" />
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Label Text="Rp"
+                               TextColor="#94A3B8"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center" />
+                        <Entry x:Name="AmountEntry"
+                               Placeholder="0"
+                               PlaceholderColor="#64748B"
+                               Keyboard="Numeric"
+                               TextChanged="OnAmountTextChanged"
+                               TextColor="White"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalOptions="FillAndExpand" />
+                    </HorizontalStackLayout>
+                    <Label x:Name="AmountValidationLabel"
+                           Text="Nominal harus lebih besar dari 0"
+                           TextColor="#F87171"
+                           FontSize="10"
+                           IsVisible="False" />
                 </VerticalStackLayout>
             </Border>
 

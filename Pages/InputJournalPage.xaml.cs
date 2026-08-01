@@ -102,6 +102,19 @@ public partial class InputJournalPage : ContentPage
         {
             _isFormatting = false;
         }
+
+        UpdateAmountValidationState();
+    }
+
+    private static readonly Color _validBorderColor = Color.FromArgb("#334155");
+    private static readonly Color _invalidBorderColor = Color.FromArgb("#F87171");
+
+    private void UpdateAmountValidationState()
+    {
+        bool isInvalid = CleanAndParseDecimal(AmountEntry.Text) <= 0 && !string.IsNullOrEmpty(AmountEntry.Text);
+
+        AmountFieldBorder.Stroke = isInvalid ? _invalidBorderColor : _validBorderColor;
+        AmountValidationLabel.IsVisible = isInvalid;
     }
 
     private async void OnSaveClicked(object? sender, EventArgs e)
@@ -109,6 +122,8 @@ public partial class InputJournalPage : ContentPage
         decimal amount = CleanAndParseDecimal(AmountEntry.Text);
         if (amount <= 0)
         {
+            AmountFieldBorder.Stroke = _invalidBorderColor;
+            AmountValidationLabel.IsVisible = true;
             await this.DisplayAlertAsync("Peringatan", "Isikan nominal transaksi yang valid.", "OK");
             return;
         }

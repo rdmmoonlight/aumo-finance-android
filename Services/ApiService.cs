@@ -19,7 +19,24 @@ public class ApiService
     // admin/owner database.
     private const string ConnectionString = "__NEON_CONNECTION_STRING__";
 
-    private static NpgsqlConnection CreateConnection() => new(ConnectionString);
+    // NpgsqlDataSource mengelola connection pool secara internal dan dibuat
+    // SEKALI untuk seluruh siklus hidup ApiService (didaftarkan sebagai
+    // singleton di MauiProgram.cs). Ini menghindari overhead membuka koneksi
+    // baru dari nol di setiap panggilan seperti sebelumnya.
+    private readonly NpgsqlDataSource _dataSource = NpgsqlDataSource.Create(ConnectionString);
+
+    private NpgsqlConnection CreateConnection() => _dataSource.CreateConnection();
+
+    // Menerjemahkan exception koneksi/database menjadi pesan yang lebih
+    // spesifik untuk pengguna, daripada catch generik yang menelan semua error.
+    private static string DescribeException(Exception ex) => ex switch
+    {
+        NpgsqlException { InnerException: TimeoutException } => "Koneksi ke server database timeout.",
+        NpgsqlException npgEx when npgEx.IsTransient => "Server database sedang tidak dapat dijangkau, coba lagi.",
+        Npgsql.PostgresException pgEx => $"Database menolak permintaan: {pgEx.MessageText}",
+        TimeoutException => "Koneksi ke server database timeout.",
+        _ => $"Terjadi kesalahan: {ex.Message}"
+    };
 
     // Dashboard: baca dari tabel utama (JournalEntries) yang SUDAH
     // terverifikasi. Entri mobile yang masih Pending tidak memengaruhi
@@ -99,8 +116,9 @@ public class ApiService
                 ActivePeriod = activePeriod
             };
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"GetDashboardAsync gagal: {DescribeException(ex)}");
             return null;
         }
     }
@@ -128,9 +146,10 @@ public class ApiService
                 });
             }
         }
-        catch
+        catch (Exception ex)
         {
             // dikembalikan kosong; halaman pemanggil menampilkan pesan gagal koneksi
+            System.Diagnostics.Debug.WriteLine($"GetAccountsAsync gagal: {DescribeException(ex)}");
         }
 
         return result;
@@ -192,7 +211,7 @@ public class ApiService
         }
         catch (Exception ex)
         {
-            return (false, $"Error koneksi: {ex.Message}");
+            return (false, DescribeException(ex));
         }
     }
 
@@ -230,7 +249,7 @@ public class ApiService
         }
         catch (Exception ex)
         {
-            return (false, $"Error koneksi: {ex.Message}");
+            return (false, DescribeException(ex));
         }
     }
 }
