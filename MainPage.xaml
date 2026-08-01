@@ -32,8 +32,7 @@
 
                     <VerticalStackLayout Spacing="6">
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="💰" FontSize="16" />
-                            <Label Text="KAS SAAT INI"
+                            <Label Text="Saldo Kas Dan Bank"
                                    TextColor="#E0E7FF"
                                    FontSize="12"
                                    FontAttributes="Bold"
@@ -86,8 +85,7 @@
                             Padding="14">
                         <VerticalStackLayout Spacing="6">
                             <HorizontalStackLayout Spacing="6">
-                                <Label Text="🤑" FontSize="12" />
-                                <Label Text="PENDAPATAN"
+                                <Label Text="Pendapatan"
                                        TextColor="#94A3B8"
                                        FontSize="10"
                                        FontAttributes="Bold" />
@@ -109,8 +107,7 @@
                             Padding="14">
                         <VerticalStackLayout Spacing="6">
                             <HorizontalStackLayout Spacing="6">
-                                <Label Text="💸" FontSize="12" />
-                                <Label Text="BEBAN"
+                                <Label Text="Beban"
                                        TextColor="#94A3B8"
                                        FontSize="10"
                                        FontAttributes="Bold" />
