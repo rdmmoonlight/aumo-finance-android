@@ -63,6 +63,7 @@ public partial class InputJournalPage : ContentPage
             return;
         }
 
+        // DTO disesuaikan persis dengan properti CreateSimpleTransactionDto
         var transactionDto = new CreateSimpleTransactionDto
         {
             EntryDate = DateTime.Today,
@@ -75,7 +76,7 @@ public partial class InputJournalPage : ContentPage
         {
             await Navigation.PopAsync();
             
-            // Panggil method ProcessNewTransactionAsync
+            // Panggil method ProcessNewTransactionAsync di MainPage
             _ = mainPage.ProcessNewTransactionAsync(transactionDto);
         }
         else
