@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Views.TopBarView">
 
-    <Grid ColumnDefinitions="*, Auto" 
+    <Grid ColumnDefinitions="*, 120" 
           Padding="20,14" 
           BackgroundColor="#0F172A">
 
@@ -21,6 +21,7 @@
         <!-- Indikator Sync DB (Queue / Uploading) -->
         <Border Grid.Column="1"
                 x:Name="SyncBadge"
+                HorizontalOptions="End"
                 StrokeShape="RoundRectangle 10"
                 BackgroundColor="#1E293B"
                 Stroke="#334155"
