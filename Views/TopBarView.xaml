@@ -26,22 +26,16 @@
                 BackgroundColor="#1E293B"
                 Stroke="#334155"
                 StrokeThickness="1"
-                Padding="8,4"
-                IsVisible="False"
+                Padding="10,5"
                 VerticalOptions="Center">
 
-            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
-                <Label x:Name="SyncIcon"
-                       Text="🔄"
-                       FontSize="10"
-                       VerticalOptions="Center" />
-                <Label x:Name="SyncLabel"
-                       Text="0s"
-                       FontSize="12"
-                       FontAttributes="Bold"
-                       TextColor="White"
-                       VerticalOptions="Center" />
-            </HorizontalStackLayout>
+            <Label x:Name="SyncLabel"
+                   Text="Siap"
+                   FontSize="12"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
         </Border>
     </Grid>
 

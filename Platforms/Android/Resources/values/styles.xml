@@ -2,10 +2,13 @@
 <resources>
     <!-- Main Theme MAUI -->
     <style name="Maui.MainTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Menyembunyikan Status Bar agar Splash Full Screen -->
-        <item name="android:windowFullscreen">true</item>
+        <!-- Status bar (jam, baterai, sinyal) tetap terlihat -->
+        <item name="android:windowFullscreen">false</item>
         <!-- Memastikan background splash menutupi layar sampai area notch Oppo A12 -->
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <!-- Status bar gelap selaras dengan tema app -->
+        <item name="android:statusBarColor">#0F172A</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>
