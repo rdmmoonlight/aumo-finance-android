@@ -5,7 +5,7 @@
         <!-- Menyembunyikan Status Bar agar Splash Full Screen -->
         <item name="android:windowFullscreen">true</item>
         <!-- Memastikan background splash menutupi layar sampai area notch Oppo A12 -->
-        <item name="android:windowBackground">@color/maui_splash_color</item>
+        <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 </resources>
