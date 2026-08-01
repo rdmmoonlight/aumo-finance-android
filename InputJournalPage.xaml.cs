@@ -1,109 +1,120 @@
 using System.Globalization;
 using AumoFinance.Models;
-using AumoFinance.Services;
 
 namespace AumoFinance;
 
 public partial class InputJournalPage : ContentPage
 {
-    private readonly ApiService _apiService = new();
-    private string _selectedType = "Income";
-
-    private static readonly Color SelectedColor = Color.FromArgb("#22C55E");
-    private static readonly Color UnselectedColor = Color.FromArgb("#334155");
+    private bool _isFormatting = false;
+    private readonly CultureInfo _idrCulture = new("id-ID");
 
     public InputJournalPage()
     {
         InitializeComponent();
-        UpdateToggleUi();
     }
 
-    private void OnIncomeSelected(object? sender, EventArgs e)
+    /// <summary>
+    /// Event handler aman anti-crash untuk format ribuan otomatis saat mengetik.
+    /// </summary>
+    private void OnAmountTextChanged(object sender, TextChangedEventArgs e)
     {
-        _selectedType = "Income";
-        UpdateToggleUi();
-    }
+        // Mencegah infinite loop saat nilai Entry diubah dari kode
+        if (_isFormatting || sender is not Entry entry) return;
 
-    private void OnExpenseSelected(object? sender, EventArgs e)
-    {
-        _selectedType = "Expense";
-        UpdateToggleUi();
-    }
+        _isFormatting = true;
 
-    private void UpdateToggleUi()
-    {
-        bool isIncome = _selectedType == "Income";
-        IncomeButton.BackgroundColor = isIncome ? SelectedColor : UnselectedColor;
-        ExpenseButton.BackgroundColor = !isIncome ? Color.FromArgb("#EF4444") : UnselectedColor;
-    }
-
-    private void OnAmountTextChanged(object? sender, TextChangedEventArgs e)
-    {
-        if (sender is not Entry entry) return;
-
-        // Lepas event handler agar tidak looping
-        entry.TextChanged -= OnAmountTextChanged;
-
-        // Ambil hanya digit angka
-        string rawInput = new string(e.NewTextValue?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
-
-        if (ulong.TryParse(rawInput, out ulong amount))
+        try
         {
-            var cultureInfo = new CultureInfo("id-ID");
-            string formattedText = amount.ToString("N0", cultureInfo);
+            // 1. Ekstrak hanya karakter angka murni
+            string rawText = new string((e.NewTextValue ?? string.Empty).Where(char.IsDigit).ToArray());
 
-            // Update text
-            entry.Text = formattedText;
-
-            // Mencegah OutOfRange Crash: Posisikan kursor aman di ujung teks
-            if (entry.Text != null)
+            if (string.IsNullOrEmpty(rawText))
             {
-                entry.CursorPosition = Math.Min(formattedText.Length, entry.Text.Length);
+                entry.Text = string.Empty;
+                return;
+            }
+
+            // 2. Parse nilai angka
+            if (decimal.TryParse(rawText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
+            {
+                // 3. Format dengan titik pemisah ribuan (tanpa simbol Rp)
+                entry.Text = string.Format(_idrCulture, "{0:N0}", value);
+
+                // Set posisi kursor tetap di paling akhir
+                entry.CursorPosition = entry.Text.Length;
             }
         }
-        else
+        catch (Exception ex)
         {
-            entry.Text = string.Empty;
+            System.Diagnostics.Debug.WriteLine($"Format Error: {ex.Message}");
         }
-
-        // Pasang kembali event handler
-        entry.TextChanged += OnAmountTextChanged;
-    }
-
-    private decimal GetParsedAmount()
-    {
-        string rawText = new string(AmountEntry.Text?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
-        return decimal.TryParse(rawText, out decimal result) ? result : 0m;
-    }
-
-    private async void OnSaveJournalClicked(object? sender, EventArgs e)
-    {
-        decimal amount = GetParsedAmount();
-
-        if (amount <= 0)
+        finally
         {
-            await DisplayAlert("Peringatan", "Nominal harus lebih besar dari 0.", "OK");
+            _isFormatting = false;
+        }
+    }
+
+    private async void OnSaveClicked(object sender, EventArgs e)
+    {
+        // Validasi Keterangan
+        string description = DescriptionEntry.Text?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            await DisplayAlert("Peringatan", "Keterangan transaksi tidak boleh kosong.", "OK");
             return;
         }
 
-        var dto = new CreateSimpleTransactionDto
+        // Ambil nominal angka secara aman
+        decimal debitValue = CleanAndParseDecimal(DebitEntry.Text);
+        decimal creditValue = CleanAndParseDecimal(CreditEntry.Text);
+
+        if (debitValue <= 0 && creditValue <= 0)
         {
-            EntryDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today),
-            Type = _selectedType,
-            Amount = amount,
-            Note = string.IsNullOrWhiteSpace(NoteEntry.Text) ? null : NoteEntry.Text
+            await DisplayAlert("Peringatan", "Isikan setidaknya nominal Debit atau Kredit.", "OK");
+            return;
+        }
+
+        // Buat Model Data Jurnal
+        var newEntry = new JournalEntryModel
+        {
+            Id = Guid.NewGuid(),
+            Description = description,
+            Debit = debitValue,
+            Credit = creditValue,
+            CreatedAt = DateTime.UtcNow
         };
 
-        var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
-
-        if (success)
+        // Kembali ke halaman utama & eksekusi antrean Sync 10 Detik
+        if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
         {
-            await DisplayAlert("Sukses", message, "OK");
             await Navigation.PopAsync();
+            
+            // Panggil antrean sync di MainPage via TopBarView
+            _ = mainPage.ProcessNewJournalEntryAsync(newEntry);
         }
         else
         {
-            await DisplayAlert("Gagal", message, "OK");
+            await Navigation.PopAsync();
         }
+    }
+
+    private async void OnCancelClicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
+
+    /// <summary>
+    /// Helper method untuk membersihkan string format ribuan menjadi tipe decimal murni.
+    /// </summary>
+    private static decimal CleanAndParseDecimal(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return 0m;
+
+        // Ambil karakter digit saja
+        string cleanText = new string(input.Where(char.IsDigit).ToArray());
+
+        return decimal.TryParse(cleanText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result)
+            ? result
+            : 0m;
     }
 }
