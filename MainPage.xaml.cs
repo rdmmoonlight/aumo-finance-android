@@ -27,7 +27,9 @@ public partial class MainPage : ContentPage
 
             if (data != null)
             {
-                PeriodLabel.Text = $"Periode: {data.ActivePeriod}";
+                // Update label periode melalui komponen TopHeader
+                TopHeader.PeriodText = data.ActivePeriod ?? "-";
+                
                 CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
                 NetIncomeLabel.Text = data.NetIncome.ToString("C0", _idrCulture);
                 RevenueLabel.Text = data.Revenue.ToString("C0", _idrCulture);
@@ -51,7 +53,45 @@ public partial class MainPage : ContentPage
 
     private async void OnInputJournalClicked(object? sender, EventArgs e)
     {
-        // Navigasi instan ke Halaman Input Jurnal
+        // Navigasi ke halaman input jurnal
         await Navigation.PushAsync(new InputJournalPage());
+    }
+
+    /// <summary>
+    /// Contoh Method Helper yang dipanggil setelah pengguna selesai menginput jurnal baru 
+    /// untuk menjalankan antrean sync 10 detik via TopHeader.
+    /// </summary>
+    public async Task ProcessNewJournalEntryAsync(JournalEntryModel newEntry)
+    {
+        // 1. Simpan sementara ke penyimpanan/list lokal (jika ada)
+        SaveToLocalMemory(newEntry);
+
+        // 2. Kirim ke antrean TopBar (Queue 10 detik dengan warna Orange Ketela)
+        await TopHeader.QueueAndUploadDataAsync(
+            data: newEntry,
+            uploadTask: async (entry) =>
+            {
+                // Panggil ApiService untuk simpan ke database Neon/PostgreSQL
+                return await _apiService.SaveJournalEntryAsync(entry);
+            },
+            onDeleteLocalData: (entry) =>
+            {
+                // Callback jika gagal upload: Hapus data otomatis dari memori lokal
+                RemoveFromLocalMemory(entry);
+            }
+        );
+
+        // 3. Refresh dashboard jika sync berhasil
+        await LoadDashboardDataAsync();
+    }
+
+    private void SaveToLocalMemory(JournalEntryModel entry)
+    {
+        // Logika simpan sementara ke SQLite / List Lokal
+    }
+
+    private void RemoveFromLocalMemory(JournalEntryModel entry)
+    {
+        // Logika hapus otomatis dari SQLite / List Lokal saat gagal upload
     }
 }
