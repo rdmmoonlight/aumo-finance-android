@@ -18,7 +18,8 @@ public class ApiService
     // ChartOfAccounts/JournalEntries/Periods untuk dashboard), jangan role
     // admin/owner database.
     private const string ConnectionString =
-        "Host=<project>.neon.tech;Port=5432;Database=<db>;Username=<user>;Password=<password>;SSL Mode=Require;Trust Server Certificate=true";
+        "Host=ep-wandering-bread-ao1sazxn-pooler.c-2.ap-southeast-1.aws.neon.tech;Port=5432;Database=neondb;Username=neondb_mobile;Password=npg_exhf4N9TaStH;SSL Mode=Require;Trust Server Certificate=true
+";
 
     private static NpgsqlConnection CreateConnection() => new(ConnectionString);
 
