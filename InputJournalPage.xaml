@@ -2,134 +2,96 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.InputJournalPage"
-             Title="Transaksi Baru"
+             Title="Input Jurnal"
              BackgroundColor="#0F172A">
 
     <ScrollView Padding="20">
-        <VerticalStackLayout Spacing="20">
+        <VerticalStackLayout Spacing="16">
 
-            <!-- Header Title -->
-            <VerticalStackLayout Spacing="4" Margin="0,0,0,8">
-                <Label Text="✏️ Transaksi Baru" 
-                       FontSize="22" 
-                       FontAttributes="Bold" 
-                       TextColor="White" />
-                <Label Text="Catat arus kas masuk atau keluar dengan presisi" 
-                       FontSize="13" 
-                       TextColor="#94A3B8" />
-            </VerticalStackLayout>
+            <!-- Title Header -->
+            <Label Text="Form Transaksi Baru" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   TextColor="White" />
 
-            <!-- Toggle Pemasukan / Pengeluaran (Segmented Control Style) -->
-            <Border BackgroundColor="#1E293B" 
-                    Stroke="#334155" 
-                    StrokeThickness="1" 
-                    StrokeShape="RoundRectangle 16" 
-                    Padding="6">
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="6">
-                    <Button x:Name="IncomeButton"
-                            Grid.Column="0"
-                            Text="📈 Pemasukan"
-                            Clicked="OnIncomeSelected"
-                            BackgroundColor="#10B981"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="14"
-                            CornerRadius="12"
-                            HeightRequest="46" />
-
-                    <Button x:Name="ExpenseButton"
-                            Grid.Column="1"
-                            Text="📉 Pengeluaran"
-                            Clicked="OnExpenseSelected"
-                            BackgroundColor="Transparent"
-                            TextColor="#94A3B8"
-                            FontAttributes="Bold"
-                            FontSize="14"
-                            CornerRadius="12"
-                            HeightRequest="46" />
-                </Grid>
-            </Border>
-
-            <!-- Form Inputs Container -->
-            <Border BackgroundColor="#1E293B" 
-                    Stroke="#334155" 
-                    StrokeThickness="1" 
-                    StrokeShape="RoundRectangle 18" 
-                    Padding="16">
-                <Border.Shadow>
-                    <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
-                </Border.Shadow>
-
-                <VerticalStackLayout Spacing="16">
-
-                    <!-- Field: Tanggal -->
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="📅 Tanggal Transaksi" TextColor="#94A3B8" FontSize="12" FontAttributes="Bold" />
-                        <Border BackgroundColor="#0F172A"
-                                Stroke="#334155"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10"
-                                Padding="12,2">
-                            <DatePicker x:Name="EntryDatePicker" 
-                                        TextColor="White" 
-                                        Format="dd/MM/yyyy" 
-                                        MinimumHeightRequest="40" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Field: Nominal -->
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="💵 Nominal (Rp)" TextColor="#94A3B8" FontSize="12" FontAttributes="Bold" />
-                        <Border BackgroundColor="#0F172A"
-                                Stroke="#334155"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10"
-                                Padding="12,0">
-                            <Entry x:Name="AmountEntry" 
-                                   Placeholder="0" 
-                                   Keyboard="Numeric" 
-                                   TextColor="#38BDF8" 
-                                   PlaceholderColor="#64748B"
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   MinimumHeightRequest="46"
-                                   TextChanged="OnAmountTextChanged" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!-- Field: Catatan -->
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="📝 Catatan (Opsional)" TextColor="#94A3B8" FontSize="12" FontAttributes="Bold" />
-                        <Border BackgroundColor="#0F172A"
-                                Stroke="#334155"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10"
-                                Padding="12,0">
-                            <Entry x:Name="NoteEntry" 
-                                   Placeholder="mis. Penjualan produk A / Beban listrik" 
-                                   TextColor="White" 
-                                   PlaceholderColor="#64748B"
-                                   MinimumHeightRequest="46" />
-                        </Border>
-                    </VerticalStackLayout>
-
+            <!-- Field Keterangan -->
+            <Border BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="12,4">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Keterangan / Memot" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" />
+                    <Entry x:Name="DescriptionEntry"
+                           Placeholder="Contoh: Pembelian ATK Kantor"
+                           PlaceholderColor="#64748B"
+                           TextColor="White"
+                           FontSize="14" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Save Button (Primary CTA) -->
-            <Button Text="💾 Simpan Transaksi"
-                    Clicked="OnSaveJournalClicked"
-                    BackgroundColor="#10B981"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    FontSize="15"
-                    CornerRadius="14"
-                    HeightRequest="52"
-                    Margin="0,8,0,0">
-                <Button.Shadow>
-                    <Shadow Brush="#10B981" Offset="0,4" Radius="8" Opacity="0.3" />
-                </Button.Shadow>
-            </Button>
+            <!-- Field Debit -->
+            <Border BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="12,4">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Nominal Debit (Rp)" TextColor="#38BDF8" FontSize="11" FontAttributes="Bold" />
+                    <Entry x:Name="DebitEntry"
+                           Placeholder="0"
+                           PlaceholderColor="#64748B"
+                           Keyboard="Numeric"
+                           TextChanged="OnAmountTextChanged"
+                           TextColor="White"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Field Kredit -->
+            <Border BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="12,4">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Nominal Kredit (Rp)" TextColor="#F87171" FontSize="11" FontAttributes="Bold" />
+                    <Entry x:Name="CreditEntry"
+                           Placeholder="0"
+                           PlaceholderColor="#64748B"
+                           Keyboard="Numeric"
+                           TextChanged="OnAmountTextChanged"
+                           TextColor="White"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Action Buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,12,0,0">
+                <!-- Batal -->
+                <Button Grid.Column="0"
+                        Text="Batal"
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="#1E293B"
+                        BorderColor="#334155"
+                        BorderWidth="1"
+                        TextColor="#94A3B8"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="50" />
+
+                <!-- Simpan -->
+                <Button Grid.Column="1"
+                        Text="Simpan Data"
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="#10B981"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="50" />
+            </Grid>
 
         </VerticalStackLayout>
     </ScrollView>
