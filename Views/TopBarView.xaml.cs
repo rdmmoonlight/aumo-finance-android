@@ -33,10 +33,6 @@ public partial class TopBarView : ContentView
     /// <summary>
     /// Memulai antrean sync 10 detik sebelum mengunggah data ke Database.
     /// </summary>
-    /// <typeparam name="T">Tipe data yang di-upload</typeparam>
-    /// <param name="data">Object data jurnal/transaksi</param>
-    /// <param name="uploadTask">Fungsi async untuk mengunggah ke DB (harus return bool)</param>
-    /// <param name="onDeleteLocalData">Action untuk menghapus data lokal jika gagal</param>
     public async Task QueueAndUploadDataAsync<T>(
         T data, 
         Func<T, Task<bool>> uploadTask, 
@@ -66,7 +62,7 @@ public partial class TopBarView : ContentView
 
             // 3. Status Berubah Jadi Syncing
             SyncLabel.Text = "Uploading...";
-await SyncIcon.RotateToAsync(360, 800, Easing.Linear);
+            await SyncIcon.RotateToAsync(360, 800, Easing.Linear);
 
             // 4. Eksekusi Upload ke DB Neon/PostgreSQL
             bool isSuccess = await uploadTask(data);
@@ -104,18 +100,13 @@ await SyncIcon.RotateToAsync(360, 800, Easing.Linear);
         // A. Hapus Data Otomatis dari Storage Lokal/Memory
         onDeleteLocalData(data);
 
-private async Task HandleUploadFailureAsync<T>(T data, Action<T> onDeleteLocalData, string errorMessage)
-{
-    onDeleteLocalData(data);
-
-    // Perbaikan untuk .NET 10: Menggunakan Windows[0].Page dan DisplayAlertAsync
-    if (Application.Current?.Windows.Count > 0 && Application.Current.Windows[0].Page != null)
-    {
-        await Application.Current.Windows[0].Page!.DisplayAlertAsync(
-            "Sync Gagal ❌", 
-            $"Data tidak dapat diunggah ({errorMessage}). Data otomatis dibatalkan & dihapus.", 
-            "OK");
-    }
-}
+        // B. Tampilkan Notifikasi Alert / Pop-up ke User (.NET 10 Compatible)
+        if (Application.Current?.Windows.Count > 0 && Application.Current.Windows[0].Page != null)
+        {
+            await Application.Current.Windows[0].Page!.DisplayAlertAsync(
+                "Sync Gagal ❌", 
+                $"Data tidak dapat diunggah ({errorMessage}). Data otomatis dibatalkan & dihapus demi konsistensi.", 
+                "OK");
+        }
     }
 }
