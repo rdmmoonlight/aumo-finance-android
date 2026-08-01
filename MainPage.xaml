@@ -58,7 +58,7 @@
 
                     <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
                         <VerticalStackLayout Grid.Column="0" Spacing="4">
-                            <Label Text="LABA BERSIH"
+                            <Label Text="Laba Bersih"
                                    TextColor="#94A3B8"
                                    FontSize="11"
                                    FontAttributes="Bold"
@@ -69,7 +69,6 @@
                                    FontAttributes="Bold"
                                    TextColor="#4ADE80" />
                         </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="📈" FontSize="24" VerticalOptions="Center" />
                     </Grid>
                 </Border>
 
