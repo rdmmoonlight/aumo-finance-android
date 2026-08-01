@@ -66,7 +66,7 @@ public partial class TopBarView : ContentView
 
             // 3. Status Berubah Jadi Syncing
             SyncLabel.Text = "Uploading...";
-            SyncIcon.RotateTo(360, 800, Easing.Linear);
+await SyncIcon.RotateToAsync(360, 800, Easing.Linear);
 
             // 4. Eksekusi Upload ke DB Neon/PostgreSQL
             bool isSuccess = await uploadTask(data);
