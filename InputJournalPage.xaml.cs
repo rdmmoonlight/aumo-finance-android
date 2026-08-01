@@ -41,34 +41,38 @@ public partial class InputJournalPage : ContentPage
     {
         if (sender is not Entry entry) return;
 
-        // Unsubscribe temporary to prevent recursive calls
+        // Lepas event handler agar tidak looping
         entry.TextChanged -= OnAmountTextChanged;
 
         // Ambil hanya digit angka
-        string rawInput = new string(e.NewTextValue?.Where(char.IsDigit).ToArray());
+        string rawInput = new string(e.NewTextValue?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
 
         if (ulong.TryParse(rawInput, out ulong amount))
         {
-            // Format menggunakan kultur Indonesia (pemisah ribuan titik)
             var cultureInfo = new CultureInfo("id-ID");
             string formattedText = amount.ToString("N0", cultureInfo);
 
+            // Update text
             entry.Text = formattedText;
-            entry.CursorPosition = formattedText.Length;
+
+            // Mencegah OutOfRange Crash: Posisikan kursor aman di ujung teks
+            if (entry.Text != null)
+            {
+                entry.CursorPosition = Math.Min(formattedText.Length, entry.Text.Length);
+            }
         }
         else
         {
             entry.Text = string.Empty;
         }
 
-        // Subscribe kembali
+        // Pasang kembali event handler
         entry.TextChanged += OnAmountTextChanged;
     }
 
     private decimal GetParsedAmount()
     {
-        // Bersihkan tanda titik pemisah ribuan sebelum parsing ke decimal
-        string rawText = new string(AmountEntry.Text?.Where(char.IsDigit).ToArray());
+        string rawText = new string(AmountEntry.Text?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
         return decimal.TryParse(rawText, out decimal result) ? result : 0m;
     }
 
