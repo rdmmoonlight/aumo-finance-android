@@ -2,7 +2,7 @@ using System.Globalization;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
-namespace AumoFinance;
+namespace AumoFinance.Pages;
 
 public partial class MainPage : ContentPage
 {
