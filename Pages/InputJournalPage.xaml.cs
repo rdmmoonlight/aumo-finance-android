@@ -5,7 +5,6 @@ namespace AumoFinance.Pages;
 
 public partial class InputJournalPage : ContentPage
 {
-    private bool _isFormatting = false;
     private string _selectedType = "Expense"; // Default Pengeluaran
     private readonly CultureInfo _idrCulture = new("id-ID");
 
@@ -53,47 +52,42 @@ public partial class InputJournalPage : ContentPage
 
     private void OnAmountTextChanged(object? sender, TextChangedEventArgs e)
     {
-        if (_isFormatting || sender is not Entry entry) return;
+        // Tidak lagi mengubah entry.Text di sini sama sekali.
+        // Mengganti Text di tengah TextChanged adalah sumber crash native Android
+        // yang sesungguhnya (bukan hanya soal CursorPosition) -- pada beberapa
+        // perangkat (Oppo/Xiaomi tertentu), mengganti isi EditText saat karakter
+        // baru sedang diproses oleh native input connection tetap bisa memicu
+        // exception, terlepas dari CursorPosition. Solusi paling aman: biarkan
+        // pengguna mengetik angka mentah tanpa gangguan; hanya validasi di sini.
+        UpdateAmountValidationState();
+    }
 
-        _isFormatting = true;
+    private void OnAmountFocused(object? sender, FocusEventArgs e)
+    {
+        if (sender is not Entry entry) return;
 
-        try
+        // Saat difokuskan, tampilkan angka mentah (tanpa pemisah ribuan)
+        // supaya pengguna bisa mengedit dengan bebas tanpa risiko native crash.
+        string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
+        entry.Text = rawText;
+    }
+
+    private void OnAmountUnfocused(object? sender, FocusEventArgs e)
+    {
+        if (sender is not Entry entry) return;
+
+        // Format ke pemisah ribuan HANYA setelah fokus lepas dari field ini.
+        // Di titik ini native EditText sudah selesai memproses input, sehingga
+        // aman mengganti Text tanpa memicu crash.
+        string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
+
+        if (string.IsNullOrEmpty(rawText))
         {
-            string rawText = new string((e.NewTextValue ?? string.Empty).Where(char.IsDigit).ToArray());
-
-            if (string.IsNullOrEmpty(rawText))
-            {
-                entry.Text = string.Empty;
-                return;
-            }
-
-            if (decimal.TryParse(rawText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
-            {
-                string formatted = string.Format(_idrCulture, "{0:N0}", value);
-
-                // Hanya update jika benar-benar berbeda, untuk menghindari
-                // TextChanged berulang tanpa perlu.
-                if (entry.Text != formatted)
-                {
-                    entry.Text = formatted;
-                }
-
-                // CATATAN PENTING: JANGAN set entry.CursorPosition di sini.
-                // Root cause crash saat nominal menyentuh ribuan (mis. 999 -> 1.000):
-                // panjang teks berubah karena pemisah ribuan baru muncul, lalu kode
-                // lama mencoba mengatur CursorPosition sebelum native EditText
-                // Android sempat sinkron dengan teks barunya -> native exception,
-                // aplikasi force-close (terutama di Oppo/Xiaomi tertentu).
-                // Biarkan cursor mengikuti posisi alami dari native control.
-            }
+            entry.Text = string.Empty;
         }
-        catch (Exception ex)
+        else if (decimal.TryParse(rawText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
         {
-            System.Diagnostics.Debug.WriteLine($"Format Error: {ex.Message}");
-        }
-        finally
-        {
-            _isFormatting = false;
+            entry.Text = string.Format(_idrCulture, "{0:N0}", value);
         }
 
         UpdateAmountValidationState();
