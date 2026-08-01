@@ -104,13 +104,18 @@ await SyncIcon.RotateToAsync(360, 800, Easing.Linear);
         // A. Hapus Data Otomatis dari Storage Lokal/Memory
         onDeleteLocalData(data);
 
-        // B. Tampilkan Notifikasi Alert / Pop-up ke User
-        if (Application.Current?.MainPage != null)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Sync Gagal ❌", 
-                $"Data tidak dapat diunggah ({errorMessage}). Data otomatis dibatalkan & dihapus demi konsistensi.", 
-                "OK");
-        }
+private async Task HandleUploadFailureAsync<T>(T data, Action<T> onDeleteLocalData, string errorMessage)
+{
+    onDeleteLocalData(data);
+
+    // Perbaikan untuk .NET 10: Menggunakan Windows[0].Page dan DisplayAlertAsync
+    if (Application.Current?.Windows.Count > 0 && Application.Current.Windows[0].Page != null)
+    {
+        await Application.Current.Windows[0].Page!.DisplayAlertAsync(
+            "Sync Gagal ❌", 
+            $"Data tidak dapat diunggah ({errorMessage}). Data otomatis dibatalkan & dihapus.", 
+            "OK");
+    }
+}
     }
 }
