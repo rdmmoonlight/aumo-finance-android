@@ -42,6 +42,26 @@ jobs:
     - name: Install Workloads
       run: dotnet workload install maui-android
 
+    # --- Bagian baru: inject connection string ---
+    - name: Inject Connection String
+      shell: pwsh
+      env:
+        NEON_CONNECTION_STRING: ${{ secrets.NEON_CONNECTION_STRING }}
+      run: |
+        $file = "Services/ApiService.cs"
+        if (-not (Test-Path $file)) {
+          Write-Error "File $file tidak ditemukan"
+          exit 1
+        }
+        $content = Get-Content $file -Raw
+        if ($content -notmatch "__NEON_CONNECTION_STRING__") {
+          Write-Error "Placeholder __NEON_CONNECTION_STRING__ tidak ditemukan di $file"
+          exit 1
+        }
+        $content = $content -replace "__NEON_CONNECTION_STRING__", $env:NEON_CONNECTION_STRING
+        Set-Content -Path $file -Value $content -NoNewline
+        Write-Host "Connection string berhasil di-inject."
+        
     # 5. Restore Dependencies
     - name: Restore Dependencies
       run: dotnet restore

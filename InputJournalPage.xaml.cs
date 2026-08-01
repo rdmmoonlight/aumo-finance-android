@@ -1,3 +1,4 @@
+using System.Globalization;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
@@ -36,11 +37,48 @@ public partial class InputJournalPage : ContentPage
         ExpenseButton.BackgroundColor = !isIncome ? Color.FromArgb("#EF4444") : UnselectedColor;
     }
 
+    private void OnAmountTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (sender is not Entry entry) return;
+
+        // Unsubscribe temporary to prevent recursive calls
+        entry.TextChanged -= OnAmountTextChanged;
+
+        // Ambil hanya digit angka
+        string rawInput = new string(e.NewTextValue?.Where(char.IsDigit).ToArray());
+
+        if (ulong.TryParse(rawInput, out ulong amount))
+        {
+            // Format menggunakan kultur Indonesia (pemisah ribuan titik)
+            var cultureInfo = new CultureInfo("id-ID");
+            string formattedText = amount.ToString("N0", cultureInfo);
+
+            entry.Text = formattedText;
+            entry.CursorPosition = formattedText.Length;
+        }
+        else
+        {
+            entry.Text = string.Empty;
+        }
+
+        // Subscribe kembali
+        entry.TextChanged += OnAmountTextChanged;
+    }
+
+    private decimal GetParsedAmount()
+    {
+        // Bersihkan tanda titik pemisah ribuan sebelum parsing ke decimal
+        string rawText = new string(AmountEntry.Text?.Where(char.IsDigit).ToArray());
+        return decimal.TryParse(rawText, out decimal result) ? result : 0m;
+    }
+
     private async void OnSaveJournalClicked(object? sender, EventArgs e)
     {
-        if (!decimal.TryParse(AmountEntry.Text, out decimal amount) || amount <= 0)
+        decimal amount = GetParsedAmount();
+
+        if (amount <= 0)
         {
-            await DisplayAlertAsync("Peringatan", "Nominal harus lebih besar dari 0.", "OK");
+            await DisplayAlert("Peringatan", "Nominal harus lebih besar dari 0.", "OK");
             return;
         }
 
@@ -56,12 +94,12 @@ public partial class InputJournalPage : ContentPage
 
         if (success)
         {
-            await DisplayAlertAsync("Sukses", message, "OK");
+            await DisplayAlert("Sukses", message, "OK");
             await Navigation.PopAsync();
         }
         else
         {
-            await DisplayAlertAsync("Gagal", message, "OK");
+            await DisplayAlert("Gagal", message, "OK");
         }
     }
 }

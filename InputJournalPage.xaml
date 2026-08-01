@@ -92,7 +92,8 @@
                                    PlaceholderColor="#64748B"
                                    FontSize="18"
                                    FontAttributes="Bold"
-                                   MinimumHeightRequest="46" />
+                                   MinimumHeightRequest="46"
+                                   TextChanged="OnAmountTextChanged" />
                         </Border>
                     </VerticalStackLayout>
 
