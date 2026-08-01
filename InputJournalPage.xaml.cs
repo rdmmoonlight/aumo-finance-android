@@ -15,8 +15,9 @@ public partial class InputJournalPage : ContentPage
 
     /// <summary>
     /// Event handler aman anti-crash untuk format ribuan otomatis saat mengetik.
+    /// Memperbaiki warning CS8622 dengan menambahkan nullability handler (object? sender).
     /// </summary>
-    private void OnAmountTextChanged(object sender, TextChangedEventArgs e)
+    private void OnAmountTextChanged(object? sender, TextChangedEventArgs e)
     {
         // Mencegah infinite loop saat nilai Entry diubah dari kode
         if (_isFormatting || sender is not Entry entry) return;
@@ -54,13 +55,14 @@ public partial class InputJournalPage : ContentPage
         }
     }
 
-    private async void OnSaveClicked(object sender, EventArgs e)
+    private async void OnSaveClicked(object? sender, EventArgs e)
     {
         // Validasi Keterangan
         string description = DescriptionEntry.Text?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(description))
         {
-            await DisplayAlert("Peringatan", "Keterangan transaksi tidak boleh kosong.", "OK");
+            // Memperbaiki warning CS0618: Menggunakan DisplayAlertAsync untuk .NET 10
+            await this.DisplayAlertAsync("Peringatan", "Keterangan transaksi tidak boleh kosong.", "OK");
             return;
         }
 
@@ -70,18 +72,18 @@ public partial class InputJournalPage : ContentPage
 
         if (debitValue <= 0 && creditValue <= 0)
         {
-            await DisplayAlert("Peringatan", "Isikan setidaknya nominal Debit atau Kredit.", "OK");
+            // Memperbaiki warning CS0618: Menggunakan DisplayAlertAsync untuk .NET 10
+            await this.DisplayAlertAsync("Peringatan", "Isikan setidaknya nominal Debit atau Kredit.", "OK");
             return;
         }
 
-        // Buat Model Data Jurnal
-        var newEntry = new JournalEntryModel
+        // Buat DTO Transaksi Sederhana sesuai spesifikasi ApiService
+        var transactionDto = new CreateSimpleTransactionDto
         {
-            Id = Guid.NewGuid(),
-            Description = description,
-            Debit = debitValue,
-            Credit = creditValue,
-            CreatedAt = DateTime.UtcNow
+            EntryDate = DateTime.Today,
+            Type = debitValue > 0 ? "Expense" : "Income",
+            Amount = debitValue > 0 ? debitValue : creditValue,
+            Note = description
         };
 
         // Kembali ke halaman utama & eksekusi antrean Sync 10 Detik
@@ -90,7 +92,7 @@ public partial class InputJournalPage : ContentPage
             await Navigation.PopAsync();
             
             // Panggil antrean sync di MainPage via TopBarView
-            _ = mainPage.ProcessNewJournalEntryAsync(newEntry);
+            _ = mainPage.ProcessNewTransactionAsync(transactionDto);
         }
         else
         {
@@ -98,7 +100,7 @@ public partial class InputJournalPage : ContentPage
         }
     }
 
-    private async void OnCancelClicked(object sender, EventArgs e)
+    private async void OnCancelClicked(object? sender, EventArgs e)
     {
         await Navigation.PopAsync();
     }

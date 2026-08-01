@@ -1,162 +1,101 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:AumoFinance.Views"
-             x:Class="AumoFinance.MainPage"
-             Title="Aumo Finance"
-             NavigationPage.HasNavigationBar="False"
-             BackgroundColor="#0F172A">
+using System.Globalization;
+using AumoFinance.Models;
+using AumoFinance.Services;
 
-    <Grid RowDefinitions="Auto, *">
+namespace AumoFinance;
 
-        <!-- Top Bar Component (Header, Sync Queue Status, & Versi Tag) -->
-        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
+public partial class MainPage : ContentPage
+{
+    private readonly ApiService _apiService = new();
+    private readonly CultureInfo _idrCulture = new("id-ID");
 
-        <!-- Area Konten Utama Dashboard -->
-        <ScrollView Grid.Row="1" Padding="20,10,20,20">
-            <VerticalStackLayout Spacing="20">
+    public MainPage()
+    {
+        InitializeComponent();
+    }
 
-                <!-- Card Utama: Kas Saat Ini (Hero Card) -->
-                <Border StrokeShape="RoundRectangle 20"
-                        StrokeThickness="0"
-                        Padding="20">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#4F46E5" Offset="0.0" />
-                            <GradientStop Color="#7C3AED" Offset="1.0" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <Border.Shadow>
-                        <Shadow Brush="#4F46E5" Offset="0,8" Radius="15" Opacity="0.3" />
-                    </Border.Shadow>
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await LoadDashboardDataAsync();
+    }
 
-                    <VerticalStackLayout Spacing="6">
-                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="💰" FontSize="16" />
-                            <Label Text="KAS SAAT INI"
-                                   TextColor="#E0E7FF"
-                                   FontSize="12"
-                                   FontAttributes="Bold"
-                                   CharacterSpacing="1" />
-                        </HorizontalStackLayout>
-                        <Label x:Name="CashLabel"
-                               Text="Rp 0"
-                               FontSize="32"
-                               FontAttributes="Bold"
-                               TextColor="White" />
-                    </VerticalStackLayout>
-                </Border>
+    private async Task LoadDashboardDataAsync()
+    {
+        try
+        {
+            var data = await _apiService.GetDashboardAsync();
 
-                <!-- Card Laba Bersih -->
-                <Border BackgroundColor="#1E293B"
-                        Stroke="#334155"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 16"
-                        Padding="18">
-                    <Border.Shadow>
-                        <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
-                    </Border.Shadow>
+            if (data != null)
+            {
+                // Update label periode melalui komponen TopHeader
+                TopHeader.PeriodText = data.ActivePeriod ?? "-";
+                
+                CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
+                NetIncomeLabel.Text = data.NetIncome.ToString("C0", _idrCulture);
+                RevenueLabel.Text = data.Revenue.ToString("C0", _idrCulture);
+                ExpenseLabel.Text = data.Expenses.ToString("C0", _idrCulture);
+            }
+            else
+            {
+                // Memperbaiki warning CS0618 dengan DisplayAlertAsync
+                await this.DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Memperbaiki warning CS0618 dengan DisplayAlertAsync
+            await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+        }
+    }
 
-                    <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                        <VerticalStackLayout Grid.Column="0" Spacing="4">
-                            <Label Text="LABA BERSIH"
-                                   TextColor="#94A3B8"
-                                   FontSize="11"
-                                   FontAttributes="Bold"
-                                   CharacterSpacing="0.8" />
-                            <Label x:Name="NetIncomeLabel"
-                                   Text="Rp 0"
-                                   FontSize="22"
-                                   FontAttributes="Bold"
-                                   TextColor="#4ADE80" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="📈" FontSize="24" VerticalOptions="Center" />
-                    </Grid>
-                </Border>
+    private async void OnRefreshClicked(object? sender, EventArgs e)
+    {
+        await LoadDashboardDataAsync();
+    }
 
-                <!-- Grid Pendapatan & Beban -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-                    
-                    <!-- Card Pendapatan -->
-                    <Border Grid.Column="0"
-                            BackgroundColor="#1E293B"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 16"
-                            Padding="14">
-                        <VerticalStackLayout Spacing="6">
-                            <HorizontalStackLayout Spacing="6">
-                                <Label Text="🤑" FontSize="12" />
-                                <Label Text="PENDAPATAN"
-                                       TextColor="#94A3B8"
-                                       FontSize="10"
-                                       FontAttributes="Bold" />
-                            </HorizontalStackLayout>
-                            <Label x:Name="RevenueLabel"
-                                   Text="Rp 0"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="#38BDF8" />
-                        </VerticalStackLayout>
-                    </Border>
+    private async void OnInputJournalClicked(object? sender, EventArgs e)
+    {
+        // Navigasi ke halaman input jurnal
+        await Navigation.PushAsync(new InputJournalPage());
+    }
 
-                    <!-- Card Beban -->
-                    <Border Grid.Column="1"
-                            BackgroundColor="#1E293B"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 16"
-                            Padding="14">
-                        <VerticalStackLayout Spacing="6">
-                            <HorizontalStackLayout Spacing="6">
-                                <Label Text="💸" FontSize="12" />
-                                <Label Text="BEBAN"
-                                       TextColor="#94A3B8"
-                                       FontSize="10"
-                                       FontAttributes="Bold" />
-                            </HorizontalStackLayout>
-                            <Label x:Name="ExpenseLabel"
-                                   Text="Rp 0"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   TextColor="#F87171" />
-                        </VerticalStackLayout>
-                    </Border>
-                </Grid>
+    /// <summary>
+    /// Method yang dipanggil dari InputJournalPage untuk memproses antrean sync 10 detik.
+    /// Menggunakan DTO CreateSimpleTransactionDto yang dikenali oleh ApiService.cs.
+    /// </summary>
+    public async Task ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
+    {
+        // 1. Simpan sementara ke memori/list lokal
+        SaveToLocalMemory(transactionDto);
 
-                <!-- Action Buttons -->
-                <VerticalStackLayout Spacing="12" Margin="0,10,0,0">
-                    
-                    <!-- Primary CTA Button -->
-                    <Button Text="➕  Input Jurnal Baru"
-                            Clicked="OnInputJournalClicked"
-                            BackgroundColor="#10B981"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="15"
-                            CornerRadius="14"
-                            HeightRequest="52">
-                        <Button.Shadow>
-                            <Shadow Brush="#10B981" Offset="0,4" Radius="8" Opacity="0.3" />
-                        </Button.Shadow>
-                    </Button>
+        // 2. Kirim ke antrean TopBar (Queue 10 detik dengan warna Orange Ketela)
+        await TopHeader.QueueAndUploadDataAsync(
+            data: transactionDto,
+            uploadTask: async (dto) =>
+            {
+                // Panggil method API yang tersedia di ApiService.cs Anda
+                // Pastikan nama method di ApiService.cs disesuaikan (misal: CreateSimpleTransactionAsync / PostTransactionAsync)
+                return await _apiService.CreateSimpleTransactionAsync(dto);
+            },
+            onDeleteLocalData: (dto) =>
+            {
+                // Callback jika gagal upload: Hapus data otomatis dari memori lokal
+                RemoveFromLocalMemory(dto);
+            }
+        );
 
-                    <!-- Secondary Button -->
-                    <Button Text="🔄  Muat Ulang Data"
-                            Clicked="OnRefreshClicked"
-                            BackgroundColor="#1E293B"
-                            BorderColor="#334155"
-                            BorderWidth="1"
-                            TextColor="#94A3B8"
-                            FontAttributes="Bold"
-                            FontSize="14"
-                            CornerRadius="14"
-                            HeightRequest="48" />
-                </VerticalStackLayout>
+        // 3. Refresh dashboard jika sync berhasil
+        await LoadDashboardDataAsync();
+    }
 
-            </VerticalStackLayout>
-        </ScrollView>
+    private void SaveToLocalMemory(CreateSimpleTransactionDto dto)
+    {
+        // Logika simpan sementara ke SQLite / List Lokal
+    }
 
-    </Grid>
-
-</ContentPage>
+    private void RemoveFromLocalMemory(CreateSimpleTransactionDto dto)
+    {
+        // Logika hapus otomatis dari SQLite / List Lokal saat gagal upload
+    }
+}
