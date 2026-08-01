@@ -37,7 +37,7 @@
                        VerticalOptions="Center" />
                 <Label x:Name="SyncLabel"
                        Text="0s"
-                       FontSize="11"
+                       FontSize="12"
                        FontAttributes="Bold"
                        TextColor="White"
                        VerticalOptions="Center" />

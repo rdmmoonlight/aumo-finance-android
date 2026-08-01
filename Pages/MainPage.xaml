@@ -10,8 +10,18 @@
         <!-- Top Bar Component (Header, Sync Queue Status, & Versi Tag) -->
         <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
+        <!-- Indikator Loading (tampil saat data dashboard sedang diambil,
+             agar pengguna tidak melihat "Rp 0" sementara) -->
+        <ActivityIndicator x:Name="LoadingIndicator"
+                            Grid.Row="1"
+                            Color="#4F46E5"
+                            IsRunning="False"
+                            IsVisible="False"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center" />
+
         <!-- Area Konten Utama Dashboard -->
-        <ScrollView Grid.Row="1" Padding="20,10,20,20">
+        <ScrollView x:Name="DashboardContent" Grid.Row="1" Padding="20,10,20,20">
             <VerticalStackLayout Spacing="20">
 
                 <!-- Card Utama: Kas Saat Ini (Hero Card) -->
