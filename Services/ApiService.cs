@@ -18,8 +18,7 @@ public class ApiService
     // ChartOfAccounts/JournalEntries/Periods untuk dashboard), jangan role
     // admin/owner database.
     private const string ConnectionString =
-        "Host=ep-wandering-bread-ao1sazxn-pooler.c-2.ap-southeast-1.aws.neon.tech;Port=5432;Database=neondb;Username=neondb_mobile;Password=npg_exhf4N9TaStH;SSL Mode=Require;Trust Server Certificate=true
-";
+        "Host=ep-wandering-bread-ao1sazxn-pooler.c-2.ap-southeast-1.aws.neon.tech;Port=5432;Database=neondb;Username=neondb_mobile;Password=npg_exhf4N9TaStH;SSL Mode=Require;Trust Server Certificate=true";
 
     private static NpgsqlConnection CreateConnection() => new(ConnectionString);
 
@@ -68,9 +67,9 @@ public class ApiService
 
             await using (var cmd = new NpgsqlCommand(
                 "SELECT a.\"Type\", " +
-                "  CASE WHEN a.\"Type\" IN ('OperatingExpenses','OtherExpenses') " +
-                "       THEN COALESCE(SUM(l.\"Debit\" - l.\"Credit\"), 0) " +
-                "       ELSE COALESCE(SUM(l.\"Credit\" - l.\"Debit\"), 0) END " +
+                "   CASE WHEN a.\"Type\" IN ('OperatingExpenses','OtherExpenses') " +
+                "        THEN COALESCE(SUM(l.\"Debit\" - l.\"Credit\"), 0) " +
+                "        ELSE COALESCE(SUM(l.\"Credit\" - l.\"Debit\"), 0) END " +
                 "FROM \"ChartOfAccounts\" a " +
                 "JOIN \"JournalEntryLines\" l ON l.\"AccountId\" = a.\"Id\" " +
                 "JOIN \"JournalEntries\" e ON e.\"Id\" = l.\"JournalEntryId\" " +
