@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - production
-  pull_request:
-    branches:
-      - production
 
 jobs:
   build-android:
@@ -14,21 +11,31 @@ jobs:
     runs-on: windows-latest
 
     permissions:
-      contents: write # Izin untuk membuat GitHub Release otomatis
+      contents: write # Izin untuk membuat Tag dan GitHub Release otomatis
 
     steps:
-    # 1. Checkout repository
+    # 1. Checkout repository (fetch-depth: 0 wajib untuk hitung riwayat commit versi)
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    # 2. Setup Java JDK 17
+    # 2. Auto Versioning berdasarkan Bobot Commit
+    - name: Bump Version and Push Tag
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        default_bump: patch # Jika commit berupa 'fix:' -> patch, 'feat:' -> minor, 'feat!:' -> major
+
+    # 3. Setup Java JDK 17
     - name: Setup Java JDK
       uses: actions/setup-java@v4
       with:
         distribution: 'microsoft'
         java-version: '17'
 
-    # 3. Setup .NET SDK
+    # 4. Setup .NET SDK
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -38,11 +45,11 @@ jobs:
           10.0.x
         include-prerelease: true
 
-    # 4. Install Workload MAUI Android
+    # 5. Install Workload MAUI Android
     - name: Install Workloads
       run: dotnet workload install maui-android
 
-    # --- Bagian baru: inject connection string ---
+    # 6. Inject Connection String (Menggunakan .Replace agar aman dari karakter regex/password)
     - name: Inject Connection String
       shell: pwsh
       env:
@@ -54,41 +61,45 @@ jobs:
           exit 1
         }
         $content = Get-Content $file -Raw
-        if ($content -notmatch "__NEON_CONNECTION_STRING__") {
+        if (-not $content.Contains("__NEON_CONNECTION_STRING__")) {
           Write-Error "Placeholder __NEON_CONNECTION_STRING__ tidak ditemukan di $file"
           exit 1
         }
-        $content = $content -replace "__NEON_CONNECTION_STRING__", $env:NEON_CONNECTION_STRING
+        
+        # .Replace() literal string, aman dari karakter khusus
+        $content = $content.Replace("__NEON_CONNECTION_STRING__", $env:NEON_CONNECTION_STRING)
         Set-Content -Path $file -Value $content -NoNewline
         Write-Host "Connection string berhasil di-inject."
-        
-    # 5. Restore Dependencies
+
+    # 7. Restore Dependencies
     - name: Restore Dependencies
       run: dotnet restore
 
-    # 6. Build APK Release
+    # 8. Build APK Release (Menggunakan nomor versi otomatis untuk pembentukan file)
     - name: Build Android APK
       run: >
         dotnet publish
         -c Release
         -f net10.0-android
         -p:AndroidPackageFormat=apk
+        -p:ApplicationVersion=${{ github.run_number }}
+        -p:ApplicationDisplayVersion=${{ steps.tag_version.outputs.new_version }}
 
-    # 7. Upload Murni File -Signed.apk ke GitHub Releases (Sangat Direkomendasikan - Langsung .apk)
+    # 9. Upload File -Signed.apk ke GitHub Releases
     - name: Upload Signed APK to GitHub Releases
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: release-${{ github.run_number }}
-        name: Aumo Release v1.0.${{ github.run_number }}
-        # Kunci hanya ke file *-Signed.apk
+        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+        name: Aumo Release ${{ steps.tag_version.outputs.new_tag }}
+        body: ${{ steps.tag_version.outputs.changelog }}
         files: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # 8. Backup Artifact (Hanya file -Signed.apk)
+    # 10. Backup Artifact (Hanya file -Signed.apk)
     - name: Upload Signed APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Aumo-Signed-APK
+        name: Aumo-Signed-APK-${{ steps.tag_version.outputs.new_tag }}
         path: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
         if-no-files-found: error
