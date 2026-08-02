@@ -15,17 +15,6 @@
 
             <!-- Selector Pemasukan / Pengeluaran -->
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <!-- Button Pengeluaran (Default Selected) -->
-                <Button x:Name="ExpenseBtn"
-                        Grid.Column="0"
-                        Text="💸 Pengeluaran"
-                        Clicked="OnExpenseTypeSelected"
-                        BackgroundColor="#EF4444"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        CornerRadius="12"
-                        HeightRequest="48" />
-
                 <!-- Button Pemasukan -->
                 <Button x:Name="IncomeBtn"
                         Grid.Column="1"
@@ -35,6 +24,17 @@
                         BorderColor="#334155"
                         BorderWidth="1"
                         TextColor="#94A3B8"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="48" />
+
+                <!-- Button Pengeluaran (Default Selected) -->
+                <Button x:Name="ExpenseBtn"
+                        Grid.Column="0"
+                        Text="💸 Pengeluaran"
+                        Clicked="OnExpenseTypeSelected"
+                        BackgroundColor="#EF4444"
+                        TextColor="White"
                         FontAttributes="Bold"
                         CornerRadius="12"
                         HeightRequest="48" />
@@ -64,7 +64,7 @@
                     Padding="14,8">
                 <VerticalStackLayout Spacing="4">
                     <Label x:Name="AmountTypeLabel" 
-                           Text="Nominal Pengeluaran (Rp)" 
+                           Text="Nominal" 
                            TextColor="#F87171" 
                            FontSize="11" 
                            FontAttributes="Bold" />
