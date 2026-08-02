@@ -7,8 +7,7 @@ public partial class TopBarView : ContentView
     private CancellationTokenSource? _syncCts;
 
     // Color Palette
-    private readonly Color _idleBg = Color.FromArgb("#1E293B");   // Idle / siap
-    private readonly Color _idleStroke = Color.FromArgb("#334155");
+    private readonly Color _idleBg = Color.FromArgb("#10B981");   // Idle / siap -> disamakan dengan warna sukses
     private readonly Color _orangeKetela = Color.FromArgb("#E67E22"); // Queueing
     private readonly Color _blueUploading = Color.FromArgb("#3B82F6"); // Uploading
     private readonly Color _greenSuccess = Color.FromArgb("#10B981"); // Success
@@ -22,7 +21,7 @@ public partial class TopBarView : ContentView
     public string PeriodText
     {
         get => PeriodLabel.Text;
-        set => PeriodLabel.Text = $"Periode: {value}";
+        set => PeriodLabel.Text = value;
     }
 
     /// <summary>
@@ -44,29 +43,25 @@ public partial class TopBarView : ContentView
             SyncBadge.BackgroundColor = _orangeKetela;
             SyncBadge.Stroke = _orangeKetela;
 
-            // 2. Countdown Queue 10 Detik
+            // 2. Countdown Queue 10 Detik (tanpa teks, hanya warna oranye selama menunggu)
             for (int i = 10; i > 0; i--)
             {
                 if (token.IsCancellationRequested) return;
-
-                SyncLabel.Text = $"Wait {i}s";
                 await Task.Delay(1000, token);
             }
 
             // 3. Status Berubah Jadi Uploading -> Biru
             SyncBadge.BackgroundColor = _blueUploading;
             SyncBadge.Stroke = _blueUploading;
-            SyncLabel.Text = "Uploading...";
 
             // 4. Eksekusi Upload ke DB Neon/PostgreSQL
             bool isSuccess = await uploadTask(data);
 
             if (isSuccess)
             {
-                // Sukses: Ubah warna jadi hijau sejenak lalu kembali idle
+                // Sukses: Hijau, lalu kembali idle (idle juga hijau, jadi tetap mulus)
                 SyncBadge.BackgroundColor = _greenSuccess;
                 SyncBadge.Stroke = _greenSuccess;
-                SyncLabel.Text = "Synced";
                 await Task.Delay(2000);
             }
             else
@@ -89,8 +84,7 @@ public partial class TopBarView : ContentView
             if (!token.IsCancellationRequested)
             {
                 SyncBadge.BackgroundColor = _idleBg;
-                SyncBadge.Stroke = _idleStroke;
-                SyncLabel.Text = "Siap";
+                SyncBadge.Stroke = _idleBg;
             }
         }
     }
@@ -100,8 +94,6 @@ public partial class TopBarView : ContentView
         // A. Tampilkan status Gagal -> Merah, lalu kembali ke idle
         SyncBadge.BackgroundColor = _redFailed;
         SyncBadge.Stroke = _redFailed;
-        SyncLabel.Text = "Gagal";
-
         // B. Hapus Data Otomatis dari Storage Lokal/Memory
         onDeleteLocalData(data);
 
