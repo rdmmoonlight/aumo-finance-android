@@ -17,7 +17,7 @@
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <!-- Button Pemasukan -->
                 <Button x:Name="IncomeBtn"
-                        Grid.Column="1"
+                        Grid.Column="0"
                         Text="💰 Pemasukan"
                         Clicked="OnIncomeTypeSelected"
                         BackgroundColor="#1E293B"
@@ -30,7 +30,7 @@
 
                 <!-- Button Pengeluaran (Default Selected) -->
                 <Button x:Name="ExpenseBtn"
-                        Grid.Column="0"
+                        Grid.Column="1"
                         Text="💸 Pengeluaran"
                         Clicked="OnExpenseTypeSelected"
                         BackgroundColor="#EF4444"
