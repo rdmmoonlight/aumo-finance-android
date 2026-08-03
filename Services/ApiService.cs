@@ -12,23 +12,12 @@ namespace AumoFinance.Services;
 public class ApiService
 {
     // TODO: ganti dengan connection string Neon yang sebenarnya.
-    // PENTING: string ini ikut ter-bundle di dalam APK dan bisa diekstrak
-    // lewat reverse-engineering. Pakai role Postgres dengan hak akses
-    // terbatas (hanya INSERT ke MobileJournalEntries/Lines + SELECT ke
-    // ChartOfAccounts/JournalEntries/Periods untuk dashboard), jangan role
-    // admin/owner database.
     private const string ConnectionString = "__NEON_CONNECTION_STRING__";
 
-    // NpgsqlDataSource mengelola connection pool secara internal dan dibuat
-    // SEKALI untuk seluruh siklus hidup ApiService (didaftarkan sebagai
-    // singleton di MauiProgram.cs). Ini menghindari overhead membuka koneksi
-    // baru dari nol di setiap panggilan seperti sebelumnya.
     private readonly NpgsqlDataSource _dataSource = NpgsqlDataSource.Create(ConnectionString);
 
     private NpgsqlConnection CreateConnection() => _dataSource.CreateConnection();
 
-    // Menerjemahkan exception koneksi/database menjadi pesan yang lebih
-    // spesifik untuk pengguna, daripada catch generik yang menelan semua error.
     private static string DescribeException(Exception ex) => ex switch
     {
         NpgsqlException { InnerException: TimeoutException } => "Koneksi ke server database timeout.",
@@ -51,9 +40,11 @@ public class ApiService
             string activePeriod = "-";
             DateTime? periodStart = null;
             DateTime? periodEnd = null;
+            bool isClosed = false;
 
+            // Ambil periode yang aktif (IsClosed = FALSE)
             await using (var cmd = new NpgsqlCommand(
-                "SELECT \"PeriodName\", \"StartDate\", \"EndDate\" FROM \"Periods\" " +
+                "SELECT \"PeriodName\", \"StartDate\", \"EndDate\", \"IsClosed\" FROM \"Periods\" " +
                 "WHERE \"IsClosed\" = FALSE ORDER BY \"StartDate\" DESC LIMIT 1", conn))
             await using (var reader = await cmd.ExecuteReaderAsync())
             {
@@ -62,6 +53,12 @@ public class ApiService
                     activePeriod = reader.GetString(0);
                     periodStart = reader.GetDateTime(1);
                     periodEnd = reader.GetDateTime(2);
+                    isClosed = reader.GetBoolean(3);
+                }
+                else
+                {
+                    // Jika tidak ada periode yang terbuka/aktif di database, anggap closed
+                    isClosed = true;
                 }
             }
 
@@ -113,7 +110,8 @@ public class ApiService
                 Revenue = revenue,
                 Expenses = expenses,
                 NetIncome = revenue - expenses,
-                ActivePeriod = activePeriod
+                ActivePeriod = activePeriod,
+                IsClosed = isClosed
             };
         }
         catch (Exception ex)
@@ -148,16 +146,13 @@ public class ApiService
         }
         catch (Exception ex)
         {
-            // dikembalikan kosong; halaman pemanggil menampilkan pesan gagal koneksi
             System.Diagnostics.Debug.WriteLine($"GetAccountsAsync gagal: {DescribeException(ex)}");
         }
 
         return result;
     }
 
-    // Jurnal manual (akun dipilih sendiri di app). Ditulis LANGSUNG ke
-    // MobileJournalEntries + MobileJournalEntryLines dengan Status =
-    // 'Pending'. Tidak pernah menyentuh JournalEntries.
+    // Jurnal manual (akun dipilih sendiri di app)
     public async Task<(bool success, string message)> PostJournalAsync(CreateJournalDto dto)
     {
         var lines = dto.Lines.Where(l => l.AccountId != 0 && (l.Debit != 0 || l.Credit != 0)).ToList();
@@ -215,9 +210,7 @@ public class ApiService
         }
     }
 
-    // Transaksi cepat (Pemasukan/Pengeluaran). Ditulis LANGSUNG ke
-    // MobileJournalEntries dengan Status = 'Pending'. Tidak pernah
-    // menyentuh JournalEntries.
+    // Transaksi cepat (Pemasukan/Pengeluaran)
     public async Task<(bool success, string message)> PostSimpleTransactionAsync(CreateSimpleTransactionDto dto)
     {
         if (dto.Amount <= 0)
