@@ -7,4 +7,5 @@ public class DashboardModel
     public decimal Expenses { get; set; }
     public decimal NetIncome { get; set; }
     public string ActivePeriod { get; set; } = string.Empty;
+    public bool IsClosed { get; set; }
 }
