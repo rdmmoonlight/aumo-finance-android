@@ -17,7 +17,7 @@ public partial class InputJournalPage : ContentPage
     private void OnExpenseTypeSelected(object? sender, EventArgs e)
     {
         _selectedType = "Expense";
-        
+
         // Visual Button Status
         ExpenseBtn.BackgroundColor = Color.FromArgb("#EF4444");
         ExpenseBtn.TextColor = Colors.White;

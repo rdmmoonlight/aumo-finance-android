@@ -39,7 +39,7 @@ public partial class MainPage : ContentPage
             if (data != null)
             {
                 // Cek apakah periode berstatus closed (baik via flag isClosed atau teks periode)
-                bool isClosedPeriod = data.IsClosed || 
+                bool isClosedPeriod = data.IsClosed ||
                     (!string.IsNullOrEmpty(data.ActivePeriod) && data.ActivePeriod.Contains("CLOSED", StringComparison.OrdinalIgnoreCase));
 
                 if (isClosedPeriod)
