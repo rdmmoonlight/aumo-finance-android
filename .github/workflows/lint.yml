@@ -5,15 +5,20 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write # Izin untuk melakukan commit otomatis jika ada perbaikan format
+
 jobs:
   lint-csharp:
-    name: Lint & Analyze C# Code
+    name: Lint & Format C# Code
     runs-on: windows-latest
 
     steps:
-    # 1. Checkout repository
+    # 1. Checkout repository dengan ref branch aktif
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        ref: ${{ github.ref_name }}
 
     # 2. Setup .NET SDK
     - name: Setup .NET
@@ -28,10 +33,16 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore
 
-    # 4. Check Code Formatting (dotnet format)
-    - name: Check Code Formatting
-      run: dotnet format --verify-no-changes --verbosity diagnostic
+    # 4. Otomatis Koreksi Format Kode (Auto-correct whitespace & style)
+    - name: Auto-Format Code
+      run: dotnet format
 
-    # 5. Static Code Analysis (Build with Warnings as Errors)
+    # 5. Commit dan Push Perubahan Format Jika Ada File yang Diperbaiki
+    - name: Commit Formatted Changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "style: auto-correct code formatting via dotnet format"
+
+    # 6. Static Code Analysis (Build & Cek Warning/Error)
     - name: Run Static Code Analysis
       run: dotnet build --no-restore -c Debug /p:TreatWarningsAsErrors=true
