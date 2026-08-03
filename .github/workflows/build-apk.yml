@@ -43,7 +43,6 @@ jobs:
           8.0.x
           9.0.x
           10.0.x
-        include-prerelease: true
 
     # 5. Install Workload MAUI Android
     - name: Install Workloads
@@ -87,7 +86,7 @@ jobs:
 
     # 9. Upload File -Signed.apk ke GitHub Releases
     - name: Upload Signed APK to GitHub Releases
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.tag_version.outputs.new_tag }}
         name: Aumo Release ${{ steps.tag_version.outputs.new_tag }}
