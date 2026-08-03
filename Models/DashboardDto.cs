@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace AumoFinance.Models;
 
 public class DashboardDto
@@ -6,7 +8,7 @@ public class DashboardDto
     public string? ActivePeriod { get; set; }
 
     [JsonPropertyName("isClosed")]
-    public bool IsClosed { get; set; } // Flag apakah periode sudah ditutup
+    public bool IsClosed { get; set; }
 
     [JsonPropertyName("totalCash")]
     public decimal TotalCash { get; set; }
