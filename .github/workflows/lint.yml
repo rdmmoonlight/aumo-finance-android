@@ -1,0 +1,37 @@
+name: Code Quality & Linting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-csharp:
+    name: Lint & Analyze C# Code
+    runs-on: windows-latest
+
+    steps:
+    # 1. Checkout repository
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Setup .NET SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          9.0.x
+          10.0.x
+
+    # 3. Restore Dependencies
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    # 4. Check Code Formatting (dotnet format)
+    - name: Check Code Formatting
+      run: dotnet format --verify-no-changes --verbosity diagnostic
+
+    # 5. Static Code Analysis (Build with Warnings as Errors)
+    - name: Run Static Code Analysis
+      run: dotnet build --no-restore -c Debug /p:TreatWarningsAsErrors=true
