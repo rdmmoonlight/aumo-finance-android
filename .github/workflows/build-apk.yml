@@ -14,19 +14,23 @@ jobs:
       contents: write # Izin untuk membuat Tag dan GitHub Release otomatis
 
     steps:
-    # 1. Checkout repository (fetch-depth: 0 wajib untuk hitung riwayat commit versi)
+    # 1. Checkout repository
     - name: Checkout Code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    # 2. Auto Versioning berdasarkan Bobot Commit
-    - name: Bump Version and Push Tag
-      id: tag_version
-      uses: mathieudutour/github-tag-action@v6.2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        default_bump: patch # Jika commit berupa 'fix:' -> patch, 'feat:' -> minor, 'feat!:' -> major
+    # 2. Generate Versi 3 Tingkat (Tahun.Bulan.TotalBuild) -> Contoh: 26.8.72
+    - name: Generate CalVer Version
+      id: get_version
+      shell: pwsh
+      run: |
+        $yearMonth = Get-Date -Format "yy.M"
+        $buildNumber = "${{ github.run_number }}"
+        $fullVersion = "$yearMonth.$buildNumber"
+        
+        echo "app_version=$fullVersion" >> $env:GITHUB_OUTPUT
+        Write-Host "Versi APK Baru: $fullVersion"
 
     # 3. Setup Java JDK 17
     - name: Setup Java JDK
@@ -48,7 +52,7 @@ jobs:
     - name: Install Workloads
       run: dotnet workload install maui-android
 
-    # 6. Inject Connection String (Menggunakan .Replace agar aman dari karakter regex/password)
+    # 6. Inject Connection String
     - name: Inject Connection String
       shell: pwsh
       env:
@@ -65,7 +69,6 @@ jobs:
           exit 1
         }
         
-        # .Replace() literal string, aman dari karakter khusus
         $content = $content.Replace("__NEON_CONNECTION_STRING__", $env:NEON_CONNECTION_STRING)
         Set-Content -Path $file -Value $content -NoNewline
         Write-Host "Connection string berhasil di-inject."
@@ -74,7 +77,7 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore
 
-    # 8. Build APK Release (Menggunakan nomor versi otomatis untuk pembentukan file)
+    # 8. Build APK Release dengan versi 3 tingkat (YY.M.BUILD)
     - name: Build Android APK
       run: >
         dotnet publish
@@ -82,15 +85,15 @@ jobs:
         -f net10.0-android
         -p:AndroidPackageFormat=apk
         -p:ApplicationVersion=${{ github.run_number }}
-        -p:ApplicationDisplayVersion=${{ steps.tag_version.outputs.new_version }}
+        -p:ApplicationDisplayVersion=${{ steps.get_version.outputs.app_version }}
 
     # 9. Upload File -Signed.apk ke GitHub Releases
     - name: Upload Signed APK to GitHub Releases
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ steps.tag_version.outputs.new_tag }}
-        name: Aumo Release ${{ steps.tag_version.outputs.new_tag }}
-        body: ${{ steps.tag_version.outputs.changelog }}
+        tag_name: v${{ steps.get_version.outputs.app_version }}
+        name: Aumo Release v${{ steps.get_version.outputs.app_version }}
+        body: "Rilisan otomatis build ke-${{ github.run_number }} (Versi ${{ steps.get_version.outputs.app_version }})"
         files: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,6 +102,6 @@ jobs:
     - name: Upload Signed APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Aumo-Signed-APK-${{ steps.tag_version.outputs.new_tag }}
+        name: Aumo-Signed-APK-v${{ steps.get_version.outputs.app_version }}
         path: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
         if-no-files-found: error
