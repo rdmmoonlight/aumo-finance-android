@@ -10,10 +10,6 @@ public partial class MainPage : ContentPage
     private readonly ApiService _apiService;
     private readonly CultureInfo _idrCulture = new("id-ID");
 
-    // Berkas lokal untuk menyimpan transaksi yang sedang menunggu (queued)
-    // upload, agar tidak hilang jika aplikasi ditutup sebelum proses sync
-    // 10 detik selesai. Disimpan sebagai JSON sederhana di penyimpanan
-    // aplikasi (tidak butuh dependency SQLite tambahan).
     private static readonly string PendingFilePath =
         Path.Combine(FileSystem.AppDataDirectory, "pending_transactions.json");
 
@@ -42,12 +38,32 @@ public partial class MainPage : ContentPage
 
             if (data != null)
             {
-                TopHeader.PeriodText = data.ActivePeriod ?? "-";
+                // Cek apakah periode berstatus closed (baik via flag isClosed atau teks periode)
+                bool isClosedPeriod = data.IsClosed || 
+                    (!string.IsNullOrEmpty(data.ActivePeriod) && data.ActivePeriod.Contains("CLOSED", StringComparison.OrdinalIgnoreCase));
 
-                CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
-                NetIncomeLabel.Text = data.NetIncome.ToString("C0", _idrCulture);
-                RevenueLabel.Text = data.Revenue.ToString("C0", _idrCulture);
-                ExpenseLabel.Text = data.Expenses.ToString("C0", _idrCulture);
+                if (isClosedPeriod)
+                {
+                    // Tampilkan status CLOSED pada header periode
+                    string basePeriod = data.ActivePeriod?.Replace("(CLOSED)", "", StringComparison.OrdinalIgnoreCase).Trim() ?? "Periode";
+                    TopHeader.PeriodText = $"{basePeriod} (CLOSED)";
+
+                    // Sembunyikan/kosongkan data nominal karena periode telah ditutup
+                    CashLabel.Text = "-";
+                    NetIncomeLabel.Text = "-";
+                    RevenueLabel.Text = "-";
+                    ExpenseLabel.Text = "-";
+                }
+                else
+                {
+                    // Periode aktif: tampilkan teks periode dan nominal dari database
+                    TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.ActivePeriod) ? "-" : data.ActivePeriod;
+
+                    CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
+                    NetIncomeLabel.Text = data.NetIncome.ToString("C0", _idrCulture);
+                    RevenueLabel.Text = data.Revenue.ToString("C0", _idrCulture);
+                    ExpenseLabel.Text = data.Expenses.ToString("C0", _idrCulture);
+                }
             }
             else
             {
@@ -76,9 +92,6 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new InputJournalPage());
     }
 
-    /// <summary>
-    /// Dipanggil dari InputJournalPage untuk memproses antrean sync 10 detik.
-    /// </summary>
     public async Task ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
         SaveToLocalMemory(transactionDto);
@@ -87,11 +100,9 @@ public partial class MainPage : ContentPage
             data: transactionDto,
             uploadTask: async (dto) =>
             {
-                // Memanggil PostSimpleTransactionAsync sesuai dengan yang ada di ApiService.cs
                 var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
                 if (success)
                 {
-                    // Sudah tersimpan di server: catatan lokal tidak diperlukan lagi.
                     RemoveFromLocalMemory(dto);
                 }
                 return success;
@@ -105,8 +116,6 @@ public partial class MainPage : ContentPage
         await LoadDashboardDataAsync();
     }
 
-    // Setiap transaksi yang sedang diqueue diberi Id lokal sendiri (terpisah
-    // dari Id database) supaya bisa dicocokkan lagi saat proses hapus.
     private static readonly Dictionary<CreateSimpleTransactionDto, Guid> _pendingIds = new();
 
     private void SaveToLocalMemory(CreateSimpleTransactionDto dto)
@@ -142,11 +151,6 @@ public partial class MainPage : ContentPage
         }
     }
 
-    /// <summary>
-    /// Dipanggil saat aplikasi dibuka kembali: transaksi yang masih tersisa di
-    /// berkas lokal berarti aplikasi ditutup sebelum sync 10 detik selesai
-    /// atau sebelum upload berhasil, jadi perlu dicoba kirim ulang.
-    /// </summary>
     private async Task RecoverPendingTransactionsAsync()
     {
         List<PendingTransaction> pending;

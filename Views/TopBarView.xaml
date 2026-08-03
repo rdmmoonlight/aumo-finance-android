@@ -9,10 +9,10 @@
 
         <!-- Periode -->
         <HorizontalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
-            <Label Text="📅" FontSize="11" VerticalOptions="Center" />
+            <Label Text="📅" FontSize="16" VerticalOptions="Center" />
             <Label x:Name="PeriodLabel"
                    Text="-"
-                   FontSize="14"
+                   FontSize="18"
                    FontAttributes="Bold"
                    TextColor="#94A3B8"
                    VerticalOptions="Center" />
