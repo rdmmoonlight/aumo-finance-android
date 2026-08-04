@@ -6,7 +6,7 @@ namespace AumoFinance.Pages;
 
 public partial class InputJournalPage : ContentPage
 {
-    private string _selectedType = "Income"; // Default Pemasukan
+    private string _selectedType = "Income"; // Default ke Pemasukan
     private readonly CultureInfo _idrCulture = new("id-ID");
 
     public InputJournalPage()
@@ -30,12 +30,15 @@ public partial class InputJournalPage : ContentPage
     private void SetExpenseTypeVisual()
     {
         _selectedType = "Expense";
+
         ExpenseBtn.BackgroundColor = Color.FromArgb("#EF4444");
         ExpenseBtn.TextColor = Colors.White;
         ExpenseBtn.BorderWidth = 0;
+
         IncomeBtn.BackgroundColor = Color.FromArgb("#1E293B");
         IncomeBtn.TextColor = Color.FromArgb("#94A3B8");
         IncomeBtn.BorderWidth = 1;
+
         AmountTypeLabel.Text = "Nominal Pengeluaran (Rp)";
         AmountTypeLabel.TextColor = Color.FromArgb("#F87171");
     }
@@ -43,12 +46,15 @@ public partial class InputJournalPage : ContentPage
     private void SetIncomeTypeVisual()
     {
         _selectedType = "Income";
+
         IncomeBtn.BackgroundColor = Color.FromArgb("#10B981");
         IncomeBtn.TextColor = Colors.White;
         IncomeBtn.BorderWidth = 0;
+
         ExpenseBtn.BackgroundColor = Color.FromArgb("#1E293B");
         ExpenseBtn.TextColor = Color.FromArgb("#94A3B8");
         ExpenseBtn.BorderWidth = 1;
+
         AmountTypeLabel.Text = "Nominal Pemasukan (Rp)";
         AmountTypeLabel.TextColor = Color.FromArgb("#38BDF8");
     }
@@ -61,6 +67,7 @@ public partial class InputJournalPage : ContentPage
     private void OnAmountFocused(object? sender, FocusEventArgs e)
     {
         if (sender is not Entry entry) return;
+
         string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
         entry.Text = rawText;
     }
@@ -68,7 +75,9 @@ public partial class InputJournalPage : ContentPage
     private void OnAmountUnfocused(object? sender, FocusEventArgs e)
     {
         if (sender is not Entry entry) return;
+
         string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
+
         if (string.IsNullOrEmpty(rawText))
         {
             entry.Text = string.Empty;
@@ -77,6 +86,7 @@ public partial class InputJournalPage : ContentPage
         {
             entry.Text = string.Format(_idrCulture, "{0:N0}", value);
         }
+
         UpdateAmountValidationState();
     }
 
@@ -86,6 +96,7 @@ public partial class InputJournalPage : ContentPage
     private void UpdateAmountValidationState()
     {
         bool isInvalid = CleanAndParseDecimal(AmountEntry.Text) <= 0 && !string.IsNullOrEmpty(AmountEntry.Text);
+
         AmountFieldBorder.Stroke = isInvalid ? _invalidBorderColor : _validBorderColor;
         AmountValidationLabel.IsVisible = isInvalid;
     }
@@ -106,6 +117,7 @@ public partial class InputJournalPage : ContentPage
             }
 
             string note = NoteEntry.Text?.Trim() ?? string.Empty;
+
             DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
             DateTime utcDate = new DateTime(rawDate.Year, rawDate.Month, rawDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
@@ -121,7 +133,7 @@ public partial class InputJournalPage : ContentPage
 
             if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
             {
-                // Langsung dipanggil dan di-await secara transparan
+                // Eksekusi langsung tanpa background Task.Run/Queue
                 var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
 
                 if (success)
@@ -143,7 +155,7 @@ public partial class InputJournalPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"OnSaveClicked Exception: {ex}");
-            await this.DisplayAlertAsync("Error UI", "Terjadi error: " + ex.Message, "OK");
+            await this.DisplayAlertAsync("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
             if (saveBtn != null) saveBtn.IsEnabled = true;
         }
     }
