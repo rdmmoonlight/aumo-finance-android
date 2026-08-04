@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - production
 
 permissions:
   contents: write # Izin untuk melakukan commit otomatis jika ada perbaikan format
@@ -37,11 +38,12 @@ jobs:
     - name: Auto-Format Code
       run: dotnet format
 
-    # 5. Commit dan Push Perubahan Format Jika Ada File yang Diperbaiki
+    # 5. Commit dan Push Perubahan Format Ke Production
+    # Tambahkan [skip ci] agar auto-commit dari bot tidak mentrigger ulang workflow
     - name: Commit Formatted Changes
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit_message: "style: auto-correct code formatting via dotnet format"
+        commit_message: "style: auto-correct code formatting via dotnet format [skip ci]"
 
     # 6. Static Code Analysis (Build & Cek Warning/Error)
     - name: Run Static Code Analysis
