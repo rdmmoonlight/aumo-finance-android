@@ -129,8 +129,9 @@ public partial class InputJournalPage : ContentPage
             Note = note
         };
 
-        // Matikan tombol simpan sementara
-        SaveBtn.IsEnabled = false;
+        // Tangkap tombol secara dinamis dari sender untuk menghindari error CS0103
+        Button? saveBtn = sender as Button;
+        if (saveBtn != null) saveBtn.IsEnabled = false;
 
         if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
         {
@@ -144,7 +145,7 @@ public partial class InputJournalPage : ContentPage
             else
             {
                 await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
-                SaveBtn.IsEnabled = true;
+                if (saveBtn != null) saveBtn.IsEnabled = true;
             }
         }
         else
