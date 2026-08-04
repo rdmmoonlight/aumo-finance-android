@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Text.Json;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
@@ -86,7 +85,7 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new InputJournalPage());
     }
 
-    // ALUR LANGSUNG: Tembak ApiService secara langsung tanpa Queue
+    // ALUR LANGSUNG: Tembak ApiService secara langsung ke database tanpa Queue
     public async Task<(bool success, string message)> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
         try
