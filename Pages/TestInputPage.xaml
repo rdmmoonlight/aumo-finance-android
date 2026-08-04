@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AumoFinance.Pages.TestInputPage"
+             BackgroundColor="#0F172A"
+             Title="TES INPUT DATABASE">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Label Text="Halaman Tes Input Langsung ke Neon DB"
+                   TextColor="#38BDF8"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <!-- Pilihan Jenis Transaksi -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button x:Name="IncomeBtn"
+                        Grid.Column="0"
+                        Text="Pemasukan"
+                        HeightRequest="48"
+                        CornerRadius="10"
+                        FontAttributes="Bold"
+                        Clicked="OnIncomeSelected" />
+
+                <Button x:Name="ExpenseBtn"
+                        Grid.Column="1"
+                        Text="Pengeluaran"
+                        HeightRequest="48"
+                        CornerRadius="10"
+                        FontAttributes="Bold"
+                        Clicked="OnExpenseSelected" />
+            </Grid>
+
+            <!-- Tanggal Transaksi -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Tanggal Transaksi (dd/MM/yyyy)"
+                       TextColor="#94A3B8"
+                       FontSize="14" />
+                <Border Stroke="#334155"
+                        StrokeThickness="1"
+                        Background="#1E293B"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="12,0">
+                    <DatePicker x:Name="TestDatePicker"
+                                TextColor="White"
+                                Format="dd/MM/yyyy"
+                                HeightRequest="48" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Nominal -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Nominal (Rp)"
+                       TextColor="#94A3B8"
+                       FontSize="14" />
+                <Border Stroke="#334155"
+                        StrokeThickness="1"
+                        Background="#1E293B"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="12,0">
+                    <Entry x:Name="TestAmountEntry"
+                           Placeholder="Masukkan angka saja (misal: 10000)"
+                           PlaceholderColor="#64748B"
+                           TextColor="White"
+                           Keyboard="Numeric"
+                           HeightRequest="48" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Catatan -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Catatan Tes"
+                       TextColor="#94A3B8"
+                       FontSize="14" />
+                <Border Stroke="#334155"
+                        StrokeThickness="1"
+                        Background="#1E293B"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="12,0">
+                    <Entry x:Name="TestNoteEntry"
+                           Text="Tes transaksi langsung dari HP"
+                           TextColor="White"
+                           HeightRequest="48" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Tombol Eksekusi Tes -->
+            <Button x:Name="ExecuteTestBtn"
+                    Text="KIRIM TES INPUT SEKARANG"
+                    BackgroundColor="#10B981"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    HeightRequest="52"
+                    CornerRadius="10"
+                    Margin="0,15,0,0"
+                    Clicked="OnExecuteTestClicked" />
+
+            <Button Text="Kembali"
+                    BackgroundColor="Transparent"
+                    TextColor="#94A3B8"
+                    BorderColor="#334155"
+                    BorderWidth="1"
+                    HeightRequest="48"
+                    CornerRadius="10"
+                    Clicked="OnCancelClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
