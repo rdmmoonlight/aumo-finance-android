@@ -160,7 +160,7 @@ public class ApiService
             await conn.OpenAsync();
             await using var tx = await conn.BeginTransactionAsync();
 
-            DateTime entryDateUtc = DateTime.SpecifyKind(dto.EntryDate.Date, DateTimeKind.Utc);
+            DateTime entryDateUtc = new DateTime(dto.EntryDate.Year, dto.EntryDate.Month, dto.EntryDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
             int mobileEntryId;
             await using (var cmd = new NpgsqlCommand(
@@ -169,7 +169,9 @@ public class ApiService
                 "VALUES (@entryDate, 'Manual', 'Pending', now() AT TIME ZONE 'utc') " +
                 "RETURNING \"Id\"", conn, tx))
             {
-                cmd.Parameters.AddWithValue("entryDate", entryDateUtc);
+                var dateParam = cmd.Parameters.Add("entryDate", NpgsqlTypes.NpgsqlDbType.TimestampTz);
+                dateParam.Value = entryDateUtc;
+
                 var scalarResult = await cmd.ExecuteScalarAsync();
                 mobileEntryId = Convert.ToInt32(scalarResult);
             }
@@ -216,13 +218,16 @@ public class ApiService
             await using var conn = CreateConnection();
             await conn.OpenAsync();
 
-            DateTime entryDateUtc = DateTime.SpecifyKind(dto.EntryDate.Date, DateTimeKind.Utc);
+            DateTime entryDateUtc = new DateTime(dto.EntryDate.Year, dto.EntryDate.Month, dto.EntryDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
             await using var cmd = new NpgsqlCommand(
                 "INSERT INTO \"MobileJournalEntries\" " +
                 "(\"EntryDate\", \"Mode\", \"Type\", \"Amount\", \"Note\", \"Status\", \"SubmittedAt\") " +
                 "VALUES (@entryDate, 'Simple', @type, @amount, @note, 'Pending', now() AT TIME ZONE 'utc')", conn);
-            cmd.Parameters.AddWithValue("entryDate", entryDateUtc);
+
+            var dateParam = cmd.Parameters.Add("entryDate", NpgsqlTypes.NpgsqlDbType.TimestampTz);
+            dateParam.Value = entryDateUtc;
+
             cmd.Parameters.AddWithValue("type", dto.Type);
             cmd.Parameters.AddWithValue("amount", dto.Amount);
             cmd.Parameters.AddWithValue("note", (object?)dto.Note ?? DBNull.Value);
