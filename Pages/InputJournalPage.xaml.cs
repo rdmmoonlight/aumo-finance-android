@@ -14,7 +14,6 @@ public partial class InputJournalPage : ContentPage
         InitializeComponent();
         EntryDatePicker.Date = DateTime.Today;
 
-        // Default: Aktifkan tab Pemasukan saat pertama kali dibuka
         SetIncomeTypeVisual();
     }
 
@@ -31,17 +30,12 @@ public partial class InputJournalPage : ContentPage
     private void SetExpenseTypeVisual()
     {
         _selectedType = "Expense";
-
-        // Visual Button Status
         ExpenseBtn.BackgroundColor = Color.FromArgb("#EF4444");
         ExpenseBtn.TextColor = Colors.White;
         ExpenseBtn.BorderWidth = 0;
-
         IncomeBtn.BackgroundColor = Color.FromArgb("#1E293B");
         IncomeBtn.TextColor = Color.FromArgb("#94A3B8");
         IncomeBtn.BorderWidth = 1;
-
-        // Visual Label
         AmountTypeLabel.Text = "Nominal Pengeluaran (Rp)";
         AmountTypeLabel.TextColor = Color.FromArgb("#F87171");
     }
@@ -49,17 +43,12 @@ public partial class InputJournalPage : ContentPage
     private void SetIncomeTypeVisual()
     {
         _selectedType = "Income";
-
-        // Visual Button Status
         IncomeBtn.BackgroundColor = Color.FromArgb("#10B981");
         IncomeBtn.TextColor = Colors.White;
         IncomeBtn.BorderWidth = 0;
-
         ExpenseBtn.BackgroundColor = Color.FromArgb("#1E293B");
         ExpenseBtn.TextColor = Color.FromArgb("#94A3B8");
         ExpenseBtn.BorderWidth = 1;
-
-        // Visual Label
         AmountTypeLabel.Text = "Nominal Pemasukan (Rp)";
         AmountTypeLabel.TextColor = Color.FromArgb("#38BDF8");
     }
@@ -72,7 +61,6 @@ public partial class InputJournalPage : ContentPage
     private void OnAmountFocused(object? sender, FocusEventArgs e)
     {
         if (sender is not Entry entry) return;
-
         string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
         entry.Text = rawText;
     }
@@ -80,9 +68,7 @@ public partial class InputJournalPage : ContentPage
     private void OnAmountUnfocused(object? sender, FocusEventArgs e)
     {
         if (sender is not Entry entry) return;
-
         string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
-
         if (string.IsNullOrEmpty(rawText))
         {
             entry.Text = string.Empty;
@@ -91,7 +77,6 @@ public partial class InputJournalPage : ContentPage
         {
             entry.Text = string.Format(_idrCulture, "{0:N0}", value);
         }
-
         UpdateAmountValidationState();
     }
 
@@ -101,7 +86,6 @@ public partial class InputJournalPage : ContentPage
     private void UpdateAmountValidationState()
     {
         bool isInvalid = CleanAndParseDecimal(AmountEntry.Text) <= 0 && !string.IsNullOrEmpty(AmountEntry.Text);
-
         AmountFieldBorder.Stroke = isInvalid ? _invalidBorderColor : _validBorderColor;
         AmountValidationLabel.IsVisible = isInvalid;
     }
@@ -109,6 +93,7 @@ public partial class InputJournalPage : ContentPage
     private async void OnSaveClicked(object? sender, EventArgs e)
     {
         Button? saveBtn = sender as Button;
+        if (saveBtn != null) saveBtn.IsEnabled = false;
 
         try
         {
@@ -118,12 +103,11 @@ public partial class InputJournalPage : ContentPage
                 AmountFieldBorder.Stroke = _invalidBorderColor;
                 AmountValidationLabel.IsVisible = true;
                 await this.DisplayAlertAsync("Peringatan", "Isikan nominal transaksi yang valid.", "OK");
+                if (saveBtn != null) saveBtn.IsEnabled = true;
                 return;
             }
 
             string note = NoteEntry.Text?.Trim() ?? string.Empty;
-
-            // Ekstrak komponen Tahun, Bulan, Hari dari DatePicker
             DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
             DateTime utcDate = new DateTime(rawDate.Year, rawDate.Month, rawDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
@@ -135,34 +119,49 @@ public partial class InputJournalPage : ContentPage
                 Note = note
             };
 
-            if (saveBtn != null) saveBtn.IsEnabled = false;
-
-            if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
-            {
-                var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
-
-                if (success)
-                {
-                    await this.DisplayAlertAsync("Berhasil", string.IsNullOrWhiteSpace(message) ? "Data berhasil disimpan." : message, "OK");
-                    await Navigation.PopAsync();
-                }
-                else
-                {
-                    await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
-                    if (saveBtn != null) saveBtn.IsEnabled = true;
-                }
-            }
-            else
+            var mainPage = Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) as MainPage;
+            if (mainPage == null)
             {
                 await Navigation.PopAsync();
+                return;
             }
+
+            // PENTING: Eksekusi proses berat murni di background thread agar UI tidak Deadlock
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
+
+                    // PENTING: Panggil alert secara eksplisit di UI Thread Utama
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        if (success)
+                        {
+                            await this.DisplayAlertAsync("Berhasil", string.IsNullOrWhiteSpace(message) ? "Data berhasil disimpan." : message, "OK");
+                            await Navigation.PopAsync();
+                        }
+                        else
+                        {
+                            await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan (Unknown)." : message, "OK");
+                            if (saveBtn != null) saveBtn.IsEnabled = true;
+                        }
+                    });
+                }
+                catch (Exception threadEx)
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        await this.DisplayAlertAsync("Error Background", "Gagal memproses data: " + threadEx.Message, "OK");
+                        if (saveBtn != null) saveBtn.IsEnabled = true;
+                    });
+                }
+            });
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"OnSaveClicked Exception: {ex}");
-            Console.WriteLine($"OnSaveClicked Exception: {ex}");
-
-            await this.DisplayAlertAsync("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
+            await this.DisplayAlertAsync("Error UI", "Terjadi error: " + ex.Message, "OK");
             if (saveBtn != null) saveBtn.IsEnabled = true;
         }
     }
