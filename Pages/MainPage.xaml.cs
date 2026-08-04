@@ -88,12 +88,12 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new InputJournalPage());
     }
 
-    public async Task<bool> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
+    public async Task<(bool success, string message)> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
         SaveToLocalMemory(transactionDto);
 
         bool isSuccess = false;
-        string resultMessage = string.Empty;
+        string responseMessage = string.Empty;
 
         await TopHeader.QueueAndUploadDataAsync(
             data: transactionDto,
@@ -101,7 +101,7 @@ public partial class MainPage : ContentPage
             {
                 var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
                 isSuccess = success;
-                resultMessage = message;
+                responseMessage = message;
 
                 if (success)
                 {
@@ -119,12 +119,8 @@ public partial class MainPage : ContentPage
         {
             await LoadDashboardDataAsync();
         }
-        else
-        {
-            await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrEmpty(resultMessage) ? "Terjadi kesalahan saat menyimpan transaksi." : resultMessage, "OK");
-        }
 
-        return isSuccess;
+        return (isSuccess, responseMessage);
     }
 
     private static readonly Dictionary<CreateSimpleTransactionDto, Guid> _pendingIds = new();

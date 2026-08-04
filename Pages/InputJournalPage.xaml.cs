@@ -5,16 +5,29 @@ namespace AumoFinance.Pages;
 
 public partial class InputJournalPage : ContentPage
 {
-    private string _selectedType = "Expense"; // Default Pengeluaran
+    private string _selectedType = "Income"; // Default ke Pemasukan
     private readonly CultureInfo _idrCulture = new("id-ID");
 
     public InputJournalPage()
     {
         InitializeComponent();
         EntryDatePicker.Date = DateTime.Today;
+
+        // Buka tab Pemasukan secara otomatis saat pertama kali halaman dibuka
+        SetIncomeTypeVisual();
     }
 
     private void OnExpenseTypeSelected(object? sender, EventArgs e)
+    {
+        SetExpenseTypeVisual();
+    }
+
+    private void OnIncomeTypeSelected(object? sender, EventArgs e)
+    {
+        SetIncomeTypeVisual();
+    }
+
+    private void SetExpenseTypeVisual()
     {
         _selectedType = "Expense";
 
@@ -32,7 +45,7 @@ public partial class InputJournalPage : ContentPage
         AmountTypeLabel.TextColor = Color.FromArgb("#F87171");
     }
 
-    private void OnIncomeTypeSelected(object? sender, EventArgs e)
+    private void SetIncomeTypeVisual()
     {
         _selectedType = "Income";
 
@@ -116,12 +129,22 @@ public partial class InputJournalPage : ContentPage
             Note = note
         };
 
+        // Matikan tombol simpan sementara
+        SaveBtn.IsEnabled = false;
+
         if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
         {
-            bool success = await mainPage.ProcessNewTransactionAsync(transactionDto);
+            var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
+
             if (success)
             {
+                await this.DisplayAlertAsync("Berhasil", message, "OK");
                 await Navigation.PopAsync();
+            }
+            else
+            {
+                await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
+                SaveBtn.IsEnabled = true;
             }
         }
         else

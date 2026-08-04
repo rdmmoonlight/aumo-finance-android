@@ -3,15 +3,8 @@ using AumoFinance.Models;
 
 namespace AumoFinance.Services;
 
-// Akses LANGSUNG ke Neon (Postgres) lewat connection string. Tidak lewat
-// API web sama sekali. Semua tulis (INSERT) hanya menyentuh tabel mobile
-// ("MobileJournalEntries" / "MobileJournalEntryLines") — tidak pernah
-// menyentuh "JournalEntries"/"JournalEntryLines" milik web secara langsung.
-// Data mobile baru masuk pembukuan utama setelah diverifikasi lewat
-// halaman web "Mobile Classification".
 public class ApiService
 {
-    // TODO: ganti dengan connection string Neon yang sebenarnya.
     private const string ConnectionString = "__NEON_CONNECTION_STRING__";
 
     private readonly NpgsqlDataSource _dataSource = NpgsqlDataSource.Create(ConnectionString);
@@ -27,9 +20,6 @@ public class ApiService
         _ => $"Terjadi kesalahan: {ex.Message}"
     };
 
-    // Dashboard: baca dari tabel utama (JournalEntries) yang SUDAH
-    // terverifikasi. Entri mobile yang masih Pending tidak memengaruhi
-    // angka ini sama sekali.
     public async Task<DashboardModel?> GetDashboardAsync()
     {
         try
@@ -42,7 +32,6 @@ public class ApiService
             DateTime? periodEnd = null;
             bool isClosed = false;
 
-            // Ambil periode yang aktif (IsClosed = FALSE)
             await using (var cmd = new NpgsqlCommand(
                 "SELECT \"PeriodName\", \"StartDate\", \"EndDate\", \"IsClosed\" FROM \"Periods\" " +
                 "WHERE \"IsClosed\" = FALSE ORDER BY \"StartDate\" DESC LIMIT 1", conn))
@@ -57,7 +46,6 @@ public class ApiService
                 }
                 else
                 {
-                    // Jika tidak ada periode yang terbuka/aktif di database, anggap closed
                     isClosed = true;
                 }
             }
@@ -121,7 +109,6 @@ public class ApiService
         }
     }
 
-    // Ambil daftar akun aktif
     public async Task<List<AccountLookupModel>> GetAccountsAsync()
     {
         var result = new List<AccountLookupModel>();
@@ -152,7 +139,6 @@ public class ApiService
         return result;
     }
 
-    // Jurnal manual (akun dipilih sendiri di app)
     public async Task<(bool success, string message)> PostJournalAsync(CreateJournalDto dto)
     {
         var lines = dto.Lines.Where(l => l.AccountId != 0 && (l.Debit != 0 || l.Credit != 0)).ToList();
@@ -174,6 +160,9 @@ public class ApiService
             await conn.OpenAsync();
             await using var tx = await conn.BeginTransactionAsync();
 
+            // Paksa DateTimeKind ke UTC
+            DateTime entryDateUtc = DateTime.SpecifyKind(dto.EntryDate.Date, DateTimeKind.Utc);
+
             int mobileEntryId;
             await using (var cmd = new NpgsqlCommand(
                 "INSERT INTO \"MobileJournalEntries\" " +
@@ -181,8 +170,9 @@ public class ApiService
                 "VALUES (@entryDate, 'Manual', 'Pending', now() AT TIME ZONE 'utc') " +
                 "RETURNING \"Id\"", conn, tx))
             {
-                cmd.Parameters.AddWithValue("entryDate", dto.EntryDate.Date);
-                mobileEntryId = (int)(await cmd.ExecuteScalarAsync())!;
+                cmd.Parameters.AddWithValue("entryDate", entryDateUtc);
+                var scalarResult = await cmd.ExecuteScalarAsync();
+                mobileEntryId = Convert.ToInt32(scalarResult);
             }
 
             for (int i = 0; i < lines.Count; i++)
@@ -210,7 +200,6 @@ public class ApiService
         }
     }
 
-    // Transaksi cepat (Pemasukan/Pengeluaran)
     public async Task<(bool success, string message)> PostSimpleTransactionAsync(CreateSimpleTransactionDto dto)
     {
         if (dto.Amount <= 0)
@@ -228,11 +217,14 @@ public class ApiService
             await using var conn = CreateConnection();
             await conn.OpenAsync();
 
+            // Paksa DateTimeKind ke UTC untuk kompatibilitas Npgsql timestamptz
+            DateTime entryDateUtc = DateTime.SpecifyKind(dto.EntryDate.Date, DateTimeKind.Utc);
+
             await using var cmd = new NpgsqlCommand(
                 "INSERT INTO \"MobileJournalEntries\" " +
                 "(\"EntryDate\", \"Mode\", \"Type\", \"Amount\", \"Note\", \"Status\", \"SubmittedAt\") " +
                 "VALUES (@entryDate, 'Simple', @type, @amount, @note, 'Pending', now() AT TIME ZONE 'utc')", conn);
-            cmd.Parameters.AddWithValue("entryDate", dto.EntryDate.Date);
+            cmd.Parameters.AddWithValue("entryDate", entryDateUtc);
             cmd.Parameters.AddWithValue("type", dto.Type);
             cmd.Parameters.AddWithValue("amount", dto.Amount);
             cmd.Parameters.AddWithValue("note", (object?)dto.Note ?? DBNull.Value);
