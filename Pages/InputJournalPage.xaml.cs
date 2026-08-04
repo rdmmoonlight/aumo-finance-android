@@ -126,14 +126,12 @@ public partial class InputJournalPage : ContentPage
                 return;
             }
 
-            // PENTING: Eksekusi proses berat murni di background thread agar UI tidak Deadlock
             _ = Task.Run(async () =>
             {
                 try
                 {
                     var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
 
-                    // PENTING: Panggil alert secara eksplisit di UI Thread Utama
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
                         if (success)
@@ -143,7 +141,7 @@ public partial class InputJournalPage : ContentPage
                         }
                         else
                         {
-                            await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan (Unknown)." : message, "OK");
+                            await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan." : message, "OK");
                             if (saveBtn != null) saveBtn.IsEnabled = true;
                         }
                     });

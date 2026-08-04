@@ -156,9 +156,10 @@ public class ApiService
 
         try
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             await using var conn = CreateConnection();
-            await conn.OpenAsync();
-            await using var tx = await conn.BeginTransactionAsync();
+            await conn.OpenAsync(cts.Token);
+            await using var tx = await conn.BeginTransactionAsync(cts.Token);
 
             DateTime entryDateUtc = new DateTime(dto.EntryDate.Year, dto.EntryDate.Month, dto.EntryDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
@@ -169,10 +170,11 @@ public class ApiService
                 "VALUES (@entryDate, 'Manual', 'Pending', now() AT TIME ZONE 'utc') " +
                 "RETURNING \"Id\"", conn, tx))
             {
+                cmd.CommandTimeout = 15;
                 var dateParam = cmd.Parameters.Add("entryDate", NpgsqlTypes.NpgsqlDbType.TimestampTz);
                 dateParam.Value = entryDateUtc;
 
-                var scalarResult = await cmd.ExecuteScalarAsync();
+                var scalarResult = await cmd.ExecuteScalarAsync(cts.Token);
                 mobileEntryId = Convert.ToInt32(scalarResult);
             }
 
@@ -183,17 +185,26 @@ public class ApiService
                     "INSERT INTO \"MobileJournalEntryLines\" " +
                     "(\"MobileJournalEntryId\", \"AccountId\", \"LineDescription\", \"Debit\", \"Credit\", \"LineOrder\") " +
                     "VALUES (@entryId, @accountId, @desc, @debit, @credit, @order)", conn, tx);
+                cmd.CommandTimeout = 15;
                 cmd.Parameters.AddWithValue("entryId", mobileEntryId);
                 cmd.Parameters.AddWithValue("accountId", line.AccountId);
                 cmd.Parameters.AddWithValue("desc", (object?)line.LineDescription ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("debit", line.Debit);
                 cmd.Parameters.AddWithValue("credit", line.Credit);
                 cmd.Parameters.AddWithValue("order", i);
-                await cmd.ExecuteNonQueryAsync();
+                await cmd.ExecuteNonQueryAsync(cts.Token);
             }
 
-            await tx.CommitAsync();
+            await tx.CommitAsync(cts.Token);
             return (true, "Jurnal berhasil dikirim, menunggu verifikasi.");
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Koneksi ke database timeout (15 detik). Cek jaringan internet Anda.");
+        }
+        catch (Npgsql.PostgresException pgEx)
+        {
+            return (false, $"Postgres Error: {pgEx.MessageText}");
         }
         catch (Exception ex)
         {
@@ -215,15 +226,19 @@ public class ApiService
 
         try
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             await using var conn = CreateConnection();
-            await conn.OpenAsync();
+            await conn.OpenAsync(cts.Token);
 
             DateTime entryDateUtc = new DateTime(dto.EntryDate.Year, dto.EntryDate.Month, dto.EntryDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
             await using var cmd = new NpgsqlCommand(
                 "INSERT INTO \"MobileJournalEntries\" " +
                 "(\"EntryDate\", \"Mode\", \"Type\", \"Amount\", \"Note\", \"Status\", \"SubmittedAt\") " +
-                "VALUES (@entryDate, 'Simple', @type, @amount, @note, 'Pending', now() AT TIME ZONE 'utc')", conn);
+                "VALUES (@entryDate, 'Simple', @type, @amount, @note, 'Pending', now() AT TIME ZONE 'utc') " +
+                "RETURNING \"Id\"", conn);
+
+            cmd.CommandTimeout = 15;
 
             var dateParam = cmd.Parameters.Add("entryDate", NpgsqlTypes.NpgsqlDbType.TimestampTz);
             dateParam.Value = entryDateUtc;
@@ -232,8 +247,21 @@ public class ApiService
             cmd.Parameters.AddWithValue("amount", dto.Amount);
             cmd.Parameters.AddWithValue("note", (object?)dto.Note ?? DBNull.Value);
 
-            await cmd.ExecuteNonQueryAsync();
-            return (true, "Transaksi berhasil dikirim, menunggu verifikasi.");
+            var scalarResult = await cmd.ExecuteScalarAsync(cts.Token);
+            if (scalarResult != null && scalarResult != DBNull.Value)
+            {
+                return (true, "Transaksi berhasil dikirim, menunggu verifikasi.");
+            }
+
+            return (false, "Gagal menyimpan: Database tidak mengembalikan ID transaksi.");
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Koneksi ke database timeout (15 detik). Cek jaringan internet Anda.");
+        }
+        catch (Npgsql.PostgresException pgEx)
+        {
+            return (false, $"Postgres Error: {pgEx.MessageText}");
         }
         catch (Exception ex)
         {

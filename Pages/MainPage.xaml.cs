@@ -94,35 +94,23 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            // Simpan ke storage lokal terlebih dahulu sehingga data tidak hilang bila offline.
             SaveToLocalMemory(transactionDto);
 
-            // Mulai antrean upload secara asynchronous tetapi jangan menunggu selesainya di thread UI.
-            // Dengan cara ini halaman input dapat segera memberi umpan balik ke pengguna bahwa data
-            // telah masuk ke antrean, sementara proses pengunggahan berjalan di background dan
-            // TopBarView akan menampilkan statusnya.
-            _ = TopHeader.QueueAndUploadDataAsync(
-                data: transactionDto,
-                uploadTask: async (dto) =>
-                {
-                    var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
-                    if (success)
-                    {
-                        RemoveFromLocalMemory(dto);
-                    }
-                    return success;
-                },
-                onDeleteLocalData: (dto) => RemoveFromLocalMemory(dto)
-            );
+            // Langsung panggil ApiService tanpa tertahan di TopHeader
+            var (success, message) = await _apiService.PostSimpleTransactionAsync(transactionDto);
 
-            // Kembalikan respons sukses segera karena data sudah berada di antrean lokal.
-            return (true, "Transaksi ditambahkan ke antrean, akan diunggah otomatis.");
+            if (success)
+            {
+                RemoveFromLocalMemory(transactionDto);
+                await LoadDashboardDataAsync();
+            }
+
+            return (success, message);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"ProcessNewTransactionAsync error: {ex}");
-            Console.WriteLine($"ProcessNewTransactionAsync error: {ex}");
-            return (false, ex.Message);
+            return (false, "Terjadi kesalahan di MainPage: " + ex.Message);
         }
     }
 
@@ -179,19 +167,11 @@ public partial class MainPage : ContentPage
         foreach (var item in pending.ToList())
         {
             _pendingIds[item.Dto] = item.Id;
-            await TopHeader.QueueAndUploadDataAsync(
-                data: item.Dto,
-                uploadTask: async (dto) =>
-                {
-                    var (success, _) = await _apiService.PostSimpleTransactionAsync(dto);
-                    if (success)
-                    {
-                        RemoveFromLocalMemory(dto);
-                    }
-                    return success;
-                },
-                onDeleteLocalData: RemoveFromLocalMemory
-            );
+            var (success, _) = await _apiService.PostSimpleTransactionAsync(item.Dto);
+            if (success)
+            {
+                RemoveFromLocalMemory(item.Dto);
+            }
         }
     }
 
