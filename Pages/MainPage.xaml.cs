@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Text.Json;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
@@ -11,9 +10,6 @@ public partial class MainPage : ContentPage
     private readonly ApiService _apiService;
     private readonly CultureInfo _idrCulture = new("id-ID");
 
-    private static readonly string PendingFilePath =
-        Path.Combine(FileSystem.AppDataDirectory, "pending_transactions.json");
-
     public MainPage(ApiService apiService)
     {
         InitializeComponent();
@@ -23,7 +19,6 @@ public partial class MainPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await RecoverPendingTransactionsAsync();
         await LoadDashboardDataAsync();
     }
 
@@ -90,18 +85,15 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new InputJournalPage());
     }
 
+    // ALUR LANGSUNG: Tembak ApiService secara langsung ke database tanpa Queue
     public async Task<(bool success, string message)> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
         try
         {
-            SaveToLocalMemory(transactionDto);
-
-            // Langsung panggil ApiService tanpa tertahan di TopHeader
             var (success, message) = await _apiService.PostSimpleTransactionAsync(transactionDto);
 
             if (success)
             {
-                RemoveFromLocalMemory(transactionDto);
                 await LoadDashboardDataAsync();
             }
 
@@ -113,96 +105,4 @@ public partial class MainPage : ContentPage
             return (false, "Terjadi kesalahan di MainPage: " + ex.Message);
         }
     }
-
-    private static readonly Dictionary<CreateSimpleTransactionDto, Guid> _pendingIds = new();
-
-    private void SaveToLocalMemory(CreateSimpleTransactionDto dto)
-    {
-        try
-        {
-            var pending = ReadPendingFile();
-            var localId = Guid.NewGuid();
-            _pendingIds[dto] = localId;
-            pending.Add(new PendingTransaction(localId, dto));
-            WritePendingFile(pending);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Gagal menyimpan transaksi lokal: {ex.Message}");
-        }
-    }
-
-    private void RemoveFromLocalMemory(CreateSimpleTransactionDto dto)
-    {
-        try
-        {
-            if (!_pendingIds.TryGetValue(dto, out var localId)) return;
-
-            var pending = ReadPendingFile();
-            pending.RemoveAll(p => p.Id == localId);
-            WritePendingFile(pending);
-            _pendingIds.Remove(dto);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Gagal menghapus transaksi lokal: {ex.Message}");
-        }
-    }
-
-    private async Task RecoverPendingTransactionsAsync()
-    {
-        List<PendingTransaction> pending;
-        try
-        {
-            pending = ReadPendingFile();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Gagal membaca transaksi lokal: {ex.Message}");
-            return;
-        }
-
-        if (pending.Count == 0) return;
-
-        foreach (var item in pending.ToList())
-        {
-            _pendingIds[item.Dto] = item.Id;
-            var (success, _) = await _apiService.PostSimpleTransactionAsync(item.Dto);
-            if (success)
-            {
-                RemoveFromLocalMemory(item.Dto);
-            }
-        }
-    }
-
-    private static List<PendingTransaction> ReadPendingFile()
-    {
-        try
-        {
-            if (!File.Exists(PendingFilePath)) return new List<PendingTransaction>();
-            var json = File.ReadAllText(PendingFilePath);
-            if (string.IsNullOrWhiteSpace(json)) return new List<PendingTransaction>();
-            return JsonSerializer.Deserialize<List<PendingTransaction>>(json) ?? new List<PendingTransaction>();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"ReadPendingFile error: {ex.Message}");
-            return new List<PendingTransaction>();
-        }
-    }
-
-    private static void WritePendingFile(List<PendingTransaction> pending)
-    {
-        try
-        {
-            var json = JsonSerializer.Serialize(pending);
-            File.WriteAllText(PendingFilePath, json);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"WritePendingFile error: {ex.Message}");
-        }
-    }
-
-    private sealed record PendingTransaction(Guid Id, CreateSimpleTransactionDto Dto);
 }
