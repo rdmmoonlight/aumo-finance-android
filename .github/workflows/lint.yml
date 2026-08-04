@@ -3,7 +3,6 @@ name: Code Quality & Linting
 on:
   push:
     branches:
-      - main
       - production
 
 permissions:
