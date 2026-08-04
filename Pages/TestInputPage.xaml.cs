@@ -13,8 +13,7 @@ public partial class TestInputPage : ContentPage
     public TestInputPage()
     {
         InitializeComponent();
-        
-        // Buat instans ApiService langsung untuk pengujian
+
         _apiService = new ApiService();
         TestDatePicker.Date = DateTime.Today;
 
@@ -57,7 +56,6 @@ public partial class TestInputPage : ContentPage
 
         try
         {
-            // Parse nominal
             string rawAmount = new string((TestAmountEntry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
             if (!decimal.TryParse(rawAmount, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal amount) || amount <= 0)
             {
@@ -66,7 +64,6 @@ public partial class TestInputPage : ContentPage
                 return;
             }
 
-            // Ekstrak Komponen Tanggal & Paksa UTC
             DateTime rawDate = TestDatePicker.Date.GetValueOrDefault(DateTime.Today);
             DateTime utcDate = new DateTime(rawDate.Year, rawDate.Month, rawDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
@@ -78,10 +75,8 @@ public partial class TestInputPage : ContentPage
                 Note = TestNoteEntry.Text?.Trim() ?? "Tes Input Langsung"
             };
 
-            // TEMBAK LANGSUNG KE APISERVICE
             var (success, message) = await _apiService.PostSimpleTransactionAsync(testDto);
 
-            // TAMPILKAN ALERT DI UI THREAD
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 if (success)
