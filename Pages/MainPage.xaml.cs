@@ -94,37 +94,29 @@ public partial class MainPage : ContentPage
     {
         try
         {
+            // Simpan ke storage lokal terlebih dahulu sehingga data tidak hilang bila offline.
             SaveToLocalMemory(transactionDto);
 
-            bool isSuccess = false;
-            string responseMessage = string.Empty;
-
-            await TopHeader.QueueAndUploadDataAsync(
+            // Mulai antrean upload secara asynchronous tetapi jangan menunggu selesainya di thread UI.
+            // Dengan cara ini halaman input dapat segera memberi umpan balik ke pengguna bahwa data
+            // telah masuk ke antrean, sementara proses pengunggahan berjalan di background dan
+            // TopBarView akan menampilkan statusnya.
+            _ = TopHeader.QueueAndUploadDataAsync(
                 data: transactionDto,
                 uploadTask: async (dto) =>
                 {
                     var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
-                    isSuccess = success;
-                    responseMessage = message;
-
                     if (success)
                     {
                         RemoveFromLocalMemory(dto);
                     }
                     return success;
                 },
-                onDeleteLocalData: (dto) =>
-                {
-                    RemoveFromLocalMemory(dto);
-                }
+                onDeleteLocalData: (dto) => RemoveFromLocalMemory(dto)
             );
 
-            if (isSuccess)
-            {
-                await LoadDashboardDataAsync();
-            }
-
-            return (isSuccess, responseMessage);
+            // Kembalikan respons sukses segera karena data sudah berada di antrean lokal.
+            return (true, "Transaksi ditambahkan ke antrean, akan diunggah otomatis.");
         }
         catch (Exception ex)
         {
