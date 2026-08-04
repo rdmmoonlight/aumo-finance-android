@@ -59,7 +59,7 @@ public partial class TestInputPage : ContentPage
             string rawAmount = new string((TestAmountEntry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
             if (!decimal.TryParse(rawAmount, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal amount) || amount <= 0)
             {
-                await DisplayAlert("Validasi Tes", "Isikan angka nominal yang valid di atas 0.", "OK");
+                await this.DisplayAlertAsync("Validasi Tes", "Isikan angka nominal yang valid di atas 0.", "OK");
                 ResetButtonState();
                 return;
             }
@@ -81,12 +81,12 @@ public partial class TestInputPage : ContentPage
             {
                 if (success)
                 {
-                    await DisplayAlert("TES SUKSES!", $"PostgreSQL Merespons:\n{message}", "OK");
+                    await this.DisplayAlertAsync("TES SUKSES!", $"PostgreSQL Merespons:\n{message}", "OK");
                     await Navigation.PopAsync();
                 }
                 else
                 {
-                    await DisplayAlert("TES GAGAL!", $"Detail Penolakan DB:\n{message}", "OK");
+                    await this.DisplayAlertAsync("TES GAGAL!", $"Detail Penolakan DB:\n{message}", "OK");
                     ResetButtonState();
                 }
             });
@@ -94,7 +94,7 @@ public partial class TestInputPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"TestInputPage Exception: {ex}");
-            await DisplayAlert("TES ERROR!", $"Exception Terdeteksi:\n{ex.Message}", "OK");
+            await this.DisplayAlertAsync("TES ERROR!", $"Exception Terdeteksi:\n{ex.Message}", "OK");
             ResetButtonState();
         }
     }
