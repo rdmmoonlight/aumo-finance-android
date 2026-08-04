@@ -85,11 +85,6 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new InputJournalPage());
     }
 
-    private async void OnTestPageClicked(object? sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new TestInputPage());
-    }
-
     // ALUR LANGSUNG: Tembak ApiService secara langsung ke database tanpa Queue
     public async Task<(bool success, string message)> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {

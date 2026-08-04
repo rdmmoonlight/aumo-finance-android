@@ -104,7 +104,7 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <!-- Card Beban -->
+                    <!-- Card Pengeluaran -->
                     <Border Grid.Column="1"
                             BackgroundColor="#1E293B"
                             Stroke="#334155"
@@ -113,7 +113,7 @@
                             Padding="14">
                         <VerticalStackLayout Spacing="6">
                             <HorizontalStackLayout Spacing="6">
-                                <Label Text="Beban"
+                                <Label Text="Pengeluaran"
                                        TextColor="#94A3B8"
                                        FontSize="10"
                                        FontAttributes="Bold" />
@@ -131,7 +131,7 @@
                 <VerticalStackLayout Spacing="12" Margin="0,10,0,0">
                     
                     <!-- Primary CTA Button -->
-                    <Button Text="➕  Input Jurnal Baru"
+                    <Button Text="Input Jurnal Baru"
                             Clicked="OnInputJournalClicked"
                             BackgroundColor="#10B981"
                             TextColor="White"
@@ -144,22 +144,9 @@
                         </Button.Shadow>
                     </Button>
 
-                    <!-- Button Tes Input Langsung ke DB -->
-                    <Button Text="🧪  Tes Input DB (Direct)"
-                            Clicked="OnTestPageClicked"
-                            BackgroundColor="#D97706"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="14"
-                            CornerRadius="14"
-                            HeightRequest="48">
-                        <Button.Shadow>
-                            <Shadow Brush="#D97706" Offset="0,4" Radius="8" Opacity="0.2" />
-                        </Button.Shadow>
-                    </Button>
 
                     <!-- Secondary Button -->
-                    <Button Text="🔄  Muat Ulang Data"
+                    <Button Text="Muat Ulang Data"
                             Clicked="OnRefreshClicked"
                             BackgroundColor="#1E293B"
                             BorderColor="#334155"
