@@ -1,62 +1,59 @@
 using System.Diagnostics;
 using System.Globalization;
 using AumoFinance.Models;
+using AumoFinance.Services;
 
 namespace AumoFinance.Pages;
 
 public partial class InputJournalPage : ContentPage
 {
-    private string _selectedType = "Income"; // Default ke Pemasukan
+    private string _selectedType = "Income";
     private readonly CultureInfo _idrCulture = new("id-ID");
+    private readonly ApiService _apiService;
 
     public InputJournalPage()
     {
         InitializeComponent();
+
+        _apiService = new ApiService();
         EntryDatePicker.Date = DateTime.Today;
 
-        SetIncomeTypeVisual();
+        SetTypeVisual("Income");
     }
 
-    private void OnExpenseTypeSelected(object? sender, EventArgs e)
+    private void OnIncomeSelected(object? sender, EventArgs e)
     {
-        SetExpenseTypeVisual();
+        SetTypeVisual("Income");
     }
 
-    private void OnIncomeTypeSelected(object? sender, EventArgs e)
+    private void OnExpenseSelected(object? sender, EventArgs e)
     {
-        SetIncomeTypeVisual();
+        SetTypeVisual("Expense");
     }
 
-    private void SetExpenseTypeVisual()
+    private void SetTypeVisual(string type)
     {
-        _selectedType = "Expense";
+        _selectedType = type;
+        if (type == "Income")
+        {
+            IncomeBtn.BackgroundColor = Color.FromArgb("#10B981");
+            IncomeBtn.TextColor = Colors.White;
+            ExpenseBtn.BackgroundColor = Color.FromArgb("#1E293B");
+            ExpenseBtn.TextColor = Color.FromArgb("#94A3B8");
 
-        ExpenseBtn.BackgroundColor = Color.FromArgb("#EF4444");
-        ExpenseBtn.TextColor = Colors.White;
-        ExpenseBtn.BorderWidth = 0;
+            AmountTypeLabel.Text = "Nominal Pemasukan (Rp)";
+            AmountTypeLabel.TextColor = Color.FromArgb("#38BDF8");
+        }
+        else
+        {
+            ExpenseBtn.BackgroundColor = Color.FromArgb("#EF4444");
+            ExpenseBtn.TextColor = Colors.White;
+            IncomeBtn.BackgroundColor = Color.FromArgb("#1E293B");
+            IncomeBtn.TextColor = Color.FromArgb("#94A3B8");
 
-        IncomeBtn.BackgroundColor = Color.FromArgb("#1E293B");
-        IncomeBtn.TextColor = Color.FromArgb("#94A3B8");
-        IncomeBtn.BorderWidth = 1;
-
-        AmountTypeLabel.Text = "Nominal Pengeluaran (Rp)";
-        AmountTypeLabel.TextColor = Color.FromArgb("#F87171");
-    }
-
-    private void SetIncomeTypeVisual()
-    {
-        _selectedType = "Income";
-
-        IncomeBtn.BackgroundColor = Color.FromArgb("#10B981");
-        IncomeBtn.TextColor = Colors.White;
-        IncomeBtn.BorderWidth = 0;
-
-        ExpenseBtn.BackgroundColor = Color.FromArgb("#1E293B");
-        ExpenseBtn.TextColor = Color.FromArgb("#94A3B8");
-        ExpenseBtn.BorderWidth = 1;
-
-        AmountTypeLabel.Text = "Nominal Pemasukan (Rp)";
-        AmountTypeLabel.TextColor = Color.FromArgb("#38BDF8");
+            AmountTypeLabel.Text = "Nominal Pengeluaran (Rp)";
+            AmountTypeLabel.TextColor = Color.FromArgb("#F87171");
+        }
     }
 
     private void OnAmountTextChanged(object? sender, TextChangedEventArgs e)
@@ -67,7 +64,6 @@ public partial class InputJournalPage : ContentPage
     private void OnAmountFocused(object? sender, FocusEventArgs e)
     {
         if (sender is not Entry entry) return;
-
         string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
         entry.Text = rawText;
     }
@@ -96,14 +92,14 @@ public partial class InputJournalPage : ContentPage
     private void UpdateAmountValidationState()
     {
         bool isInvalid = CleanAndParseDecimal(AmountEntry.Text) <= 0 && !string.IsNullOrEmpty(AmountEntry.Text);
-
         AmountFieldBorder.Stroke = isInvalid ? _invalidBorderColor : _validBorderColor;
         AmountValidationLabel.IsVisible = isInvalid;
     }
 
     private async void OnSaveClicked(object? sender, EventArgs e)
     {
-        Button? saveBtn = sender as Button;
+        SaveBtn.IsEnabled = false;
+        SaveBtn.Text = "Menyimpan data...";
 
         try
         {
@@ -113,11 +109,11 @@ public partial class InputJournalPage : ContentPage
                 AmountFieldBorder.Stroke = _invalidBorderColor;
                 AmountValidationLabel.IsVisible = true;
                 await this.DisplayAlertAsync("Peringatan", "Isikan nominal transaksi yang valid.", "OK");
+                ResetButtonState();
                 return;
             }
 
             string note = NoteEntry.Text?.Trim() ?? string.Empty;
-
             DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
             DateTime utcDate = new DateTime(rawDate.Year, rawDate.Month, rawDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
@@ -129,13 +125,11 @@ public partial class InputJournalPage : ContentPage
                 Note = note
             };
 
-            if (saveBtn != null) saveBtn.IsEnabled = false;
+            // TEMBAK LANGSUNG KE APISERVICE (Sama persis seperti halaman tes)
+            var (success, message) = await _apiService.PostSimpleTransactionAsync(transactionDto);
 
-            if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
-                // Eksekusi langsung tanpa background Task.Run/Queue
-                var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
-
                 if (success)
                 {
                     await this.DisplayAlertAsync("Berhasil", string.IsNullOrWhiteSpace(message) ? "Data berhasil disimpan." : message, "OK");
@@ -144,20 +138,22 @@ public partial class InputJournalPage : ContentPage
                 else
                 {
                     await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
-                    if (saveBtn != null) saveBtn.IsEnabled = true;
+                    ResetButtonState();
                 }
-            }
-            else
-            {
-                await Navigation.PopAsync();
-            }
+            });
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"OnSaveClicked Exception: {ex}");
             await this.DisplayAlertAsync("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
-            if (saveBtn != null) saveBtn.IsEnabled = true;
+            ResetButtonState();
         }
+    }
+
+    private void ResetButtonState()
+    {
+        SaveBtn.IsEnabled = true;
+        SaveBtn.Text = "SIMPAN TRANSAKSI";
     }
 
     private async void OnCancelClicked(object? sender, EventArgs e)
