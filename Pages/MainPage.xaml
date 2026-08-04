@@ -10,8 +10,7 @@
         <!-- Top Bar Component (Header, Sync Queue Status, & Versi Tag) -->
         <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
-        <!-- Indikator Loading (tampil saat data dashboard sedang diambil,
-             agar pengguna tidak melihat "Rp 0" sementara) -->
+        <!-- Indikator Loading (tampil saat data dashboard sedang diambil) -->
         <ActivityIndicator x:Name="LoadingIndicator"
                             Grid.Row="1"
                             Color="#4F46E5"
@@ -142,6 +141,20 @@
                             HeightRequest="52">
                         <Button.Shadow>
                             <Shadow Brush="#10B981" Offset="0,4" Radius="8" Opacity="0.3" />
+                        </Button.Shadow>
+                    </Button>
+
+                    <!-- Button Tes Input Langsung ke DB -->
+                    <Button Text="🧪  Tes Input DB (Direct)"
+                            Clicked="OnTestPageClicked"
+                            BackgroundColor="#D97706"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            CornerRadius="14"
+                            HeightRequest="48">
+                        <Button.Shadow>
+                            <Shadow Brush="#D97706" Offset="0,4" Radius="8" Opacity="0.2" />
                         </Button.Shadow>
                     </Button>
 
