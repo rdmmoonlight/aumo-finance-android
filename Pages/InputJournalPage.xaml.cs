@@ -125,8 +125,6 @@ public partial class InputJournalPage : ContentPage
 
             // Ekstrak komponen Tahun, Bulan, Hari dari DatePicker
             DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
-            
-            // Susun DateTime eksplisit dengan jenis UTC agar dd dan mm tidak pernah tertukar
             DateTime utcDate = new DateTime(rawDate.Year, rawDate.Month, rawDate.Day, 0, 0, 0, DateTimeKind.Utc);
 
             var transactionDto = new CreateSimpleTransactionDto
