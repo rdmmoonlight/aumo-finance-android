@@ -17,7 +17,7 @@ public partial class InputJournalPage : ContentPage
     private void OnExpenseTypeSelected(object? sender, EventArgs e)
     {
         _selectedType = "Expense";
-        
+
         // Visual Button Status
         ExpenseBtn.BackgroundColor = Color.FromArgb("#EF4444");
         ExpenseBtn.TextColor = Colors.White;
@@ -52,13 +52,6 @@ public partial class InputJournalPage : ContentPage
 
     private void OnAmountTextChanged(object? sender, TextChangedEventArgs e)
     {
-        // Tidak lagi mengubah entry.Text di sini sama sekali.
-        // Mengganti Text di tengah TextChanged adalah sumber crash native Android
-        // yang sesungguhnya (bukan hanya soal CursorPosition) -- pada beberapa
-        // perangkat (Oppo/Xiaomi tertentu), mengganti isi EditText saat karakter
-        // baru sedang diproses oleh native input connection tetap bisa memicu
-        // exception, terlepas dari CursorPosition. Solusi paling aman: biarkan
-        // pengguna mengetik angka mentah tanpa gangguan; hanya validasi di sini.
         UpdateAmountValidationState();
     }
 
@@ -66,8 +59,6 @@ public partial class InputJournalPage : ContentPage
     {
         if (sender is not Entry entry) return;
 
-        // Saat difokuskan, tampilkan angka mentah (tanpa pemisah ribuan)
-        // supaya pengguna bisa mengedit dengan bebas tanpa risiko native crash.
         string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
         entry.Text = rawText;
     }
@@ -76,9 +67,6 @@ public partial class InputJournalPage : ContentPage
     {
         if (sender is not Entry entry) return;
 
-        // Format ke pemisah ribuan HANYA setelah fokus lepas dari field ini.
-        // Di titik ini native EditText sudah selesai memproses input, sehingga
-        // aman mengganti Text tanpa memicu crash.
         string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
 
         if (string.IsNullOrEmpty(rawText))
@@ -117,9 +105,12 @@ public partial class InputJournalPage : ContentPage
 
         string note = NoteEntry.Text?.Trim() ?? string.Empty;
 
+        DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
+        DateTime utcDate = DateTime.SpecifyKind(rawDate.Date, DateTimeKind.Utc);
+
         var transactionDto = new CreateSimpleTransactionDto
         {
-            EntryDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today),
+            EntryDate = utcDate,
             Type = _selectedType,
             Amount = amount,
             Note = note
@@ -127,8 +118,11 @@ public partial class InputJournalPage : ContentPage
 
         if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
         {
-            await Navigation.PopAsync();
-            _ = mainPage.ProcessNewTransactionAsync(transactionDto);
+            bool success = await mainPage.ProcessNewTransactionAsync(transactionDto);
+            if (success)
+            {
+                await Navigation.PopAsync();
+            }
         }
         else
         {

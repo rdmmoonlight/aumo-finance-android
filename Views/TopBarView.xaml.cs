@@ -28,8 +28,8 @@ public partial class TopBarView : ContentView
     /// Memulai antrean sync 10 detik sebelum mengunggah data ke Database.
     /// </summary>
     public async Task QueueAndUploadDataAsync<T>(
-        T data, 
-        Func<T, Task<bool>> uploadTask, 
+        T data,
+        Func<T, Task<bool>> uploadTask,
         Action<T> onDeleteLocalData)
     {
         // Batalkan timer sync yang sedang berjalan sebelumnya (jika ada)
