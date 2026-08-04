@@ -38,17 +38,14 @@ public partial class MainPage : ContentPage
 
             if (data != null)
             {
-                // Cek apakah periode berstatus closed (baik via flag isClosed atau teks periode)
                 bool isClosedPeriod = data.IsClosed ||
                     (!string.IsNullOrEmpty(data.ActivePeriod) && data.ActivePeriod.Contains("CLOSED", StringComparison.OrdinalIgnoreCase));
 
                 if (isClosedPeriod)
                 {
-                    // Tampilkan status CLOSED pada header periode
                     string basePeriod = data.ActivePeriod?.Replace("(CLOSED)", "", StringComparison.OrdinalIgnoreCase).Trim() ?? "Periode";
                     TopHeader.PeriodText = $"{basePeriod} (CLOSED)";
 
-                    // Sembunyikan/kosongkan data nominal karena periode telah ditutup
                     CashLabel.Text = "-";
                     NetIncomeLabel.Text = "-";
                     RevenueLabel.Text = "-";
@@ -56,7 +53,6 @@ public partial class MainPage : ContentPage
                 }
                 else
                 {
-                    // Periode aktif: tampilkan teks periode dan nominal dari database
                     TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.ActivePeriod) ? "-" : data.ActivePeriod;
 
                     CashLabel.Text = data.TotalCash.ToString("C0", _idrCulture);
@@ -92,15 +88,21 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new InputJournalPage());
     }
 
-    public async Task ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
+    public async Task<bool> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
         SaveToLocalMemory(transactionDto);
+
+        bool isSuccess = false;
+        string resultMessage = string.Empty;
 
         await TopHeader.QueueAndUploadDataAsync(
             data: transactionDto,
             uploadTask: async (dto) =>
             {
                 var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
+                isSuccess = success;
+                resultMessage = message;
+
                 if (success)
                 {
                     RemoveFromLocalMemory(dto);
@@ -113,7 +115,16 @@ public partial class MainPage : ContentPage
             }
         );
 
-        await LoadDashboardDataAsync();
+        if (isSuccess)
+        {
+            await LoadDashboardDataAsync();
+        }
+        else
+        {
+            await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrEmpty(resultMessage) ? "Terjadi kesalahan saat menyimpan transaksi." : resultMessage, "OK");
+        }
+
+        return isSuccess;
     }
 
     private static readonly Dictionary<CreateSimpleTransactionDto, Guid> _pendingIds = new();
