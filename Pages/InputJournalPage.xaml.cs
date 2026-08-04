@@ -6,7 +6,7 @@ namespace AumoFinance.Pages;
 
 public partial class InputJournalPage : ContentPage
 {
-    private string _selectedType = "Income"; // Default ke Pemasukan
+    private string _selectedType = "Income"; // Default Pemasukan
     private readonly CultureInfo _idrCulture = new("id-ID");
 
     public InputJournalPage()
@@ -93,7 +93,6 @@ public partial class InputJournalPage : ContentPage
     private async void OnSaveClicked(object? sender, EventArgs e)
     {
         Button? saveBtn = sender as Button;
-        if (saveBtn != null) saveBtn.IsEnabled = false;
 
         try
         {
@@ -103,7 +102,6 @@ public partial class InputJournalPage : ContentPage
                 AmountFieldBorder.Stroke = _invalidBorderColor;
                 AmountValidationLabel.IsVisible = true;
                 await this.DisplayAlertAsync("Peringatan", "Isikan nominal transaksi yang valid.", "OK");
-                if (saveBtn != null) saveBtn.IsEnabled = true;
                 return;
             }
 
@@ -119,42 +117,28 @@ public partial class InputJournalPage : ContentPage
                 Note = note
             };
 
-            var mainPage = Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) as MainPage;
-            if (mainPage == null)
+            if (saveBtn != null) saveBtn.IsEnabled = false;
+
+            if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
+            {
+                // Langsung dipanggil dan di-await secara transparan
+                var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
+
+                if (success)
+                {
+                    await this.DisplayAlertAsync("Berhasil", string.IsNullOrWhiteSpace(message) ? "Data berhasil disimpan." : message, "OK");
+                    await Navigation.PopAsync();
+                }
+                else
+                {
+                    await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
+                    if (saveBtn != null) saveBtn.IsEnabled = true;
+                }
+            }
+            else
             {
                 await Navigation.PopAsync();
-                return;
             }
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
-
-                    MainThread.BeginInvokeOnMainThread(async () =>
-                    {
-                        if (success)
-                        {
-                            await this.DisplayAlertAsync("Berhasil", string.IsNullOrWhiteSpace(message) ? "Data berhasil disimpan." : message, "OK");
-                            await Navigation.PopAsync();
-                        }
-                        else
-                        {
-                            await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan." : message, "OK");
-                            if (saveBtn != null) saveBtn.IsEnabled = true;
-                        }
-                    });
-                }
-                catch (Exception threadEx)
-                {
-                    MainThread.BeginInvokeOnMainThread(async () =>
-                    {
-                        await this.DisplayAlertAsync("Error Background", "Gagal memproses data: " + threadEx.Message, "OK");
-                        if (saveBtn != null) saveBtn.IsEnabled = true;
-                    });
-                }
-            });
         }
         catch (Exception ex)
         {
