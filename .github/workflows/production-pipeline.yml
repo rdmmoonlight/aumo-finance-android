@@ -1,0 +1,148 @@
+name: Production Pipeline (Lint & Build APK)
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  # ==============================================================
+  # JOB 1: CHECK CODE QUALITY & LINTING
+  # ==============================================================
+  lint-csharp:
+    name: Lint & Verify C# Code
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      # 1. Checkout Code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      # 3. Restore Dependencies
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # 4. Verifikasi Format Kode (Gagal jika kode tidak rapi / tidak sesuai standar)
+      - name: Verify Code Formatting
+        run: dotnet format --verify-no-changes --verbosity diagnostic
+
+      # 5. Static Analysis (Gagal jika ada Warning/Error pada kodingan)
+      - name: Run Static Code Analysis
+        run: dotnet build --no-restore -c Debug /p:TreatWarningsAsErrors=true
+
+  # ==============================================================
+  # JOB 2: BUILD APK (Hanya jalan jika Job 1 SUKSES)
+  # ==============================================================
+  build-android:
+    name: Build Android APK
+    needs: lint-csharp  # <-- KUNCI: Wajib menunggu job 'lint-csharp' lolos tanpa error
+    if: github.ref == 'refs/heads/production' || github.base_ref == 'production'
+    runs-on: windows-latest
+
+    permissions:
+      contents: write # Izin untuk membuat Tag dan GitHub Release otomatis
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Generate Versi 3 Tingkat (Tahun.Bulan.TotalBuild)
+      - name: Generate CalVer Version
+        id: get_version
+        shell: pwsh
+        run: |
+          $yearMonth = Get-Date -Format "yy.M"
+          $buildNumber = "${{ github.run_number }}"
+          $fullVersion = "$yearMonth.$buildNumber"
+          
+          echo "app_version=$fullVersion" >> $env:GITHUB_OUTPUT
+          Write-Host "Versi APK Baru: $fullVersion"
+
+      # 3. Setup Java JDK 17
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+
+      # 4. Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      # 5. Install Workload MAUI Android
+      - name: Install Workloads
+        run: dotnet workload install maui-android
+
+      # 6. Inject Connection String
+      - name: Inject Connection String
+        shell: pwsh
+        env:
+          NEON_CONNECTION_STRING: ${{ secrets.NEON_CONNECTION_STRING }}
+        run: |
+          $file = "Services/ApiService.cs"
+          if (-not (Test-Path $file)) {
+            Write-Error "File $file tidak ditemukan"
+            exit 1
+          }
+          $content = Get-Content $file -Raw
+          if (-not $content.Contains("__NEON_CONNECTION_STRING__")) {
+            Write-Error "Placeholder __NEON_CONNECTION_STRING__ tidak ditemukan di $file"
+            exit 1
+          }
+          
+          $content = $content.Replace("__NEON_CONNECTION_STRING__", $env:NEON_CONNECTION_STRING)
+          Set-Content -Path $file -Value $content -NoNewline
+          Write-Host "Connection string berhasil di-inject."
+
+      # 7. Restore Dependencies
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # 8. Build APK Release dengan versi 3 tingkat (YY.M.BUILD)
+      - name: Build Android APK
+        run: >
+          dotnet publish
+          -c Release
+          -f net10.0-android
+          -p:AndroidPackageFormat=apk
+          -p:ApplicationVersion=${{ github.run_number }}
+          -p:ApplicationDisplayVersion=${{ steps.get_version.outputs.app_version }}
+
+      # 9. Upload File -Signed.apk ke GitHub Releases
+      - name: Upload Signed APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.app_version }}
+          name: Aumo Release v${{ steps.get_version.outputs.app_version }}
+          body: "Rilisan otomatis build ke-${{ github.run_number }} (Versi ${{ steps.get_version.outputs.app_version }})"
+          files: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 10. Backup Artifact (Hanya file -Signed.apk)
+      - name: Upload Signed APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aumo-Signed-APK-v${{ steps.get_version.outputs.app_version }}
+          path: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
+          if-no-files-found: error
