@@ -160,7 +160,6 @@ public class ApiService
             await conn.OpenAsync();
             await using var tx = await conn.BeginTransactionAsync();
 
-            // Paksa DateTimeKind ke UTC
             DateTime entryDateUtc = DateTime.SpecifyKind(dto.EntryDate.Date, DateTimeKind.Utc);
 
             int mobileEntryId;
@@ -217,7 +216,6 @@ public class ApiService
             await using var conn = CreateConnection();
             await conn.OpenAsync();
 
-            // Paksa DateTimeKind ke UTC untuk kompatibilitas Npgsql timestamptz
             DateTime entryDateUtc = DateTime.SpecifyKind(dto.EntryDate.Date, DateTimeKind.Utc);
 
             await using var cmd = new NpgsqlCommand(

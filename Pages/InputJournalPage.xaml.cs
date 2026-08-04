@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using AumoFinance.Models;
 
@@ -13,7 +14,7 @@ public partial class InputJournalPage : ContentPage
         InitializeComponent();
         EntryDatePicker.Date = DateTime.Today;
 
-        // Buka tab Pemasukan secara otomatis saat pertama kali halaman dibuka
+        // Default: Aktifkan tab Pemasukan saat pertama kali dibuka
         SetIncomeTypeVisual();
     }
 
@@ -107,50 +108,61 @@ public partial class InputJournalPage : ContentPage
 
     private async void OnSaveClicked(object? sender, EventArgs e)
     {
-        decimal amount = CleanAndParseDecimal(AmountEntry.Text);
-        if (amount <= 0)
-        {
-            AmountFieldBorder.Stroke = _invalidBorderColor;
-            AmountValidationLabel.IsVisible = true;
-            await this.DisplayAlertAsync("Peringatan", "Isikan nominal transaksi yang valid.", "OK");
-            return;
-        }
-
-        string note = NoteEntry.Text?.Trim() ?? string.Empty;
-
-        DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
-        DateTime utcDate = DateTime.SpecifyKind(rawDate.Date, DateTimeKind.Utc);
-
-        var transactionDto = new CreateSimpleTransactionDto
-        {
-            EntryDate = utcDate,
-            Type = _selectedType,
-            Amount = amount,
-            Note = note
-        };
-
-        // Tangkap tombol secara dinamis dari sender untuk menghindari error CS0103
         Button? saveBtn = sender as Button;
-        if (saveBtn != null) saveBtn.IsEnabled = false;
 
-        if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
+        try
         {
-            var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
-
-            if (success)
+            decimal amount = CleanAndParseDecimal(AmountEntry.Text);
+            if (amount <= 0)
             {
-                await this.DisplayAlertAsync("Berhasil", message, "OK");
-                await Navigation.PopAsync();
+                AmountFieldBorder.Stroke = _invalidBorderColor;
+                AmountValidationLabel.IsVisible = true;
+                await this.DisplayAlertAsync("Peringatan", "Isikan nominal transaksi yang valid.", "OK");
+                return;
+            }
+
+            string note = NoteEntry.Text?.Trim() ?? string.Empty;
+
+            DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
+            DateTime utcDate = DateTime.SpecifyKind(rawDate.Date, DateTimeKind.Utc);
+
+            var transactionDto = new CreateSimpleTransactionDto
+            {
+                EntryDate = utcDate,
+                Type = _selectedType,
+                Amount = amount,
+                Note = note
+            };
+
+            if (saveBtn != null) saveBtn.IsEnabled = false;
+
+            if (Navigation.NavigationStack.FirstOrDefault(p => p is MainPage) is MainPage mainPage)
+            {
+                var (success, message) = await mainPage.ProcessNewTransactionAsync(transactionDto);
+
+                if (success)
+                {
+                    await this.DisplayAlertAsync("Berhasil", string.IsNullOrWhiteSpace(message) ? "Data berhasil disimpan." : message, "OK");
+                    await Navigation.PopAsync();
+                }
+                else
+                {
+                    await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
+                    if (saveBtn != null) saveBtn.IsEnabled = true;
+                }
             }
             else
             {
-                await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
-                if (saveBtn != null) saveBtn.IsEnabled = true;
+                await Navigation.PopAsync();
             }
         }
-        else
+        catch (Exception ex)
         {
-            await Navigation.PopAsync();
+            Debug.WriteLine($"OnSaveClicked Exception: {ex}");
+            Console.WriteLine($"OnSaveClicked Exception: {ex}");
+
+            await this.DisplayAlertAsync("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
+            if (saveBtn != null) saveBtn.IsEnabled = true;
         }
     }
 

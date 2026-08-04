@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using AumoFinance.Models;
@@ -68,6 +69,7 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
             await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
         finally
@@ -90,37 +92,46 @@ public partial class MainPage : ContentPage
 
     public async Task<(bool success, string message)> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
-        SaveToLocalMemory(transactionDto);
+        try
+        {
+            SaveToLocalMemory(transactionDto);
 
-        bool isSuccess = false;
-        string responseMessage = string.Empty;
+            bool isSuccess = false;
+            string responseMessage = string.Empty;
 
-        await TopHeader.QueueAndUploadDataAsync(
-            data: transactionDto,
-            uploadTask: async (dto) =>
-            {
-                var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
-                isSuccess = success;
-                responseMessage = message;
+            await TopHeader.QueueAndUploadDataAsync(
+                data: transactionDto,
+                uploadTask: async (dto) =>
+                {
+                    var (success, message) = await _apiService.PostSimpleTransactionAsync(dto);
+                    isSuccess = success;
+                    responseMessage = message;
 
-                if (success)
+                    if (success)
+                    {
+                        RemoveFromLocalMemory(dto);
+                    }
+                    return success;
+                },
+                onDeleteLocalData: (dto) =>
                 {
                     RemoveFromLocalMemory(dto);
                 }
-                return success;
-            },
-            onDeleteLocalData: (dto) =>
+            );
+
+            if (isSuccess)
             {
-                RemoveFromLocalMemory(dto);
+                await LoadDashboardDataAsync();
             }
-        );
 
-        if (isSuccess)
-        {
-            await LoadDashboardDataAsync();
+            return (isSuccess, responseMessage);
         }
-
-        return (isSuccess, responseMessage);
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"ProcessNewTransactionAsync error: {ex}");
+            Console.WriteLine($"ProcessNewTransactionAsync error: {ex}");
+            return (false, ex.Message);
+        }
     }
 
     private static readonly Dictionary<CreateSimpleTransactionDto, Guid> _pendingIds = new();
@@ -137,7 +148,7 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Gagal menyimpan transaksi lokal: {ex.Message}");
+            Debug.WriteLine($"Gagal menyimpan transaksi lokal: {ex.Message}");
         }
     }
 
@@ -154,7 +165,7 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Gagal menghapus transaksi lokal: {ex.Message}");
+            Debug.WriteLine($"Gagal menghapus transaksi lokal: {ex.Message}");
         }
     }
 
@@ -167,7 +178,7 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Gagal membaca transaksi lokal: {ex.Message}");
+            Debug.WriteLine($"Gagal membaca transaksi lokal: {ex.Message}");
             return;
         }
 
@@ -194,16 +205,31 @@ public partial class MainPage : ContentPage
 
     private static List<PendingTransaction> ReadPendingFile()
     {
-        if (!File.Exists(PendingFilePath)) return new List<PendingTransaction>();
-        var json = File.ReadAllText(PendingFilePath);
-        if (string.IsNullOrWhiteSpace(json)) return new List<PendingTransaction>();
-        return JsonSerializer.Deserialize<List<PendingTransaction>>(json) ?? new List<PendingTransaction>();
+        try
+        {
+            if (!File.Exists(PendingFilePath)) return new List<PendingTransaction>();
+            var json = File.ReadAllText(PendingFilePath);
+            if (string.IsNullOrWhiteSpace(json)) return new List<PendingTransaction>();
+            return JsonSerializer.Deserialize<List<PendingTransaction>>(json) ?? new List<PendingTransaction>();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"ReadPendingFile error: {ex.Message}");
+            return new List<PendingTransaction>();
+        }
     }
 
     private static void WritePendingFile(List<PendingTransaction> pending)
     {
-        var json = JsonSerializer.Serialize(pending);
-        File.WriteAllText(PendingFilePath, json);
+        try
+        {
+            var json = JsonSerializer.Serialize(pending);
+            File.WriteAllText(PendingFilePath, json);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"WritePendingFile error: {ex.Message}");
+        }
     }
 
     private sealed record PendingTransaction(Guid Id, CreateSimpleTransactionDto Dto);
