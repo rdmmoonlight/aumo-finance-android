@@ -4,12 +4,13 @@
              x:Class="AumoFinance.Views.TopBarView"
              BackgroundColor="#0F172A">
 
+    <!-- Padding kiri dikurangi menjadi 4 agar tombol menepi ke kiri layar -->
     <Grid ColumnDefinitions="Auto, *, Auto"
           VerticalOptions="Center"
-          Padding="20,12,20,12">
+          Padding="4,12,16,12">
 
         <!-- SISI KIRI: Tombol Menu Navigasi + Periode -->
-        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
+        <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
             
             <!-- Tombol Menu dengan ContextFlyout -->
             <Button x:Name="MenuButton"
@@ -24,13 +25,21 @@
                     Clicked="OnMenuButtonClicked">
                 <FlyoutBase.ContextFlyout>
                     <MenuFlyout x:Name="TopMenuFlyout">
-                        <MenuFlyoutSubItem Text="Report">
+                        <MenuFlyoutSubItem Text="Reports &amp; Journals">
                             <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
-                            <MenuFlyoutItem Text="GL (Akun Permanen)" Clicked="OnGlPermanentClicked" />
-                            <MenuFlyoutItem Text="GL (Akun Sementara)" Clicked="OnGlTemporaryClicked" />
+                            <MenuFlyoutItem Text="Adjusting Journal" Clicked="OnAdjustingJournalClicked" />
+                            <MenuFlyoutItem Text="General Ledger (Permanent)" Clicked="OnGlPermanentClicked" />
+                            <MenuFlyoutItem Text="General Ledger (Temporary)" Clicked="OnGlTemporaryClicked" />
+                            <MenuFlyoutItem Text="Trial Balance" Clicked="OnTrialBalanceClicked" />
+                            <MenuFlyoutItem Text="Adjusted Trial Balance" Clicked="OnAdjustedTrialBalanceClicked" />
+                            <MenuFlyoutItem Text="Worksheet (10-Column)" Clicked="OnWorksheetClicked" />
+                            <MenuFlyoutItem Text="Income Statement" Clicked="OnIncomeStatementClicked" />
+                            <MenuFlyoutItem Text="Retained Earnings Statement" Clicked="OnRetainedEarningsClicked" />
+                            <MenuFlyoutItem Text="Statement of Financial Position" Clicked="OnSofpClicked" />
+                            <MenuFlyoutItem Text="Post-Closing Trial Balance" Clicked="OnPostClosingClicked" />
                         </MenuFlyoutSubItem>
-                        <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
-                        <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
+                        <MenuFlyoutItem Text="Chart of Accounts (COA)" Clicked="OnCoaClicked" />
+                        <MenuFlyoutItem Text="Accounting Periods" Clicked="OnPeriodClicked" />
                     </MenuFlyout>
                 </FlyoutBase.ContextFlyout>
             </Button>
@@ -38,7 +47,7 @@
             <!-- Label Periode -->
             <Label x:Name="PeriodLabel"
                    Text="-"
-                   FontSize="18"
+                   FontSize="16"
                    FontAttributes="Bold"
                    TextColor="#94A3B8"
                    VerticalOptions="Center" />
