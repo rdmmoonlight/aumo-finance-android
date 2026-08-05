@@ -60,7 +60,7 @@ public partial class GeneralJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat database: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Gagal memuat database: {ex.Message}", "OK");
         }
         finally
         {
@@ -69,12 +69,12 @@ public partial class GeneralJournalPage : ContentPage
         }
     }
 
-    private async void OnAddEntryClicked(object sender, EventArgs e)
+    private async void OnAddEntryClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("//JournalEntryCreatePage");
     }
 
-    private async void OnEditEntryClicked(object sender, EventArgs e)
+    private async void OnEditEntryClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is Guid entryId)
         {

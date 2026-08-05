@@ -61,7 +61,7 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal terhubung ke database: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Gagal terhubung ke database: {ex.Message}", "OK");
         }
         finally
         {
@@ -70,7 +70,7 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
         }
     }
 
-    private async void OnGeneralJournalClicked(object sender, EventArgs e)
+    private async void OnGeneralJournalClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("//GeneralJournalPage");
     }

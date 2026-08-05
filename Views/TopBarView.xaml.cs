@@ -10,27 +10,38 @@ public partial class TopBarView : ContentView
         InitializeComponent();
     }
 
-    private void OnGeneralJournalClicked(object sender, EventArgs e)
+    public string PeriodText
+    {
+        get => PeriodLabel.Text;
+        set => PeriodLabel.Text = string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+
+    private void OnMenuButtonClicked(object? sender, EventArgs e)
+    {
+        FlyoutBase.ShowAttachedFlyout(MenuButton);
+    }
+
+    private void OnGeneralJournalClicked(object? sender, EventArgs e)
     {
         // TODO: Navigasi ke General Journal
     }
 
-    private void OnGlPermanentClicked(object sender, EventArgs e)
+    private void OnGlPermanentClicked(object? sender, EventArgs e)
     {
         // TODO: Navigasi ke GL Permanen
     }
 
-    private void OnGlTemporaryClicked(object sender, EventArgs e)
+    private void OnGlTemporaryClicked(object? sender, EventArgs e)
     {
         // TODO: Navigasi ke GL Sementara
     }
 
-    private void OnCoaClicked(object sender, EventArgs e)
+    private void OnCoaClicked(object? sender, EventArgs e)
     {
         // TODO: Navigasi ke COA
     }
 
-    private void OnPeriodClicked(object sender, EventArgs e)
+    private void OnPeriodClicked(object? sender, EventArgs e)
     {
         // TODO: Filter Periode
     }
