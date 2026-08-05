@@ -82,7 +82,7 @@ public partial class PeriodsPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat periode: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat periode: {ex.Message}", "OK");
         }
         finally
         {
@@ -91,7 +91,7 @@ public partial class PeriodsPage : ContentPage
         }
     }
 
-    private async void OnSelectPeriodClicked(object sender, EventArgs e)
+    private async void OnSelectPeriodClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is Guid periodId)
         {
@@ -112,7 +112,7 @@ public partial class PeriodsPage : ContentPage
         }
     }
 
-    private async void OnStopViewingClicked(object sender, EventArgs e)
+    private async void OnStopViewingClicked(object? sender, EventArgs e)
     {
         try
         {
@@ -126,14 +126,14 @@ public partial class PeriodsPage : ContentPage
         }
     }
 
-    private async void OnClosePeriodClicked(object sender, EventArgs e)
+    private async void OnClosePeriodClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is Guid periodId)
         {
             var entity = await _accountingService.DbContext.Periods.FirstOrDefaultAsync(p => p.Id == periodId && p.UserId == _currentUserId);
             if (entity == null || entity.IsClosed) return;
 
-            bool confirm = await DisplayAlert("Konfirmasi Tutup Buku", $"Apakah Anda yakin ingin menutup periode {entity.PeriodName}? Tindakan ini akan mengunci transaksi.", "Ya, Tutup", "Batal");
+            bool confirm = await DisplayAlertAsync("Konfirmasi Tutup Buku", $"Apakah Anda yakin ingin menutup periode {entity.PeriodName}? Tindakan ini akan mengunci transaksi.", "Ya, Tutup", "Batal");
             if (confirm)
             {
                 try
@@ -151,10 +151,10 @@ public partial class PeriodsPage : ContentPage
         }
     }
 
-    private async void OnOpenNewPeriodClicked(object sender, EventArgs e)
+    private async void OnOpenNewPeriodClicked(object? sender, EventArgs e)
     {
         // Arahkan ke halaman pembuatan periode baru jika sudah dibuat
-        await DisplayAlert("Informasi", "Form untuk membuka periode baru dapat dihubungkan ke halaman CreatePeriod.", "OK");
+        await DisplayAlertAsync("Informasi", "Form untuk membuka periode baru dapat dihubungkan ke halaman CreatePeriod.", "OK");
     }
 
     private void ShowAlert(string message, bool success)

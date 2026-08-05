@@ -131,7 +131,7 @@ public partial class PostClosingTrialBalancePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat post-closing trial balance: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat post-closing trial balance: {ex.Message}", "OK");
         }
         finally
         {

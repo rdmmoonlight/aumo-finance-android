@@ -107,7 +107,7 @@ public partial class IncomeStatementPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat laporan laba rugi: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat laporan laba rugi: {ex.Message}", "OK");
         }
         finally
         {

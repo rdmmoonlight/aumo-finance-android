@@ -84,7 +84,7 @@ public partial class RetainedEarningsPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat Retained Earnings: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat Retained Earnings: {ex.Message}", "OK");
         }
         finally
         {
