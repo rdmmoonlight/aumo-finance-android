@@ -16,9 +16,20 @@ public partial class TopBarView : ContentView
         set => PeriodLabel.Text = string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
 
+    private void OnMenuButtonClicked(object sender, EventArgs e)
+    {
+        // Membuka ContextFlyout secara eksplisit jika ditekan pada platform tertentu
+        FlyoutBase.ShowAttachedFlyout(MenuButton);
+    }
+
     private async void OnGeneralJournalClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("//GeneralJournalPage");
+    }
+
+    private async void OnAdjustingJournalClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//AdjustingJournalPage");
     }
 
     private async void OnGlPermanentClicked(object? sender, EventArgs e)
@@ -31,13 +42,48 @@ public partial class TopBarView : ContentView
         await Shell.Current.GoToAsync("//GeneralLedgerTemporaryPage");
     }
 
+    private async void OnTrialBalanceClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=false");
+    }
+
+    private async void OnAdjustedTrialBalanceClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=true");
+    }
+
+    private async void OnWorksheetClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//WorksheetPage");
+    }
+
+    private async void OnIncomeStatementClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//IncomeStatementPage");
+    }
+
+    private async void OnRetainedEarningsClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//RetainedEarningsPage");
+    }
+
+    private async void OnSofpClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//StatementOfFinancialPositionPage");
+    }
+
+    private async void OnPostClosingClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("//PostClosingTrialBalancePage");
+    }
+
     private async void OnCoaClicked(object? sender, EventArgs e)
     {
-    await Shell.Current.GoToAsync("//CoaPage");
+        await Shell.Current.GoToAsync("//CoaPage");
     }
 
     private async void OnPeriodClicked(object? sender, EventArgs e)
     {
-    await Shell.Current.GoToAsync("//PeriodsPage");
+        await Shell.Current.GoToAsync("//PeriodsPage");
     }
 }
