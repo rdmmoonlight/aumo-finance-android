@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AumoFinance.Models;
 using Microsoft.EntityFrameworkCore;
+using AumoFinance.Models; // Pastikan namespace model ter-import
 
 namespace AumoFinance.Services;
 
@@ -100,6 +100,7 @@ public class AccountingService
     }
 }
 
+#region Helper Models
 public static class AccountClassification
 {
     public static bool IsTemporary(string type) =>
@@ -118,3 +119,24 @@ public static class AccountClassification
         type.Equals("OperatingExpense", StringComparison.OrdinalIgnoreCase) ||
         type.Equals("OtherExpense", StringComparison.OrdinalIgnoreCase);
 }
+
+public class LedgerAccountViewModel
+{
+    public Guid AccountId { get; set; }
+    public string ReferenceNumber { get; set; } = string.Empty;
+    public string AccountName { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public bool NormalBalanceIsDebit { get; set; }
+    public decimal EndingBalance { get; set; }
+    public List<LedgerLineViewModel> Lines { get; set; } = new();
+}
+
+public class LedgerLineViewModel
+{
+    public DateTime EntryDate { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public decimal Debit { get; set; }
+    public decimal Credit { get; set; }
+    public decimal RunningBalance { get; set; }
+}
+#endregion

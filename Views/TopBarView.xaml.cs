@@ -10,29 +10,33 @@ public partial class TopBarView : ContentView
         InitializeComponent();
     }
 
+    private void OnMenuButtonClicked(object sender, EventArgs e)
+    {
+        FlyoutBase.ShowAttachedFlyout(MenuButton);
+    }
+
     private async void OnGeneralJournalClicked(object sender, EventArgs e)
     {
-        // TODO: Navigasi ke Halaman General Journal
-        // await Shell.Current.GoToAsync("//GeneralJournalPage");
+        // Navigasi ke General Journal
     }
 
     private async void OnGlPermanentClicked(object sender, EventArgs e)
     {
-        // TODO: Navigasi ke Halaman Buku Besar (Akun Permanen)
+        // Navigasi ke GL Permanen
     }
 
     private async void OnGlTemporaryClicked(object sender, EventArgs e)
     {
-        // TODO: Navigasi ke Halaman Buku Besar (Akun Sementara)
+        // Navigasi ke GL Sementara
     }
 
     private async void OnCoaClicked(object sender, EventArgs e)
     {
-        // TODO: Navigasi ke Halaman COA (Chart of Accounts)
+        // Navigasi ke COA
     }
 
     private async void OnPeriodClicked(object sender, EventArgs e)
     {
-        // TODO: Aksi Pilihan/Filter Periode
+        // Navigasi ke Periode
     }
 }

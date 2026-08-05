@@ -125,15 +125,17 @@
                                             </Border>
                                         </HorizontalStackLayout>
 
-                                        <!-- Tombol Edit Transaksi -->
-                                        <ImageButton Grid.Column="1"
-                                                     Text="✏️"
-                                                     BackgroundColor="Transparent"
-                                                     FontSize="14"
-                                                     CommandParameter="{Binding Id}"
-                                                     Clicked="OnEditEntryClicked"
-                                                     HeightRequest="30"
-                                                     WidthRequest="30" />
+                                        <!-- Tombol Edit Transaksi (Menggunakan Button biasa agar properti Text & FontSize valid) -->
+                                        <Button Grid.Column="1"
+                                                Text="✏️"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#94A3B8"
+                                                FontSize="14"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnEditEntryClicked"
+                                                HeightRequest="36"
+                                                WidthRequest="36"
+                                                Padding="0" />
                                     </Grid>
 
                                     <BoxView HeightRequest="1" Color="#334155" Margin="0,2" />
