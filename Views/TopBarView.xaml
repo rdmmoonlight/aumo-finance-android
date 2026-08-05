@@ -8,10 +8,10 @@
           VerticalOptions="Center"
           Padding="20,12,20,12">
 
-        <!-- SISI KIRI: Tombol Menu + Periode -->
+        <!-- SISI KIRI: Tombol Menu Navigasi + Periode -->
         <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
             
-            <!-- Tombol Menu (Menggunakan Button biasa agar properti Text & Font valid) -->
+            <!-- Tombol Menu dengan Flyout resmi MAUI -->
             <Button x:Name="MenuButton"
                     Text="☰"
                     FontSize="20"
@@ -20,9 +20,8 @@
                     VerticalOptions="Center"
                     Padding="0"
                     HeightRequest="36"
-                    WidthRequest="36"
-                    Clicked="OnMenuButtonClicked">
-                <FlyoutBase.AttachedFlyout>
+                    WidthRequest="36">
+                <Button.Flyout>
                     <MenuFlyout x:Name="TopMenuFlyout">
                         <MenuFlyoutSubItem Text="Report">
                             <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
@@ -32,7 +31,7 @@
                         <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
                         <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
                     </MenuFlyout>
-                </FlyoutBase.AttachedFlyout>
+                </Button.Flyout>
             </Button>
 
             <!-- Label Periode -->
@@ -44,7 +43,7 @@
                    VerticalOptions="Center" />
         </HorizontalStackLayout>
 
-        <!-- SISI KANAN: Sync Status / Tag Versi -->
+        <!-- SISI KANAN: Tag Versi -->
         <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
             <Border BackgroundColor="#1E293B"
                     Stroke="#334155"
