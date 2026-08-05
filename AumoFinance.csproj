@@ -11,6 +11,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
+		<!-- Abaikan NU1605 jika terjadi konflik implisit pada dependensi Npgsql -->
+		<NoWarn>$(NoWarn);NU1605</NoWarn>
+
 		<!-- Enable XAML source generation for faster build times -->
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
@@ -36,14 +39,10 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.png" 
-              Color="#FFFFFF" />
+		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#FFFFFF" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.png" 
-                  Color="#FFFFFF" 
-                  BaseSize="512,512" 
-                  Resize="true" />
+		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#FFFFFF" BaseSize="512,512" Resize="true" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -59,10 +58,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-		<!-- Koneksi langsung ke Neon (Postgres), terpisah dari API web -->
-		<PackageReference Include="Npgsql" Version="9.0.0" />
-    	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
-    	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+		<!-- Koneksi langsung ke Neon (Postgres) via EF Core & Driver Npgsql -->
+		<PackageReference Include="Npgsql" Version="9.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
 	</ItemGroup>
 
 </Project>
