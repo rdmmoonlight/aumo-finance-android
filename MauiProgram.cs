@@ -30,6 +30,7 @@ public static class MauiProgram
         builder.Services.AddSingleton(new UserContext(CurrentUser.Id));
 
         // Pendaftaran Halaman
+        builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<InputJournalPage>();
 
