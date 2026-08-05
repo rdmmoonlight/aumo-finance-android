@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services; // Ini yang memperbaiki error CS0246
+using AumoFinance.Services;
 
 namespace AumoFinance.Pages;
 
