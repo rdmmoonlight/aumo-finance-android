@@ -33,11 +33,11 @@ public partial class TopBarView : ContentView
 
     private async void OnCoaClicked(object? sender, EventArgs e)
     {
-    await Shell.Current.GoToAsync("//CoaPage");
+        await Shell.Current.GoToAsync("//CoaPage");
     }
 
     private async void OnPeriodClicked(object? sender, EventArgs e)
     {
-    await Shell.Current.GoToAsync("//PeriodsPage");
+        await Shell.Current.GoToAsync("//PeriodsPage");
     }
 }

@@ -28,7 +28,7 @@ public partial class TrialBalancePage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        
+
         // Sesuaikan Teks UI berdasarkan parameter
         if (_includeAdjusting)
         {
@@ -82,8 +82,8 @@ public partial class TrialBalancePage : ContentPage
                 BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
                 BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
                 BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
-                BalanceStatusText.Text = isBalanced 
-                    ? "Debit dan Kredit seimbang." 
+                BalanceStatusText.Text = isBalanced
+                    ? "Debit dan Kredit seimbang."
                     : "Tidak seimbang! Silakan periksa kembali jurnal Anda.";
 
                 TrialBalanceCollectionView.ItemsSource = rows;
