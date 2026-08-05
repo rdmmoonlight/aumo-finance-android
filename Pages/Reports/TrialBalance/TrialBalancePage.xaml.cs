@@ -122,8 +122,8 @@ public partial class PostClosingTrialBalancePage : ContentPage
             BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
             BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
             BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
-            BalanceStatusText.Text = isBalanced 
-                ? "Post-closing trial balance seimbang; buku siap untuk periode berikutnya." 
+            BalanceStatusText.Text = isBalanced
+                ? "Post-closing trial balance seimbang; buku siap untuk periode berikutnya."
                 : "Post-closing trial balance tidak seimbang! Periksa kembali closing entries.";
 
             TrialBalanceCollectionView.ItemsSource = rows;
