@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AumoFinance.Views"
+             x:Class="AumoFinance.Pages.CoaPage"
+             BackgroundColor="#0F172A"
+             Title="Chart of Accounts">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Top Bar Navigasi Kustom -->
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
+
+        <ScrollView Grid.Row="1" Padding="16,10,16,20">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Page Header & Button Tambah -->
+                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label Text="Chart of Accounts"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+                        <Label Text="Daftar master akun keuangan."
+                               FontSize="12"
+                               TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="➕ Akun Baru"
+                            Clicked="OnOpenAddModalClicked"
+                            BackgroundColor="#F59E0B"
+                            TextColor="#0F172A"
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            CornerRadius="10"
+                            Padding="12,0"
+                            HeightRequest="40" />
+                </Grid>
+
+                <!-- Filter & Pencarian -->
+                <VerticalStackLayout Spacing="8">
+                    <SearchBar x:Name="SearchField"
+                               Placeholder="Cari akun..."
+                               TextChanged="OnSearchTextChanged"
+                               BackgroundColor="#1E293B"
+                               TextColor="White"
+                               PlaceholderColor="#64748B"
+                               CancelButtonColor="#94A3B8" />
+
+                    <Picker x:Name="CategoryPicker"
+                            Title="Semua Kategori"
+                            SelectedIndexChanged="OnCategoryPickerChanged"
+                            BackgroundColor="#1E293B"
+                            TextColor="White"
+                            TitleColor="#64748B" />
+                </VerticalStackLayout>
+
+                <!-- Notification Alert -->
+                <Border x:Name="AlertCard"
+                        IsVisible="False"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="12,8">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label x:Name="AlertIcon" Text="ℹ️" VerticalOptions="Center" />
+                        <Label x:Name="AlertText" Text="Pesan" FontSize="12" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   Color="#F59E0B"
+                                   IsRunning="True"
+                                   IsVisible="True"
+                                   HeightRequest="40" />
+
+                <!-- Empty State -->
+                <VerticalStackLayout x:Name="EmptyStateContainer"
+                                     Spacing="12"
+                                     HorizontalOptions="Center"
+                                     Padding="0,40"
+                                     IsVisible="False">
+                    <Label Text="🗂️" FontSize="48" HorizontalOptions="Center" />
+                    <Label Text="Tidak ada akun ditemukan."
+                           TextColor="#94A3B8"
+                           FontSize="14"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- List CollectionView Akun -->
+                <CollectionView x:Name="CoaCollectionView" IsVisible="False" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="#1E293B"
+                                    Stroke="#334155"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 12"
+                                    Margin="0,0,0,10"
+                                    Padding="12">
+                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="8" RowSpacing="4">
+                                    
+                                    <!-- Baris 1: Ref & Nama Akun -->
+                                    <HorizontalStackLayout Grid.Column="0" Grid.Row="0" Spacing="8" VerticalOptions="Center">
+                                        <Border BackgroundColor="#0F172A" StrokeShape="RoundRectangle 6" Padding="6,2">
+                                            <Label Text="{Binding ReferenceNumber}" TextColor="#F59E0B" FontSize="11" FontAttributes="Bold" />
+                                        </Border>
+                                        <Label Text="{Binding AccountName}" TextColor="White" FontSize="13" FontAttributes="Bold" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Status Aktif / Inactive -->
+                                    <Border Grid.Column="1" Grid.Row="0"
+                                            BackgroundColor="{Binding StatusBackgroundColor}"
+                                            StrokeShape="RoundRectangle 6"
+                                            Padding="6,2"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding StatusText}" TextColor="{Binding StatusTextColor}" FontSize="10" FontAttributes="Bold" />
+                                    </Border>
+
+                                    <!-- Baris 2: Tipe / Kategori -->
+                                    <HorizontalStackLayout Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Spacing="6" Margin="0,2,0,0">
+                                        <Label Text="{Binding Type}" TextColor="#94A3B8" FontSize="11" />
+                                        <Label Text="•" TextColor="#64748B" FontSize="11" IsVisible="{Binding HasRole}" />
+                                        <Label Text="{Binding Role}" TextColor="#38BDF8" FontSize="11" FontAttributes="Bold" IsVisible="{Binding HasRole}" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Baris 3: Balance & Tombol Aksi -->
+                                    <Label Grid.Column="0" Grid.Row="2"
+                                           Text="{Binding FormattedBalance}"
+                                           TextColor="{Binding BalanceColor}"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center" />
+
+                                    <HorizontalStackLayout Grid.Column="1" Grid.Row="2" Spacing="6">
+                                        <Button Text="✏️"
+                                                BackgroundColor="#334155"
+                                                TextColor="White"
+                                                FontSize="12"
+                                                CornerRadius="8"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnEditAccountClicked"
+                                                HeightRequest="32"
+                                                WidthRequest="36"
+                                                Padding="0" />
+                                        <Button Text="🗑️"
+                                                BackgroundColor="#7F1D1D"
+                                                TextColor="White"
+                                                FontSize="12"
+                                                CornerRadius="8"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnDeleteAccountClicked"
+                                                HeightRequest="32"
+                                                WidthRequest="36"
+                                                Padding="0" />
+                                    </HorizontalStackLayout>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>

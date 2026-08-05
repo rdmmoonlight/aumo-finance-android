@@ -16,28 +16,28 @@ public partial class TopBarView : ContentView
         set => PeriodLabel.Text = string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
 
-    private void OnGeneralJournalClicked(object? sender, EventArgs e)
+    private async void OnGeneralJournalClicked(object? sender, EventArgs e)
     {
-        // TODO: Navigasi ke General Journal
+        await Shell.Current.GoToAsync("//GeneralJournalPage");
     }
 
-    private void OnGlPermanentClicked(object? sender, EventArgs e)
+    private async void OnGlPermanentClicked(object? sender, EventArgs e)
     {
-        // TODO: Navigasi ke GL Permanen
+        await Shell.Current.GoToAsync("//GeneralLedgerPermanentPage");
     }
 
-    private void OnGlTemporaryClicked(object? sender, EventArgs e)
+    private async void OnGlTemporaryClicked(object? sender, EventArgs e)
     {
-        // TODO: Navigasi ke GL Sementara
+        await Shell.Current.GoToAsync("//GeneralLedgerTemporaryPage");
     }
 
-    private void OnCoaClicked(object? sender, EventArgs e)
+    private async void OnCoaClicked(object? sender, EventArgs e)
     {
-        // TODO: Navigasi ke COA
+    await Shell.Current.GoToAsync("//CoaPage");
     }
 
-    private void OnPeriodClicked(object? sender, EventArgs e)
+    private async void OnPeriodClicked(object? sender, EventArgs e)
     {
-        // TODO: Filter Periode
+    await Shell.Current.GoToAsync("//PeriodsPage");
     }
 }
