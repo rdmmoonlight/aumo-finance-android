@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using AumoFinance.Models;
 using AumoFinance.Services;
 
 namespace AumoFinance.Pages;
@@ -62,7 +63,7 @@ public partial class AdjustingJournalPage : ContentPage
                 {
                     Id = e.Id,
                     EntryDate = e.EntryDate,
-                    Lines = e.Lines.OrderBy(l => l.LineOrder).Select(l => new JournalLineDisplayModel
+                    Lines = e.Lines.OrderBy(l => l.LineOrder).Select(l => new JournalEntryLineDisplayModel
                     {
                         AccountName = l.Account?.AccountName ?? "-",
                         RefNumber = l.Account?.ReferenceNumber ?? "-",
@@ -78,7 +79,7 @@ public partial class AdjustingJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat data: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat data: {ex.Message}", "OK");
         }
         finally
         {
@@ -87,12 +88,12 @@ public partial class AdjustingJournalPage : ContentPage
         }
     }
 
-    private async void OnAddAdjustingEntryClicked(object sender, EventArgs e)
+    private async void OnAddAdjustingEntryClicked(object? sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("//JournalEntryCreatePage?type=Adjusting");
     }
 
-    private async void OnEditEntryClicked(object sender, EventArgs e)
+    private async void OnEditEntryClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is Guid entryId)
         {

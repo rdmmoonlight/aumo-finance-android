@@ -98,7 +98,7 @@ public partial class TrialBalancePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat Trial Balance: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat Trial Balance: {ex.Message}", "OK");
         }
         finally
         {

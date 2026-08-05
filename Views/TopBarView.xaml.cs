@@ -16,10 +16,13 @@ public partial class TopBarView : ContentView
         set => PeriodLabel.Text = string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
 
-    private void OnMenuButtonClicked(object sender, EventArgs e)
+    private void OnMenuButtonClicked(object? sender, EventArgs e)
     {
-        // Membuka ContextFlyout secara eksplisit jika ditekan pada platform tertentu
-        FlyoutBase.ShowAttachedFlyout(MenuButton);
+        // Catatan: Microsoft.Maui.Controls.FlyoutBase tidak memiliki API
+        // ShowAttachedFlyout (itu API WinUI, bukan MAUI). Di MAUI,
+        // FlyoutBase.ContextFlyout yang terpasang pada MenuButton (lihat XAML)
+        // sudah otomatis terbuka lewat tap/long-press pada Android, jadi
+        // tidak perlu dipanggil manual di sini.
     }
 
     private async void OnGeneralJournalClicked(object? sender, EventArgs e)
