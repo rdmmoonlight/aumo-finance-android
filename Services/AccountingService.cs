@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AumoFinance;
 using Microsoft.EntityFrameworkCore;
 using AumoFinance.Models;
 
@@ -10,6 +11,8 @@ namespace AumoFinance.Services;
 public class AccountingService
 {
     private readonly AppDbContext _dbContext;
+
+    public AppDbContext DbContext => _dbContext;
 
     public AccountingService(AppDbContext dbContext)
     {
