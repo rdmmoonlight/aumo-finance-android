@@ -62,13 +62,13 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                await DisplayAlert("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+                await DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await DisplayAlert("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
         finally
         {
