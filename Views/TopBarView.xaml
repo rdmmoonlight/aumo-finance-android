@@ -1,34 +1,43 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AumoFinance.Views.TopBarView">
+<!-- Container Header TopBar -->
+<Grid ColumnDefinitions="Auto, *, Auto" VerticalOptions="Center" Padding="16,10">
 
-    <Grid ColumnDefinitions="*, 120" 
-          Padding="20,14" 
-          BackgroundColor="#0F172A">
+    <!-- SISI KIRI: Tombol Menu Navigasi & Periode -->
+    <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+        
+        <!-- Tombol Menu (Flyout Dropdown) -->
+        <ImageButton Text="☰"
+                     FontSize="20"
+                     TextColor="#94A3B8"
+                     BackgroundColor="Transparent"
+                     VerticalOptions="Center"
+                     Padding="4">
+            <FlyoutBase.AttachedFlyout>
+                <MenuFlyout>
+                    <!-- 1. Report Submenu -->
+                    <MenuFlyoutSubItem Text="Report">
+                        <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
+                        <MenuFlyoutItem Text="GL (Akun Permanen)" Clicked="OnGlPermanentClicked" />
+                        <MenuFlyoutItem Text="GL (Akun Sementara)" Clicked="OnGlTemporaryClicked" />
+                    </MenuFlyoutSubItem>
 
-        <!-- Periode -->
-        <HorizontalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                    <!-- 2. COA -->
+                    <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
+
+                    <!-- 3. Periode -->
+                    <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
+                </MenuFlyout>
+            </FlyoutBase.AttachedFlyout>
+        </ImageButton>
+
+        <!-- Label Periode (Di sebelah kanan ikon menu) -->
         <Label x:Name="PeriodLabel"
-           Text="-"
-           FontSize="18"
-           FontAttributes="Bold"
-           TextColor="#94A3B8"
-           VerticalOptions="Center" />
-        </HorizontalStackLayout>
+               Text="-"
+               FontSize="18"
+               FontAttributes="Bold"
+               TextColor="#94A3B8"
+               VerticalOptions="Center" />
+    </HorizontalStackLayout>
 
-        <!-- Indikator Sync DB (Queue / Uploading) — hanya warna, tanpa teks -->
-        <Border Grid.Column="1"
-                x:Name="SyncBadge"
-                HorizontalOptions="End"
-                WidthRequest="14"
-                HeightRequest="14"
-                StrokeShape="RoundRectangle 7"
-                BackgroundColor="#10B981"
-                Stroke="#10B981"
-                StrokeThickness="1"
-                Padding="0"
-                VerticalOptions="Center" />
-    </Grid>
+    <!-- Sisi kanan (jika ada elemen lain seperti Sync Status/Version Tag) tetap berada di Column="2" -->
 
-</ContentView>
+</Grid>
