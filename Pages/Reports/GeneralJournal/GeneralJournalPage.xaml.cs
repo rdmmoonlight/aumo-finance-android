@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using AumoFinance.Services;
 using Microsoft.Maui.Controls;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Reports
 
 public partial class GeneralJournalPage : ContentPage
 {
     private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId; // Ambil dari session login/auth
+    private readonly Guid _currentUserId;
 
     public GeneralJournalPage(AccountingService accountingService, Guid currentUserId)
     {
