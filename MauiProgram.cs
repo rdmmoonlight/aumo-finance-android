@@ -1,5 +1,6 @@
 using AumoFinance.Pages;
 using AumoFinance.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AumoFinance;
@@ -24,6 +25,7 @@ public static class MauiProgram
         // ApiService dibagikan sebagai singleton agar NpgsqlDataSource (connection
         // pool) miliknya dipakai bersama oleh seluruh halaman.
         builder.Services.AddSingleton<ApiService>();
+        builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(ApiService.ConnectionString));
         builder.Services.AddTransient<AccountingService>();
 
         // Didaftarkan agar Shell dapat membuat instance-nya lewat DI container

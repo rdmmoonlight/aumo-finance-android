@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AumoFinance;
 using Microsoft.Maui.Controls;
 using AumoFinance.Services;
 using AumoFinance.Models;
@@ -107,20 +108,50 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         }
     }
 
-    private string etàTextRetainedEarnings(Period period) => $"Retained earnings, {period.EndDate:MMMM d}";
+    public static async Task<StatementOfFinancialPositionViewModel> BuildSofpAsync(AppDbContext dbContext, Guid userId, Period period, bool isPostClosing)
+    {
+        var accountingService = new AccountingService(dbContext);
+        var rows = await accountingService.GetTrialBalanceAsync(userId, period, includeAdjusting: true);
+        var incomeStatement = CalculateIncomeStatement(rows);
+        var reAccount = rows.FirstOrDefault(r => r.Type.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase) || r.Role.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase));
+        decimal beginningRetained = reAccount?.NetBalance ?? 0;
+        decimal retainedEarningsEnding = beginningRetained + incomeStatement.NetIncome;
 
-    private IncomeStatementModelHelper IncomeStatementPageViewModelHelper(List<TrialBalanceRowViewModel> rows, Period period)
+        var equityRows = rows
+            .Where(r => r.Type.Equals("Equity", StringComparison.OrdinalIgnoreCase) && !r.Role.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase))
+            .Select(r => new FinancialPositionLineModel { ReferenceNumber = r.ReferenceNumber, AccountName = r.AccountName, Amount = r.NetBalance })
+            .ToList();
+
+        return new StatementOfFinancialPositionViewModel
+        {
+            Assets = rows
+                .Where(r => r.Type.Equals("Asset", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Assets", StringComparison.OrdinalIgnoreCase))
+                .Select(r => new FinancialPositionLineModel { ReferenceNumber = r.ReferenceNumber, AccountName = r.AccountName, Amount = r.NetBalance })
+                .ToList(),
+            Liabilities = rows
+                .Where(r => r.Type.Equals("Liability", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Liabilities", StringComparison.OrdinalIgnoreCase))
+                .Select(r => new FinancialPositionLineModel { ReferenceNumber = r.ReferenceNumber, AccountName = r.AccountName, Amount = r.NetBalance })
+                .ToList(),
+            EquityExcludingRetainedEarnings = equityRows,
+            RetainedEarningsEnding = retainedEarningsEnding
+        };
+    }
+
+    private static IncomeStatementModelHelper CalculateIncomeStatement(List<TrialBalanceRowViewModel> rows)
     {
         decimal totalRevenue = rows.Where(r => r.Type.Equals("OperatingIncome", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Revenue", StringComparison.OrdinalIgnoreCase)).Sum(r => r.NetBalance);
-        decimal totalExpense = rows.Where(r => r.Type.Equals("OperatingExpenses", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Expense", StringComparison.OrdinalIgnoreCase)).Sum(r => Math.Abs(r.NetBalance));
+        decimal totalExpense = rows.Where(r => r.Type.Equals("OperatingExpenses", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("OperatingExpense", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Expense", StringComparison.OrdinalIgnoreCase)).Sum(r => Math.Abs(r.NetBalance));
         decimal operatingIncome = totalRevenue - totalExpense;
 
         decimal otherInc = rows.Where(r => r.Type.Equals("OtherIncome", StringComparison.OrdinalIgnoreCase)).Sum(r => r.NetBalance);
-        decimal otherExp = rows.Where(r => r.Type.Equals("OtherExpenses", StringComparison.OrdinalIgnoreCase)).Sum(r => Math.Abs(r.NetBalance));
-        decimal netIncome = operatingIncome + otherInc - otherExp;
+        decimal otherExp = rows.Where(r => r.Type.Equals("OtherExpenses", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("OtherExpense", StringComparison.OrdinalIgnoreCase)).Sum(r => Math.Abs(r.NetBalance));
 
-        return new IncomeStatementModelHelper { NetIncome = netIncome };
+        return new IncomeStatementModelHelper { NetIncome = operatingIncome + otherInc - otherExp };
     }
+
+    private string etàTextRetainedEarnings(Period period) => $"Retained earnings, {period.EndDate:MMMM d}";
+
+    private IncomeStatementModelHelper IncomeStatementPageViewModelHelper(List<TrialBalanceRowViewModel> rows, Period period) => CalculateIncomeStatement(rows);
 }
 
 public class FinancialPositionLineModel
@@ -132,4 +163,13 @@ public class FinancialPositionLineModel
     private static readonly System.Globalization.CultureInfo Idr = new("id-ID");
 
     public string FormattedAmount => Amount.ToString("N0", Idr);
+}
+
+
+public class StatementOfFinancialPositionViewModel
+{
+    public List<FinancialPositionLineModel> Assets { get; set; } = new();
+    public List<FinancialPositionLineModel> Liabilities { get; set; } = new();
+    public List<FinancialPositionLineModel> EquityExcludingRetainedEarnings { get; set; } = new();
+    public decimal RetainedEarningsEnding { get; set; }
 }
