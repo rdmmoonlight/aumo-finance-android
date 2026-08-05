@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 using Npgsql;
 using AumoFinance.Models;
 
@@ -19,6 +25,115 @@ public class ApiService
         TimeoutException => "Koneksi ke server database timeout.",
         _ => $"Terjadi kesalahan: {ex.Message}"
     };
+
+    public async Task<(bool success, string message, string? userId)> LoginAsync(string usernameOrEmail, string password)
+    {
+        if (string.IsNullOrWhiteSpace(usernameOrEmail) || string.IsNullOrWhiteSpace(password))
+        {
+            return (false, "Username/Email dan password harus diisi.", null);
+        }
+
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            await using var conn = CreateConnection();
+            await conn.OpenAsync(cts.Token);
+
+            string normalizedInput = usernameOrEmail.ToUpperInvariant();
+
+            // Query langsung ke tabel AspNetUsers bawaan ASP.NET Core Identity di Neon DB
+            await using var cmd = new NpgsqlCommand(
+                "SELECT \"Id\", \"PasswordHash\" FROM \"AspNetUsers\" " +
+                "WHERE \"NormalizedUserName\" = @input OR \"NormalizedEmail\" = @input LIMIT 1", conn);
+
+            cmd.CommandTimeout = 15;
+            cmd.Parameters.AddWithValue("input", normalizedInput);
+
+            await using var reader = await cmd.ExecuteReaderAsync(cts.Token);
+            if (await reader.ReadAsync())
+            {
+                string userId = reader.GetString(0);
+                string? hashedPassword = reader.IsDBNull(1) ? null : reader.GetString(1);
+
+                if (string.IsNullOrEmpty(hashedPassword))
+                {
+                    return (false, "Akun tidak memiliki password yang terkonfigurasi.", null);
+                }
+
+                bool isPasswordValid = VerifyIdentityPasswordHash(password, hashedPassword);
+
+                if (isPasswordValid)
+                {
+                    return (true, "Login berhasil.", userId);
+                }
+            }
+
+            return (false, "Email/Username atau password salah.", null);
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Koneksi ke database timeout. Periksa koneksi internet Anda.", null);
+        }
+        catch (Exception ex)
+        {
+            return (false, DescribeException(ex), null);
+        }
+    }
+
+    private static bool VerifyIdentityPasswordHash(string password, string hashedPassword)
+    {
+        try
+        {
+            byte[] decodedHashedPassword = Convert.FromBase64String(hashedPassword);
+
+            if (decodedHashedPassword.Length < 1 || decodedHashedPassword[0] != 0x01)
+            {
+                return false;
+            }
+
+            var prf = (Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivationPrf)ReadNetworkByteOrder(decodedHashedPassword, 1);
+            int iterCount = (int)ReadNetworkByteOrder(decodedHashedPassword, 5);
+            int saltLength = (int)ReadNetworkByteOrder(decodedHashedPassword, 9);
+
+            if (saltLength < 128 / 8)
+            {
+                return false;
+            }
+
+            byte[] salt = new byte[saltLength];
+            Buffer.BlockCopy(decodedHashedPassword, 13, salt, 0, salt.Length);
+
+            int subkeyLength = decodedHashedPassword.Length - 13 - salt.Length;
+            if (subkeyLength < 128 / 8)
+            {
+                return false;
+            }
+
+            byte[] expectedSubkey = new byte[subkeyLength];
+            Buffer.BlockCopy(decodedHashedPassword, 13 + salt.Length, expectedSubkey, 0, expectedSubkey.Length);
+
+            byte[] actualSubkey = Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: prf,
+                iterationCount: iterCount,
+                numBytesRequested: subkeyLength);
+
+            return CryptographicOperations.FixedTimeEquals(actualSubkey, expectedSubkey);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static uint ReadNetworkByteOrder(byte[] buffer, int offset)
+    {
+        return ((uint)buffer[offset] << 24)
+            | ((uint)buffer[offset + 1] << 16)
+            | ((uint)buffer[offset + 2] << 8)
+            | buffer[offset + 3];
+    }
 
     public async Task<DashboardModel?> GetDashboardAsync()
     {

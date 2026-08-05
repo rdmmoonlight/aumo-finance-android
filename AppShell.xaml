@@ -7,8 +7,32 @@
     Shell.NavBarIsVisible="False"
     Title="AumoFinance">
 
+    <!-- Halaman Pertama yang Muncul Saat Aplikasi Diberdayakan (LoginPage) -->
     <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate pages:LoginPage}"
+        Route="LoginPage" />
+
+    <!-- Halaman Utama Dashboard -->
+    <ShellContent
+        Title="Dashboard"
         ContentTemplate="{DataTemplate pages:MainPage}"
         Route="MainPage" />
+
+    <!-- Rute Master & Laporan -->
+    <Route Path="CoaPage" Component="{x:Type pages:CoaPage}" />
+    <Route Path="PeriodsPage" Component="{x:Type pages:PeriodsPage}" />
+    <Route Path="InputJournalPage" Component="{x:Type pages:InputJournalPage}" />
+    
+    <Route Path="GeneralJournalPage" Component="{x:Type pages:GeneralJournalPage}" />
+    <Route Path="GeneralLedgerPermanentPage" Component="{x:Type pages:GeneralLedgerPermanentPage}" />
+    <Route Path="GeneralLedgerTemporaryPage" Component="{x:Type pages:GeneralLedgerTemporaryPage}" />
+    <Route Path="TrialBalancePage" Component="{x:Type pages:TrialBalancePage}" />
+    <Route Path="AdjustingJournalPage" Component="{x:Type pages:AdjustingJournalPage}" />
+    <Route Path="WorksheetPage" Component="{x:Type pages:WorksheetPage}" />
+    <Route Path="IncomeStatementPage" Component="{x:Type pages:IncomeStatementPage}" />
+    <Route Path="RetainedEarningsPage" Component="{x:Type pages:RetainedEarningsPage}" />
+    <Route Path="StatementOfFinancialPositionPage" Component="{x:Type pages:StatementOfFinancialPositionPage}" />
+    <Route Path="PostClosingTrialBalancePage" Component="{x:Type pages:PostClosingTrialBalancePage}" />
 
 </Shell>
