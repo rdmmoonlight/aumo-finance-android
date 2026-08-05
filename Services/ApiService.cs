@@ -41,6 +41,7 @@ public class ApiService
 
             string normalizedInput = usernameOrEmail.ToUpperInvariant();
 
+            // Query langsung ke tabel AspNetUsers bawaan ASP.NET Core Identity di Neon DB
             await using var cmd = new NpgsqlCommand(
                 "SELECT \"Id\", \"PasswordHash\" FROM \"AspNetUsers\" " +
                 "WHERE \"NormalizedUserName\" = @input OR \"NormalizedEmail\" = @input LIMIT 1", conn);
@@ -79,14 +80,14 @@ public class ApiService
         }
     }
 
-    // Verifikasi Password Hash ASP.NET Core Identity V3 secara native dengan Rfc2898DeriveBytes
+    // Verifikasi Password Hash ASP.NET Core Identity V3 secara native dengan Rfc2898DeriveBytes.Pbkdf2 (.NET 8/9/10 Compatible)
     private static bool VerifyIdentityPasswordHash(string password, string hashedPassword)
     {
         try
         {
             byte[] decodedHashedPassword = Convert.FromBase64String(hashedPassword);
 
-            // Format Identity V3 diawali dengan format byte 0x01
+            // Format Identity V3 diawali dengan byte header 0x01
             if (decodedHashedPassword.Length < 1 || decodedHashedPassword[0] != 0x01)
             {
                 return false;
@@ -121,9 +122,13 @@ public class ApiService
             byte[] expectedSubkey = new byte[subkeyLength];
             Buffer.BlockCopy(decodedHashedPassword, 13 + salt.Length, expectedSubkey, 0, expectedSubkey.Length);
 
-            // Hash password input menggunakan PBKDF2 bawaan System.Security.Cryptography
-            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterCount, hashAlgorithm);
-            byte[] actualSubkey = pbkdf2.GetBytes(subkeyLength);
+            // Menggunakan method statis Pbkdf2 pengganti instansiasi obsolete
+            byte[] actualSubkey = Rfc2898DeriveBytes.Pbkdf2(
+                password: password,
+                salt: salt,
+                iterations: iterCount,
+                hashAlgorithm: hashAlgorithm,
+                outputLength: subkeyLength);
 
             return CryptographicOperations.FixedTimeEquals(actualSubkey, expectedSubkey);
         }
