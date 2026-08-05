@@ -5,7 +5,7 @@ namespace AumoFinance.Services;
 
 public class ApiService
 {
-    private const string ConnectionString = "__NEON_CONNECTION_STRING__";
+    public const string ConnectionString = "__NEON_CONNECTION_STRING__";
 
     private readonly NpgsqlDataSource _dataSource = NpgsqlDataSource.Create(ConnectionString);
 
