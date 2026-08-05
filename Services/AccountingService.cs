@@ -1,37 +1,21 @@
-using System;
-using Microsoft.Maui.Controls;
+using AumoFinance.Models;
 
-namespace AumoFinance.Views;
+namespace AumoFinance.Services;
 
-public partial class TopBarView : ContentView
+public class AccountingService
 {
-    public TopBarView()
+    public Task<AccountingPeriod?> GetCurrentPeriodAsync(Guid currentUserId)
     {
-        InitializeComponent();
+        return Task.FromResult<AccountingPeriod?>(null);
     }
 
-    private async void OnGeneralJournalClicked(object sender, EventArgs e)
+    public Task<List<JournalEntryDisplayModel>> GetGeneralJournalAsync(Guid currentUserId, AccountingPeriod period)
     {
-        // TODO: Navigasi ke General Journal
+        return Task.FromResult(new List<JournalEntryDisplayModel>());
     }
 
-    private async void OnGlPermanentClicked(object sender, EventArgs e)
+    public Task<List<LedgerAccountDisplayModel>> GetGeneralLedgerAsync(Guid currentUserId, AccountingPeriod period, bool isTemporary)
     {
-        // TODO: Navigasi ke GL Permanen
-    }
-
-    private async void OnGlTemporaryClicked(object sender, EventArgs e)
-    {
-        // TODO: Navigasi ke GL Sementara
-    }
-
-    private async void OnCoaClicked(object sender, EventArgs e)
-    {
-        // TODO: Navigasi ke COA
-    }
-
-    private async void OnPeriodClicked(object sender, EventArgs e)
-    {
-        // TODO: Filter Periode
+        return Task.FromResult(new List<LedgerAccountDisplayModel>());
     }
 }
