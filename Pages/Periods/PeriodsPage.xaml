@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AumoFinance.Views"
+             x:Class="AumoFinance.Pages.PeriodsPage"
+             BackgroundColor="#0F172A"
+             Title="Accounting Periods">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Top Bar Navigasi Kustom -->
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
+
+        <ScrollView Grid.Row="1" Padding="16,10,16,20">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Page Header & Action Buttons -->
+                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label Text="Accounting Periods"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+                        <Label Text="Kelola siklus pelaporan keuangan Anda."
+                               FontSize="12"
+                               TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="➕ Periode Baru"
+                            Clicked="OnOpenNewPeriodClicked"
+                            BackgroundColor="#2563EB"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            CornerRadius="10"
+                            Padding="12,0"
+                            HeightRequest="40" />
+                </Grid>
+
+                <!-- Tombol Berhenti Melihat (Stop Viewing) -->
+                <Button x:Name="StopViewingButton"
+                        IsVisible="False"
+                        Text="👁️ Berhenti Melihat Periode Aktif"
+                        Clicked="OnStopViewingClicked"
+                        BackgroundColor="#334155"
+                        TextColor="White"
+                        FontSize="12"
+                        CornerRadius="8"
+                        HeightRequest="36" />
+
+                <!-- Notification Alert -->
+                <Border x:Name="AlertCard"
+                        IsVisible="False"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="12,8">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label x:Name="AlertIcon" Text="ℹ️" VerticalOptions="Center" />
+                        <Label x:Name="AlertText" Text="Pesan" FontSize="12" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   Color="#2563EB"
+                                   IsRunning="True"
+                                   IsVisible="True"
+                                   HeightRequest="40" />
+
+                <!-- Empty State -->
+                <VerticalStackLayout x:Name="EmptyStateContainer"
+                                     Spacing="12"
+                                     HorizontalOptions="Center"
+                                     Padding="0,40"
+                                     IsVisible="False">
+                    <Label Text="📅" FontSize="48" HorizontalOptions="Center" />
+                    <Label Text="Belum ada periode akuntansi yang diinisialisasi."
+                           TextColor="#94A3B8"
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <!-- List CollectionView Periods -->
+                <CollectionView x:Name="PeriodsCollectionView" IsVisible="False" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="{Binding CardBackgroundColor}"
+                                    Stroke="{Binding CardBorderColor}"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 12"
+                                    Margin="0,0,0,10"
+                                    Padding="14">
+                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="8" RowSpacing="6">
+                                    
+                                    <!-- Baris 1: Nama Periode & Badge Status -->
+                                    <HorizontalStackLayout Grid.Column="0" Grid.Row="0" Spacing="8" VerticalOptions="Center">
+                                        <Label Text="{Binding PeriodName}" TextColor="White" FontSize="14" FontAttributes="Bold" VerticalOptions="Center" />
+                                        <Border BackgroundColor="{Binding StatusBackgroundColor}" StrokeShape="RoundRectangle 6" Padding="6,2" VerticalOptions="Center">
+                                            <Label Text="{Binding StatusText}" TextColor="{Binding StatusTextColor}" FontSize="10" FontAttributes="Bold" />
+                                        </Border>
+                                        <Border BackgroundColor="#1E3A8A" StrokeShape="RoundRectangle 6" Padding="6,2" IsVisible="{Binding IsSelected}" VerticalOptions="Center">
+                                            <Label Text="👁️ Viewing" TextColor="#60A5FA" FontSize="10" FontAttributes="Bold" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+
+                                    <!-- Baris 2: Tanggal Mulai - Selesai -->
+                                    <HorizontalStackLayout Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Spacing="6">
+                                        <Label Text="Mulai:" TextColor="#64748B" FontSize="12" />
+                                        <Label Text="{Binding FormattedStartDate}" TextColor="#CBD5E1" FontSize="12" />
+                                        <Label Text="—" TextColor="#64748B" FontSize="12" />
+                                        <Label Text="Selesai:" TextColor="#64748B" FontSize="12" />
+                                        <Label Text="{Binding FormattedEndDate}" TextColor="#CBD5E1" FontSize="12" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Baris 3: Tombol Aksi (View & Close) -->
+                                    <HorizontalStackLayout Grid.Column="1" Grid.Row="2" Spacing="6" HorizontalOptions="End">
+                                        <Button Text="👁️ Lihat"
+                                                BackgroundColor="{Binding ViewButtonBackgroundColor}"
+                                                TextColor="White"
+                                                FontSize="12"
+                                                CornerRadius="8"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnSelectPeriodClicked"
+                                                HeightRequest="34"
+                                                Padding="10,0" />
+                                        
+                                        <Button Text="🔒 Tutup"
+                                                BackgroundColor="#B45309"
+                                                TextColor="White"
+                                                FontSize="12"
+                                                CornerRadius="8"
+                                                CommandParameter="{Binding Id}"
+                                                Clicked="OnClosePeriodClicked"
+                                                IsVisible="{Binding CanClose}"
+                                                HeightRequest="34"
+                                                Padding="10,0" />
+                                    </HorizontalStackLayout>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+
+</ContentPage>
