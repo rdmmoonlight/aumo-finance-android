@@ -28,6 +28,13 @@ public static class MauiProgram
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(ApiService.ConnectionString));
         builder.Services.AddTransient<AccountingService>();
 
+        // Aplikasi single-user: daftarkan Guid tetap agar Shell/DI dapat
+        // mengisi otomatis parameter "Guid currentUserId" di constructor
+        // Page (CoaPage, PeriodsPage, semua halaman Reports, dll). Tanpa
+        // ini, navigasi ke halaman tersebut akan crash karena DI tidak
+        // tahu cara menyediakan nilai Guid.
+        builder.Services.AddSingleton(CurrentUser.Id);
+
         // Didaftarkan agar Shell dapat membuat instance-nya lewat DI container
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<InputJournalPage>();
