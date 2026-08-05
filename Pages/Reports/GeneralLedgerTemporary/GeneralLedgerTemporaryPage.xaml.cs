@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AumoFinance.Services;
 using Microsoft.Maui.Controls;
+using AumoFinance.Services; // Ini yang memperbaiki error CS0246
 
 namespace AumoFinance.Pages;
 
@@ -49,7 +49,6 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
             }
             else
             {
-                // Hitung Net Income / Loss langsung dari DB
                 decimal netTotal = ledgers.Sum(l => l.NormalBalanceIsDebit ? -l.EndingBalance : l.EndingBalance);
 
                 NetTotalLabel.Text = $"Rp {netTotal:N0}";
