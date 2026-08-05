@@ -2,14 +2,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
+using AumoFinance.Services; // Ini yang memperbaiki error CS0246
 
 namespace AumoFinance.Pages;
 
 public partial class GeneralJournalPage : ContentPage
 {
     private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId; // Ambil dari session login/auth
+    private readonly Guid _currentUserId;
 
     public GeneralJournalPage(AccountingService accountingService, Guid currentUserId)
     {
@@ -76,7 +76,6 @@ public partial class GeneralJournalPage : ContentPage
 
     private async void OnEditEntryClicked(object sender, EventArgs e)
     {
-        // Menggunakan "Button" (karena di XAML sebelumnya ImageButton sudah diganti menjadi Button)
         if (sender is Button btn && btn.CommandParameter is Guid entryId)
         {
             await Shell.Current.GoToAsync($"//JournalEntryEditPage?id={entryId}");
