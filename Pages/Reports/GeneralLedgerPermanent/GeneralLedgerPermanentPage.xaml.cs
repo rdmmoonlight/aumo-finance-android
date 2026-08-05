@@ -1,17 +1,21 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using AumoFinance.Services;
 using Microsoft.Maui.Controls;
 
 namespace AumoFinance.Pages;
 
 public partial class GeneralLedgerPermanentPage : ContentPage
 {
-    public GeneralLedgerPermanentPage()
+    private readonly AccountingService _accountingService;
+    private readonly Guid _currentUserId;
+
+    public GeneralLedgerPermanentPage(AccountingService accountingService, Guid currentUserId)
     {
         InitializeComponent();
+        _accountingService = accountingService;
+        _currentUserId = currentUserId;
     }
 
     protected override async void OnAppearing()
@@ -29,23 +33,28 @@ public partial class GeneralLedgerPermanentPage : ContentPage
 
         try
         {
-            await Task.Delay(400); // Simulasi ambil data
+            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
+            if (period == null)
+            {
+                EmptyStateContainer.IsVisible = true;
+                return;
+            }
 
-            var dummyData = GetDummyPermanentLedgers();
+            var ledgers = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: false);
 
-            if (dummyData == null || !dummyData.Any())
+            if (!ledgers.Any())
             {
                 EmptyStateContainer.IsVisible = true;
             }
             else
             {
-                LedgersCollectionView.ItemsSource = dummyData;
+                LedgersCollectionView.ItemsSource = ledgers;
                 LedgersCollectionView.IsVisible = true;
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat General Ledger: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Gagal terhubung ke database: {ex.Message}", "OK");
         }
         finally
         {
@@ -56,41 +65,6 @@ public partial class GeneralLedgerPermanentPage : ContentPage
 
     private async void OnGeneralJournalClicked(object sender, EventArgs e)
     {
-        // Navigasi ke Halaman General Journal
-        await DisplayAlert("Navigasi", "Membuka General Journal", "OK");
-    }
-
-    private List<LedgerAccountDisplayModel> GetDummyPermanentLedgers()
-    {
-        return new List<LedgerAccountDisplayModel>
-        {
-            new LedgerAccountDisplayModel
-            {
-                AccountId = Guid.NewGuid(),
-                ReferenceNumber = "1101",
-                AccountName = "Kas & Bank",
-                Type = "Asset",
-                NormalBalanceIsDebit = true,
-                EndingBalance = 12500000,
-                Lines = new List<LedgerLineDisplayModel>
-                {
-                    new LedgerLineDisplayModel { EntryDate = new DateTime(2026, 1, 5), Description = "Saldo Awal", Debit = 10000000, Credit = 0, RunningBalance = 10000000 },
-                    new LedgerLineDisplayModel { EntryDate = new DateTime(2026, 1, 15), Description = "Pendapatan Jasa", Debit = 2500000, Credit = 0, RunningBalance = 12500000 }
-                }
-            },
-            new LedgerAccountDisplayModel
-            {
-                AccountId = Guid.NewGuid(),
-                ReferenceNumber = "2101",
-                AccountName = "Utang Usaha",
-                Type = "Liability",
-                NormalBalanceIsDebit = false,
-                EndingBalance = 2000000,
-                Lines = new List<LedgerLineDisplayModel>
-                {
-                    new LedgerLineDisplayModel { EntryDate = new DateTime(2026, 1, 10), Description = "Pembelian Perlengkapan Kredit", Debit = 0, Credit = 2000000, RunningBalance = 2000000 }
-                }
-            }
-        };
+        await Shell.Current.GoToAsync("//GeneralJournalPage");
     }
 }
