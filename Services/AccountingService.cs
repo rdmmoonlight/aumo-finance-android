@@ -16,7 +16,6 @@ public class AccountingService
         _dbContext = dbContext;
     }
 
-    // 1. Ambil Periode Aktif/Terakhir
     public async Task<Period?> GetCurrentPeriodAsync(Guid userId)
     {
         return await _dbContext.Periods
@@ -25,24 +24,21 @@ public class AccountingService
             .FirstOrDefaultAsync();
     }
 
-    // 2. Ambil Data General Journal Berdasarkan Periode
     public async Task<List<JournalEntry>> GetGeneralJournalAsync(Guid userId, Period period)
     {
         return await _dbContext.JournalEntries
             .Include(j => j.Lines)
                 .ThenInclude(l => l.Account)
-            .Where(j => j.UserId == userId 
-                     && j.EntryDate >= period.StartDate 
+            .Where(j => j.UserId == userId
+                     && j.EntryDate >= period.StartDate
                      && j.EntryDate <= period.EndDate)
             .OrderBy(j => j.EntryDate)
             .ThenBy(j => j.Id)
             .ToListAsync();
     }
 
-    // 3. Build General Ledger (Permanen atau Sementara)
     public async Task<List<LedgerAccountViewModel>> GetGeneralLedgerAsync(Guid userId, Period period, bool isTemporary)
     {
-        // Filter tipe akun
         var accounts = await _dbContext.ChartOfAccounts
             .Where(a => a.IsActive && a.UserId == userId)
             .OrderBy(a => a.ReferenceNumber)
@@ -104,10 +100,9 @@ public class AccountingService
     }
 }
 
-#region Helper Class & Models
 public static class AccountClassification
 {
-    public static bool IsTemporary(string type) => 
+    public static bool IsTemporary(string type) =>
         type.Equals("OperatingIncome", StringComparison.OrdinalIgnoreCase) ||
         type.Equals("OperatingExpense", StringComparison.OrdinalIgnoreCase) ||
         type.Equals("OtherIncome", StringComparison.OrdinalIgnoreCase) ||
@@ -123,33 +118,3 @@ public static class AccountClassification
         type.Equals("OperatingExpense", StringComparison.OrdinalIgnoreCase) ||
         type.Equals("OtherExpense", StringComparison.OrdinalIgnoreCase);
 }
-
-public class LedgerAccountViewModel
-{
-    public Guid AccountId { get; set; }
-    public string ReferenceNumber { get; set; } = string.Empty;
-    public string AccountName { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
-    public bool NormalBalanceIsDebit { get; set; }
-    public decimal EndingBalance { get; set; }
-    public List<LedgerLineViewModel> Lines { get; set; } = new();
-
-    public string EndingBalanceColor => EndingBalance >= 0 ? "#4ADE80" : "#F87171";
-    public string FormattedEndingBalance => $"Saldo: Rp {EndingBalance:N0} ({(NormalBalanceIsDebit ? "Dr" : "Cr")})";
-}
-
-public class LedgerLineViewModel
-{
-    public DateTime EntryDate { get; set; }
-    public string Description { get; set; } = string.Empty;
-    public decimal Debit { get; set; }
-    public decimal Credit { get; set; }
-    public decimal RunningBalance { get; set; }
-
-    public bool HasDebit => Debit > 0;
-    public bool HasCredit => Credit > 0;
-    public string FormattedDebit => $"Dr: Rp {Debit:N0}";
-    public string FormattedCredit => $"Cr: Rp {Credit:N0}";
-    public string FormattedRunningBalance => $"Rp {RunningBalance:N0}";
-}
-#endregion
