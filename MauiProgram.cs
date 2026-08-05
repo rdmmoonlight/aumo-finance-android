@@ -41,6 +41,8 @@ public static class MauiProgram
         builder.Services.AddTransient<RetainedEarningsPage>();
         builder.Services.AddTransient<StatementOfFinancialPositionPage>();
         builder.Services.AddTransient<PostClosingTrialBalancePage>();
+        builder.Services.AddTransient<CoaPage>();
+        builder.Services.AddTransient<PeriodsPage>();
 
         return builder.Build();
     }
