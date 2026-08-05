@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
 using AumoFinance.Services;
 
 namespace AumoFinance.Pages;
@@ -25,7 +26,6 @@ public partial class LoginPage : ContentPage
         string username = UsernameEntry.Text?.Trim() ?? string.Empty;
         string password = PasswordEntry.Text ?? string.Empty;
 
-        // Validasi Sederhana
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
             ShowError("Email/Username dan Password tidak boleh kosong.");
@@ -36,23 +36,16 @@ public partial class LoginPage : ContentPage
 
         try
         {
-            // Panggil API Login (Sesuaikan nama method di ApiService Anda jika ada)
-            // Asumsi: ApiService memproses login ke .NET Core Identity / IdentityServer / JWT Endpoint
-            var (success, tokenOrMessage) = await _apiService.LoginAsync(username, password);
+            var (success, message, userId) = await _apiService.LoginAsync(username, password);
 
-            if (success)
+            if (success && userId != null)
             {
-                // Simpan token ke Preferences / SecureStorage jika perlu
-                // await SecureStorage.Default.SetAsync("auth_token", tokenOrMessage);
-
-                // Navigasi ke Halaman Utama (MainPage)
+                Preferences.Default.Set("current_user_id", userId);
                 await Shell.Current.GoToAsync("//MainPage");
             }
             else
             {
-                ShowError(string.IsNullOrWhiteSpace(tokenOrMessage) 
-                    ? "Login gagal. Periksa kembali email dan password Anda." 
-                    : tokenOrMessage);
+                ShowError(message);
             }
         }
         catch (Exception ex)
