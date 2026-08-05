@@ -1,8 +1,6 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using AumoFinance.Models;
 using AumoFinance.Pages;
 using AumoFinance.Services;
+using Microsoft.Extensions.Logging;
 
 namespace AumoFinance;
 
@@ -23,22 +21,13 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // 1. Registrasi AppDbContext (EF Core)
-        // Ganti ConnectionString sesuai environment (PostgreSQL / Npgsql atau SQL Server)
-        var connectionString = "Host=localhost;Database=aumofinance;Username=postgres;Password=yourpassword";
-        
-        builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(connectionString)); // Gunakan UseSqlServer jika memakai SQL Server
+        // ApiService dibagikan sebagai singleton agar NpgsqlDataSource (connection
+        // pool) miliknya dipakai bersama oleh seluruh halaman.
+        builder.Services.AddSingleton<ApiService>();
 
-        // 2. Registrasi AccountingService untuk logika transaksi & ledger
-        builder.Services.AddScoped<AccountingService>();
-
-        // 3. Registrasi Halaman (Pages) ke DI Container
+        // Didaftarkan agar Shell dapat membuat instance-nya lewat DI container
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<InputJournalPage>();
-        builder.Services.AddTransient<GeneralJournalPage>();
-        builder.Services.AddTransient<GeneralLedgerPermanentPage>();
-        builder.Services.AddTransient<GeneralLedgerTemporaryPage>();
 
         return builder.Build();
     }
