@@ -20,7 +20,8 @@
                     VerticalOptions="Center"
                     Padding="0"
                     HeightRequest="36"
-                    WidthRequest="36">
+                    WidthRequest="36"
+                    Clicked="OnMenuButtonClicked">
                 <FlyoutBase.ContextFlyout>
                     <MenuFlyout x:Name="TopMenuFlyout">
                         <MenuFlyoutSubItem Text="Report">
