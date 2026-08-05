@@ -24,6 +24,7 @@ public static class MauiProgram
         // ApiService dibagikan sebagai singleton agar NpgsqlDataSource (connection
         // pool) miliknya dipakai bersama oleh seluruh halaman.
         builder.Services.AddSingleton<ApiService>();
+        builder.Services.AddSingleton<AccountingService>();
 
         // Didaftarkan agar Shell dapat membuat instance-nya lewat DI container
         builder.Services.AddTransient<MainPage>();
