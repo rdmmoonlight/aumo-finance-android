@@ -146,7 +146,7 @@ public partial class WorksheetPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat worksheet: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat worksheet: {ex.Message}", "OK");
         }
         finally
         {

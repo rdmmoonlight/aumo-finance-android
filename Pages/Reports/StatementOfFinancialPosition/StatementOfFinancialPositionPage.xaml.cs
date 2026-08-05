@@ -99,7 +99,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat Balance Sheet: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat Balance Sheet: {ex.Message}", "OK");
         }
         finally
         {

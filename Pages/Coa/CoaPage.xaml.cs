@@ -91,7 +91,7 @@ public partial class CoaPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat Chart of Accounts: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Gagal memuat Chart of Accounts: {ex.Message}", "OK");
         }
         finally
         {
@@ -133,13 +133,13 @@ public partial class CoaPage : ContentPage
         }
     }
 
-    private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+    private void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
     {
         _searchText = e.NewTextValue ?? string.Empty;
         FilterAndDisplayAccounts();
     }
 
-    private void OnCategoryPickerChanged(object sender, EventArgs e)
+    private void OnCategoryPickerChanged(object? sender, EventArgs e)
     {
         if (CategoryPicker.SelectedIndex >= 0)
         {
@@ -160,25 +160,25 @@ public partial class CoaPage : ContentPage
         _ => type
     };
 
-    private async void OnOpenAddModalClicked(object sender, EventArgs e)
+    private async void OnOpenAddModalClicked(object? sender, EventArgs e)
     {
         // Navigasi atau popup tambah akun (bisa diarahkan ke halaman CreateCoaPage jika dibuat terpisah)
-        await DisplayAlert("Informasi", "Fitur form tambah akun baru dapat dibuatkan halaman khusus.", "OK");
+        await DisplayAlertAsync("Informasi", "Fitur form tambah akun baru dapat dibuatkan halaman khusus.", "OK");
     }
 
-    private async void OnEditAccountClicked(object sender, EventArgs e)
+    private async void OnEditAccountClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is Guid accountId)
         {
-            await DisplayAlert("Informasi", $"Edit akun dengan ID: {accountId}", "OK");
+            await DisplayAlertAsync("Informasi", $"Edit akun dengan ID: {accountId}", "OK");
         }
     }
 
-    private async void OnDeleteAccountClicked(object sender, EventArgs e)
+    private async void OnDeleteAccountClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is Guid accountId)
         {
-            bool confirm = await DisplayAlert("Konfirmasi", "Hapus akun ini? Tindakan ini tidak dapat dibatalkan.", "Ya", "Batal");
+            bool confirm = await DisplayAlertAsync("Konfirmasi", "Hapus akun ini? Tindakan ini tidak dapat dibatalkan.", "Ya", "Batal");
             if (confirm)
             {
                 try
@@ -189,7 +189,7 @@ public partial class CoaPage : ContentPage
                         bool hasLines = await _accountingService.DbContext.JournalEntryLines.AnyAsync(l => l.AccountId == accountId);
                         if (hasLines)
                         {
-                            await DisplayAlert("Gagal", "Akun tidak dapat dihapus karena sudah memiliki riwayat jurnal. Ubah status menjadi Inactive.", "OK");
+                            await DisplayAlertAsync("Gagal", "Akun tidak dapat dihapus karena sudah memiliki riwayat jurnal. Ubah status menjadi Inactive.", "OK");
                             return;
                         }
 
@@ -200,7 +200,7 @@ public partial class CoaPage : ContentPage
                 }
                 catch (Exception ex)
                 {
-                    await DisplayAlert("Error", $"Gagal menghapus akun: {ex.Message}", "OK");
+                    await DisplayAlertAsync("Error", $"Gagal menghapus akun: {ex.Message}", "OK");
                 }
             }
         }
@@ -210,7 +210,7 @@ public partial class CoaPage : ContentPage
 public class ChartOfAccountDisplayModel
 {
     public Guid Id { get; set; }
-    public int ReferenceNumber { get; set; }
+    public string ReferenceNumber { get; set; } = string.Empty;
     public string AccountName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
