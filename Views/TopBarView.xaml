@@ -8,37 +8,34 @@
           VerticalOptions="Center"
           Padding="20,12,20,12">
 
-        <!-- SISI KIRI: Tombol Menu (Flyout Dropdown) + Periode -->
+        <!-- SISI KIRI: Tombol Menu + Periode -->
         <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
             
-            <!-- Tombol Menu Navigasi -->
-            <ImageButton Text="☰"
-                         FontSize="22"
-                         TextColor="#94A3B8"
-                         BackgroundColor="Transparent"
-                         VerticalOptions="Center"
-                         Padding="2"
-                         HeightRequest="36"
-                         WidthRequest="36">
+            <!-- Tombol Menu (Menggunakan Button biasa agar properti Text & Font valid) -->
+            <Button x:Name="MenuButton"
+                    Text="☰"
+                    FontSize="20"
+                    TextColor="#94A3B8"
+                    BackgroundColor="Transparent"
+                    VerticalOptions="Center"
+                    Padding="0"
+                    HeightRequest="36"
+                    WidthRequest="36"
+                    Clicked="OnMenuButtonClicked">
                 <FlyoutBase.AttachedFlyout>
-                    <MenuFlyout>
-                        <!-- 1. Report Submenu -->
+                    <MenuFlyout x:Name="TopMenuFlyout">
                         <MenuFlyoutSubItem Text="Report">
                             <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
                             <MenuFlyoutItem Text="GL (Akun Permanen)" Clicked="OnGlPermanentClicked" />
                             <MenuFlyoutItem Text="GL (Akun Sementara)" Clicked="OnGlTemporaryClicked" />
                         </MenuFlyoutSubItem>
-
-                        <!-- 2. COA -->
                         <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
-
-                        <!-- 3. Periode -->
                         <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
                     </MenuFlyout>
                 </FlyoutBase.AttachedFlyout>
-            </ImageButton>
+            </Button>
 
-            <!-- Label Periode (Tanpa Ikon Kalender) -->
+            <!-- Label Periode -->
             <Label x:Name="PeriodLabel"
                    Text="-"
                    FontSize="18"
