@@ -1,34 +1,67 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AumoFinance.Views.TopBarView">
+             x:Class="AumoFinance.Views.TopBarView"
+             BackgroundColor="#0F172A">
 
-    <Grid ColumnDefinitions="*, 120" 
-          Padding="20,14" 
-          BackgroundColor="#0F172A">
+    <Grid ColumnDefinitions="Auto, *, Auto"
+          VerticalOptions="Center"
+          Padding="20,12,20,12">
 
-        <!-- Periode -->
-        <HorizontalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
-        <Label x:Name="PeriodLabel"
-           Text="-"
-           FontSize="18"
-           FontAttributes="Bold"
-           TextColor="#94A3B8"
-           VerticalOptions="Center" />
+        <!-- SISI KIRI: Tombol Menu (Flyout Dropdown) + Periode -->
+        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
+            
+            <!-- Tombol Menu Navigasi -->
+            <ImageButton Text="☰"
+                         FontSize="22"
+                         TextColor="#94A3B8"
+                         BackgroundColor="Transparent"
+                         VerticalOptions="Center"
+                         Padding="2"
+                         HeightRequest="36"
+                         WidthRequest="36">
+                <FlyoutBase.AttachedFlyout>
+                    <MenuFlyout>
+                        <!-- 1. Report Submenu -->
+                        <MenuFlyoutSubItem Text="Report">
+                            <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
+                            <MenuFlyoutItem Text="GL (Akun Permanen)" Clicked="OnGlPermanentClicked" />
+                            <MenuFlyoutItem Text="GL (Akun Sementara)" Clicked="OnGlTemporaryClicked" />
+                        </MenuFlyoutSubItem>
+
+                        <!-- 2. COA -->
+                        <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
+
+                        <!-- 3. Periode -->
+                        <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
+                    </MenuFlyout>
+                </FlyoutBase.AttachedFlyout>
+            </ImageButton>
+
+            <!-- Label Periode (Tanpa Ikon Kalender) -->
+            <Label x:Name="PeriodLabel"
+                   Text="-"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#94A3B8"
+                   VerticalOptions="Center" />
         </HorizontalStackLayout>
 
-        <!-- Indikator Sync DB (Queue / Uploading) — hanya warna, tanpa teks -->
-        <Border Grid.Column="1"
-                x:Name="SyncBadge"
-                HorizontalOptions="End"
-                WidthRequest="14"
-                HeightRequest="14"
-                StrokeShape="RoundRectangle 7"
-                BackgroundColor="#10B981"
-                Stroke="#10B981"
-                StrokeThickness="1"
-                Padding="0"
-                VerticalOptions="Center" />
+        <!-- SISI KANAN: Sync Status / Tag Versi -->
+        <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+            <Border BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="8,4">
+                <Label Text="v1.0"
+                       FontSize="11"
+                       TextColor="#64748B"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center" />
+            </Border>
+        </HorizontalStackLayout>
+
     </Grid>
 
 </ContentView>
