@@ -12,26 +12,26 @@ public partial class TopBarView : ContentView
 
     private void OnGeneralJournalClicked(object sender, EventArgs e)
     {
-        // Navigasi ke General Journal
+        // TODO: Navigasi ke General Journal
     }
 
     private void OnGlPermanentClicked(object sender, EventArgs e)
     {
-        // Navigasi ke GL Permanen
+        // TODO: Navigasi ke GL Permanen
     }
 
     private void OnGlTemporaryClicked(object sender, EventArgs e)
     {
-        // Navigasi ke GL Sementara
+        // TODO: Navigasi ke GL Sementara
     }
 
     private void OnCoaClicked(object sender, EventArgs e)
     {
-        // Navigasi ke COA
+        // TODO: Navigasi ke COA
     }
 
     private void OnPeriodClicked(object sender, EventArgs e)
     {
-        // Navigasi ke Periode
+        // TODO: Filter Periode
     }
 }
