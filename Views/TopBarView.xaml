@@ -1,43 +1,67 @@
-<!-- Container Header TopBar -->
-<Grid ColumnDefinitions="Auto, *, Auto" VerticalOptions="Center" Padding="16,10">
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AumoFinance.Views.TopBarView"
+             BackgroundColor="#0F172A">
 
-    <!-- SISI KIRI: Tombol Menu Navigasi & Periode -->
-    <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
-        
-        <!-- Tombol Menu (Flyout Dropdown) -->
-        <ImageButton Text="☰"
-                     FontSize="20"
-                     TextColor="#94A3B8"
-                     BackgroundColor="Transparent"
-                     VerticalOptions="Center"
-                     Padding="4">
-            <FlyoutBase.AttachedFlyout>
-                <MenuFlyout>
-                    <!-- 1. Report Submenu -->
-                    <MenuFlyoutSubItem Text="Report">
-                        <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
-                        <MenuFlyoutItem Text="GL (Akun Permanen)" Clicked="OnGlPermanentClicked" />
-                        <MenuFlyoutItem Text="GL (Akun Sementara)" Clicked="OnGlTemporaryClicked" />
-                    </MenuFlyoutSubItem>
+    <Grid ColumnDefinitions="Auto, *, Auto"
+          VerticalOptions="Center"
+          Padding="20,12,20,12">
 
-                    <!-- 2. COA -->
-                    <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
+        <!-- SISI KIRI: Tombol Menu (Flyout Dropdown) + Periode -->
+        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
+            
+            <!-- Tombol Menu Navigasi -->
+            <ImageButton Text="☰"
+                         FontSize="22"
+                         TextColor="#94A3B8"
+                         BackgroundColor="Transparent"
+                         VerticalOptions="Center"
+                         Padding="2"
+                         HeightRequest="36"
+                         WidthRequest="36">
+                <FlyoutBase.AttachedFlyout>
+                    <MenuFlyout>
+                        <!-- 1. Report Submenu -->
+                        <MenuFlyoutSubItem Text="Report">
+                            <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
+                            <MenuFlyoutItem Text="GL (Akun Permanen)" Clicked="OnGlPermanentClicked" />
+                            <MenuFlyoutItem Text="GL (Akun Sementara)" Clicked="OnGlTemporaryClicked" />
+                        </MenuFlyoutSubItem>
 
-                    <!-- 3. Periode -->
-                    <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
-                </MenuFlyout>
-            </FlyoutBase.AttachedFlyout>
-        </ImageButton>
+                        <!-- 2. COA -->
+                        <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
 
-        <!-- Label Periode (Di sebelah kanan ikon menu) -->
-        <Label x:Name="PeriodLabel"
-               Text="-"
-               FontSize="18"
-               FontAttributes="Bold"
-               TextColor="#94A3B8"
-               VerticalOptions="Center" />
-    </HorizontalStackLayout>
+                        <!-- 3. Periode -->
+                        <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
+                    </MenuFlyout>
+                </FlyoutBase.AttachedFlyout>
+            </ImageButton>
 
-    <!-- Sisi kanan (jika ada elemen lain seperti Sync Status/Version Tag) tetap berada di Column="2" -->
+            <!-- Label Periode (Tanpa Ikon Kalender) -->
+            <Label x:Name="PeriodLabel"
+                   Text="-"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#94A3B8"
+                   VerticalOptions="Center" />
+        </HorizontalStackLayout>
 
-</Grid>
+        <!-- SISI KANAN: Sync Status / Tag Versi -->
+        <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+            <Border BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="8,4">
+                <Label Text="v1.0"
+                       FontSize="11"
+                       TextColor="#64748B"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center" />
+            </Border>
+        </HorizontalStackLayout>
+
+    </Grid>
+
+</ContentView>
