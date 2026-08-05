@@ -29,12 +29,18 @@ public partial class TrialBalancePage : ContentPage
     {
         base.OnAppearing();
 
-        // Sesuaikan Teks UI berdasarkan parameter
+        // Sesuaikan Teks UI berdasarkan parameter query
         if (_includeAdjusting)
         {
             PageTitleLabel.Text = "Adjusted Trial Balance";
             PageSubtitleLabel.Text = "Saldo akun setelah jurnal penyesuaian.";
             this.Title = "Adjusted Trial Balance";
+        }
+        else
+        {
+            PageTitleLabel.Text = "Trial Balance";
+            PageSubtitleLabel.Text = "Saldo akun sebelum penyesuaian.";
+            this.Title = "Trial Balance";
         }
 
         await LoadTrialBalanceAsync();
@@ -83,8 +89,8 @@ public partial class TrialBalancePage : ContentPage
                 BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
                 BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
                 BalanceStatusText.Text = isBalanced
-                    ? "Debit dan Kredit seimbang."
-                    : "Tidak seimbang! Silakan periksa kembali jurnal Anda.";
+                    ? "Trial balance seimbang; total Debit sama dengan Kredit."
+                    : "Trial balance tidak seimbang! Silakan periksa kembali entri jurnal Anda.";
 
                 TrialBalanceCollectionView.ItemsSource = rows;
                 TableContainer.IsVisible = true;
@@ -92,7 +98,7 @@ public partial class TrialBalancePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal terhubung ke database: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Gagal memuat Trial Balance: {ex.Message}", "OK");
         }
         finally
         {
