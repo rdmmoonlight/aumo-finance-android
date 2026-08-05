@@ -12,7 +12,7 @@
         <!-- SISI KIRI: Tombol Menu Navigasi + Periode -->
         <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
             
-            <!-- Tombol Menu dengan ContextFlyout -->
+            <!-- Tombol Menu: membuka action sheet (lihat OnMenuButtonClicked di code-behind) -->
             <Button x:Name="MenuButton"
                     Text="☰"
                     FontSize="20"
@@ -22,27 +22,7 @@
                     Padding="0"
                     HeightRequest="36"
                     WidthRequest="36"
-                    Clicked="OnMenuButtonClicked">
-                <FlyoutBase.ContextFlyout>
-                    <MenuFlyout x:Name="TopMenuFlyout">
-                        <MenuFlyoutSubItem Text="Reports &amp; Journals">
-                            <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
-                            <MenuFlyoutItem Text="Adjusting Journal" Clicked="OnAdjustingJournalClicked" />
-                            <MenuFlyoutItem Text="General Ledger (Permanent)" Clicked="OnGlPermanentClicked" />
-                            <MenuFlyoutItem Text="General Ledger (Temporary)" Clicked="OnGlTemporaryClicked" />
-                            <MenuFlyoutItem Text="Trial Balance" Clicked="OnTrialBalanceClicked" />
-                            <MenuFlyoutItem Text="Adjusted Trial Balance" Clicked="OnAdjustedTrialBalanceClicked" />
-                            <MenuFlyoutItem Text="Worksheet (10-Column)" Clicked="OnWorksheetClicked" />
-                            <MenuFlyoutItem Text="Income Statement" Clicked="OnIncomeStatementClicked" />
-                            <MenuFlyoutItem Text="Retained Earnings Statement" Clicked="OnRetainedEarningsClicked" />
-                            <MenuFlyoutItem Text="Statement of Financial Position" Clicked="OnSofpClicked" />
-                            <MenuFlyoutItem Text="Post-Closing Trial Balance" Clicked="OnPostClosingClicked" />
-                        </MenuFlyoutSubItem>
-                        <MenuFlyoutItem Text="Chart of Accounts (COA)" Clicked="OnCoaClicked" />
-                        <MenuFlyoutItem Text="Accounting Periods" Clicked="OnPeriodClicked" />
-                    </MenuFlyout>
-                </FlyoutBase.ContextFlyout>
-            </Button>
+                    Clicked="OnMenuButtonClicked" />
 
             <!-- Label Periode -->
             <Label x:Name="PeriodLabel"

@@ -1,10 +1,28 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
 namespace AumoFinance.Views;
 
 public partial class TopBarView : ContentView
 {
+    private const string ReportsMenuLabel = "Reports & Journals";
+    private const string CoaMenuLabel = "Chart of Accounts (COA)";
+    private const string PeriodMenuLabel = "Accounting Periods";
+    private const string CancelLabel = "Batal";
+
+    private const string GeneralJournalLabel = "General Journal";
+    private const string AdjustingJournalLabel = "Adjusting Journal";
+    private const string GlPermanentLabel = "General Ledger (Permanent)";
+    private const string GlTemporaryLabel = "General Ledger (Temporary)";
+    private const string TrialBalanceLabel = "Trial Balance";
+    private const string AdjustedTrialBalanceLabel = "Adjusted Trial Balance";
+    private const string WorksheetLabel = "Worksheet (10-Column)";
+    private const string IncomeStatementLabel = "Income Statement";
+    private const string RetainedEarningsLabel = "Retained Earnings Statement";
+    private const string SofpLabel = "Statement of Financial Position";
+    private const string PostClosingLabel = "Post-Closing Trial Balance";
+
     public TopBarView()
     {
         InitializeComponent();
@@ -16,77 +34,93 @@ public partial class TopBarView : ContentView
         set => PeriodLabel.Text = string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
 
-    private void OnMenuButtonClicked(object? sender, EventArgs e)
+    // Catatan: FlyoutBase.ContextFlyout / MenuFlyout hanya didukung MAUI
+    // di Windows dan MacCatalyst, TIDAK di Android. Karena target proyek
+    // ini hanya net10.0-android, menu memakai DisplayActionSheetAsync
+    // (didukung penuh di semua platform, termasuk Android) sebagai ganti.
+    private async void OnMenuButtonClicked(object? sender, EventArgs e)
     {
-        // Catatan: Microsoft.Maui.Controls.FlyoutBase tidak memiliki API
-        // ShowAttachedFlyout (itu API WinUI, bukan MAUI). Di MAUI,
-        // FlyoutBase.ContextFlyout yang terpasang pada MenuButton (lihat XAML)
-        // sudah otomatis terbuka lewat tap/long-press pada Android, jadi
-        // tidak perlu dipanggil manual di sini.
+        var page = Shell.Current;
+        if (page == null)
+        {
+            return;
+        }
+
+        var choice = await page.DisplayActionSheetAsync(
+            "Menu",
+            CancelLabel,
+            null,
+            ReportsMenuLabel,
+            CoaMenuLabel,
+            PeriodMenuLabel);
+
+        switch (choice)
+        {
+            case ReportsMenuLabel:
+                await ShowReportsMenuAsync(page);
+                break;
+            case CoaMenuLabel:
+                await Shell.Current.GoToAsync("//CoaPage");
+                break;
+            case PeriodMenuLabel:
+                await Shell.Current.GoToAsync("//PeriodsPage");
+                break;
+        }
     }
 
-    private async void OnGeneralJournalClicked(object? sender, EventArgs e)
+    private async Task ShowReportsMenuAsync(Page page)
     {
-        await Shell.Current.GoToAsync("//GeneralJournalPage");
-    }
+        var choice = await page.DisplayActionSheetAsync(
+            ReportsMenuLabel,
+            CancelLabel,
+            null,
+            GeneralJournalLabel,
+            AdjustingJournalLabel,
+            GlPermanentLabel,
+            GlTemporaryLabel,
+            TrialBalanceLabel,
+            AdjustedTrialBalanceLabel,
+            WorksheetLabel,
+            IncomeStatementLabel,
+            RetainedEarningsLabel,
+            SofpLabel,
+            PostClosingLabel);
 
-    private async void OnAdjustingJournalClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//AdjustingJournalPage");
-    }
-
-    private async void OnGlPermanentClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//GeneralLedgerPermanentPage");
-    }
-
-    private async void OnGlTemporaryClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//GeneralLedgerTemporaryPage");
-    }
-
-    private async void OnTrialBalanceClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=false");
-    }
-
-    private async void OnAdjustedTrialBalanceClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=true");
-    }
-
-    private async void OnWorksheetClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//WorksheetPage");
-    }
-
-    private async void OnIncomeStatementClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//IncomeStatementPage");
-    }
-
-    private async void OnRetainedEarningsClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//RetainedEarningsPage");
-    }
-
-    private async void OnSofpClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//StatementOfFinancialPositionPage");
-    }
-
-    private async void OnPostClosingClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//PostClosingTrialBalancePage");
-    }
-
-    private async void OnCoaClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//CoaPage");
-    }
-
-    private async void OnPeriodClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("//PeriodsPage");
+        switch (choice)
+        {
+            case GeneralJournalLabel:
+                await Shell.Current.GoToAsync("//GeneralJournalPage");
+                break;
+            case AdjustingJournalLabel:
+                await Shell.Current.GoToAsync("//AdjustingJournalPage");
+                break;
+            case GlPermanentLabel:
+                await Shell.Current.GoToAsync("//GeneralLedgerPermanentPage");
+                break;
+            case GlTemporaryLabel:
+                await Shell.Current.GoToAsync("//GeneralLedgerTemporaryPage");
+                break;
+            case TrialBalanceLabel:
+                await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=false");
+                break;
+            case AdjustedTrialBalanceLabel:
+                await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=true");
+                break;
+            case WorksheetLabel:
+                await Shell.Current.GoToAsync("//WorksheetPage");
+                break;
+            case IncomeStatementLabel:
+                await Shell.Current.GoToAsync("//IncomeStatementPage");
+                break;
+            case RetainedEarningsLabel:
+                await Shell.Current.GoToAsync("//RetainedEarningsPage");
+                break;
+            case SofpLabel:
+                await Shell.Current.GoToAsync("//StatementOfFinancialPositionPage");
+                break;
+            case PostClosingLabel:
+                await Shell.Current.GoToAsync("//PostClosingTrialBalancePage");
+                break;
+        }
     }
 }
