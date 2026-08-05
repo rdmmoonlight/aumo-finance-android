@@ -60,7 +60,7 @@ public partial class PeriodsPage : ContentPage
             foreach (var p in periods)
             {
                 bool isSelected = selectedPeriodId == p.Id;
-                
+
                 // Cek apakah ada periode sebelumnya yang belum ditutup
                 bool hasEarlierOpenPeriod = periods.Any(x => x.Id != p.Id && x.StartDate < p.StartDate && !x.IsClosed);
                 bool canClose = !p.IsClosed && !hasEarlierOpenPeriod;

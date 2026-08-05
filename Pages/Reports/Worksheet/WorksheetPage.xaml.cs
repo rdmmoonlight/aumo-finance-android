@@ -49,7 +49,7 @@ public partial class WorksheetPage : ContentPage
             var adjustedRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
 
             var accounts = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: false); // atau ambil dari Chart of Accounts
-            
+
             // Generate rows worksheet 10 kolom
             var allAccountIds = unadjustedRows.Select(r => r.AccountId)
                 .Union(adjustedRows.Select(r => r.AccountId))

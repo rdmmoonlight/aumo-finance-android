@@ -45,7 +45,7 @@ public partial class PostClosingTrialBalancePage : ContentPage
             }
 
             PeriodNameLabel.Text = period.PeriodName;
-            SubtitleLabel.Text = `Menampilkan akun permanen per ${period.EndDate:MMMM dd, yyyy}`;
+            SubtitleLabel.Text = `Menampilkan akun permanen per ${ period.EndDate:MMMM dd, yyyy}`;
 
             // Ambil SOFP post-closing melalui helper/service
             var vm = await StatementOfFinancialPositionPage.BuildSofpAsync(_accountingService.DbContext, _currentUserId, period, isPostClosing: true);
@@ -122,8 +122,8 @@ public partial class PostClosingTrialBalancePage : ContentPage
             BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
             BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
             BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
-            BalanceStatusText.Text = isBalanced 
-                ? "Post-closing trial balance seimbang; buku siap untuk periode berikutnya." 
+            BalanceStatusText.Text = isBalanced
+                ? "Post-closing trial balance seimbang; buku siap untuk periode berikutnya."
                 : "Post-closing trial balance tidak seimbang! Periksa kembali closing entries.";
 
             TrialBalanceCollectionView.ItemsSource = rows;

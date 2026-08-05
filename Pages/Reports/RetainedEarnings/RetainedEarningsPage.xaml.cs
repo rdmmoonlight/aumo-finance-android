@@ -46,7 +46,7 @@ public partial class RetainedEarningsPage : ContentPage
 
             // Ambil Trial Balance dengan penyesuaian
             var rows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
-            
+
             // Hitung Income Statement untuk Net Income
             var incomeStatement = IncomeStatementPageViewModelHelper(rows, period);
             var reAccount = rows.FirstOrDefault(r => r.Type.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase) || r.Role?.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase) == true);

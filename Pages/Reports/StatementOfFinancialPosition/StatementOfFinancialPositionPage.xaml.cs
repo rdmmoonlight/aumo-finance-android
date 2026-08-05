@@ -49,7 +49,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
 
             // Ambil data Trial Balance & Retained Earnings
             var rows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
-            
+
             // Hitung Retained Earnings
             var incomeStatement = IncomeStatementPageViewModelHelper(rows, period);
             var reAccount = rows.FirstOrDefault(r => r.Type.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase) || r.Role?.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase) == true);
@@ -77,7 +77,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
             TotalLiabilitiesLabel.Text = totalLiabilities.ToString("N0", culture);
 
             EquityCollectionView.ItemsSource = equity;
-            RetainedEarningsRowLabel.Text =etàTextRetainedEarnings(period);
+            RetainedEarningsRowLabel.Text = etàTextRetainedEarnings(period);
             RetainedEarningsEndingLabel.Text = retainedEarningsEnding.ToString("N0", culture);
             TotalEquityLabel.Text = totalEquity.ToString("N0", culture);
 
@@ -90,8 +90,8 @@ public partial class StatementOfFinancialPositionPage : ContentPage
             BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
             BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
             BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
-            BalanceStatusText.Text = isBalanced 
-                ? "Total Assets = Total Liabilities + Equity. Statement of Financial Position seimbang." 
+            BalanceStatusText.Text = isBalanced
+                ? "Total Assets = Total Liabilities + Equity. Statement of Financial Position seimbang."
                 : "Total Assets tidak sama dengan Total Liabilities + Equity. Periksa kembali entri jurnal.";
 
             SheetContainer.IsVisible = true;
