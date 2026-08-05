@@ -11,7 +11,7 @@
         <!-- SISI KIRI: Tombol Menu Navigasi + Periode -->
         <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
             
-            <!-- Tombol Menu dengan Flyout resmi MAUI -->
+            <!-- Tombol Menu dengan ContextFlyout -->
             <Button x:Name="MenuButton"
                     Text="☰"
                     FontSize="20"
@@ -21,7 +21,7 @@
                     Padding="0"
                     HeightRequest="36"
                     WidthRequest="36">
-                <Button.Flyout>
+                <FlyoutBase.ContextFlyout>
                     <MenuFlyout x:Name="TopMenuFlyout">
                         <MenuFlyoutSubItem Text="Report">
                             <MenuFlyoutItem Text="General Journal" Clicked="OnGeneralJournalClicked" />
@@ -31,7 +31,7 @@
                         <MenuFlyoutItem Text="COA" Clicked="OnCoaClicked" />
                         <MenuFlyoutItem Text="Periode" Clicked="OnPeriodClicked" />
                     </MenuFlyout>
-                </Button.Flyout>
+                </FlyoutBase.ContextFlyout>
             </Button>
 
             <!-- Label Periode -->
