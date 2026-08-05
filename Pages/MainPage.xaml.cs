@@ -105,4 +105,14 @@ public partial class MainPage : ContentPage
             return (false, "Terjadi kesalahan di MainPage: " + ex.Message);
         }
     }
+    private async void OnPrimaryFabClicked(object? sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new InputJournalPage());
+    }
+
+    private async void OnSecondaryFabClicked(object? sender, EventArgs e)
+    {
+        // Placeholder untuk ide tombol kedua Anda berikutnya
+        await this.DisplayAlertAsync("Informasi", "Tombol opsi kedua siap dikustomisasi sesuai ide Anda!", "OK");
+    }
 }
