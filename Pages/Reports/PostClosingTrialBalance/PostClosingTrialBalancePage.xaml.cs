@@ -45,7 +45,7 @@ public partial class PostClosingTrialBalancePage : ContentPage
             }
 
             PeriodNameLabel.Text = period.PeriodName;
-            SubtitleLabel.Text = `Menampilkan akun permanen per ${ period.EndDate:MMMM dd, yyyy}`;
+            SubtitleLabel.Text = $"Menampilkan akun permanen per {period.EndDate:MMMM dd, yyyy}";
 
             // Ambil SOFP post-closing melalui helper/service
             var vm = await StatementOfFinancialPositionPage.BuildSofpAsync(_accountingService.DbContext, _currentUserId, period, isPostClosing: true);
