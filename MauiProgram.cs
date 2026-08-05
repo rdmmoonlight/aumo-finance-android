@@ -22,21 +22,17 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // ApiService dibagikan sebagai singleton agar NpgsqlDataSource (connection
-        // pool) miliknya dipakai bersama oleh seluruh halaman.
         builder.Services.AddSingleton<ApiService>();
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(ApiService.ConnectionString));
         builder.Services.AddTransient<AccountingService>();
 
-        // Aplikasi single-user: daftarkan factory Func/Delegate agar DI container
-        // dapat menyuntikkan nilai Guid CurrentUser.Id tanpa melanggar constraint reference type.
-        builder.Services.AddSingleton(_ => CurrentUser.Id);
+        // UBAH BARIS INI: Bungkus Guid ke dalam UserContext (Reference Type)
+        builder.Services.AddSingleton(new UserContext(CurrentUser.Id));
 
-        // Didaftarkan agar Shell dapat membuat instance-nya lewat DI container
+        // Pendaftaran Halaman
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<InputJournalPage>();
 
-        // Pendaftaran Seluruh Halaman Laporan (Reports)
         builder.Services.AddTransient<GeneralJournalPage>();
         builder.Services.AddTransient<GeneralLedgerPermanentPage>();
         builder.Services.AddTransient<GeneralLedgerTemporaryPage>();
