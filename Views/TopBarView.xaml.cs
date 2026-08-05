@@ -16,11 +16,6 @@ public partial class TopBarView : ContentView
         set => PeriodLabel.Text = string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
 
-    private void OnMenuButtonClicked(object? sender, EventArgs e)
-    {
-        FlyoutBase.ShowAttachedFlyout(MenuButton);
-    }
-
     private void OnGeneralJournalClicked(object? sender, EventArgs e)
     {
         // TODO: Navigasi ke General Journal
