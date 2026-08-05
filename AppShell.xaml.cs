@@ -1,23 +1,28 @@
-﻿namespace AumoFinance;
+using Microsoft.Maui.Controls;
+using AumoFinance.Pages;
+
+namespace AumoFinance;
 
 public partial class AppShell : Shell
 {
     public AppShell()
     {
-        Routing.RegisterRoute(nameof(Pages.CoaPage), typeof(Pages.CoaPage));
-        Routing.RegisterRoute(nameof(Pages.PeriodsPage), typeof(Pages.PeriodsPage));
-        Routing.RegisterRoute(nameof(Pages.InputJournalPage), typeof(Pages.InputJournalPage));
-        Routing.RegisterRoute(nameof(Pages.GeneralJournalPage), typeof(Pages.GeneralJournalPage));
-        Routing.RegisterRoute(nameof(Pages.GeneralLedgerPermanentPage), typeof(Pages.GeneralLedgerPermanentPage));
-        Routing.RegisterRoute(nameof(Pages.GeneralLedgerTemporaryPage), typeof(Pages.GeneralLedgerTemporaryPage));
-        Routing.RegisterRoute(nameof(Pages.TrialBalancePage), typeof(Pages.TrialBalancePage));
-        Routing.RegisterRoute(nameof(Pages.AdjustingJournalPage), typeof(Pages.AdjustingJournalPage));
-        Routing.RegisterRoute(nameof(Pages.WorksheetPage), typeof(Pages.WorksheetPage));
-        Routing.RegisterRoute(nameof(Pages.IncomeStatementPage), typeof(Pages.IncomeStatementPage));
-        Routing.RegisterRoute(nameof(Pages.RetainedEarningsPage), typeof(Pages.RetainedEarningsPage));
-        Routing.RegisterRoute(nameof(Pages.StatementOfFinancialPositionPage), typeof(Pages.StatementOfFinancialPositionPage));
-        Routing.RegisterRoute(nameof(Pages.PostClosingTrialBalancePage), typeof(Pages.PostClosingTrialBalancePage));
-
         InitializeComponent();
+
+        // Register Rute Master & Laporan
+        Routing.RegisterRoute(nameof(CoaPage), typeof(CoaPage));
+        Routing.RegisterRoute(nameof(PeriodsPage), typeof(PeriodsPage));
+        Routing.RegisterRoute(nameof(InputJournalPage), typeof(InputJournalPage));
+
+        Routing.RegisterRoute(nameof(GeneralJournalPage), typeof(GeneralJournalPage));
+        Routing.RegisterRoute(nameof(GeneralLedgerPermanentPage), typeof(GeneralLedgerPermanentPage));
+        Routing.RegisterRoute(nameof(GeneralLedgerTemporaryPage), typeof(GeneralLedgerTemporaryPage));
+        Routing.RegisterRoute(nameof(TrialBalancePage), typeof(TrialBalancePage));
+        Routing.RegisterRoute(nameof(AdjustingJournalPage), typeof(AdjustingJournalPage));
+        Routing.RegisterRoute(nameof(WorksheetPage), typeof(WorksheetPage));
+        Routing.RegisterRoute(nameof(IncomeStatementPage), typeof(IncomeStatementPage));
+        Routing.RegisterRoute(nameof(RetainedEarningsPage), typeof(RetainedEarningsPage));
+        Routing.RegisterRoute(nameof(StatementOfFinancialPositionPage), typeof(StatementOfFinancialPositionPage));
+        Routing.RegisterRoute(nameof(PostClosingTrialBalancePage), typeof(PostClosingTrialBalancePage));
     }
 }
