@@ -59,13 +59,13 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                await this.DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+                await DisplayAlert("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
         finally
         {
@@ -80,12 +80,11 @@ public partial class MainPage : ContentPage
         await LoadDashboardDataAsync();
     }
 
-    private async void OnInputJournalClicked(object? sender, EventArgs e)
+    private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
         await Navigation.PushAsync(new InputJournalPage());
     }
 
-    // ALUR LANGSUNG: Tembak ApiService secara langsung ke database tanpa Queue
     public async Task<(bool success, string message)> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
     {
         try
@@ -104,15 +103,5 @@ public partial class MainPage : ContentPage
             Debug.WriteLine($"ProcessNewTransactionAsync error: {ex}");
             return (false, "Terjadi kesalahan di MainPage: " + ex.Message);
         }
-    }
-    private async void OnPrimaryFabClicked(object? sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new InputJournalPage());
-    }
-
-    private async void OnSecondaryFabClicked(object? sender, EventArgs e)
-    {
-        // Placeholder untuk ide tombol kedua Anda berikutnya
-        await this.DisplayAlertAsync("Informasi", "Tombol opsi kedua siap dikustomisasi sesuai ide Anda!", "OK");
     }
 }
