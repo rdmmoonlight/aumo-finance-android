@@ -1,15 +1,15 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AumoFinance.Services;
 using Microsoft.Maui.Controls;
+using AumoFinance.Services;
 
-namespace AumoFinance.Pages.Reports
+namespace AumoFinance.Pages;
 
 public partial class GeneralJournalPage : ContentPage
 {
     private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly Guid _currentUserId; // Ambil dari session login/auth
 
     public GeneralJournalPage(AccountingService accountingService, Guid currentUserId)
     {
@@ -76,7 +76,8 @@ public partial class GeneralJournalPage : ContentPage
 
     private async void OnEditEntryClicked(object sender, EventArgs e)
     {
-        if (sender is ImageButton btn && btn.CommandParameter is Guid entryId)
+        // Menggunakan "Button" (karena di XAML sebelumnya ImageButton sudah diganti menjadi Button)
+        if (sender is Button btn && btn.CommandParameter is Guid entryId)
         {
             await Shell.Current.GoToAsync($"//JournalEntryEditPage?id={entryId}");
         }
