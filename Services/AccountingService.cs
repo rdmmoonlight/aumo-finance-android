@@ -1,142 +1,37 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using AumoFinance.Models; // Pastikan namespace model ter-import
+using Microsoft.Maui.Controls;
 
-namespace AumoFinance.Services;
+namespace AumoFinance.Views;
 
-public class AccountingService
+public partial class TopBarView : ContentView
 {
-    private readonly AppDbContext _dbContext;
-
-    public AccountingService(AppDbContext dbContext)
+    public TopBarView()
     {
-        _dbContext = dbContext;
+        InitializeComponent();
     }
 
-    public async Task<Period?> GetCurrentPeriodAsync(Guid userId)
+    private async void OnGeneralJournalClicked(object sender, EventArgs e)
     {
-        return await _dbContext.Periods
-            .Where(p => p.UserId == userId)
-            .OrderByDescending(p => p.EndDate)
-            .FirstOrDefaultAsync();
+        // TODO: Navigasi ke General Journal
     }
 
-    public async Task<List<JournalEntry>> GetGeneralJournalAsync(Guid userId, Period period)
+    private async void OnGlPermanentClicked(object sender, EventArgs e)
     {
-        return await _dbContext.JournalEntries
-            .Include(j => j.Lines)
-                .ThenInclude(l => l.Account)
-            .Where(j => j.UserId == userId
-                     && j.EntryDate >= period.StartDate
-                     && j.EntryDate <= period.EndDate)
-            .OrderBy(j => j.EntryDate)
-            .ThenBy(j => j.Id)
-            .ToListAsync();
+        // TODO: Navigasi ke GL Permanen
     }
 
-    public async Task<List<LedgerAccountViewModel>> GetGeneralLedgerAsync(Guid userId, Period period, bool isTemporary)
+    private async void OnGlTemporaryClicked(object sender, EventArgs e)
     {
-        var accounts = await _dbContext.ChartOfAccounts
-            .Where(a => a.IsActive && a.UserId == userId)
-            .OrderBy(a => a.ReferenceNumber)
-            .ToListAsync();
+        // TODO: Navigasi ke GL Sementara
+    }
 
-        var filteredAccounts = accounts
-            .Where(a => isTemporary ? AccountClassification.IsTemporary(a.Type) : AccountClassification.IsPermanent(a.Type))
-            .ToList();
+    private async void OnCoaClicked(object sender, EventArgs e)
+    {
+        // TODO: Navigasi ke COA
+    }
 
-        var accountIds = filteredAccounts.Select(a => a.Id).ToList();
-
-        var lines = await _dbContext.JournalEntryLines
-            .Include(l => l.JournalEntry)
-            .Where(l => accountIds.Contains(l.AccountId) && l.JournalEntry!.UserId == userId)
-            .OrderBy(l => l.JournalEntry!.EntryDate)
-            .ThenBy(l => l.JournalEntry!.Id)
-            .ThenBy(l => l.LineOrder)
-            .ToListAsync();
-
-        var result = new List<LedgerAccountViewModel>();
-
-        foreach (var account in filteredAccounts)
-        {
-            var isPermanent = AccountClassification.IsPermanent(account.Type);
-            var normalDebit = AccountClassification.NormalBalanceIsDebit(account.Type);
-            decimal running = 0;
-
-            var accountLines = isPermanent
-                ? lines.Where(l => l.AccountId == account.Id && l.JournalEntry!.EntryDate <= period.EndDate)
-                : lines.Where(l => l.AccountId == account.Id && l.JournalEntry!.EntryDate >= period.StartDate && l.JournalEntry!.EntryDate <= period.EndDate);
-
-            var ledgerLines = new List<LedgerLineViewModel>();
-            foreach (var line in accountLines)
-            {
-                running += normalDebit ? (line.Debit - line.Credit) : (line.Credit - line.Debit);
-                ledgerLines.Add(new LedgerLineViewModel
-                {
-                    EntryDate = line.JournalEntry!.EntryDate,
-                    Description = line.LineDescription,
-                    Debit = line.Debit,
-                    Credit = line.Credit,
-                    RunningBalance = running
-                });
-            }
-
-            result.Add(new LedgerAccountViewModel
-            {
-                AccountId = account.Id,
-                ReferenceNumber = account.ReferenceNumber,
-                AccountName = account.AccountName,
-                Type = account.Type,
-                NormalBalanceIsDebit = normalDebit,
-                Lines = ledgerLines,
-                EndingBalance = running
-            });
-        }
-
-        return result;
+    private async void OnPeriodClicked(object sender, EventArgs e)
+    {
+        // TODO: Filter Periode
     }
 }
-
-#region Helper Models
-public static class AccountClassification
-{
-    public static bool IsTemporary(string type) =>
-        type.Equals("OperatingIncome", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("OperatingExpense", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("OtherIncome", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("OtherExpense", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("Revenue", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("Expense", StringComparison.OrdinalIgnoreCase);
-
-    public static bool IsPermanent(string type) => !IsTemporary(type);
-
-    public static bool NormalBalanceIsDebit(string type) =>
-        type.Equals("Asset", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("Expense", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("OperatingExpense", StringComparison.OrdinalIgnoreCase) ||
-        type.Equals("OtherExpense", StringComparison.OrdinalIgnoreCase);
-}
-
-public class LedgerAccountViewModel
-{
-    public Guid AccountId { get; set; }
-    public string ReferenceNumber { get; set; } = string.Empty;
-    public string AccountName { get; set; } = string.Empty;
-    public string Type { get; set; } = string.Empty;
-    public bool NormalBalanceIsDebit { get; set; }
-    public decimal EndingBalance { get; set; }
-    public List<LedgerLineViewModel> Lines { get; set; } = new();
-}
-
-public class LedgerLineViewModel
-{
-    public DateTime EntryDate { get; set; }
-    public string Description { get; set; } = string.Empty;
-    public decimal Debit { get; set; }
-    public decimal Credit { get; set; }
-    public decimal RunningBalance { get; set; }
-}
-#endregion
