@@ -7,19 +7,21 @@ on:
 
 jobs:
   # ==============================================================
-  # JOB 1: CHECK CODE QUALITY & LINTING
+  # JOB 1: CHECK CODE QUALITY, AUTO-FIX & COMMIT
   # ==============================================================
   lint-csharp:
-    name: Lint & Verify C# Code
+    name: Auto-Fix Lint & Verify C# Code
     runs-on: windows-latest
 
     permissions:
-      contents: read
+      contents: write # Izin WAJIB agar bot bisa push commit auto-fix
 
     steps:
       # 1. Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
 
       # 2. Setup .NET SDK
       - name: Setup .NET
@@ -34,11 +36,28 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore
 
-      # 4. Verifikasi Format Kode (Gagal jika kode tidak rapi / tidak sesuai standar)
-      - name: Verify Code Formatting
-        run: dotnet format --verify-no-changes --verbosity diagnostic
+      # 4. Auto-Fix Format Kode (Perbaiki whitespace dan indentasi otomatis)
+      - name: Auto-Fix Code Formatting
+        run: dotnet format
 
-      # 5. Static Analysis (Gagal jika ada Warning/Error pada kodingan)
+      # 5. Commit dan Push Perubahan Format (Jika ada yang berubah)
+      - name: Commit and Push Format Changes
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          $status = git status --porcelain
+          if ($status) {
+            Write-Host "Menemukan file yang tidak rapi. Melakukan auto-commit..."
+            git add .
+            git commit -m "style: auto-fix C# code formatting [skip ci]"
+            git push origin HEAD:production
+          } else {
+            Write-Host "Semua kode sudah rapi. Tidak ada perubahan."
+          }
+
+      # 6. Static Analysis (Gagal jika ada Warning/Error logika pada kodingan)
       - name: Run Static Code Analysis
         run: dotnet build --no-restore -c Debug /p:TreatWarningsAsErrors=true
 
@@ -47,7 +66,7 @@ jobs:
   # ==============================================================
   build-android:
     name: Build Android APK
-    needs: lint-csharp  # <-- KUNCI: Wajib menunggu job 'lint-csharp' lolos tanpa error
+    needs: lint-csharp
     if: github.ref == 'refs/heads/production' || github.base_ref == 'production'
     runs-on: windows-latest
 
@@ -55,13 +74,14 @@ jobs:
       contents: write # Izin untuk membuat Tag dan GitHub Release otomatis
 
     steps:
-      # 1. Checkout repository
+      # 1. Checkout repository (Ambil commit terbaru termasuk jika ada auto-fix)
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref }}
           fetch-depth: 0
 
-      # 2. Generate Versi 3 Tingkat (Tahun.Bulan.TotalBuild)
+      # 2. Generate Versi 3 Tingkat (YY.M.BUILD)
       - name: Generate CalVer Version
         id: get_version
         shell: pwsh
@@ -118,7 +138,7 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore
 
-      # 8. Build APK Release dengan versi 3 tingkat (YY.M.BUILD)
+      # 8. Build APK Release
       - name: Build Android APK
         run: >
           dotnet publish
@@ -139,7 +159,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 10. Backup Artifact (Hanya file -Signed.apk)
+      # 10. Backup Artifact
       - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
         with:
