@@ -1,5 +1,8 @@
+using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
