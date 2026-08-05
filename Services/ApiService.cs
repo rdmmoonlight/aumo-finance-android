@@ -41,7 +41,6 @@ public class ApiService
 
             string normalizedInput = usernameOrEmail.ToUpperInvariant();
 
-            // Query langsung ke tabel AspNetUsers bawaan ASP.NET Core Identity di Neon DB
             await using var cmd = new NpgsqlCommand(
                 "SELECT \"Id\", \"PasswordHash\" FROM \"AspNetUsers\" " +
                 "WHERE \"NormalizedUserName\" = @input OR \"NormalizedEmail\" = @input LIMIT 1", conn);
@@ -80,18 +79,28 @@ public class ApiService
         }
     }
 
+    // Verifikasi Password Hash ASP.NET Core Identity V3 secara native dengan Rfc2898DeriveBytes
     private static bool VerifyIdentityPasswordHash(string password, string hashedPassword)
     {
         try
         {
             byte[] decodedHashedPassword = Convert.FromBase64String(hashedPassword);
 
+            // Format Identity V3 diawali dengan format byte 0x01
             if (decodedHashedPassword.Length < 1 || decodedHashedPassword[0] != 0x01)
             {
                 return false;
             }
 
-            var prf = (Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivationPrf)ReadNetworkByteOrder(decodedHashedPassword, 1);
+            // Ekstrak PRF (0 = HMACSHA1, 1 = HMACSHA256, 2 = HMACSHA512)
+            uint prfValue = ReadNetworkByteOrder(decodedHashedPassword, 1);
+            HashAlgorithmName hashAlgorithm = prfValue switch
+            {
+                1 => HashAlgorithmName.SHA256,
+                2 => HashAlgorithmName.SHA512,
+                _ => HashAlgorithmName.SHA1
+            };
+
             int iterCount = (int)ReadNetworkByteOrder(decodedHashedPassword, 5);
             int saltLength = (int)ReadNetworkByteOrder(decodedHashedPassword, 9);
 
@@ -112,12 +121,9 @@ public class ApiService
             byte[] expectedSubkey = new byte[subkeyLength];
             Buffer.BlockCopy(decodedHashedPassword, 13 + salt.Length, expectedSubkey, 0, expectedSubkey.Length);
 
-            byte[] actualSubkey = Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2(
-                password: password,
-                salt: salt,
-                prf: prf,
-                iterationCount: iterCount,
-                numBytesRequested: subkeyLength);
+            // Hash password input menggunakan PBKDF2 bawaan System.Security.Cryptography
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterCount, hashAlgorithm);
+            byte[] actualSubkey = pbkdf2.GetBytes(subkeyLength);
 
             return CryptographicOperations.FixedTimeEquals(actualSubkey, expectedSubkey);
         }

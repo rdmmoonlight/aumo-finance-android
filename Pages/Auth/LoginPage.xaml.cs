@@ -15,13 +15,13 @@ public partial class LoginPage : ContentPage
         _apiService = apiService;
     }
 
-    private void OnTogglePasswordClicked(object sender, EventArgs e)
+    private void OnTogglePasswordClicked(object? sender, EventArgs e)
     {
         PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
         TogglePasswordButton.Text = PasswordEntry.IsPassword ? "👁️" : "🙈";
     }
 
-    private async void OnLoginButtonClicked(object sender, EventArgs e)
+    private async void OnLoginButtonClicked(object? sender, EventArgs e)
     {
         string username = UsernameEntry.Text?.Trim() ?? string.Empty;
         string password = PasswordEntry.Text ?? string.Empty;
