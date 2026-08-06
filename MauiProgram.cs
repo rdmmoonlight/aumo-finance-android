@@ -1,17 +1,6 @@
 using AumoFinance.Pages;
 using AumoFinance.Pages.JournalEntry;
-using AumoFinance.Pages.Reports;
-using AumoFinance.Pages.Reports.AdjustingJournal;
-using AumoFinance.Pages.Reports.GeneralJournal;
-using AumoFinance.Pages.Reports.GeneralLedger;
-using AumoFinance.Pages.Reports.IncomeStatement;
-using AumoFinance.Pages.Reports.PostClosingTrialBalance;
-using AumoFinance.Pages.Reports.RetainedEarnings;
-using AumoFinance.Pages.Reports.StatementOfFinancialPosition;
-using AumoFinance.Pages.Reports.TrialBalance;
-using AumoFinance.Pages.Reports.Worksheet;
 using AumoFinance.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AumoFinance;
@@ -36,13 +25,8 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // Ambil connection string dari Environment Variable atau fallback string
-        string connectionString = Environment.GetEnvironmentVariable("NEON_CONNECTION_STRING")
-            ?? "Host=YOUR_HOST;Database=YOUR_DB;Username=YOUR_USER;Password=YOUR_PASSWORD";
-
-        // Registrasi Services
+        // Registrasi Web API & Services
         builder.Services.AddSingleton<ApiService>();
-        builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
         builder.Services.AddTransient<AccountingService>();
 
         // Registrasi User Context
