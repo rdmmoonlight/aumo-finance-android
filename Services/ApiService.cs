@@ -225,7 +225,9 @@ public class ApiService
     // ==========================================
     // 5. GET DASHBOARD DATA
     // ==========================================
-    public async Task<object?> GetDashboardAsync()
+    // Mengembalikan (data, errorDetail) agar penyebab kegagalan bisa
+    // ditampilkan langsung di UI (tidak bergantung logcat/PC tools).
+    public async Task<(object? data, string? errorDetail)> GetDashboardAsync()
     {
         try
         {
@@ -236,15 +238,22 @@ public class ApiService
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync(cts.Token);
-                return JsonSerializer.Deserialize<object>(content, _jsonOptions);
+                return (JsonSerializer.Deserialize<object>(content, _jsonOptions), null);
             }
+
+            // Status non-sukses (mis. 401 auth, 404, 500) — bukan masalah koneksi.
+            var body = await response.Content.ReadAsStringAsync(cts.Token);
+            var snippet = body.Length > 150 ? body[..150] : body;
+            return (null, $"HTTP {(int)response.StatusCode} ({response.StatusCode}) — {snippet}");
+        }
+        catch (TaskCanceledException)
+        {
+            return (null, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"GetDashboardAsync Error: {ex.Message}");
+            return (null, $"{ex.GetType().Name}: {ex.Message}");
         }
-
-        return null;
     }
 
     // ==========================================
