@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
 using AumoFinance.Models;
 using AumoFinance.Services;
 using AumoFinance.Pages.JournalEntry;
@@ -19,6 +20,9 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         _apiService = apiService;
+
+        // Load status awal Switch Auto-Update dari Preferences (default: true)
+        AutoUpdateSwitch.IsToggled = Preferences.Default.Get("AutoUpdateEnabled", true);
     }
 
     protected override async void OnAppearing()
@@ -72,13 +76,13 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                await DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+                await DisplayAlert("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
         finally
         {
@@ -96,5 +100,31 @@ public partial class MainPage : ContentPage
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
         await Navigation.PushAsync(new JournalEntryPage());
+    }
+
+    // ==============================================================
+    // HANDLER EVENT UNTUK AUTO-UPDATE GITHUB
+    // ==============================================================
+
+    private void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
+    {
+        // Simpan preferensi pengguna saat Switch diubah
+        Preferences.Default.Set("AutoUpdateEnabled", e.Value);
+    }
+
+    private async void OnCheckUpdateManualClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            var updateService = new UpdateService();
+
+            // GANTI "USERNAME_GITHUB_ANDA" dan "AumoFinance" sesuai repositori GitHub Anda
+            await updateService.CheckAndInstallUpdateAsync("USERNAME_GITHUB_ANDA", "AumoFinance");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Manual update check error: {ex}");
+            await DisplayAlert("Error", "Gagal memeriksa pembaruan.", "OK");
+        }
     }
 }
