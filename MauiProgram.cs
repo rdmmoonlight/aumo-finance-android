@@ -1,5 +1,15 @@
 using AumoFinance.Pages;
 using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Pages.Reports;
+using AumoFinance.Pages.Reports.AdjustingJournal;
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.GeneralLedger;
+using AumoFinance.Pages.Reports.IncomeStatement;
+using AumoFinance.Pages.Reports.PostClosingTrialBalance;
+using AumoFinance.Pages.Reports.RetainedEarnings;
+using AumoFinance.Pages.Reports.StatementOfFinancialPosition;
+using AumoFinance.Pages.Reports.TrialBalance;
+using AumoFinance.Pages.Reports.Worksheet;
 using AumoFinance.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,9 +20,8 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        // Pasang crash logger sedini mungkin — tidak ada akses logcat/PC tools,
-        // jadi crash harus ditangkap & disimpan sendiri untuk didiagnosis dari HP.
-        AumoFinance.Services.CrashLogger.Install();
+        // Pasang crash logger sedini mungkin
+        CrashLogger.Install();
 
         var builder = MauiApp.CreateBuilder();
         builder
@@ -27,22 +36,24 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // Ambil connection string dari Environment Variable atau set string default
+        // Ambil connection string dari Environment Variable atau fallback string
         string connectionString = Environment.GetEnvironmentVariable("NEON_CONNECTION_STRING")
             ?? "Host=YOUR_HOST;Database=YOUR_DB;Username=YOUR_USER;Password=YOUR_PASSWORD";
 
+        // Registrasi Services
         builder.Services.AddSingleton<ApiService>();
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
         builder.Services.AddTransient<AccountingService>();
 
-        // Bungkus Guid ke dalam UserContext (Reference Type)
+        // Registrasi User Context
         builder.Services.AddSingleton(new UserContext(CurrentUser.Id));
 
-        // Pendaftaran Halaman
+        // Registrasi Core Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<JournalEntryPage>();
 
+        // Registrasi Report & Management Pages
         builder.Services.AddTransient<GeneralJournalPage>();
         builder.Services.AddTransient<GeneralLedgerPermanentPage>();
         builder.Services.AddTransient<GeneralLedgerTemporaryPage>();
