@@ -39,7 +39,7 @@ public partial class MainPage : ContentPage
 
         try
         {
-            var rawData = await _apiService.GetDashboardAsync();
+            var (rawData, errorDetail) = await _apiService.GetDashboardAsync();
 
             if (rawData is JsonElement element)
             {
@@ -77,7 +77,8 @@ public partial class MainPage : ContentPage
             else
             {
                 // FIX CS0618: Menggunakan DisplayAlertAsync
-                await this.DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+                string detail = string.IsNullOrWhiteSpace(errorDetail) ? "Penyebab tidak diketahui." : errorDetail;
+                await this.DisplayAlertAsync("Koneksi Gagal", $"Gagal mengambil data dari server web.\n\nDetail: {detail}", "OK");
             }
         }
         catch (Exception ex)
