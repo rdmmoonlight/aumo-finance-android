@@ -1,19 +1,23 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.JournalEntry;
 
-public partial class InputJournalPage : ContentPage
+public partial class JournalEntryPage : ContentPage
 {
     private readonly ApiService _apiService;
     private readonly CultureInfo _idrCulture = new("id-ID");
     private List<AccountLookupModel> _accounts = new();
     private readonly List<JournalLineRow> _rows = new();
 
-    public InputJournalPage()
+    public JournalEntryPage()
     {
         InitializeComponent();
         _apiService = new ApiService();
@@ -54,7 +58,7 @@ public partial class InputJournalPage : ContentPage
     {
         if (_rows.Count <= 2)
         {
-            await DisplayAlert("Informasi", "Jurnal minimal harus memiliki dua baris.", "OK");
+            await DisplayAlertAsync("Informasi", "Jurnal minimal harus memiliki dua baris.", "OK");
             return;
         }
 
@@ -96,7 +100,7 @@ public partial class InputJournalPage : ContentPage
 
             if (lines.Count < 2)
             {
-                await DisplayAlert("Peringatan", "Isi minimal dua baris jurnal dengan akun dan nominal yang valid.", "OK");
+                await DisplayAlertAsync("Peringatan", "Isi minimal dua baris jurnal dengan akun dan nominal yang valid.", "OK");
                 return;
             }
 
@@ -104,13 +108,15 @@ public partial class InputJournalPage : ContentPage
             var totalCredit = lines.Sum(l => l.Credit);
             if (totalDebit != totalCredit || totalDebit == 0)
             {
-                await DisplayAlert("Peringatan", "Total Debit dan Kredit harus seimbang dan lebih dari 0.", "OK");
+                await DisplayAlertAsync("Peringatan", "Total Debit dan Kredit harus seimbang dan lebih dari 0.", "OK");
                 return;
             }
 
+            DateTime selectedDate = EntryDatePicker.Date;
+
             var dto = new CreateJournalDto
             {
-                EntryDate = DateTime.SpecifyKind(EntryDatePicker.Date, DateTimeKind.Utc),
+                EntryDate = DateTime.SpecifyKind(selectedDate, DateTimeKind.Utc),
                 Lines = lines
             };
 
@@ -118,18 +124,18 @@ public partial class InputJournalPage : ContentPage
 
             if (success)
             {
-                await DisplayAlert("Berhasil", message, "OK");
+                await DisplayAlertAsync("Berhasil", message, "OK");
                 await Navigation.PopAsync();
             }
             else
             {
-                await DisplayAlert("Gagal Menyimpan", message, "OK");
+                await DisplayAlertAsync("Gagal Menyimpan", message, "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"OnSaveClicked Exception: {ex}");
-            await DisplayAlert("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
+            await DisplayAlertAsync("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
         }
         finally
         {
@@ -144,9 +150,6 @@ public partial class InputJournalPage : ContentPage
     }
 }
 
-// Satu baris input jurnal (akun + debit/kredit + keterangan). Dibangun secara
-// programatik supaya baris dapat ditambah/dihapus secara dinamis tanpa
-// CollectionView, konsisten dengan gaya code-behind pada halaman lain.
 internal class JournalLineRow
 {
     public Picker AccountPicker { get; }
@@ -195,7 +198,6 @@ internal class JournalLineRow
             PlaceholderColor = Color.FromArgb("#64748B")
         };
 
-        // Debit dan Kredit saling eksklusif dalam satu baris
         _debitEntry.TextChanged += (_, _) =>
         {
             if (!string.IsNullOrEmpty(_debitEntry.Text)) _creditEntry.Text = string.Empty;
