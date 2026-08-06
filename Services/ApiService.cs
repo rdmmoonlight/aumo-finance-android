@@ -35,12 +35,12 @@ public class ApiService
     {
         var request = new HttpRequestMessage(method, requestUri);
         var token = await SecureStorage.Default.GetAsync(AuthTokenKey);
-        
+
         if (!string.IsNullOrEmpty(token))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
-        
+
         return request;
     }
 
