@@ -265,6 +265,12 @@ public class ApiService
         return result;
     }
 
+    // Menulis jurnal langsung ke JournalEntries / JournalEntryLines — tidak lagi
+    // lewat tabel staging MobileJournalEntries. Mengikuti aturan yang sama
+    // dengan JournalEntryController.Create di aumo-finance-web: minimal dua
+    // baris, debit = kredit, akun harus aktif & milik user, tanggal tidak
+    // boleh jatuh di periode yang sudah ditutup, nomor referensi GJ-000001
+    // dibuat berurutan per user.
     public async Task<(bool success, string message)> PostJournalAsync(CreateJournalDto dto)
     {
         var lines = dto.Lines.Where(l => l.AccountId != 0 && (l.Debit != 0 || l.Credit != 0)).ToList();
@@ -280,39 +286,79 @@ public class ApiService
             return (false, $"Total Debit (Rp {totalDebit:N0}) dan Kredit (Rp {totalCredit:N0}) harus seimbang.");
         }
 
+        var userId = CurrentUser.Id;
+        DateTime entryDateUtc = new DateTime(dto.EntryDate.Year, dto.EntryDate.Month, dto.EntryDate.Day, 0, 0, 0, DateTimeKind.Utc);
+
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             await using var conn = CreateConnection();
             await conn.OpenAsync(cts.Token);
+
+            // Akun harus aktif & milik user ini
+            var validAccountIds = new HashSet<int>();
+            await using (var cmd = new NpgsqlCommand(
+                "SELECT \"Id\" FROM \"ChartOfAccounts\" WHERE \"IsActive\" = TRUE AND \"UserId\" = @userId", conn))
+            {
+                cmd.Parameters.AddWithValue("userId", userId);
+                await using var reader = await cmd.ExecuteReaderAsync(cts.Token);
+                while (await reader.ReadAsync())
+                {
+                    validAccountIds.Add(reader.GetInt32(0));
+                }
+            }
+
+            if (lines.Any(l => !validAccountIds.Contains(l.AccountId)))
+            {
+                return (false, "Salah satu akun tidak valid atau tidak aktif.");
+            }
+
+            // Tanggal tidak boleh jatuh di periode yang sudah ditutup
+            await using (var cmd = new NpgsqlCommand(
+                "SELECT 1 FROM \"Periods\" WHERE \"UserId\" = @userId AND \"IsClosed\" = TRUE " +
+                "AND @entryDate >= \"StartDate\" AND @entryDate <= \"EndDate\" LIMIT 1", conn))
+            {
+                cmd.Parameters.AddWithValue("userId", userId);
+                var dateParam = cmd.Parameters.Add("entryDate", NpgsqlTypes.NpgsqlDbType.TimestampTz);
+                dateParam.Value = entryDateUtc;
+
+                var locked = await cmd.ExecuteScalarAsync(cts.Token);
+                if (locked != null)
+                {
+                    return (false, "Tanggal ini berada di periode yang sudah ditutup.");
+                }
+            }
+
             await using var tx = await conn.BeginTransactionAsync(cts.Token);
 
-            DateTime entryDateUtc = new DateTime(dto.EntryDate.Year, dto.EntryDate.Month, dto.EntryDate.Day, 0, 0, 0, DateTimeKind.Utc);
+            var referenceNumber = await GenerateReferenceNumberAsync(conn, tx, userId, cts.Token);
 
-            int mobileEntryId;
+            int journalEntryId;
             await using (var cmd = new NpgsqlCommand(
-                "INSERT INTO \"MobileJournalEntries\" " +
-                "(\"EntryDate\", \"Mode\", \"Status\", \"SubmittedAt\") " +
-                "VALUES (@entryDate, 'Manual', 'Pending', now() AT TIME ZONE 'utc') " +
+                "INSERT INTO \"JournalEntries\" " +
+                "(\"UserId\", \"ReferenceNumber\", \"JournalType\", \"EntryDate\", \"CreatedAt\", \"NeedsClassification\", \"Source\") " +
+                "VALUES (@userId, @refNumber, 'General', @entryDate, now() AT TIME ZONE 'utc', FALSE, 'Mobile') " +
                 "RETURNING \"Id\"", conn, tx))
             {
                 cmd.CommandTimeout = 15;
+                cmd.Parameters.AddWithValue("userId", userId);
+                cmd.Parameters.AddWithValue("refNumber", referenceNumber);
                 var dateParam = cmd.Parameters.Add("entryDate", NpgsqlTypes.NpgsqlDbType.TimestampTz);
                 dateParam.Value = entryDateUtc;
 
                 var scalarResult = await cmd.ExecuteScalarAsync(cts.Token);
-                mobileEntryId = Convert.ToInt32(scalarResult);
+                journalEntryId = Convert.ToInt32(scalarResult);
             }
 
             for (int i = 0; i < lines.Count; i++)
             {
                 var line = lines[i];
                 await using var cmd = new NpgsqlCommand(
-                    "INSERT INTO \"MobileJournalEntryLines\" " +
-                    "(\"MobileJournalEntryId\", \"AccountId\", \"LineDescription\", \"Debit\", \"Credit\", \"LineOrder\") " +
+                    "INSERT INTO \"JournalEntryLines\" " +
+                    "(\"JournalEntryId\", \"AccountId\", \"LineDescription\", \"Debit\", \"Credit\", \"LineOrder\") " +
                     "VALUES (@entryId, @accountId, @desc, @debit, @credit, @order)", conn, tx);
                 cmd.CommandTimeout = 15;
-                cmd.Parameters.AddWithValue("entryId", mobileEntryId);
+                cmd.Parameters.AddWithValue("entryId", journalEntryId);
                 cmd.Parameters.AddWithValue("accountId", line.AccountId);
                 cmd.Parameters.AddWithValue("desc", (object?)line.LineDescription ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("debit", line.Debit);
@@ -322,7 +368,7 @@ public class ApiService
             }
 
             await tx.CommitAsync(cts.Token);
-            return (true, "Jurnal berhasil dikirim, menunggu verifikasi.");
+            return (true, $"Jurnal {referenceNumber} berhasil disimpan.");
         }
         catch (OperationCanceledException)
         {
@@ -338,60 +384,30 @@ public class ApiService
         }
     }
 
-    public async Task<(bool success, string message)> PostSimpleTransactionAsync(CreateSimpleTransactionDto dto)
+    // Nomor referensi berurutan per user: GJ-000001, GJ-000002, dst.
+    private static async Task<string> GenerateReferenceNumberAsync(NpgsqlConnection conn, NpgsqlTransaction tx, Guid userId, CancellationToken token)
     {
-        if (dto.Amount <= 0)
+        const string prefix = "GJ";
+
+        await using var cmd = new NpgsqlCommand(
+            "SELECT \"ReferenceNumber\" FROM \"JournalEntries\" " +
+            "WHERE \"UserId\" = @userId AND \"ReferenceNumber\" LIKE @prefix " +
+            "ORDER BY \"Id\" DESC LIMIT 1", conn, tx);
+        cmd.Parameters.AddWithValue("userId", userId);
+        cmd.Parameters.AddWithValue("prefix", prefix + "-%");
+
+        var lastNumber = (string?)await cmd.ExecuteScalarAsync(token);
+
+        int nextSeq = 1;
+        if (lastNumber != null)
         {
-            return (false, "Nominal harus lebih besar dari 0.");
-        }
-
-        if (dto.Type != "Income" && dto.Type != "Expense")
-        {
-            return (false, "Jenis transaksi tidak valid.");
-        }
-
-        try
-        {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            await using var conn = CreateConnection();
-            await conn.OpenAsync(cts.Token);
-
-            DateTime entryDateUtc = new DateTime(dto.EntryDate.Year, dto.EntryDate.Month, dto.EntryDate.Day, 0, 0, 0, DateTimeKind.Utc);
-
-            await using var cmd = new NpgsqlCommand(
-                "INSERT INTO \"MobileJournalEntries\" " +
-                "(\"EntryDate\", \"Mode\", \"Type\", \"Amount\", \"Note\", \"Status\", \"SubmittedAt\") " +
-                "VALUES (@entryDate, 'Simple', @type, @amount, @note, 'Pending', now() AT TIME ZONE 'utc') " +
-                "RETURNING \"Id\"", conn);
-
-            cmd.CommandTimeout = 15;
-
-            var dateParam = cmd.Parameters.Add("entryDate", NpgsqlTypes.NpgsqlDbType.TimestampTz);
-            dateParam.Value = entryDateUtc;
-
-            cmd.Parameters.AddWithValue("type", dto.Type);
-            cmd.Parameters.AddWithValue("amount", dto.Amount);
-            cmd.Parameters.AddWithValue("note", (object?)dto.Note ?? DBNull.Value);
-
-            var scalarResult = await cmd.ExecuteScalarAsync(cts.Token);
-            if (scalarResult != null && scalarResult != DBNull.Value)
+            var parts = lastNumber.Split('-');
+            if (parts.Length == 2 && int.TryParse(parts[1], out var lastSeq))
             {
-                return (true, "Transaksi berhasil dikirim, menunggu verifikasi.");
+                nextSeq = lastSeq + 1;
             }
+        }
 
-            return (false, "Gagal menyimpan: Database tidak mengembalikan ID transaksi.");
-        }
-        catch (OperationCanceledException)
-        {
-            return (false, "Koneksi ke database timeout (15 detik). Cek jaringan internet Anda.");
-        }
-        catch (Npgsql.PostgresException pgEx)
-        {
-            return (false, $"Postgres Error: {pgEx.MessageText}");
-        }
-        catch (Exception ex)
-        {
-            return (false, DescribeException(ex));
-        }
+        return $"{prefix}-{nextSeq:D6}";
     }
 }
