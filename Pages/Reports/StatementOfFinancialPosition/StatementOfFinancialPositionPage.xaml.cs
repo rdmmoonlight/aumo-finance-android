@@ -84,9 +84,9 @@ public partial class StatementOfFinancialPositionPage : ContentPage
 
     // METHOD STATIC YANG DIPANGGIL OLEH PostClosingTrialBalancePage
     public static async Task<StatementOfFinancialPositionViewModel> BuildSofpAsync(
-        AppDbContext dbContext, 
-        Guid currentUserId, 
-        Period period, 
+        AppDbContext dbContext,
+        Guid currentUserId,
+        Period period,
         bool isPostClosing = false)
     {
         // Logika perhitungan data neraca
@@ -99,7 +99,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
 
         var lines = await dbContext.JournalEntryLines
             .Include(l => l.JournalEntry)
-            .Where(l => accountIds.Contains(l.AccountId) 
+            .Where(l => accountIds.Contains(l.AccountId)
                      && l.JournalEntry!.UserId == currentUserId
                      && l.JournalEntry!.EntryDate <= period.EndDate)
             .ToListAsync();
