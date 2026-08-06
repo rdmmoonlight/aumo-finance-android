@@ -49,7 +49,7 @@ public partial class WorksheetPage : ContentPage
             var unadjustedRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: false);
             var adjustedRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
 
-            var accounts = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: false); // atau ambil dari Chart of Accounts
+            var accounts = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: false);
 
             // Generate rows worksheet 10 kolom
             var allAccountIds = unadjustedRows.Select(r => r.AccountId)
@@ -146,7 +146,7 @@ public partial class WorksheetPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Gagal memuat worksheet: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Gagal memuat worksheet: {ex.Message}", "OK");
         }
         finally
         {
