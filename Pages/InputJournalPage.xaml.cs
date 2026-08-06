@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using Microsoft.Maui.Controls.Shapes;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
@@ -7,164 +8,260 @@ namespace AumoFinance.Pages;
 
 public partial class InputJournalPage : ContentPage
 {
-    private string _selectedType = "Income";
-    private readonly CultureInfo _idrCulture = new("id-ID");
     private readonly ApiService _apiService;
+    private readonly CultureInfo _idrCulture = new("id-ID");
+    private List<AccountLookupModel> _accounts = new();
+    private readonly List<JournalLineRow> _rows = new();
 
     public InputJournalPage()
     {
         InitializeComponent();
-
         _apiService = new ApiService();
         EntryDatePicker.Date = DateTime.Today;
-
-        SetTypeVisual("Income");
     }
 
-    private void OnIncomeSelected(object? sender, EventArgs e)
+    protected override async void OnAppearing()
     {
-        SetTypeVisual("Income");
-    }
+        base.OnAppearing();
 
-    private void OnExpenseSelected(object? sender, EventArgs e)
-    {
-        SetTypeVisual("Expense");
-    }
-
-    private void SetTypeVisual(string type)
-    {
-        _selectedType = type;
-        if (type == "Income")
+        if (_accounts.Count == 0)
         {
-            IncomeBtn.BackgroundColor = Color.FromArgb("#10B981");
-            IncomeBtn.TextColor = Colors.White;
-            ExpenseBtn.BackgroundColor = Color.FromArgb("#1E293B");
-            ExpenseBtn.TextColor = Color.FromArgb("#94A3B8");
-
-            AmountTypeLabel.Text = "Nominal Pemasukan (Rp)";
-            AmountTypeLabel.TextColor = Color.FromArgb("#38BDF8");
+            _accounts = await _apiService.GetAccountsAsync();
+            foreach (var row in _rows)
+            {
+                row.AccountPicker.ItemsSource = _accounts;
+            }
         }
-        else
-        {
-            ExpenseBtn.BackgroundColor = Color.FromArgb("#EF4444");
-            ExpenseBtn.TextColor = Colors.White;
-            IncomeBtn.BackgroundColor = Color.FromArgb("#1E293B");
-            IncomeBtn.TextColor = Color.FromArgb("#94A3B8");
 
-            AmountTypeLabel.Text = "Nominal Pengeluaran (Rp)";
-            AmountTypeLabel.TextColor = Color.FromArgb("#F87171");
+        if (_rows.Count == 0)
+        {
+            AddLine();
+            AddLine();
         }
     }
 
-    private void OnAmountTextChanged(object? sender, TextChangedEventArgs e)
+    private void OnAddLineClicked(object? sender, EventArgs e) => AddLine();
+
+    private void AddLine()
     {
-        UpdateAmountValidationState();
+        var row = new JournalLineRow(_accounts, RemoveLine, UpdateTotals);
+        _rows.Add(row);
+        LinesContainer.Children.Add(row.View);
+        UpdateTotals();
     }
 
-    private void OnAmountFocused(object? sender, FocusEventArgs e)
+    private async void RemoveLine(JournalLineRow row)
     {
-        if (sender is not Entry entry) return;
-        string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
-        entry.Text = rawText;
-    }
-
-    private void OnAmountUnfocused(object? sender, FocusEventArgs e)
-    {
-        if (sender is not Entry entry) return;
-
-        string rawText = new string((entry.Text ?? string.Empty).Where(char.IsDigit).ToArray());
-
-        if (string.IsNullOrEmpty(rawText))
+        if (_rows.Count <= 2)
         {
-            entry.Text = string.Empty;
-        }
-        else if (decimal.TryParse(rawText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value))
-        {
-            entry.Text = string.Format(_idrCulture, "{0:N0}", value);
+            await DisplayAlert("Informasi", "Jurnal minimal harus memiliki dua baris.", "OK");
+            return;
         }
 
-        UpdateAmountValidationState();
+        _rows.Remove(row);
+        LinesContainer.Children.Remove(row.View);
+        UpdateTotals();
     }
 
-    private static readonly Color _validBorderColor = Color.FromArgb("#334155");
-    private static readonly Color _invalidBorderColor = Color.FromArgb("#F87171");
-
-    private void UpdateAmountValidationState()
+    private void UpdateTotals()
     {
-        bool isInvalid = CleanAndParseDecimal(AmountEntry.Text) <= 0 && !string.IsNullOrEmpty(AmountEntry.Text);
-        AmountFieldBorder.Stroke = isInvalid ? _invalidBorderColor : _validBorderColor;
-        AmountValidationLabel.IsVisible = isInvalid;
+        decimal totalDebit = _rows.Sum(r => r.Debit);
+        decimal totalCredit = _rows.Sum(r => r.Credit);
+
+        TotalDebitLabel.Text = $"Rp {totalDebit.ToString("N0", _idrCulture)}";
+        TotalCreditLabel.Text = $"Rp {totalCredit.ToString("N0", _idrCulture)}";
+
+        bool balanced = totalDebit == totalCredit && totalDebit > 0;
+        BalanceStatusLabel.Text = balanced ? "Seimbang" : "Belum Seimbang";
+        BalanceStatusLabel.TextColor = balanced ? Color.FromArgb("#34D399") : Color.FromArgb("#F87171");
     }
 
     private async void OnSaveClicked(object? sender, EventArgs e)
     {
         SaveBtn.IsEnabled = false;
-        SaveBtn.Text = "Menyimpan data...";
+        SaveBtn.Text = "Menyimpan...";
 
         try
         {
-            decimal amount = CleanAndParseDecimal(AmountEntry.Text);
-            if (amount <= 0)
+            var lines = _rows
+                .Where(r => r.SelectedAccountId != 0 && (r.Debit != 0 || r.Credit != 0))
+                .Select(r => new CreateJournalLineDto
+                {
+                    AccountId = r.SelectedAccountId,
+                    LineDescription = r.Description,
+                    Debit = r.Debit,
+                    Credit = r.Credit
+                })
+                .ToList();
+
+            if (lines.Count < 2)
             {
-                AmountFieldBorder.Stroke = _invalidBorderColor;
-                AmountValidationLabel.IsVisible = true;
-                await this.DisplayAlertAsync("Peringatan", "Isikan nominal transaksi yang valid.", "OK");
-                ResetButtonState();
+                await DisplayAlert("Peringatan", "Isi minimal dua baris jurnal dengan akun dan nominal yang valid.", "OK");
                 return;
             }
 
-            string note = NoteEntry.Text?.Trim() ?? string.Empty;
-            DateTime rawDate = EntryDatePicker.Date.GetValueOrDefault(DateTime.Today);
-            DateTime utcDate = new DateTime(rawDate.Year, rawDate.Month, rawDate.Day, 0, 0, 0, DateTimeKind.Utc);
-
-            var transactionDto = new CreateSimpleTransactionDto
+            var totalDebit = lines.Sum(l => l.Debit);
+            var totalCredit = lines.Sum(l => l.Credit);
+            if (totalDebit != totalCredit || totalDebit == 0)
             {
-                EntryDate = utcDate,
-                Type = _selectedType,
-                Amount = amount,
-                Note = note
+                await DisplayAlert("Peringatan", "Total Debit dan Kredit harus seimbang dan lebih dari 0.", "OK");
+                return;
+            }
+
+            var dto = new CreateJournalDto
+            {
+                EntryDate = DateTime.SpecifyKind(EntryDatePicker.Date, DateTimeKind.Utc),
+                Lines = lines
             };
 
-            // TEMBAK LANGSUNG KE APISERVICE (Sama persis seperti halaman tes)
-            var (success, message) = await _apiService.PostSimpleTransactionAsync(transactionDto);
+            var (success, message) = await _apiService.PostJournalAsync(dto);
 
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (success)
             {
-                if (success)
-                {
-                    await this.DisplayAlertAsync("Berhasil", string.IsNullOrWhiteSpace(message) ? "Data berhasil disimpan." : message, "OK");
-                    await Navigation.PopAsync();
-                }
-                else
-                {
-                    await this.DisplayAlertAsync("Gagal Input DB", string.IsNullOrWhiteSpace(message) ? "Terjadi kesalahan saat menyimpan data." : message, "OK");
-                    ResetButtonState();
-                }
-            });
+                await DisplayAlert("Berhasil", message, "OK");
+                await Navigation.PopAsync();
+            }
+            else
+            {
+                await DisplayAlert("Gagal Menyimpan", message, "OK");
+            }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"OnSaveClicked Exception: {ex}");
-            await this.DisplayAlertAsync("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
-            ResetButtonState();
+            await DisplayAlert("Error", "Terjadi error saat menyimpan: " + ex.Message, "OK");
         }
-    }
-
-    private void ResetButtonState()
-    {
-        SaveBtn.IsEnabled = true;
-        SaveBtn.Text = "SIMPAN TRANSAKSI";
+        finally
+        {
+            SaveBtn.IsEnabled = true;
+            SaveBtn.Text = "SIMPAN JURNAL";
+        }
     }
 
     private async void OnCancelClicked(object? sender, EventArgs e)
     {
         await Navigation.PopAsync();
     }
+}
 
-    private static decimal CleanAndParseDecimal(string? input)
+// Satu baris input jurnal (akun + debit/kredit + keterangan). Dibangun secara
+// programatik supaya baris dapat ditambah/dihapus secara dinamis tanpa
+// CollectionView, konsisten dengan gaya code-behind pada halaman lain.
+internal class JournalLineRow
+{
+    public Picker AccountPicker { get; }
+    private readonly Entry _debitEntry;
+    private readonly Entry _creditEntry;
+    private readonly Entry _descEntry;
+
+    public View View { get; }
+
+    public int SelectedAccountId => AccountPicker.SelectedItem is AccountLookupModel acc ? acc.Id : 0;
+    public decimal Debit => ParseAmount(_debitEntry.Text);
+    public decimal Credit => ParseAmount(_creditEntry.Text);
+    public string? Description => string.IsNullOrWhiteSpace(_descEntry.Text) ? null : _descEntry.Text.Trim();
+
+    public JournalLineRow(List<AccountLookupModel> accounts, Action<JournalLineRow> onRemove, Action onChanged)
     {
-        if (string.IsNullOrWhiteSpace(input)) return 0m;
-        string cleanText = new string(input.Where(char.IsDigit).ToArray());
-        return decimal.TryParse(cleanText, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result) ? result : 0m;
+        AccountPicker = new Picker
+        {
+            Title = "Pilih Akun",
+            ItemsSource = accounts,
+            ItemDisplayBinding = new Binding(nameof(AccountLookupModel.DisplayText)),
+            TextColor = Colors.White,
+            TitleColor = Color.FromArgb("#64748B")
+        };
+
+        _debitEntry = new Entry
+        {
+            Placeholder = "Debit",
+            Keyboard = Keyboard.Numeric,
+            TextColor = Colors.White,
+            PlaceholderColor = Color.FromArgb("#64748B")
+        };
+
+        _creditEntry = new Entry
+        {
+            Placeholder = "Kredit",
+            Keyboard = Keyboard.Numeric,
+            TextColor = Colors.White,
+            PlaceholderColor = Color.FromArgb("#64748B")
+        };
+
+        _descEntry = new Entry
+        {
+            Placeholder = "Keterangan (opsional)",
+            TextColor = Colors.White,
+            PlaceholderColor = Color.FromArgb("#64748B")
+        };
+
+        // Debit dan Kredit saling eksklusif dalam satu baris
+        _debitEntry.TextChanged += (_, _) =>
+        {
+            if (!string.IsNullOrEmpty(_debitEntry.Text)) _creditEntry.Text = string.Empty;
+            onChanged();
+        };
+        _creditEntry.TextChanged += (_, _) =>
+        {
+            if (!string.IsNullOrEmpty(_creditEntry.Text)) _debitEntry.Text = string.Empty;
+            onChanged();
+        };
+
+        var removeBtn = new Button
+        {
+            Text = "Hapus Baris",
+            BackgroundColor = Colors.Transparent,
+            TextColor = Color.FromArgb("#F87171"),
+            BorderColor = Color.FromArgb("#334155"),
+            BorderWidth = 1,
+            HeightRequest = 36,
+            FontSize = 12,
+            CornerRadius = 8
+        };
+        removeBtn.Clicked += (_, _) => onRemove(this);
+
+        var grid = new Grid
+        {
+            RowSpacing = 8,
+            ColumnSpacing = 8,
+            ColumnDefinitions =
+            {
+                new ColumnDefinition(GridLength.Star),
+                new ColumnDefinition(GridLength.Star)
+            },
+            RowDefinitions =
+            {
+                new RowDefinition(GridLength.Auto),
+                new RowDefinition(GridLength.Auto),
+                new RowDefinition(GridLength.Auto),
+                new RowDefinition(GridLength.Auto)
+            }
+        };
+
+        grid.Add(AccountPicker, 0, 0);
+        Grid.SetColumnSpan(AccountPicker, 2);
+        grid.Add(_debitEntry, 0, 1);
+        grid.Add(_creditEntry, 1, 1);
+        grid.Add(_descEntry, 0, 2);
+        Grid.SetColumnSpan(_descEntry, 2);
+        grid.Add(removeBtn, 0, 3);
+        Grid.SetColumnSpan(removeBtn, 2);
+
+        View = new Border
+        {
+            Stroke = Color.FromArgb("#334155"),
+            StrokeThickness = 1,
+            Background = Color.FromArgb("#1E293B"),
+            StrokeShape = new RoundRectangle { CornerRadius = 10 },
+            Padding = 12,
+            Content = grid
+        };
+    }
+
+    private static decimal ParseAmount(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return 0m;
+        var clean = new string(text.Where(char.IsDigit).ToArray());
+        return decimal.TryParse(clean, NumberStyles.Number, CultureInfo.InvariantCulture, out var value) ? value : 0m;
     }
 }
