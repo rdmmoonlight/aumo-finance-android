@@ -6,15 +6,14 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Maui.Storage; // Sesuaikan jika menggunakan Xamarin.Essentials / Plugin.SecureStorage
+using Microsoft.Maui.Storage; // Adjust if using Xamarin.Essentials / Plugin.SecureStorage
 using AumoFinance.Models;
 
 namespace AumoFinance.Services;
 
 public class ApiService
 {
-    // Base URL Backend Web ASP.NET Core Anda (misal Railway / VPS / Localhost)
-    // Silakan ganti sesuai URL publik server web Anda
+    // Public Base URL of your ASP.NET Core Web Backend
     public const string BaseUrl = "https://aumo-preview.up.railway.app"; 
 
     private static readonly HttpClient _httpClient = new HttpClient
@@ -30,7 +29,7 @@ public class ApiService
         PropertyNameCaseInsensitive = true
     };
 
-    // Helper untuk memasang Bearer Token pada Header Request HTTP
+    // Helper to attach Bearer Token to HTTP Request Headers
     private async Task SetAuthorizationHeaderAsync()
     {
         var token = await SecureStorage.Default.GetAsync(AuthTokenKey);
@@ -51,7 +50,7 @@ public class ApiService
     {
         if (string.IsNullOrWhiteSpace(usernameOrEmail) || string.IsNullOrWhiteSpace(password))
         {
-            return (false, "Username/Email dan password harus diisi.", null);
+            return (false, "Username/Email and password are required.", null);
         }
 
         try
@@ -66,20 +65,20 @@ public class ApiService
 
             if (response.IsSuccessStatusCode && result != null && result.Success)
             {
-                // Simpan token JWT dengan aman di perangkat
+                // Securely save JWT token on device
                 await SecureStorage.Default.SetAsync(AuthTokenKey, result.Token);
-                return (true, result.Message ?? "Login berhasil.", result.UserId);
+                return (true, result.Message ?? "Login successful.", result.UserId);
             }
 
-            return (false, result?.Message ?? "Email/Username atau password salah.", null);
+            return (false, result?.Message ?? "Invalid email/username or password.", null);
         }
         catch (TaskCanceledException)
         {
-            return (false, "Koneksi ke server timeout. Periksa koneksi internet Anda.", null);
+            return (false, "Connection timed out. Please check your internet connection.", null);
         }
         catch (Exception ex)
         {
-            return (false, $"Terjadi kesalahan koneksi: {ex.Message}", null);
+            return (false, $"Connection error: {ex.Message}", null);
         }
     }
 
@@ -107,21 +106,21 @@ public class ApiService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"GetAccountsAsync gagal: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"GetAccountsAsync failed: {ex.Message}");
         }
 
         return result;
     }
 
     // ==========================================
-    // 3. POST JOURNAL (Simpan Transaksi Jurnal)
+    // 3. POST JOURNAL ENTRY
     // ==========================================
     public async Task<(bool success, string message)> PostJournalAsync(CreateJournalDto dto)
     {
         var lines = dto.Lines.FindAll(l => l.AccountId != 0 && (l.Debit != 0 || l.Credit != 0));
         if (lines.Count < 2)
         {
-            return (false, "Jurnal harus memiliki minimal dua baris.");
+            return (false, "A journal entry must have at least two line items.");
         }
 
         var totalDebit = 0m;
@@ -134,7 +133,7 @@ public class ApiService
 
         if (totalDebit != totalCredit || totalDebit == 0)
         {
-            return (false, $"Total Debit (Rp {totalDebit:N0}) dan Kredit (Rp {totalCredit:N0}) harus seimbang.");
+            return (false, $"Total Debit (${totalDebit:N2}) and Credit (${totalCredit:N2}) must be equal.");
         }
 
         try
@@ -156,21 +155,21 @@ public class ApiService
             if (response.IsSuccessStatusCode)
             {
                 var apiRes = JsonSerializer.Deserialize<ApiResponseModel>(content, _jsonOptions);
-                return (true, apiRes?.Message ?? "Jurnal berhasil disimpan.");
+                return (true, apiRes?.Message ?? "Journal entry posted successfully.");
             }
             else
             {
                 var errRes = JsonSerializer.Deserialize<ApiResponseModel>(content, _jsonOptions);
-                return (false, errRes?.Message ?? "Gagal menyimpan jurnal ke server.");
+                return (false, errRes?.Message ?? "Failed to post journal entry to server.");
             }
         }
         catch (TaskCanceledException)
         {
-            return (false, "Koneksi ke server timeout (15 detik). Cek jaringan internet Anda.");
+            return (false, "Connection timed out (15s). Please check your network.");
         }
         catch (Exception ex)
         {
-            return (false, $"Terjadi kesalahan: {ex.Message}");
+            return (false, $"An error occurred: {ex.Message}");
         }
     }
 
@@ -183,7 +182,7 @@ public class ApiService
         _httpClient.DefaultRequestHeaders.Authorization = null;
     }
 
-    // Model DTO internal pendukung penanganan response JSON
+    // Internal DTO models for handling JSON responses
     private class MobileLoginResponse
     {
         public bool Success { get; set; }
