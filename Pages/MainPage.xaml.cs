@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Models;
 using AumoFinance.Services;
+using AumoFinance.Pages.JournalEntry;
 
 namespace AumoFinance.Pages;
 
