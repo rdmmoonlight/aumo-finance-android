@@ -112,7 +112,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         foreach (var acc in accounts)
         {
             var accLines = lines.Where(l => l.AccountId == acc.Id).ToList();
-            
+
             // Penanganan null aman untuk acc.Type
             string accountType = acc.Type ?? string.Empty;
             bool normalDebit = AccountClassification.NormalBalanceIsDebit(accountType);
