@@ -35,7 +35,6 @@ public class UpdateService
 
             if (!response.IsSuccessStatusCode) return;
 
-            // FIX CS1061: Menggunakan response.Content.ReadAsStringAsync()
             string json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
@@ -87,7 +86,6 @@ public class UpdateService
                                 var currentPage = Application.Current?.Windows[0]?.Page;
                                 if (currentPage != null)
                                 {
-                                    // FIX CS0618: Menggunakan DisplayAlertAsync
                                     return await currentPage.DisplayAlertAsync(
                                         "Pembaruan AumoFinance",
                                         $"Versi baru (v{latestVersionStr}) telah tersedia. Apakah Anda ingin memperbarui sekarang?",
@@ -112,7 +110,6 @@ public class UpdateService
                         var currentPage = Application.Current?.Windows[0]?.Page;
                         if (currentPage != null)
                         {
-                            // FIX CS0618: Menggunakan DisplayAlertAsync
                             await currentPage.DisplayAlertAsync("AumoFinance", "Aplikasi Anda sudah menggunakan versi terbaru.", "OK");
                         }
                     });
@@ -150,6 +147,7 @@ public class UpdateService
     }
 
 #if ANDROID
+    [System.Runtime.Versioning.SupportedOSPlatform("android26.0")]
     private void InstallApkOnAndroid(string filePath)
     {
         var context = Android.App.Application.Context;
@@ -170,8 +168,6 @@ public class UpdateService
 
         // Buka Installer bawaan Android menggunakan FileProvider
         var apkFile = new Java.IO.File(filePath);
-        
-        // FIX CS0103: Menggunakan AndroidX dengan huruf A kapital
         var apkUri = AndroidX.Core.Content.FileProvider.GetUriForFile(
             context,
             $"{context.PackageName}.fileprovider",
