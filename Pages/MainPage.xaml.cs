@@ -94,6 +94,6 @@ public partial class MainPage : ContentPage
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
-        await Navigation.PushAsync(new InputJournalPage());
+        await Navigation.PushAsync(new JournalEntryPage());
     }
 }

@@ -8,16 +8,16 @@ using Microsoft.Maui.Controls.Shapes;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.JournalEntry;
 
-public partial class InputJournalPage : ContentPage
+public partial class JournalEntryPage : ContentPage
 {
     private readonly ApiService _apiService;
     private readonly CultureInfo _idrCulture = new("id-ID");
     private List<AccountLookupModel> _accounts = new();
     private readonly List<JournalLineRow> _rows = new();
 
-    public InputJournalPage()
+    public JournalEntryPage()
     {
         InitializeComponent();
         _apiService = new ApiService();

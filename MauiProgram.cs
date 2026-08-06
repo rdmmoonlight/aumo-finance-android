@@ -36,7 +36,7 @@ public static class MauiProgram
         // Pendaftaran Halaman
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<MainPage>();
-        builder.Services.AddTransient<InputJournalPage>();
+        builder.Services.AddTransient<JournalEntryPage>();
 
         builder.Services.AddTransient<GeneralJournalPage>();
         builder.Services.AddTransient<GeneralLedgerPermanentPage>();
