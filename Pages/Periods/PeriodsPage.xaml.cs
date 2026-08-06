@@ -93,7 +93,7 @@ public partial class PeriodsPage : ContentPage
 
     private async void OnSelectPeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is Guid periodId)
+        if (sender is Button btn && btn.CommandParameter is int periodId)
         {
             try
             {
@@ -128,7 +128,7 @@ public partial class PeriodsPage : ContentPage
 
     private async void OnClosePeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is Guid periodId)
+        if (sender is Button btn && btn.CommandParameter is int periodId)
         {
             var entity = await _accountingService.DbContext.Periods.FirstOrDefaultAsync(p => p.Id == periodId && p.UserId == _currentUserId);
             if (entity == null || entity.IsClosed) return;
@@ -170,7 +170,7 @@ public partial class PeriodsPage : ContentPage
 
 public class PeriodDisplayModel
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string PeriodName { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
