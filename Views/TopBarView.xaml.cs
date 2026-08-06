@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using AumoFinance.Pages;
 
 namespace AumoFinance.Views;
 
@@ -60,10 +61,10 @@ public partial class TopBarView : ContentView
                 await ShowReportsMenuAsync(page);
                 break;
             case CoaMenuLabel:
-                await Shell.Current.GoToAsync("//CoaPage");
+                await Shell.Current.GoToAsync(nameof(CoaPage));
                 break;
             case PeriodMenuLabel:
-                await Shell.Current.GoToAsync("//PeriodsPage");
+                await Shell.Current.GoToAsync(nameof(PeriodsPage));
                 break;
         }
     }
@@ -89,37 +90,37 @@ public partial class TopBarView : ContentView
         switch (choice)
         {
             case GeneralJournalLabel:
-                await Shell.Current.GoToAsync("//GeneralJournalPage");
+                await Shell.Current.GoToAsync(nameof(GeneralJournalPage));
                 break;
             case AdjustingJournalLabel:
-                await Shell.Current.GoToAsync("//AdjustingJournalPage");
+                await Shell.Current.GoToAsync(nameof(AdjustingJournalPage));
                 break;
             case GlPermanentLabel:
-                await Shell.Current.GoToAsync("//GeneralLedgerPermanentPage");
+                await Shell.Current.GoToAsync(nameof(GeneralLedgerPermanentPage));
                 break;
             case GlTemporaryLabel:
-                await Shell.Current.GoToAsync("//GeneralLedgerTemporaryPage");
+                await Shell.Current.GoToAsync(nameof(GeneralLedgerTemporaryPage));
                 break;
             case TrialBalanceLabel:
-                await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=false");
+                await Shell.Current.GoToAsync($"{nameof(TrialBalancePage)}?includeAdjusting=false");
                 break;
             case AdjustedTrialBalanceLabel:
-                await Shell.Current.GoToAsync("//TrialBalancePage?includeAdjusting=true");
+                await Shell.Current.GoToAsync($"{nameof(TrialBalancePage)}?includeAdjusting=true");
                 break;
             case WorksheetLabel:
-                await Shell.Current.GoToAsync("//WorksheetPage");
+                await Shell.Current.GoToAsync(nameof(WorksheetPage));
                 break;
             case IncomeStatementLabel:
-                await Shell.Current.GoToAsync("//IncomeStatementPage");
+                await Shell.Current.GoToAsync(nameof(IncomeStatementPage));
                 break;
             case RetainedEarningsLabel:
-                await Shell.Current.GoToAsync("//RetainedEarningsPage");
+                await Shell.Current.GoToAsync(nameof(RetainedEarningsPage));
                 break;
             case SofpLabel:
-                await Shell.Current.GoToAsync("//StatementOfFinancialPositionPage");
+                await Shell.Current.GoToAsync(nameof(StatementOfFinancialPositionPage));
                 break;
             case PostClosingLabel:
-                await Shell.Current.GoToAsync("//PostClosingTrialBalancePage");
+                await Shell.Current.GoToAsync(nameof(PostClosingTrialBalancePage));
                 break;
         }
     }
