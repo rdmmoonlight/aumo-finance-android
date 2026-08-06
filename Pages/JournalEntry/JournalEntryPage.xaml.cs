@@ -116,7 +116,7 @@ public partial class JournalEntryPage : ContentPage
                 return;
             }
 
-           DateTime selectedDate = EntryDatePicker.Date ?? DateTime.Today;
+            DateTime selectedDate = EntryDatePicker.Date ?? DateTime.Today;
 
             var dto = new CreateJournalDto
             {

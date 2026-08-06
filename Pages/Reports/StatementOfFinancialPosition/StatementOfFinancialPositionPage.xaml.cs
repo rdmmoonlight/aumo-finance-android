@@ -140,7 +140,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
             Assets = assets,
             Liabilities = liabilities,
             EquityExcludingRetainedEarnings = equities,
-            RetainedEarningsEnding = 0m, // Sesuaikan jika ada kalkulasi Retained Earnings
+            RetainedEarningsEnding = 0m,
             TotalAssets = totalAssets,
             TotalLiabilities = totalLiab,
             TotalEquity = totalEq,
