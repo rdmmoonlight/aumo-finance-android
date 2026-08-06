@@ -62,13 +62,13 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                await DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+                await DisplayAlert("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
         finally
         {
@@ -86,25 +86,5 @@ public partial class MainPage : ContentPage
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
         await Navigation.PushAsync(new InputJournalPage());
-    }
-
-    public async Task<(bool success, string message)> ProcessNewTransactionAsync(CreateSimpleTransactionDto transactionDto)
-    {
-        try
-        {
-            var (success, message) = await _apiService.PostSimpleTransactionAsync(transactionDto);
-
-            if (success)
-            {
-                await LoadDashboardDataAsync();
-            }
-
-            return (success, message);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"ProcessNewTransactionAsync error: {ex}");
-            return (false, "Terjadi kesalahan di MainPage: " + ex.Message);
-        }
     }
 }
