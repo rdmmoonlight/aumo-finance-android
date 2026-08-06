@@ -34,27 +34,27 @@ public class UpdateService
 
             // 2. Ambil tag_name dari YAML (misal: "v26.8.105" -> diubah jadi "26.8.105")
             string rawTag = root.GetProperty("tag_name").GetString() ?? "";
-            string latestVersionStr = rawTag.StartsWith("v", StringComparison.OrdinalIgnoreCase) 
-                ? rawTag.Substring(1) 
+            string latestVersionStr = rawTag.StartsWith("v", StringComparison.OrdinalIgnoreCase)
+                ? rawTag.Substring(1)
                 : rawTag;
 
             string currentVersionStr = AppInfo.Current.VersionString;
 
             // 3. Bandingkan Versi CalVer (26.8.BUILD)
-            if (Version.TryParse(latestVersionStr, out var latestVersion) && 
+            if (Version.TryParse(latestVersionStr, out var latestVersion) &&
                 Version.TryParse(currentVersionStr, out var currentVersion))
             {
                 if (latestVersion > currentVersion)
                 {
                     // 4. Cari URL download file *-Signed.apk dari daftar assets GitHub Release
                     string apkDownloadUrl = string.Empty;
-                    
+
                     if (root.TryGetProperty("assets", out var assetsElement) && assetsElement.ValueKind == JsonValueKind.Array)
                     {
                         foreach (var asset in assetsElement.EnumerateArray())
                         {
                             string fileName = asset.GetProperty("name").GetString() ?? "";
-                            
+
                             // Mencari file APK yang dihasilkan dari dotnet publish
                             if (fileName.EndsWith(".apk", StringComparison.OrdinalIgnoreCase))
                             {
@@ -127,7 +127,7 @@ public class UpdateService
                 var settingsIntent = new Android.Content.Intent(Android.Provider.Settings.ActionManageUnknownAppSources)
                     .SetData(Android.Net.Uri.Parse($"package:{context.PackageName}"))
                     .AddFlags(Android.Content.ActivityFlags.NewTask);
-                
+
                 context.StartActivity(settingsIntent);
                 return;
             }

@@ -16,7 +16,7 @@ public partial class App : Application
         Task.Run(async () =>
         {
             var updateService = new UpdateService();
-            
+
             // GANTI "USERNAME_GITHUB" dengan username / nama organisasi GitHub Anda
             // Contoh: await updateService.CheckAndInstallUpdateAsync("ghofur", "AumoFinance");
             await updateService.CheckAndInstallUpdateAsync("rdmmoonlight", "aumo-finance-android");
