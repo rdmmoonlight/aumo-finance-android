@@ -133,8 +133,8 @@ public class UpdateService
                 // Register BroadcastReceiver untuk menangkap event saat download selesai lalu eksekusi install
                 var onCompleteReceiver = new DownloadCompleteReceiver(downloadId, fileName);
                 context.RegisterReceiver(
-                    onCompleteReceiver, 
-                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadCompleted), 
+                    onCompleteReceiver,
+                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadCompleted),
                     Android.Content.ReceiverFlags.Exported);
             }
         }
@@ -168,7 +168,7 @@ public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
         if (id == _downloadId)
         {
             TriggerInstall(context, _fileName);
-            
+
             try
             {
                 context.UnregisterReceiver(this);
@@ -196,7 +196,7 @@ public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
 
         // 2. Dapatkan file APK dari folder unduhan
         var file = new Java.IO.File(context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads), fileName);
-        
+
         if (!file.Exists()) return;
 
         // 3. Panggil FileProvider untuk membuka installer bawaan OS
