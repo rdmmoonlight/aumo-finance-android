@@ -113,7 +113,6 @@ public class UpdateService
 #if ANDROID
         try
         {
-            // Menggunakan Android DownloadManager agar ada notifikasi progress bawaan sistem
             var context = Android.App.Application.Context;
             var request = new Android.App.DownloadManager.Request(Android.Net.Uri.Parse(apkUrl));
 
@@ -130,12 +129,23 @@ public class UpdateService
 
             if (downloadId != -1)
             {
-                // Register BroadcastReceiver untuk menangkap event saat download selesai lalu eksekusi install
                 var onCompleteReceiver = new DownloadCompleteReceiver(downloadId, fileName);
-                context.RegisterReceiver(
-                    onCompleteReceiver, 
-                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete), 
-                    Android.Content.ReceiverFlags.Exported);
+                var filter = new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete);
+
+#pragma warning disable CA1416
+                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu) // API 33+
+                {
+                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.Exported);
+                }
+                else if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O) // API 26-32 (termasuk Android 9 API 28)
+                {
+                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.NotExported);
+                }
+                else // API < 26
+                {
+                    context.RegisterReceiver(onCompleteReceiver, filter);
+                }
+#pragma warning restore CA1416
             }
         }
         catch (Exception ex)
@@ -147,7 +157,6 @@ public class UpdateService
 }
 
 #if ANDROID
-// Receiver untuk menangkap status saat proses download via Notifikasi selesai
 public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
 {
     private readonly long _downloadId;
@@ -159,7 +168,6 @@ public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
         _fileName = fileName;
     }
 
-    [System.Runtime.Versioning.SupportedOSPlatform("android26.0")]
     public override void OnReceive(Android.Content.Context? context, Android.Content.Intent? intent)
     {
         if (context == null || intent == null) return;
@@ -177,10 +185,8 @@ public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
         }
     }
 
-    [System.Runtime.Versioning.SupportedOSPlatform("android26.0")]
     private void TriggerInstall(Android.Content.Context context, string fileName)
     {
-        // 1. Cek & minta izin "Install Unknown Apps" pada Android 8.0+
         if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
         {
             if (!context.PackageManager!.CanRequestPackageInstalls())
@@ -194,12 +200,10 @@ public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
             }
         }
 
-        // 2. Dapatkan file APK dari folder unduhan
         var file = new Java.IO.File(context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads), fileName);
 
         if (!file.Exists()) return;
 
-        // 3. Panggil FileProvider untuk membuka installer bawaan OS
         var apkUri = AndroidX.Core.Content.FileProvider.GetUriForFile(
             context,
             $"{context.PackageName}.fileprovider",
