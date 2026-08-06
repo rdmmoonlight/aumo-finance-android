@@ -113,32 +113,11 @@ jobs:
       - name: Install Workloads
         run: dotnet workload install maui-android
 
-      # 6. Inject Connection String
-      - name: Inject Connection String
-        shell: pwsh
-        env:
-          NEON_CONNECTION_STRING: ${{ secrets.NEON_CONNECTION_STRING }}
-        run: |
-          $file = "Services/ApiService.cs"
-          if (-not (Test-Path $file)) {
-            Write-Error "File $file tidak ditemukan"
-            exit 1
-          }
-          $content = Get-Content $file -Raw
-          if (-not $content.Contains("__NEON_CONNECTION_STRING__")) {
-            Write-Error "Placeholder __NEON_CONNECTION_STRING__ tidak ditemukan di $file"
-            exit 1
-          }
-          
-          $content = $content.Replace("__NEON_CONNECTION_STRING__", $env:NEON_CONNECTION_STRING)
-          Set-Content -Path $file -Value $content -NoNewline
-          Write-Host "Connection string berhasil di-inject."
-
-      # 7. Restore Dependencies
+      # 6. Restore Dependencies
       - name: Restore Dependencies
         run: dotnet restore
 
-      # 8. Build APK Release
+      # 7. Build APK Release
       - name: Build Android APK
         run: >
           dotnet publish
@@ -148,7 +127,7 @@ jobs:
           -p:ApplicationVersion=${{ github.run_number }}
           -p:ApplicationDisplayVersion=${{ steps.get_version.outputs.app_version }}
 
-      # 9. Upload File -Signed.apk ke GitHub Releases
+      # 8. Upload File -Signed.apk ke GitHub Releases
       - name: Upload Signed APK to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
@@ -159,10 +138,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 10. Backup Artifact
+      # 9. Backup Artifact
       - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Aumo-Signed-APK-v${{ steps.get_version.outputs.app_version }}
           path: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
           if-no-files-found: error
+          
