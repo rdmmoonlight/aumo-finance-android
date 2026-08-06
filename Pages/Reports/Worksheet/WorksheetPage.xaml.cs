@@ -45,13 +45,11 @@ public partial class WorksheetPage : ContentPage
 
             PeriodNameLabel.Text = period.PeriodName;
 
-            // Ambil data Trial Balance unadjusted & adjusted via AccountingService
             var unadjustedRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: false);
             var adjustedRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
 
             var accounts = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: false);
 
-            // Generate rows worksheet 10 kolom
             var allAccountIds = unadjustedRows.Select(r => r.AccountId)
                 .Union(adjustedRows.Select(r => r.AccountId))
                 .Distinct()
@@ -78,7 +76,8 @@ public partial class WorksheetPage : ContentPage
                 var u = unadjustedRows.FirstOrDefault(r => r.AccountId == accId);
                 var a = adjustedRows.FirstOrDefault(r => r.AccountId == accId);
 
-                var refNum = u?.ReferenceNumber ?? a?.ReferenceNumber ?? "-";
+                // PERBAIKAN LINE 81: Konversi int? ke string terlebih dahulu
+                var refNum = u?.ReferenceNumber.ToString() ?? a?.ReferenceNumber.ToString() ?? "-";
                 var name = u?.AccountName ?? a?.AccountName ?? "-";
                 var type = u?.Type ?? a?.Type ?? "Asset";
 
@@ -123,12 +122,10 @@ public partial class WorksheetPage : ContentPage
                 worksheetRows.Add(row);
             }
 
-            // Hitung Net Income
             decimal netIncome = totIncCr - totIncDr;
             NetIncomeLabel.Text = $"Rp {netIncome.ToString("N0", culture)}";
             NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
-            // Update Total Footer Label
             TotUnadjDr.Text = totUnadjDr.ToString("N0", culture);
             TotUnadjCr.Text = totUnadjCr.ToString("N0", culture);
             TotAdjDr.Text = totAdjDr.ToString("N0", culture);
@@ -146,7 +143,8 @@ public partial class WorksheetPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat worksheet: {ex.Message}", "OK");
+            // PERBAIKAN LINE 149: Gunakan DisplayAlertAsync
+            await DisplayAlertAsync("Error", $"Gagal memuat worksheet: {ex.Message}", "OK");
         }
         finally
         {
