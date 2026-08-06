@@ -47,7 +47,6 @@ public partial class AdjustingJournalPage : ContentPage
             ClosedBadge.IsVisible = period.IsClosed;
 
             // Ambil general journal dengan filter JournalType == "Adjusting" via AccountingService
-            // Atau Anda bisa menambahkan method khusus GetAdjustingJournalAsync di AccountingService jika diperlukan.
             var entries = await _accountingService.GetGeneralJournalAsync(_currentUserId, period);
             var adjustingEntries = entries.Where(j => j.JournalType == "Adjusting").ToList();
 
@@ -58,7 +57,7 @@ public partial class AdjustingJournalPage : ContentPage
             }
             else
             {
-                // Mapping ke struktur tampilan card (menggunakan ViewModel yang serupa dengan GeneralJournal)
+                // Mapping ke struktur tampilan card
                 var displayList = adjustingEntries.Select(e => new JournalEntryDisplayModel
                 {
                     Id = e.Id,
@@ -79,7 +78,7 @@ public partial class AdjustingJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Gagal memuat data: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Gagal memuat data: {ex.Message}", "OK");
         }
         finally
         {
