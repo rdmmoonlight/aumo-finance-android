@@ -1,195 +1,133 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:AumoFinance.Views"
-             x:Class="AumoFinance.Pages.StatementOfFinancialPositionPage"
-             BackgroundColor="#0F172A"
-             Title="Statement of Financial Position">
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
+using AumoFinance.Services;
+using AumoFinance.Models;
 
-    <Grid RowDefinitions="Auto, *">
+namespace AumoFinance.Pages;
 
-        <!-- Top Bar Navigasi Kustom -->
-        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
+public partial class StatementOfFinancialPositionPage : ContentPage
+{
+    private readonly AccountingService _accountingService;
+    private readonly Guid _currentUserId;
 
-        <ScrollView Grid.Row="1" Padding="16,10,16,20">
-            <VerticalStackLayout Spacing="16">
+    public StatementOfFinancialPositionPage(AccountingService accountingService, Guid currentUserId)
+    {
+        InitializeComponent();
+        _accountingService = accountingService;
+        _currentUserId = currentUserId;
+    }
 
-                <!-- Page Header -->
-                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                    <VerticalStackLayout Grid.Column="0" Spacing="2">
-                        <Label Text="Statement of Financial Position"
-                               FontSize="22"
-                               FontAttributes="Bold"
-                               TextColor="White" />
-                        <Label x:Name="SubtitleLabel"
-                               Text="Balance Sheet (IAS 1)"
-                               FontSize="12"
-                               TextColor="#94A3B8" />
-                    </VerticalStackLayout>
-                </Grid>
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await BuildSofpAsync();
+    }
 
-                <!-- Indicator Periode Aktif -->
-                <Border x:Name="PeriodCard"
-                        BackgroundColor="#1E293B"
-                        Stroke="#334155"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="12,10">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <Label Text="👁️" FontSize="14" VerticalOptions="Center" />
-                        <Label Text="Menampilkan Periode:"
-                               TextColor="#94A3B8"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                        <Label x:Name="PeriodNameLabel"
-                               Text="-"
-                               TextColor="#F8FAFC"
-                               FontAttributes="Bold"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                </Border>
+    // Method publik agar bisa diakses oleh PostClosingTrialBalancePage jika diperlukan
+    public async Task BuildSofpAsync()
+    {
+        LoadingIndicator.IsVisible = true;
+        LoadingIndicator.IsRunning = true;
+        SheetContainer.IsVisible = false;
+        EmptyStateContainer.IsVisible = false;
 
-                <!-- Loading Indicator -->
-                <ActivityIndicator x:Name="LoadingIndicator"
-                                   Color="#38BDF8"
-                                   IsRunning="True"
-                                   IsVisible="True"
-                                   HeightRequest="40" />
+        try
+        {
+            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
+            if (period == null)
+            {
+                EmptyStateContainer.IsVisible = true;
+                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
+                return;
+            }
 
-                <!-- Empty State -->
-                <VerticalStackLayout x:Name="EmptyStateContainer"
-                                     Spacing="12"
-                                     HorizontalOptions="Center"
-                                     Padding="0,40"
-                                     IsVisible="False">
-                    <Label Text="🏦" FontSize="48" HorizontalOptions="Center" />
-                    <Label x:Name="EmptyStateLabel"
-                           Text="Tidak ada data balance sheet pada periode ini."
-                           TextColor="#94A3B8"
-                           FontSize="14"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
+            PeriodNameLabel.Text = period.PeriodName;
 
-                <!-- Konten Utama Balance Sheet -->
-                <VerticalStackLayout x:Name="SheetContainer" Spacing="16" IsVisible="False">
+            var trialBalanceRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
 
-                    <!-- KARTU ASSETS -->
-                    <Border BackgroundColor="#1E293B" Stroke="#334155" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="16">
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="ASSETS" TextColor="#F59E0B" FontSize="12" FontAttributes="Bold" />
-                            <CollectionView x:Name="AssetsCollectionView" SelectionMode="None">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="*, Auto" Padding="0,4">
-                                            <HorizontalStackLayout Grid.Column="0" Spacing="6">
-                                                <Label Text="{Binding ReferenceNumber}" TextColor="#64748B" FontSize="12" FontAttributes="Bold" />
-                                                <Label Text="{Binding AccountName}" TextColor="White" FontSize="13" />
-                                            </HorizontalStackLayout>
-                                            <Label Grid.Column="1" Text="{Binding FormattedAmount}" TextColor="White" FontSize="13" HorizontalOptions="End" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+            if (!trialBalanceRows.Any())
+            {
+                EmptyStateContainer.IsVisible = true;
+                EmptyStateLabel.Text = $"Tidak ada data laporan pada periode {period.PeriodName}.";
+                return;
+            }
 
-                            <BoxView HeightRequest="1" Color="#334155" Margin="0,4" />
+            // Mapping Data ke Model Koleksi (Menggunakan ReferenceNumber.ToString() untuk tipe int?)
+            var assets = trialBalanceRows
+                .Where(r => r.Type.Equals("Asset", StringComparison.OrdinalIgnoreCase) || 
+                            r.Type.Equals("CurrentAsset", StringComparison.OrdinalIgnoreCase) || 
+                            r.Type.Equals("Cash", StringComparison.OrdinalIgnoreCase) || 
+                            r.Type.Equals("NonCurrentAsset", StringComparison.OrdinalIgnoreCase) || 
+                            r.Type.Equals("FixedAsset", StringComparison.OrdinalIgnoreCase))
+                .Select(r => new FinancialPositionLineModel 
+                { 
+                    ReferenceNumber = r.ReferenceNumber.ToString(), 
+                    AccountName = r.AccountName, 
+                    Amount = r.NetBalance 
+                }).ToList();
 
-                            <Grid ColumnDefinitions="*, Auto" Padding="0,4">
-                                <Label Grid.Column="0" Text="Total Assets" TextColor="White" FontSize="15" FontAttributes="Bold" />
-                                <Label x:Name="TotalAssetsLabel" Grid.Column="1" Text="Rp 0" TextColor="#38BDF8" FontSize="15" FontAttributes="Bold" HorizontalOptions="End" />
-                            </Grid>
-                        </VerticalStackLayout>
-                    </Border>
+            var liabilities = trialBalanceRows
+                .Where(r => r.Type.Equals("Liability", StringComparison.OrdinalIgnoreCase) || 
+                            r.Type.Equals("CurrentLiability", StringComparison.OrdinalIgnoreCase) || 
+                            r.Type.Equals("NonCurrentLiability", StringComparison.OrdinalIgnoreCase))
+                .Select(r => new FinancialPositionLineModel 
+                { 
+                    ReferenceNumber = r.ReferenceNumber.ToString(), 
+                    AccountName = r.AccountName, 
+                    Amount = Math.Abs(r.NetBalance) 
+                }).ToList();
 
-                    <!-- KARTU LIABILITIES -->
-                    <Border BackgroundColor="#1E293B" Stroke="#334155" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="16">
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="LIABILITIES" TextColor="#F59E0B" FontSize="12" FontAttributes="Bold" />
-                            <CollectionView x:Name="LiabilitiesCollectionView" SelectionMode="None">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="*, Auto" Padding="0,4">
-                                            <HorizontalStackLayout Grid.Column="0" Spacing="6">
-                                                <Label Text="{Binding ReferenceNumber}" TextColor="#64748B" FontSize="12" FontAttributes="Bold" />
-                                                <Label Text="{Binding AccountName}" TextColor="White" FontSize="13" />
-                                            </HorizontalStackLayout>
-                                            <Label Grid.Column="1" Text="{Binding FormattedAmount}" TextColor="White" FontSize="13" HorizontalOptions="End" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+            var equities = trialBalanceRows
+                .Where(r => r.Type.Equals("Equity", StringComparison.OrdinalIgnoreCase))
+                .Select(r => new FinancialPositionLineModel 
+                { 
+                    ReferenceNumber = r.ReferenceNumber.ToString(), 
+                    AccountName = r.AccountName, 
+                    Amount = Math.Abs(r.NetBalance) 
+                }).ToList();
 
-                            <BoxView HeightRequest="1" Color="#334155" Margin="0,4" />
+            decimal totalAssets = assets.Sum(r => r.Amount);
+            decimal totalLiabilities = liabilities.Sum(r => r.Amount);
+            decimal totalEquity = equities.Sum(r => r.Amount);
+            decimal totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
 
-                            <Grid ColumnDefinitions="*, Auto" Padding="0,4">
-                                <Label Grid.Column="0" Text="Total Liabilities" TextColor="White" FontSize="14" FontAttributes="Bold" />
-                                <Label x:Name="TotalLiabilitiesLabel" Grid.Column="1" Text="Rp 0" TextColor="White" FontSize="14" FontAttributes="Bold" HorizontalOptions="End" />
-                            </Grid>
-                        </VerticalStackLayout>
-                    </Border>
+            var culture = new System.Globalization.CultureInfo("id-ID");
 
-                    <!-- KARTU EQUITY -->
-                    <Border BackgroundColor="#1E293B" Stroke="#334155" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="16">
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="EQUITY" TextColor="#F59E0B" FontSize="12" FontAttributes="Bold" />
-                            <CollectionView x:Name="EquityCollectionView" SelectionMode="None">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="*, Auto" Padding="0,4">
-                                            <HorizontalStackLayout Grid.Column="0" Spacing="6">
-                                                <Label Text="{Binding ReferenceNumber}" TextColor="#64748B" FontSize="12" FontAttributes="Bold" />
-                                                <Label Text="{Binding AccountName}" TextColor="White" FontSize="13" />
-                                            </HorizontalStackLayout>
-                                            <Label Grid.Column="1" Text="{Binding FormattedAmount}" TextColor="White" FontSize="13" HorizontalOptions="End" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+            // Binding ke UI XAML
+            AssetsCollectionView.ItemsSource = assets;
+            TotalAssetsLabel.Text = $"Rp {totalAssets.ToString("N0", culture)}";
 
-                            <!-- Baris Retained Earnings Ending -->
-                            <Grid ColumnDefinitions="*, Auto" Padding="0,4">
-                                <HorizontalStackLayout Grid.Column="0" Spacing="6">
-                                    <Label Text="-" TextColor="#64748B" FontSize="12" FontAttributes="Bold" />
-                                    <Label x:Name="RetainedEarningsRowLabel" Text="Retained earnings" TextColor="White" FontSize="13" />
-                                </HorizontalStackLayout>
-                                <Label x:Name="RetainedEarningsEndingLabel" Grid.Column="1" Text="Rp 0" TextColor="White" FontSize="13" HorizontalOptions="End" />
-                            </Grid>
+            LiabilitiesCollectionView.ItemsSource = liabilities;
+            TotalLiabilitiesLabel.Text = $"Rp {totalLiabilities.ToString("N0", culture)}";
 
-                            <BoxView HeightRequest="1" Color="#334155" Margin="0,4" />
+            EquityCollectionView.ItemsSource = equities;
+            TotalEquityLabel.Text = $"Rp {totalEquity.ToString("N0", culture)}";
 
-                            <Grid ColumnDefinitions="*, Auto" Padding="0,4">
-                                <Label Grid.Column="0" Text="Total Equity" TextColor="White" FontSize="14" FontAttributes="Bold" />
-                                <Label x:Name="TotalEquityLabel" Grid.Column="1" Text="Rp 0" TextColor="White" FontSize="14" FontAttributes="Bold" HorizontalOptions="End" />
-                            </Grid>
-                        </VerticalStackLayout>
-                    </Border>
+            TotalLiabilitiesAndEquityLabel.Text = $"Rp {totalLiabilitiesAndEquity.ToString("N0", culture)}";
 
-                    <!-- KARTU SUMMARY: TOTAL LIABILITIES & EQUITY -->
-                    <Border BackgroundColor="#1E293B" Stroke="#334155" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="16">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <Label Grid.Column="0" Text="Total Liabilities &amp; Equity" TextColor="White" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
-                            <Label x:Name="TotalLiabilitiesAndEquityLabel" Grid.Column="1" Text="Rp 0" TextColor="#38BDF8" FontSize="15" FontAttributes="Bold" HorizontalOptions="End" VerticalOptions="Center" />
-                        </Grid>
-                    </Border>
+            SheetContainer.IsVisible = true;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Error", $"Gagal memuat neraca keuangan: {ex.Message}", "OK");
+        }
+        finally
+        {
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
+        }
+    }
+}
 
-                </VerticalStackLayout>
+public class FinancialPositionLineModel
+{
+    public string ReferenceNumber { get; set; } = string.Empty;
+    public string AccountName { get; set; } = string.Empty;
+    public decimal Amount { get; set; }
 
-                <!-- Balance Indicator Alert -->
-                <Border x:Name="BalanceStatusCard"
-                        IsVisible="False"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 10"
-                        Padding="12,10">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <Label x:Name="BalanceStatusIcon" Text="✓" FontAttributes="Bold" FontSize="14" VerticalOptions="Center" />
-                        <Label x:Name="BalanceStatusText" Text="Balance sheet seimbang." FontSize="12" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                </Border>
+    private static readonly System.Globalization.CultureInfo Idr = new("id-ID");
 
-            </VerticalStackLayout>
-        </ScrollView>
-
-    </Grid>
-
-</ContentPage>
+    public string FormattedAmount => Amount.ToString("N0", Idr);
+}
