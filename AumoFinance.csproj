@@ -21,7 +21,7 @@
 		<ApplicationTitle>Aumo</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.aumofinance</ApplicationId>
+		<ApplicationId>com.bnrc.aumofinance</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
