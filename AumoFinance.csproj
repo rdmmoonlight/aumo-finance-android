@@ -27,8 +27,8 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-        <!-- Minimum Android Version: Android 9.0 (API 28) -->
-        <SupportedOSPlatformVersion Condition="\( ([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">28.0</SupportedOSPlatformVersion>
+		<!-- Minimum Android Version (Android 5.0 / API 21 agar jalan di Android 9) -->
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
 	<!-- Build Release: kurangi ukuran APK lewat trimming + Android link mode -->
@@ -58,10 +58,6 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-		<!-- Koneksi langsung ke Neon (Postgres) via EF Core & Driver Npgsql -->
-		<PackageReference Include="Npgsql" Version="9.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
 	</ItemGroup>
 
 </Project>
