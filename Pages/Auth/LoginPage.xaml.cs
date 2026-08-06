@@ -15,6 +15,20 @@ public partial class LoginPage : ContentPage
         _apiService = apiService;
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Tampilkan crash terakhir (jika ada) — satu-satunya cara melihat detail
+        // crash tanpa akses logcat/PC tools.
+        var lastCrash = CrashLogger.ReadAndClearLastCrash();
+        if (!string.IsNullOrWhiteSpace(lastCrash))
+        {
+            var snippet = lastCrash.Length > 900 ? lastCrash[..900] + "\n...(dipotong)" : lastCrash;
+            await DisplayAlertAsync("Aplikasi Sempat Crash", snippet, "OK");
+        }
+    }
+
     private void OnTogglePasswordClicked(object? sender, EventArgs e)
     {
         PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
