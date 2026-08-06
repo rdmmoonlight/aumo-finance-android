@@ -6,8 +6,8 @@ namespace AumoFinance.Models;
 
 public class LedgerAccountDisplayModel
 {
-    public Guid AccountId { get; set; }
-    public string ReferenceNumber { get; set; } = string.Empty;
+    public int AccountId { get; set; }
+    public int ReferenceNumber { get; set; }
     public string AccountName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public bool NormalBalanceIsDebit { get; set; }

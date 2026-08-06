@@ -4,7 +4,7 @@ namespace AumoFinance.Models;
 
 public class JournalEntryDisplayModel
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public DateTime EntryDate { get; set; }
     public List<JournalEntryLineDisplayModel> Lines { get; set; } = new();
 }

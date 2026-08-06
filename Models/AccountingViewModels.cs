@@ -18,6 +18,7 @@ public static class AccountClassification
 
     public static bool NormalBalanceIsDebit(string type) =>
         type.Equals("Asset", StringComparison.OrdinalIgnoreCase) ||
+        type.Equals("Assets", StringComparison.OrdinalIgnoreCase) ||
         type.Equals("Expense", StringComparison.OrdinalIgnoreCase) ||
         type.Equals("OperatingExpense", StringComparison.OrdinalIgnoreCase) ||
         type.Equals("OperatingExpenses", StringComparison.OrdinalIgnoreCase) ||
@@ -27,8 +28,8 @@ public static class AccountClassification
 
 public class TrialBalanceRowViewModel
 {
-    public Guid AccountId { get; set; }
-    public string ReferenceNumber { get; set; } = string.Empty;
+    public int AccountId { get; set; }
+    public int ReferenceNumber { get; set; }
     public string AccountName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
@@ -44,8 +45,8 @@ public class TrialBalanceRowViewModel
 
 public class LedgerAccountViewModel
 {
-    public Guid AccountId { get; set; }
-    public string ReferenceNumber { get; set; } = string.Empty;
+    public int AccountId { get; set; }
+    public int ReferenceNumber { get; set; }
     public string AccountName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public bool NormalBalanceIsDebit { get; set; }
