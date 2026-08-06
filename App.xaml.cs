@@ -1,27 +1,54 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using AumoFinance.Services; // Tambahkan namespace Services
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
+using AumoFinance.Services;
 
 namespace AumoFinance;
 
 public partial class App : Application
 {
-    public App()
+    private readonly IServiceProvider _serviceProvider;
+
+    public App(IServiceProvider serviceProvider)
     {
         InitializeComponent();
+        _serviceProvider = serviceProvider;
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        // Jalankan pengecekan update secara asynchronous di background saat window dibuat
+        // Jalankan pengecekan update otomatis di background thread saat startup
         Task.Run(async () =>
         {
-            var updateService = new UpdateService();
-            
-            // GANTI "USERNAME_GITHUB" dengan username / nama organisasi GitHub Anda
-            // Contoh: await updateService.CheckAndInstallUpdateAsync("ghofur", "AumoFinance");
-            await updateService.CheckAndInstallUpdateAsync("rdmmoonlight", "aumo-finance-android");
+            try
+            {
+                // Cek status sakelar Auto-Update di Preferences (default: true)
+                bool isAutoUpdateEnabled = Preferences.Default.Get("AutoUpdateEnabled", true);
+
+                if (isAutoUpdateEnabled)
+                {
+                    // Gunakan IServiceProvider jika UpdateService terdaftar di DI Container,
+                    // atau fallback ke instansiasi manual jika belum terdaftar.
+                    var updateService = _serviceProvider.GetService<UpdateService>() ?? new UpdateService();
+
+                    // Memicu pencarian & instalasi otomatis (isSilent: true)
+                    await updateService.CheckAndInstallUpdateAsync(
+                        githubUser: "rdmmoonlight",
+                        githubRepo: "aumo-finance-android",
+                        isSilent: true
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[App AutoUpdate Exception] {ex.Message}");
+            }
         });
 
-        return new Window(new AppShell());
+        // Resolve AppShell dari ServiceProvider agar mendukung Dependency Injection pada Pages/ViewModels
+        var appShell = _serviceProvider.GetService<AppShell>() ?? new AppShell();
+        return new Window(appShell);
     }
 }
