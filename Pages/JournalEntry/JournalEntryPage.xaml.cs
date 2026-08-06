@@ -8,6 +8,10 @@ using Microsoft.Maui.Controls.Shapes;
 using AumoFinance.Models;
 using AumoFinance.Services;
 
+// Gunakan alias jika CreateJournalDto ada di Models dan Services
+using CreateJournalDto = AumoFinance.Services.CreateJournalDto;
+using CreateJournalLineDto = AumoFinance.Services.CreateJournalLineDto;
+
 namespace AumoFinance.Pages.JournalEntry;
 
 public partial class JournalEntryPage : ContentPage
@@ -44,7 +48,7 @@ public partial class JournalEntryPage : ContentPage
         }
     }
 
-    private void OnAddLineClicked(object? sender, EventArgs e) => AddLine();
+    public void OnAddLineClicked(object? sender, EventArgs e) => AddLine();
 
     private void AddLine()
     {
@@ -80,7 +84,7 @@ public partial class JournalEntryPage : ContentPage
         BalanceStatusLabel.TextColor = balanced ? Color.FromArgb("#34D399") : Color.FromArgb("#F87171");
     }
 
-    private async void OnSaveClicked(object? sender, EventArgs e)
+    public async void OnSaveClicked(object? sender, EventArgs e)
     {
         SaveBtn.IsEnabled = false;
         SaveBtn.Text = "Menyimpan...";
@@ -144,7 +148,7 @@ public partial class JournalEntryPage : ContentPage
         }
     }
 
-    private async void OnCancelClicked(object? sender, EventArgs e)
+    public async void OnCancelClicked(object? sender, EventArgs e)
     {
         await Navigation.PopAsync();
     }
