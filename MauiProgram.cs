@@ -10,6 +10,10 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        // Pasang crash logger sedini mungkin — tidak ada akses logcat/PC tools,
+        // jadi crash harus ditangkap & disimpan sendiri untuk didiagnosis dari HP.
+        AumoFinance.Services.CrashLogger.Install();
+
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
