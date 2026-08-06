@@ -27,7 +27,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<!-- Minimum Android Version (Android 5.0 / API 21) -->
+		<!-- Minimum Android Version (Diubah ke Android 13.0 / API 33 untuk mendukung ReceiverFlags.Exported) -->
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
