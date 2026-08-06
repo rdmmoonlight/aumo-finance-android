@@ -170,7 +170,7 @@ public class UpdateService
 
         // Buka Installer bawaan Android menggunakan FileProvider
         var apkFile = new Java.IO.File(filePath);
-        
+
         // FIX CS0103: Menggunakan AndroidX dengan huruf A kapital
         var apkUri = AndroidX.Core.Content.FileProvider.GetUriForFile(
             context,
@@ -185,4 +185,4 @@ public class UpdateService
         context.StartActivity(installIntent);
     }
 #endif
-    }
+}
