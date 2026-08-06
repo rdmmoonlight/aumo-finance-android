@@ -14,7 +14,7 @@ namespace AumoFinance.Services;
 public class ApiService
 {
     // Public Base URL of your ASP.NET Core Web Backend
-    public const string BaseUrl = "https://aumo-preview.up.railway.app"; 
+    public const string BaseUrl = "https://aumo-preview.up.railway.app";
 
     private static readonly HttpClient _httpClient = new HttpClient
     {
