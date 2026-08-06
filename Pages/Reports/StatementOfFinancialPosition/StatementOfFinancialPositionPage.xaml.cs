@@ -25,8 +25,8 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         await BuildSofpAsync();
     }
 
-    // Overload untuk menerima hingga 4 argumen dari PostClosingTrialBalancePage
-    public async Task BuildSofpAsync(bool isPostClosing = false, object? arg2 = null, object? arg3 = null, object? arg4 = null)
+    // Menggunakan params object[] agar bisa menerima berapa pun argumen posisi atau bernama dari halaman lain (seperti PostClosingTrialBalancePage)
+    public async Task BuildSofpAsync(params object[] args)
     {
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
