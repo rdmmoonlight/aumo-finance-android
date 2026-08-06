@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
+using AumoFinance.Pages.JournalEntry;
 
 namespace AumoFinance;
 
@@ -12,7 +13,7 @@ public partial class AppShell : Shell
         // Register Rute Master & Laporan
         Routing.RegisterRoute(nameof(CoaPage), typeof(CoaPage));
         Routing.RegisterRoute(nameof(PeriodsPage), typeof(PeriodsPage));
-        Routing.RegisterRoute(nameof(InputJournalPage), typeof(InputJournalPage));
+        Routing.RegisterRoute(nameof(JournalEntryPage), typeof(JournalEntryPage));
 
         Routing.RegisterRoute(nameof(GeneralJournalPage), typeof(GeneralJournalPage));
         Routing.RegisterRoute(nameof(GeneralLedgerPermanentPage), typeof(GeneralLedgerPermanentPage));

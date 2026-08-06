@@ -55,18 +55,18 @@ public partial class IncomeStatementPage : ContentPage
                 return;
             }
 
-            // Mapping data ke baris laporan
+            // Mapping data ke baris laporan (dengan konversi ReferenceNumber.ToString())
             var revenues = trialBalanceRows.Where(r => r.Type.Equals("OperatingIncome", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Revenue", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber, AccountName = r.AccountName, Amount = r.NetBalance }).ToList();
+                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = r.NetBalance }).ToList();
 
             var opExpenses = trialBalanceRows.Where(r => r.Type.Equals("OperatingExpenses", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Expense", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber, AccountName = r.AccountName, Amount = Math.Abs(r.NetBalance) }).ToList();
+                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = Math.Abs(r.NetBalance) }).ToList();
 
             var otherIncome = trialBalanceRows.Where(r => r.Type.Equals("OtherIncome", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber, AccountName = r.AccountName, Amount = r.NetBalance }).ToList();
+                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = r.NetBalance }).ToList();
 
             var otherExpenses = trialBalanceRows.Where(r => r.Type.Equals("OtherExpenses", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber, AccountName = r.AccountName, Amount = Math.Abs(r.NetBalance) }).ToList();
+                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = Math.Abs(r.NetBalance) }).ToList();
 
             decimal totalRevenue = revenues.Sum(r => r.Amount);
             decimal totalOpExpense = opExpenses.Sum(r => r.Amount);
@@ -107,7 +107,7 @@ public partial class IncomeStatementPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Gagal memuat laporan laba rugi: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Gagal memuat laporan laba rugi: {ex.Message}", "OK");
         }
         finally
         {
