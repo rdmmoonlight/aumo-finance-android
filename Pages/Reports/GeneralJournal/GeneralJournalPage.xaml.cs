@@ -71,7 +71,9 @@ public partial class GeneralJournalPage : ContentPage
 
     private async void OnAddEntryClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("//JournalEntryCreatePage");
+        // Catatan: route sebelumnya "JournalEntryCreatePage" tidak pernah terdaftar
+        // di AppShell (yang ada "JournalEntryPage") — diperbaiki ke nama yang benar.
+        await Shell.Current.GoToAsync(nameof(JournalEntryPage));
     }
 
     private async void OnEditEntryClicked(object? sender, EventArgs e)

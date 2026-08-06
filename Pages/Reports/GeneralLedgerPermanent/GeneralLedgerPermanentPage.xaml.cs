@@ -65,6 +65,6 @@ public partial class GeneralLedgerPermanentPage : ContentPage
 
     private async void OnGeneralJournalClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("//GeneralJournalPage");
+        await Shell.Current.GoToAsync(nameof(GeneralJournalPage));
     }
 }
