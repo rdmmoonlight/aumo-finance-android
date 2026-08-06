@@ -41,27 +41,27 @@ public class UpdateService
 
             // 1. Ambil tag_name dari GitHub Release (misal: "v26.8.105" -> ubah jadi "26.8.105")
             string rawTag = root.GetProperty("tag_name").GetString() ?? "";
-            string latestVersionStr = rawTag.StartsWith("v", StringComparison.OrdinalIgnoreCase) 
-                ? rawTag.Substring(1) 
+            string latestVersionStr = rawTag.StartsWith("v", StringComparison.OrdinalIgnoreCase)
+                ? rawTag.Substring(1)
                 : rawTag;
 
             string currentVersionStr = AppInfo.Current.VersionString;
 
-            // 2. Bandingkan versi saat ini dengan versi di GitHub
-            if (Version.TryParse(latestVersionStr, out var latestVersion) && 
+            // 2. Bandingkan versi CalVer saat ini dengan versi di GitHub
+            if (Version.TryParse(latestVersionStr, out var latestVersion) &&
                 Version.TryParse(currentVersionStr, out var currentVersion))
             {
                 if (latestVersion > currentVersion)
                 {
                     // 3. Cari URL download file APK dari daftar assets
                     string apkDownloadUrl = string.Empty;
-                    
+
                     if (root.TryGetProperty("assets", out var assetsElement) && assetsElement.ValueKind == JsonValueKind.Array)
                     {
                         foreach (var asset in assetsElement.EnumerateArray())
                         {
                             string fileName = asset.GetProperty("name").GetString() ?? "";
-                            
+
                             // Mencari file APK yang dihasilkan dari dotnet publish pipeline YAML
                             if (fileName.EndsWith(".apk", StringComparison.OrdinalIgnoreCase))
                             {
@@ -159,7 +159,7 @@ public class UpdateService
                 var settingsIntent = new Android.Content.Intent(Android.Provider.Settings.ActionManageUnknownAppSources)
                     .SetData(Android.Net.Uri.Parse($"package:{context.PackageName}"))
                     .AddFlags(Android.Content.ActivityFlags.NewTask);
-                
+
                 context.StartActivity(settingsIntent);
                 return;
             }

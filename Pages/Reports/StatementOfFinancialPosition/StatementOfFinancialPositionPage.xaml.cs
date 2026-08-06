@@ -84,9 +84,9 @@ public partial class StatementOfFinancialPositionPage : ContentPage
 
     // METHOD STATIC YANG DIPANGGIL OLEH PostClosingTrialBalancePage
     public static async Task<StatementOfFinancialPositionViewModel> BuildSofpAsync(
-        AppDbContext dbContext, 
-        Guid currentUserId, 
-        Period period, 
+        AppDbContext dbContext,
+        Guid currentUserId,
+        Period period,
         bool isPostClosing = false)
     {
         // Ambil COA aktif milik user
@@ -100,7 +100,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         // Ambil transaksi baris jurnal hingga akhir periode
         var lines = await dbContext.JournalEntryLines
             .Include(l => l.JournalEntry)
-            .Where(l => accountIds.Contains(l.AccountId) 
+            .Where(l => accountIds.Contains(l.AccountId)
                      && l.JournalEntry!.UserId == currentUserId
                      && l.JournalEntry!.EntryDate <= period.EndDate)
             .ToListAsync();
@@ -112,7 +112,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         foreach (var acc in accounts)
         {
             var accLines = lines.Where(l => l.AccountId == acc.Id).ToList();
-            
+
             // Penanganan null aman untuk acc.Type
             string accountType = acc.Type ?? string.Empty;
             bool normalDebit = AccountClassification.NormalBalanceIsDebit(accountType);
