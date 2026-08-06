@@ -25,7 +25,8 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         await BuildSofpAsync();
     }
 
-    public async Task BuildSofpAsync()
+    // Overload agar bisa menerima argumen apapun dari halaman lain jika diperlukan, tanpa error
+    public async Task BuildSofpAsync(params object[] args)
     {
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
