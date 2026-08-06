@@ -46,7 +46,6 @@ public partial class AdjustingJournalPage : ContentPage
             PeriodNameLabel.Text = period.PeriodName;
             ClosedBadge.IsVisible = period.IsClosed;
 
-            // Ambil general journal dengan filter JournalType == "Adjusting" via AccountingService
             var entries = await _accountingService.GetGeneralJournalAsync(_currentUserId, period);
             var adjustingEntries = entries.Where(j => j.JournalType == "Adjusting").ToList();
 
@@ -57,7 +56,6 @@ public partial class AdjustingJournalPage : ContentPage
             }
             else
             {
-                // Mapping ke struktur tampilan card
                 var displayList = adjustingEntries.Select(e => new JournalEntryDisplayModel
                 {
                     Id = e.Id,
@@ -65,7 +63,8 @@ public partial class AdjustingJournalPage : ContentPage
                     Lines = e.Lines.OrderBy(l => l.LineOrder).Select(l => new JournalEntryLineDisplayModel
                     {
                         AccountName = l.Account?.AccountName ?? "-",
-                        RefNumber = l.Account?.ReferenceNumber ?? "-",
+                        // PERBAIKAN LINE 68: Konversi int? ke string
+                        RefNumber = l.Account?.ReferenceNumber.ToString() ?? "-",
                         LineDescription = l.LineDescription ?? string.Empty,
                         Debit = l.Debit,
                         Credit = l.Credit
@@ -78,7 +77,8 @@ public partial class AdjustingJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat data: {ex.Message}", "OK");
+            // PERBAIKAN LINE 81: Gunakan DisplayAlertAsync
+            await DisplayAlertAsync("Error", $"Gagal memuat data: {ex.Message}", "OK");
         }
         finally
         {
