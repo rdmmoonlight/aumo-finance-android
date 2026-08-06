@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.Controls;
 using AumoFinance.Services;
 using AumoFinance.Models;
@@ -22,11 +24,10 @@ public partial class StatementOfFinancialPositionPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await BuildSofpAsync();
+        await LoadPageDataAsync();
     }
 
-    // Mendefinisikan parameter bernama `isPostClosing` secara eksplisit
-    public async Task BuildSofpAsync(bool isPostClosing = false)
+    private async Task LoadPageDataAsync()
     {
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
@@ -45,65 +46,28 @@ public partial class StatementOfFinancialPositionPage : ContentPage
 
             PeriodNameLabel.Text = period.PeriodName;
 
-            var trialBalanceRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
+            var vm = await BuildSofpAsync(_accountingService.DbContext, _currentUserId, period, isPostClosing: false);
 
-            if (!trialBalanceRows.Any())
+            if (!vm.Assets.Any() && !vm.Liabilities.Any() && !vm.EquityExcludingRetainedEarnings.Any())
             {
                 EmptyStateContainer.IsVisible = true;
                 EmptyStateLabel.Text = $"Tidak ada data laporan pada periode {period.PeriodName}.";
                 return;
             }
 
-            var assets = trialBalanceRows
-                .Where(r => r.Type.Equals("Asset", StringComparison.OrdinalIgnoreCase) ||
-                            r.Type.Equals("CurrentAsset", StringComparison.OrdinalIgnoreCase) ||
-                            r.Type.Equals("Cash", StringComparison.OrdinalIgnoreCase) ||
-                            r.Type.Equals("NonCurrentAsset", StringComparison.OrdinalIgnoreCase) ||
-                            r.Type.Equals("FixedAsset", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new FinancialPositionLineModel
-                {
-                    ReferenceNumber = r.ReferenceNumber.ToString(),
-                    AccountName = r.AccountName,
-                    Amount = r.NetBalance
-                }).ToList();
-
-            var liabilities = trialBalanceRows
-                .Where(r => r.Type.Equals("Liability", StringComparison.OrdinalIgnoreCase) ||
-                            r.Type.Equals("CurrentLiability", StringComparison.OrdinalIgnoreCase) ||
-                            r.Type.Equals("NonCurrentLiability", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new FinancialPositionLineModel
-                {
-                    ReferenceNumber = r.ReferenceNumber.ToString(),
-                    AccountName = r.AccountName,
-                    Amount = Math.Abs(r.NetBalance)
-                }).ToList();
-
-            var equities = trialBalanceRows
-                .Where(r => r.Type.Equals("Equity", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new FinancialPositionLineModel
-                {
-                    ReferenceNumber = r.ReferenceNumber.ToString(),
-                    AccountName = r.AccountName,
-                    Amount = Math.Abs(r.NetBalance)
-                }).ToList();
-
-            decimal totalAssets = assets.Sum(r => r.Amount);
-            decimal totalLiabilities = liabilities.Sum(r => r.Amount);
-            decimal totalEquity = equities.Sum(r => r.Amount);
-            decimal totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
-
             var culture = new System.Globalization.CultureInfo("id-ID");
 
-            AssetsCollectionView.ItemsSource = assets;
-            TotalAssetsLabel.Text = $"Rp {totalAssets.ToString("N0", culture)}";
+            // Update UI Koleksi
+            AssetsCollectionView.ItemsSource = vm.Assets;
+            TotalAssetsLabel.Text = $"Rp {vm.TotalAssets.ToString("N0", culture)}";
 
-            LiabilitiesCollectionView.ItemsSource = liabilities;
-            TotalLiabilitiesLabel.Text = $"Rp {totalLiabilities.ToString("N0", culture)}";
+            LiabilitiesCollectionView.ItemsSource = vm.Liabilities;
+            TotalLiabilitiesLabel.Text = $"Rp {vm.TotalLiabilities.ToString("N0", culture)}";
 
-            EquityCollectionView.ItemsSource = equities;
-            TotalEquityLabel.Text = $"Rp {totalEquity.ToString("N0", culture)}";
+            EquityCollectionView.ItemsSource = vm.EquityExcludingRetainedEarnings;
+            TotalEquityLabel.Text = $"Rp {vm.TotalEquity.ToString("N0", culture)}";
 
-            TotalLiabilitiesAndEquityLabel.Text = $"Rp {totalLiabilitiesAndEquity.ToString("N0", culture)}";
+            TotalLiabilitiesAndEquityLabel.Text = $"Rp {vm.TotalLiabilitiesAndEquity.ToString("N0", culture)}";
 
             SheetContainer.IsVisible = true;
         }
@@ -117,6 +81,85 @@ public partial class StatementOfFinancialPositionPage : ContentPage
             LoadingIndicator.IsVisible = false;
         }
     }
+
+    // METHOD STATIC YANG DIPANGGIL OLEH PostClosingTrialBalancePage
+    public static async Task<StatementOfFinancialPositionViewModel> BuildSofpAsync(
+        AppDbContext dbContext, 
+        Guid currentUserId, 
+        Period period, 
+        bool isPostClosing = false)
+    {
+        // Logika perhitungan data neraca
+        var accounts = await dbContext.ChartOfAccounts
+            .Where(a => a.IsActive && a.UserId == currentUserId)
+            .OrderBy(a => a.ReferenceNumber)
+            .ToListAsync();
+
+        var accountIds = accounts.Select(a => a.Id).ToList();
+
+        var lines = await dbContext.JournalEntryLines
+            .Include(l => l.JournalEntry)
+            .Where(l => accountIds.Contains(l.AccountId) 
+                     && l.JournalEntry!.UserId == currentUserId
+                     && l.JournalEntry!.EntryDate <= period.EndDate)
+            .ToListAsync();
+
+        var assets = new List<FinancialPositionLineModel>();
+        var liabilities = new List<FinancialPositionLineModel>();
+        var equities = new List<FinancialPositionLineModel>();
+
+        foreach (var acc in accounts)
+        {
+            var accLines = lines.Where(l => l.AccountId == acc.Id).ToList();
+            bool normalDebit = AccountClassification.NormalBalanceIsDebit(acc.Type);
+
+            decimal net = normalDebit
+                ? accLines.Sum(l => l.Debit - l.Credit)
+                : accLines.Sum(l => l.Credit - l.Debit);
+
+            if (!accLines.Any() && net == 0) continue;
+
+            var item = new FinancialPositionLineModel
+            {
+                ReferenceNumber = acc.ReferenceNumber.ToString(),
+                AccountName = acc.AccountName,
+                Amount = Math.Abs(net)
+            };
+
+            if (AccountClassification.IsAsset(acc.Type)) assets.Add(item);
+            else if (AccountClassification.IsLiability(acc.Type)) liabilities.Add(item);
+            else if (AccountClassification.IsEquity(acc.Type)) equities.Add(item);
+        }
+
+        decimal totalAssets = assets.Sum(a => a.Amount);
+        decimal totalLiab = liabilities.Sum(l => l.Amount);
+        decimal totalEq = equities.Sum(e => e.Amount);
+
+        return new StatementOfFinancialPositionViewModel
+        {
+            Assets = assets,
+            Liabilities = liabilities,
+            EquityExcludingRetainedEarnings = equities,
+            RetainedEarningsEnding = 0m,
+            TotalAssets = totalAssets,
+            TotalLiabilities = totalLiab,
+            TotalEquity = totalEq,
+            TotalLiabilitiesAndEquity = totalLiab + totalEq
+        };
+    }
+}
+
+// MODEL VIEW DATA SOFP
+public class StatementOfFinancialPositionViewModel
+{
+    public List<FinancialPositionLineModel> Assets { get; set; } = new();
+    public List<FinancialPositionLineModel> Liabilities { get; set; } = new();
+    public List<FinancialPositionLineModel> EquityExcludingRetainedEarnings { get; set; } = new();
+    public decimal RetainedEarningsEnding { get; set; }
+    public decimal TotalAssets { get; set; }
+    public decimal TotalLiabilities { get; set; }
+    public decimal TotalEquity { get; set; }
+    public decimal TotalLiabilitiesAndEquity { get; set; }
 }
 
 public class FinancialPositionLineModel
