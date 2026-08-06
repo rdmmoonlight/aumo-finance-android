@@ -45,7 +45,6 @@ public partial class IncomeStatementPage : ContentPage
             PeriodNameLabel.Text = period.PeriodName;
             AsOfDateLabel.Text = $"Statement of Profit or Loss (IAS 1) — per {period.EndDate:dd MMMM yyyy}";
 
-            // Ambil Trial Balance dengan penyesuaian (includeAdjusting: true)
             var trialBalanceRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
 
             if (!trialBalanceRows.Any())
@@ -55,7 +54,6 @@ public partial class IncomeStatementPage : ContentPage
                 return;
             }
 
-            // Mapping data ke baris laporan (dengan konversi ReferenceNumber.ToString())
             var revenues = trialBalanceRows.Where(r => r.Type.Equals("OperatingIncome", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Revenue", StringComparison.OrdinalIgnoreCase))
                 .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = r.NetBalance }).ToList();
 
@@ -78,7 +76,6 @@ public partial class IncomeStatementPage : ContentPage
 
             var culture = new System.Globalization.CultureInfo("id-ID");
 
-            // Update UI Bindings
             RevenueCollectionView.ItemsSource = revenues;
             TotalRevenueLabel.Text = totalRevenue.ToString("N0", culture);
 
@@ -88,7 +85,6 @@ public partial class IncomeStatementPage : ContentPage
             OperatingIncomeLabel.Text = operatingIncome.ToString("N0", culture);
             OperatingIncomeLabel.TextColor = operatingIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
-            // Other section
             if (otherIncome.Any() || otherExpenses.Any())
             {
                 var combinedOther = otherIncome.Concat(otherExpenses).ToList();
@@ -107,7 +103,8 @@ public partial class IncomeStatementPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal memuat laporan laba rugi: {ex.Message}", "OK");
+            // PERBAIKAN LINE 110: Gunakan DisplayAlertAsync
+            await DisplayAlertAsync("Error", $"Gagal memuat laporan laba rugi: {ex.Message}", "OK");
         }
         finally
         {
