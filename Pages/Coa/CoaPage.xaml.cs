@@ -168,7 +168,7 @@ public partial class CoaPage : ContentPage
 
     private async void OnEditAccountClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is Guid accountId)
+        if (sender is Button btn && btn.CommandParameter is int accountId)
         {
             await DisplayAlertAsync("Informasi", $"Edit akun dengan ID: {accountId}", "OK");
         }
@@ -176,7 +176,7 @@ public partial class CoaPage : ContentPage
 
     private async void OnDeleteAccountClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is Guid accountId)
+        if (sender is Button btn && btn.CommandParameter is int accountId)
         {
             bool confirm = await DisplayAlertAsync("Konfirmasi", "Hapus akun ini? Tindakan ini tidak dapat dibatalkan.", "Ya", "Batal");
             if (confirm)
@@ -209,8 +209,8 @@ public partial class CoaPage : ContentPage
 
 public class ChartOfAccountDisplayModel
 {
-    public Guid Id { get; set; }
-    public string ReferenceNumber { get; set; } = string.Empty;
+    public int Id { get; set; }
+    public int ReferenceNumber { get; set; }
     public string AccountName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;

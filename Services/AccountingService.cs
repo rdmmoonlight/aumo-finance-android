@@ -28,7 +28,7 @@ public class AccountingService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<Period?> GetPeriodByIdAsync(Guid periodId)
+    public async Task<Period?> GetPeriodByIdAsync(int periodId)
     {
         return await _dbContext.Periods.FindAsync(periodId);
     }

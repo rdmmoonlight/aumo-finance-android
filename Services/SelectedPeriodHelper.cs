@@ -1,30 +1,25 @@
 using AumoFinance;
-using AumoFinance.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AumoFinance.Services;
 
 public static class SelectedPeriodHelper
 {
-    public static async Task<Period?> GetSelectedPeriodAsync(AppDbContext dbContext, Guid userId)
+    public static async Task<Models.Period?> GetSelectedPeriodAsync(AppDbContext dbContext, Guid userId)
     {
-        return await dbContext.SelectedPeriods
-            .Include(s => s.Period)
-            .Where(s => s.UserId == userId)
-            .Select(s => s.Period)
-            .FirstOrDefaultAsync();
+        return await dbContext.Periods
+            .FirstOrDefaultAsync(p => p.UserId == userId && p.IsSelected);
     }
 
-    public static async Task SelectPeriodAsync(AppDbContext dbContext, Guid userId, Guid periodId)
+    public static async Task SelectPeriodAsync(AppDbContext dbContext, Guid userId, int periodId)
     {
-        var selected = await dbContext.SelectedPeriods.FirstOrDefaultAsync(s => s.UserId == userId);
-        if (selected == null)
+        var periods = await dbContext.Periods
+            .Where(p => p.UserId == userId)
+            .ToListAsync();
+
+        foreach (var period in periods)
         {
-            dbContext.SelectedPeriods.Add(new SelectedPeriod { UserId = userId, PeriodId = periodId });
-        }
-        else
-        {
-            selected.PeriodId = periodId;
+            period.IsSelected = period.Id == periodId;
         }
 
         await dbContext.SaveChangesAsync();
@@ -32,8 +27,15 @@ public static class SelectedPeriodHelper
 
     public static async Task ClearSelectionAsync(AppDbContext dbContext, Guid userId)
     {
-        var selections = await dbContext.SelectedPeriods.Where(s => s.UserId == userId).ToListAsync();
-        dbContext.SelectedPeriods.RemoveRange(selections);
+        var selected = await dbContext.Periods
+            .Where(p => p.UserId == userId && p.IsSelected)
+            .ToListAsync();
+
+        foreach (var period in selected)
+        {
+            period.IsSelected = false;
+        }
+
         await dbContext.SaveChangesAsync();
     }
 }
