@@ -25,7 +25,17 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         await BuildSofpAsync();
     }
 
-    // Mendefinisikan parameter bernama `isPostClosing` secara eksplisit
+    // Overload 1: Untuk pemanggilan 4 argumen dari PostClosingTrialBalancePage
+    public Task BuildSofpAsync(object arg1, object arg2, object arg3, object arg4)
+    {
+        bool isPostClosing = false;
+        if (arg1 is bool b1) isPostClosing = b1;
+        else if (arg4 is bool b4) isPostClosing = b4;
+
+        return BuildSofpAsync(isPostClosing);
+    }
+
+    // Overload 2: Untuk pemanggilan standar / parameter bernama isPostClosing
     public async Task BuildSofpAsync(bool isPostClosing = false)
     {
         LoadingIndicator.IsVisible = true;
