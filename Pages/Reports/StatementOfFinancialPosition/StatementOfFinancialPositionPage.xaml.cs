@@ -25,8 +25,8 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         await BuildSofpAsync();
     }
 
-    // Menggunakan params object[] agar bisa menerima berapa pun argumen posisi atau bernama dari halaman lain (seperti PostClosingTrialBalancePage)
-    public async Task BuildSofpAsync(params object[] args)
+    // Mendefinisikan parameter bernama `isPostClosing` secara eksplisit
+    public async Task BuildSofpAsync(bool isPostClosing = false)
     {
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
