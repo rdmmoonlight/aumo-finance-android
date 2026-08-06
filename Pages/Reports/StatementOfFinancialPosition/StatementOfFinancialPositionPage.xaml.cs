@@ -112,7 +112,10 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         foreach (var acc in accounts)
         {
             var accLines = lines.Where(l => l.AccountId == acc.Id).ToList();
-            bool normalDebit = AccountClassification.NormalBalanceIsDebit(acc.Type);
+            
+            // Penanganan null aman untuk acc.Type
+            string accountType = acc.Type ?? string.Empty;
+            bool normalDebit = AccountClassification.NormalBalanceIsDebit(accountType);
 
             decimal net = normalDebit
                 ? accLines.Sum(l => l.Debit - l.Credit)
@@ -127,17 +130,16 @@ public partial class StatementOfFinancialPositionPage : ContentPage
                 Amount = Math.Abs(net)
             };
 
-            // Pengecekan Kategori berdasarkan String acc.Type (Tanpa memanggil method IsAsset yang hilang)
-            string t = acc.Type ?? string.Empty;
-            if (t.Contains("Asset", StringComparison.OrdinalIgnoreCase) || t.Equals("Cash", StringComparison.OrdinalIgnoreCase))
+            // Pengecekan Kategori berdasarkan String accountType
+            if (accountType.Contains("Asset", StringComparison.OrdinalIgnoreCase) || accountType.Equals("Cash", StringComparison.OrdinalIgnoreCase))
             {
                 assets.Add(item);
             }
-            else if (t.Contains("Liabilit", StringComparison.OrdinalIgnoreCase) || t.Equals("Payable", StringComparison.OrdinalIgnoreCase))
+            else if (accountType.Contains("Liabilit", StringComparison.OrdinalIgnoreCase) || accountType.Equals("Payable", StringComparison.OrdinalIgnoreCase))
             {
                 liabilities.Add(item);
             }
-            else if (t.Contains("Equity", StringComparison.OrdinalIgnoreCase) || t.Equals("Capital", StringComparison.OrdinalIgnoreCase))
+            else if (accountType.Contains("Equity", StringComparison.OrdinalIgnoreCase) || accountType.Equals("Capital", StringComparison.OrdinalIgnoreCase))
             {
                 equities.Add(item);
             }
