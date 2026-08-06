@@ -25,7 +25,7 @@ public class UpdateService
     /// </summary>
     /// <param name="githubUser">Username atau Organisasi GitHub</param>
     /// <param name="githubRepo">Nama Repositori GitHub</param>
-    /// <param name="isSilent">Jika true, langsung mengunduh & menginstal tanpa dialog pertanyaan</param>
+    /// <param name="isSilent">Jika true, langsung mengunduh dan menginstal tanpa dialog pertanyaan</param>
     public async Task CheckAndInstallUpdateAsync(string githubUser, string githubRepo, bool isSilent = true)
     {
         try
@@ -35,7 +35,8 @@ public class UpdateService
 
             if (!response.IsSuccessStatusCode) return;
 
-            string json = await response.ContentReadAsStringAsync();
+            // FIX CS1061: Menggunakan response.Content.ReadAsStringAsync()
+            string json = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
@@ -86,7 +87,8 @@ public class UpdateService
                                 var currentPage = Application.Current?.Windows[0]?.Page;
                                 if (currentPage != null)
                                 {
-                                    return await currentPage.DisplayAlert(
+                                    // FIX CS0618: Menggunakan DisplayAlertAsync
+                                    return await currentPage.DisplayAlertAsync(
                                         "Pembaruan AumoFinance",
                                         $"Versi baru (v{latestVersionStr}) telah tersedia. Apakah Anda ingin memperbarui sekarang?",
                                         "Ya, Unduh",
@@ -110,7 +112,8 @@ public class UpdateService
                         var currentPage = Application.Current?.Windows[0]?.Page;
                         if (currentPage != null)
                         {
-                            await currentPage.DisplayAlert("AumoFinance", "Aplikasi Anda sudah menggunakan versi terbaru.", "OK");
+                            // FIX CS0618: Menggunakan DisplayAlertAsync
+                            await currentPage.DisplayAlertAsync("AumoFinance", "Aplikasi Anda sudah menggunakan versi terbaru.", "OK");
                         }
                     });
                 }
@@ -167,7 +170,9 @@ public class UpdateService
 
         // Buka Installer bawaan Android menggunakan FileProvider
         var apkFile = new Java.IO.File(filePath);
-        var apkUri = androidx.core.content.FileProvider.GetUriForFile(
+        
+        // FIX CS0103: Menggunakan AndroidX dengan huruf A kapital
+        var apkUri = AndroidX.Core.Content.FileProvider.GetUriForFile(
             context,
             $"{context.PackageName}.fileprovider",
             apkFile);
@@ -180,4 +185,4 @@ public class UpdateService
         context.StartActivity(installIntent);
     }
 #endif
-}
+    }

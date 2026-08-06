@@ -76,13 +76,15 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                await DisplayAlert("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
+                // FIX CS0618: Menggunakan DisplayAlertAsync
+                await this.DisplayAlertAsync("Koneksi Gagal", "Gagal mengambil data dari server web.", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await DisplayAlert("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+            // FIX CS0618: Menggunakan DisplayAlertAsync
+            await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
         finally
         {
@@ -102,13 +104,8 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(new JournalEntryPage());
     }
 
-    // ==============================================================
-    // HANDLER EVENT UNTUK AUTO-UPDATE GITHUB
-    // ==============================================================
-
     private void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
     {
-        // Simpan preferensi pengguna saat Switch diubah
         Preferences.Default.Set("AutoUpdateEnabled", e.Value);
     }
 
@@ -117,14 +114,13 @@ public partial class MainPage : ContentPage
         try
         {
             var updateService = new UpdateService();
-
-            // GANTI "USERNAME_GITHUB_ANDA" dan "AumoFinance" sesuai repositori GitHub Anda
-            await updateService.CheckAndInstallUpdateAsync("rdmmoonlight", "AumoFinance");
+            await updateService.CheckAndInstallUpdateAsync("rdmmoonlight", "aumo-finance-android", isSilent: false);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Manual update check error: {ex}");
-            await DisplayAlert("Error", "Gagal memeriksa pembaruan.", "OK");
+            // FIX CS0618: Menggunakan DisplayAlertAsync
+            await this.DisplayAlertAsync("Error", "Gagal memeriksa pembaruan.", "OK");
         }
     }
 }
