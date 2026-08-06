@@ -119,7 +119,7 @@ public partial class MainPage : ContentPage
             var updateService = new UpdateService();
 
             // GANTI "USERNAME_GITHUB_ANDA" dan "AumoFinance" sesuai repositori GitHub Anda
-            await updateService.CheckAndInstallUpdateAsync("USERNAME_GITHUB_ANDA", "AumoFinance");
+            await updateService.CheckAndInstallUpdateAsync("rdmmoonlight", "AumoFinance");
         }
         catch (Exception ex)
         {
