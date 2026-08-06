@@ -134,7 +134,7 @@ public class UpdateService
                 var onCompleteReceiver = new DownloadCompleteReceiver(downloadId, fileName);
                 context.RegisterReceiver(
                     onCompleteReceiver, 
-                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadCompleted), 
+                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete), 
                     Android.Content.ReceiverFlags.Exported);
             }
         }
