@@ -1,4 +1,5 @@
 using AumoFinance.Pages;
+using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
