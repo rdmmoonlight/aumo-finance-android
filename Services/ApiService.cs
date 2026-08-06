@@ -15,7 +15,7 @@ public class ApiService
 {
     // Base URL Backend Web ASP.NET Core Anda (misal Railway / VPS / Localhost)
     // Silakan ganti sesuai URL publik server web Anda
-    public const string BaseUrl = "https://aumo-finance-web.up.railway.app"; 
+    public const string BaseUrl = "https://aumo-preview.up.railway.app"; 
 
     private static readonly HttpClient _httpClient = new HttpClient
     {
