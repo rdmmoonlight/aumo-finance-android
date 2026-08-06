@@ -12,6 +12,22 @@ using AumoFinance.Models;
 
 namespace AumoFinance.Services;
 
+// DTO untuk pembuatan jurnal
+public class CreateJournalDto
+{
+    public DateTime EntryDate { get; set; } = DateTime.Now;
+    public string? JournalType { get; set; } = "General";
+    public List<CreateJournalLineDto>? Lines { get; set; } = new();
+}
+
+public class CreateJournalLineDto
+{
+    public int AccountId { get; set; }
+    public string? LineDescription { get; set; }
+    public decimal Debit { get; set; }
+    public decimal Credit { get; set; }
+}
+
 public class ApiService
 {
     // Public Base URL of your ASP.NET Core Web Backend
@@ -207,7 +223,32 @@ public class ApiService
     }
 
     // ==========================================
-    // 5. LOGOUT
+    // 5. GET DASHBOARD DATA
+    // ==========================================
+    public async Task<object?> GetDashboardAsync()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/dashboard");
+
+            using var response = await _httpClient.SendAsync(request, cts.Token);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync(cts.Token);
+                return JsonSerializer.Deserialize<object>(content, _jsonOptions);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"GetDashboardAsync Error: {ex.Message}");
+        }
+
+        return null;
+    }
+
+    // ==========================================
+    // 6. LOGOUT
     // ==========================================
     public void Logout()
     {
