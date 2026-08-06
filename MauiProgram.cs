@@ -23,7 +23,7 @@ public static class MauiProgram
 #endif
 
         // Ambil connection string dari Environment Variable atau set string default
-        string connectionString = Environment.GetEnvironmentVariable("NEON_CONNECTION_STRING") 
+        string connectionString = Environment.GetEnvironmentVariable("NEON_CONNECTION_STRING")
             ?? "Host=YOUR_HOST;Database=YOUR_DB;Username=YOUR_USER;Password=YOUR_PASSWORD";
 
         builder.Services.AddSingleton<ApiService>();
