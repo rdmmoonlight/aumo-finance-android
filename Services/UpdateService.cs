@@ -133,8 +133,8 @@ public class UpdateService
                 // Register BroadcastReceiver untuk menangkap event saat download selesai lalu eksekusi install
                 var onCompleteReceiver = new DownloadCompleteReceiver(downloadId, fileName);
                 context.RegisterReceiver(
-                    onCompleteReceiver,
-                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadCompleted),
+                    onCompleteReceiver, 
+                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete), 
                     Android.Content.ReceiverFlags.Exported);
             }
         }
