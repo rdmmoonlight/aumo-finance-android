@@ -54,36 +54,36 @@ public partial class StatementOfFinancialPositionPage : ContentPage
             }
 
             var assets = trialBalanceRows
-                .Where(r => r.Type.Equals("Asset", StringComparison.OrdinalIgnoreCase) || 
-                            r.Type.Equals("CurrentAsset", StringComparison.OrdinalIgnoreCase) || 
-                            r.Type.Equals("Cash", StringComparison.OrdinalIgnoreCase) || 
-                            r.Type.Equals("NonCurrentAsset", StringComparison.OrdinalIgnoreCase) || 
+                .Where(r => r.Type.Equals("Asset", StringComparison.OrdinalIgnoreCase) ||
+                            r.Type.Equals("CurrentAsset", StringComparison.OrdinalIgnoreCase) ||
+                            r.Type.Equals("Cash", StringComparison.OrdinalIgnoreCase) ||
+                            r.Type.Equals("NonCurrentAsset", StringComparison.OrdinalIgnoreCase) ||
                             r.Type.Equals("FixedAsset", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new FinancialPositionLineModel 
-                { 
-                    ReferenceNumber = r.ReferenceNumber.ToString(), 
-                    AccountName = r.AccountName, 
-                    Amount = r.NetBalance 
+                .Select(r => new FinancialPositionLineModel
+                {
+                    ReferenceNumber = r.ReferenceNumber.ToString(),
+                    AccountName = r.AccountName,
+                    Amount = r.NetBalance
                 }).ToList();
 
             var liabilities = trialBalanceRows
-                .Where(r => r.Type.Equals("Liability", StringComparison.OrdinalIgnoreCase) || 
-                            r.Type.Equals("CurrentLiability", StringComparison.OrdinalIgnoreCase) || 
+                .Where(r => r.Type.Equals("Liability", StringComparison.OrdinalIgnoreCase) ||
+                            r.Type.Equals("CurrentLiability", StringComparison.OrdinalIgnoreCase) ||
                             r.Type.Equals("NonCurrentLiability", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new FinancialPositionLineModel 
-                { 
-                    ReferenceNumber = r.ReferenceNumber.ToString(), 
-                    AccountName = r.AccountName, 
-                    Amount = Math.Abs(r.NetBalance) 
+                .Select(r => new FinancialPositionLineModel
+                {
+                    ReferenceNumber = r.ReferenceNumber.ToString(),
+                    AccountName = r.AccountName,
+                    Amount = Math.Abs(r.NetBalance)
                 }).ToList();
 
             var equities = trialBalanceRows
                 .Where(r => r.Type.Equals("Equity", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new FinancialPositionLineModel 
-                { 
-                    ReferenceNumber = r.ReferenceNumber.ToString(), 
-                    AccountName = r.AccountName, 
-                    Amount = Math.Abs(r.NetBalance) 
+                .Select(r => new FinancialPositionLineModel
+                {
+                    ReferenceNumber = r.ReferenceNumber.ToString(),
+                    AccountName = r.AccountName,
+                    Amount = Math.Abs(r.NetBalance)
                 }).ToList();
 
             decimal totalAssets = assets.Sum(r => r.Amount);
