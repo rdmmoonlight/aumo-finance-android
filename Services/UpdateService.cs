@@ -153,7 +153,7 @@ public class UpdateService
         var context = Android.App.Application.Context;
 
         // Cek Izin Install Unknown Apps untuk Android 8.0+ (API 26+)
-        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+        if (OperatingSystem.IsAndroidVersionAtLeast(26))
         {
             if (!context.PackageManager!.CanRequestPackageInstalls())
             {
