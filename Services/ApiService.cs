@@ -264,6 +264,91 @@ public class ApiService
         SecureStorage.Default.Remove(AuthTokenKey);
     }
 
+    // ==========================================
+    // 7. GET PERIODS
+    // ==========================================
+    public async Task<(List<PeriodApiModel> data, string? errorDetail)> GetPeriodsAsync()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/periods");
+
+            using var response = await _httpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var periods = JsonSerializer.Deserialize<List<PeriodApiModel>>(content, _jsonOptions) ?? new();
+                return (periods, null);
+            }
+
+            var snippet = content.Length > 150 ? content[..150] : content;
+            return (new List<PeriodApiModel>(), $"HTTP {(int)response.StatusCode} ({response.StatusCode}) — {snippet}");
+        }
+        catch (TaskCanceledException)
+        {
+            return (new List<PeriodApiModel>(), "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+        }
+        catch (Exception ex)
+        {
+            return (new List<PeriodApiModel>(), $"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    // ==========================================
+    // 8. SELECT PERIOD (VIEW)
+    // ==========================================
+    public async Task<(bool success, string message)> SelectPeriodAsync(int periodId)
+    {
+        return await PostPeriodActionAsync($"/api/mobile/periods/{periodId}/select");
+    }
+
+    // ==========================================
+    // 9. CLEAR PERIOD SELECTION (STOP VIEWING)
+    // ==========================================
+    public async Task<(bool success, string message)> ClearPeriodSelectionAsync()
+    {
+        return await PostPeriodActionAsync("/api/mobile/periods/clear-selection");
+    }
+
+    // ==========================================
+    // 10. CLOSE PERIOD
+    // ==========================================
+    public async Task<(bool success, string message)> ClosePeriodAsync(int periodId)
+    {
+        return await PostPeriodActionAsync($"/api/mobile/periods/{periodId}/close");
+    }
+
+    // Helper bersama untuk aksi POST periode (select/clear/close) yang polanya identik.
+    private async Task<(bool success, string message)> PostPeriodActionAsync(string requestUri)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, requestUri);
+
+            using var response = await _httpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+            var apiRes = JsonSerializer.Deserialize<ApiResponseModel>(content, _jsonOptions);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, apiRes?.Message ?? "Berhasil.");
+            }
+
+            return (false, apiRes?.Message ?? $"HTTP {(int)response.StatusCode} ({response.StatusCode}).");
+        }
+        catch (TaskCanceledException)
+        {
+            return (false, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
     // Internal DTO models for JSON Deserialization
     private class MobileLoginResponse
     {

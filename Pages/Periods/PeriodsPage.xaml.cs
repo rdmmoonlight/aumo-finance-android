@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using Microsoft.EntityFrameworkCore;
 using AumoFinance.Services;
 using AumoFinance.Models;
 
@@ -11,14 +10,12 @@ namespace AumoFinance.Pages;
 
 public partial class PeriodsPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly ApiService _apiService;
 
-    public PeriodsPage(AccountingService accountingService, Guid currentUserId)
+    public PeriodsPage(ApiService apiService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _apiService = apiService;
     }
 
     protected override async void OnAppearing()
@@ -38,12 +35,15 @@ public partial class PeriodsPage : ContentPage
 
         try
         {
-            var periods = await _accountingService.DbContext.Periods
-                .Where(p => p.UserId == _currentUserId)
-                .OrderByDescending(p => p.StartDate)
-                .ToListAsync();
+            var (periods, errorDetail) = await _apiService.GetPeriodsAsync();
 
-            var selectedPeriodId = (await SelectedPeriodHelper.GetSelectedPeriodAsync(_accountingService.DbContext, _currentUserId))?.Id;
+            if (errorDetail != null)
+            {
+                await DisplayAlertAsync("Koneksi Gagal", $"Gagal memuat periode dari server.\n\nDetail: {errorDetail}", "OK");
+                return;
+            }
+
+            var selectedPeriodId = periods.FirstOrDefault(p => p.IsSelected)?.Id;
 
             if (selectedPeriodId != null)
             {
@@ -95,34 +95,22 @@ public partial class PeriodsPage : ContentPage
     {
         if (sender is Button btn && btn.CommandParameter is int periodId)
         {
-            try
+            var (success, message) = await _apiService.SelectPeriodAsync(periodId);
+            ShowAlert(message, success);
+            if (success)
             {
-                var entity = await _accountingService.DbContext.Periods.FirstOrDefaultAsync(p => p.Id == periodId && p.UserId == _currentUserId);
-                if (entity != null)
-                {
-                    await SelectedPeriodHelper.SelectPeriodAsync(_accountingService.DbContext, _currentUserId, entity.Id);
-                    ShowAlert($"Berhasil melihat periode {entity.PeriodName}", success: true);
-                    await LoadPeriodsAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowAlert($"Gagal memilih periode: {ex.Message}", success: false);
+                await LoadPeriodsAsync();
             }
         }
     }
 
     private async void OnStopViewingClicked(object? sender, EventArgs e)
     {
-        try
+        var (success, message) = await _apiService.ClearPeriodSelectionAsync();
+        ShowAlert(message, success);
+        if (success)
         {
-            await SelectedPeriodHelper.ClearSelectionAsync(_accountingService.DbContext, _currentUserId);
-            ShowAlert("Berhenti melihat periode. Laporan disembunyikan.", success: true);
             await LoadPeriodsAsync();
-        }
-        catch (Exception ex)
-        {
-            ShowAlert($"Gagal: {ex.Message}", success: false);
         }
     }
 
@@ -130,22 +118,14 @@ public partial class PeriodsPage : ContentPage
     {
         if (sender is Button btn && btn.CommandParameter is int periodId)
         {
-            var entity = await _accountingService.DbContext.Periods.FirstOrDefaultAsync(p => p.Id == periodId && p.UserId == _currentUserId);
-            if (entity == null || entity.IsClosed) return;
-
-            bool confirm = await DisplayAlertAsync("Konfirmasi Tutup Buku", $"Apakah Anda yakin ingin menutup periode {entity.PeriodName}? Tindakan ini akan mengunci transaksi.", "Ya, Tutup", "Batal");
+            bool confirm = await DisplayAlertAsync("Konfirmasi Tutup Buku", "Apakah Anda yakin ingin menutup periode ini? Tindakan ini akan mengunci transaksi.", "Ya, Tutup", "Batal");
             if (confirm)
             {
-                try
+                var (success, message) = await _apiService.ClosePeriodAsync(periodId);
+                ShowAlert(message, success);
+                if (success)
                 {
-                    entity.IsClosed = true;
-                    await _accountingService.DbContext.SaveChangesAsync();
-                    ShowAlert($"Periode {entity.PeriodName} berhasil ditutup.", success: true);
                     await LoadPeriodsAsync();
-                }
-                catch (Exception ex)
-                {
-                    ShowAlert($"Gagal menutup periode: {ex.Message}", success: false);
                 }
             }
         }
