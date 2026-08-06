@@ -13,5 +13,4 @@ public class AppDbContext : DbContext
     public DbSet<ChartOfAccount> ChartOfAccounts => Set<ChartOfAccount>();
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<JournalEntryLine> JournalEntryLines => Set<JournalEntryLine>();
-    public DbSet<SelectedPeriod> SelectedPeriods => Set<SelectedPeriod>();
 }
