@@ -89,7 +89,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         Period period,
         bool isPostClosing = false)
     {
-        // Logika perhitungan data neraca
+        // Ambil COA aktif milik user
         var accounts = await dbContext.ChartOfAccounts
             .Where(a => a.IsActive && a.UserId == currentUserId)
             .OrderBy(a => a.ReferenceNumber)
@@ -97,6 +97,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
 
         var accountIds = accounts.Select(a => a.Id).ToList();
 
+        // Ambil transaksi baris jurnal hingga akhir periode
         var lines = await dbContext.JournalEntryLines
             .Include(l => l.JournalEntry)
             .Where(l => accountIds.Contains(l.AccountId)
@@ -126,9 +127,20 @@ public partial class StatementOfFinancialPositionPage : ContentPage
                 Amount = Math.Abs(net)
             };
 
-            if (AccountClassification.IsAsset(acc.Type)) assets.Add(item);
-            else if (AccountClassification.IsLiability(acc.Type)) liabilities.Add(item);
-            else if (AccountClassification.IsEquity(acc.Type)) equities.Add(item);
+            // Pengecekan Kategori berdasarkan String acc.Type (Tanpa memanggil method IsAsset yang hilang)
+            string t = acc.Type ?? string.Empty;
+            if (t.Contains("Asset", StringComparison.OrdinalIgnoreCase) || t.Equals("Cash", StringComparison.OrdinalIgnoreCase))
+            {
+                assets.Add(item);
+            }
+            else if (t.Contains("Liabilit", StringComparison.OrdinalIgnoreCase) || t.Equals("Payable", StringComparison.OrdinalIgnoreCase))
+            {
+                liabilities.Add(item);
+            }
+            else if (t.Contains("Equity", StringComparison.OrdinalIgnoreCase) || t.Equals("Capital", StringComparison.OrdinalIgnoreCase))
+            {
+                equities.Add(item);
+            }
         }
 
         decimal totalAssets = assets.Sum(a => a.Amount);
