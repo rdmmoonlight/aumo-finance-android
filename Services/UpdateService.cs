@@ -130,22 +130,10 @@ public class UpdateService
             if (downloadId != -1)
             {
                 var onCompleteReceiver = new DownloadCompleteReceiver(downloadId, fileName);
-                var filter = new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete);
-
-#pragma warning disable CA1416
-                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu) // API 33+
-                {
-                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.Exported);
-                }
-                else if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O) // API 26-32 (termasuk Android 9 API 28)
-                {
-                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.NotExported);
-                }
-                else // API < 26
-                {
-                    context.RegisterReceiver(onCompleteReceiver, filter);
-                }
-#pragma warning restore CA1416
+                context.RegisterReceiver(
+                    onCompleteReceiver,
+                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete),
+                    Android.Content.ReceiverFlags.Exported);
             }
         }
         catch (Exception ex)
