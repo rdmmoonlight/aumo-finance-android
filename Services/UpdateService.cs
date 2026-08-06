@@ -1,6 +1,13 @@
+using System;
+using System.IO;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
 
-namespace Aumo.Services; // Sesuaikan jika namespace root proyek Anda berbeda (misal: AumoApp.Services)
+namespace AumoFinance.Services;
 
 public class UpdateService
 {
@@ -9,20 +16,20 @@ public class UpdateService
     public UpdateService()
     {
         _httpClient = new HttpClient();
-        // GitHub API WAJIB menyertakan User-Agent
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "Aumo-AutoUpdater");
+        // Header User-Agent wajib diisi untuk request ke GitHub REST API
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "AumoFinance-AutoUpdater");
     }
 
     /// <summary>
-    /// Memeriksa ke GitHub Releases dan memicu update jika ada versi baru.
+    /// Memeriksa ke GitHub Releases dan memicu instalasi jika ada versi baru.
     /// </summary>
-    /// <param name="githubUser">Username atau Nama Organisasi GitHub pemilik repositori Aumo</param>
-    /// <param name="githubRepo">Nama Repositori (misal: "Aumo" atau "aumo-app")</param>
-    public async Task CheckAndInstallUpdateAsync(string githubUser, string githubRepo)
+    /// <param name="githubUser">Username atau Organisasi GitHub</param>
+    /// <param name="githubRepo">Nama Repositori GitHub</param>
+    /// <param name="isSilent">Jika true, langsung mengunduh & menginstal tanpa dialog pertanyaan</param>
+    public async Task CheckAndInstallUpdateAsync(string githubUser, string githubRepo, bool isSilent = true)
     {
         try
         {
-            // 1. Panggil API GitHub Release Terbaru
             string apiUrl = $"https://api.github.com/repos/{githubUser}/{githubRepo}/releases/latest";
             var response = await _httpClient.GetAsync(apiUrl);
 
@@ -32,7 +39,7 @@ public class UpdateService
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            // 2. Ambil tag_name dari YAML (misal: "v26.8.105" -> diubah jadi "26.8.105")
+            // 1. Ambil tag_name dari GitHub Release (misal: "v26.8.105" -> ubah jadi "26.8.105")
             string rawTag = root.GetProperty("tag_name").GetString() ?? "";
             string latestVersionStr = rawTag.StartsWith("v", StringComparison.OrdinalIgnoreCase) 
                 ? rawTag.Substring(1) 
@@ -40,13 +47,13 @@ public class UpdateService
 
             string currentVersionStr = AppInfo.Current.VersionString;
 
-            // 3. Bandingkan Versi CalVer (26.8.BUILD)
+            // 2. Bandingkan versi saat ini dengan versi di GitHub
             if (Version.TryParse(latestVersionStr, out var latestVersion) && 
                 Version.TryParse(currentVersionStr, out var currentVersion))
             {
                 if (latestVersion > currentVersion)
                 {
-                    // 4. Cari URL download file *-Signed.apk dari daftar assets GitHub Release
+                    // 3. Cari URL download file APK dari daftar assets
                     string apkDownloadUrl = string.Empty;
                     
                     if (root.TryGetProperty("assets", out var assetsElement) && assetsElement.ValueKind == JsonValueKind.Array)
@@ -55,7 +62,7 @@ public class UpdateService
                         {
                             string fileName = asset.GetProperty("name").GetString() ?? "";
                             
-                            // Mencari file APK yang dihasilkan dari dotnet publish
+                            // Mencari file APK yang dihasilkan dari dotnet publish pipeline YAML
                             if (fileName.EndsWith(".apk", StringComparison.OrdinalIgnoreCase))
                             {
                                 apkDownloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
@@ -66,27 +73,52 @@ public class UpdateService
 
                     if (!string.IsNullOrEmpty(apkDownloadUrl))
                     {
-                        // 5. Tampilkan Dialog Konfirmasi Update
-                        bool userChoice = await MainThread.InvokeOnMainThreadAsync(async () =>
+                        if (isSilent)
                         {
-                            return await Shell.Current.DisplayAlert(
-                                "Pembaruan Aumo",
-                                $"Versi baru (v{latestVersionStr}) telah tersedia. Apakah Anda ingin memperbarui sekarang?",
-                                "Ya, Unduh",
-                                "Nanti");
-                        });
-
-                        if (userChoice)
-                        {
+                            // AUTO UPDATE ON: Langsung unduh & panggil installer tanpa tanya
                             await DownloadAndInstallApkAsync(apkDownloadUrl);
                         }
+                        else
+                        {
+                            // CHECK MANUAL: Tampilkan dialog konfirmasi ke pengguna
+                            bool userChoice = await MainThread.InvokeOnMainThreadAsync(async () =>
+                            {
+                                var currentPage = Application.Current?.Windows[0]?.Page;
+                                if (currentPage != null)
+                                {
+                                    return await currentPage.DisplayAlert(
+                                        "Pembaruan AumoFinance",
+                                        $"Versi baru (v{latestVersionStr}) telah tersedia. Apakah Anda ingin memperbarui sekarang?",
+                                        "Ya, Unduh",
+                                        "Nanti");
+                                }
+                                return false;
+                            });
+
+                            if (userChoice)
+                            {
+                                await DownloadAndInstallApkAsync(apkDownloadUrl);
+                            }
+                        }
                     }
+                }
+                else if (!isSilent)
+                {
+                    // Jika pengecekan manual dan aplikasi sudah versi terbaru
+                    await MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var currentPage = Application.Current?.Windows[0]?.Page;
+                        if (currentPage != null)
+                        {
+                            await currentPage.DisplayAlert("AumoFinance", "Aplikasi Anda sudah menggunakan versi terbaru.", "OK");
+                        }
+                    });
                 }
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[Aumo AutoUpdate Error] {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AumoFinance AutoUpdate Error] {ex.Message}");
         }
     }
 
@@ -98,16 +130,16 @@ public class UpdateService
             string fileName = "aumo_update.apk";
             string filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
 
-            // Unduh file APK ke folder cache lokal
+            // Unduh file APK ke cache lokal
             var apkBytes = await _httpClient.GetByteArrayAsync(apkUrl);
             await File.WriteAllBytesAsync(filePath, apkBytes);
 
-            // Jalankan instalasi via platform Android
+            // Eksekusi installer Android
             InstallApkOnAndroid(filePath);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[Aumo Download Error] {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[AumoFinance Download Error] {ex.Message}");
         }
 #else
         await Task.CompletedTask;
@@ -119,7 +151,7 @@ public class UpdateService
     {
         var context = Android.App.Application.Context;
 
-        // Cek Izin Install dari Sumber Tidak Dikenal pada Android 8.0+ (API 26+)
+        // Cek Izin Install Unknown Apps untuk Android 8.0+ (API 26+)
         if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
         {
             if (!context.PackageManager!.CanRequestPackageInstalls())
@@ -133,7 +165,7 @@ public class UpdateService
             }
         }
 
-        // Buka Installer Sistem Android menggunakan FileProvider
+        // Buka Installer bawaan Android menggunakan FileProvider
         var apkFile = new Java.IO.File(filePath);
         var apkUri = androidx.core.content.FileProvider.GetUriForFile(
             context,
