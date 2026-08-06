@@ -134,8 +134,15 @@ public class UpdateService
             var apkBytes = await _httpClient.GetByteArrayAsync(apkUrl);
             await File.WriteAllBytesAsync(filePath, apkBytes);
 
-            // Eksekusi installer Android
-            InstallApkOnAndroid(filePath);
+            // Eksekusi installer Android (memerlukan API 26+)
+            if (OperatingSystem.IsAndroidVersionAtLeast(26))
+            {
+                InstallApkOnAndroid(filePath);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[AumoFinance] Auto-install APK memerlukan Android 8.0 (API 26) ke atas.");
+            }
         }
         catch (Exception ex)
         {
