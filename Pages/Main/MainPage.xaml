@@ -5,15 +5,13 @@
              x:Class="AumoFinance.Pages.MainPage"
              BackgroundColor="#0F172A">
 
-    <!-- Gunakan Grid untuk menumpuk Konten Utama dan Floating Action Buttons di atasnya -->
     <Grid>
-
         <Grid RowDefinitions="Auto, *">
-
+            
             <!-- Top Bar Component -->
             <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
-            <!-- Indikator Loading -->
+            <!-- Loading Indicator -->
             <ActivityIndicator x:Name="LoadingIndicator"
                                Grid.Row="1"
                                Color="#4F46E5"
@@ -22,14 +20,27 @@
                                VerticalOptions="Center"
                                HorizontalOptions="Center" />
 
-            <!-- Area Konten Utama Dashboard -->
-            <ScrollView x:Name="DashboardContent" Grid.Row="1" Padding="20,10,20,90">
-                <VerticalStackLayout Spacing="20">
+            <!-- Main Home Content -->
+            <ScrollView x:Name="HomeContent" Grid.Row="1" Padding="20,20,20,90">
+                <VerticalStackLayout Spacing="24">
 
-                    <!-- Card Utama: Kas Saat Ini (Hero Card) -->
+                    <!-- Greetings Section -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label x:Name="GreetingLabel"
+                               Text="Good Morning,"
+                               TextColor="#94A3B8"
+                               FontSize="16" />
+                        <Label x:Name="UserNameLabel"
+                               Text="Tri Wahyu Abdul Ghofur"
+                               TextColor="White"
+                               FontAttributes="Bold"
+                               FontSize="24" />
+                    </VerticalStackLayout>
+
+                    <!-- Quick Balance Card (Hero) -->
                     <Border StrokeShape="RoundRectangle 20"
                             StrokeThickness="0"
-                            Padding="20">
+                            Padding="24">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                 <GradientStop Color="#4F46E5" Offset="0.0" />
@@ -40,125 +51,73 @@
                             <Shadow Brush="#4F46E5" Offset="0,8" Radius="15" Opacity="0.3" />
                         </Border.Shadow>
 
-                        <VerticalStackLayout Spacing="6">
-                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                                <Label Text="Saldo Kas Dan Bank"
-                                       TextColor="#E0E7FF"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       CharacterSpacing="1" />
-                            </HorizontalStackLayout>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="TOTAL BALANCE"
+                                   TextColor="#E0E7FF"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   CharacterSpacing="1" />
                             <Label x:Name="CashLabel"
-                                   Text="Rp 0"
-                                   FontSize="32"
+                                   Text="$0.00"
+                                   FontSize="36"
                                    FontAttributes="Bold"
                                    TextColor="White" />
                         </VerticalStackLayout>
                     </Border>
 
-                    <!-- Card Laba Bersih -->
-                    <Border BackgroundColor="#1E293B"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 16"
-                            Padding="18">
-                        <Border.Shadow>
-                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
-                        </Border.Shadow>
-
-                        <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                            <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                <Label Text="Laba Bersih"
-                                       TextColor="#94A3B8"
-                                       FontSize="11"
-                                       FontAttributes="Bold"
-                                       CharacterSpacing="0.8" />
-                                <Label x:Name="NetIncomeLabel"
-                                       Text="Rp 0"
-                                       FontSize="22"
-                                       FontAttributes="Bold"
-                                       TextColor="#4ADE80" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </Border>
-
-                    <!-- Grid Pendapatan & Beban -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-                        
-                        <!-- Card Pendapatan -->
-                        <Border Grid.Column="0"
+                    <!-- Quick Actions Grid -->
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
+                        <!-- Go To Dashboard Button -->
+                        <Button Grid.Column="0"
+                                Text="📊 Dashboard"
                                 BackgroundColor="#1E293B"
-                                Stroke="#334155"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 16"
-                                Padding="14">
-                            <VerticalStackLayout Spacing="6">
-                                <HorizontalStackLayout Spacing="6">
-                                    <Label Text="Pendapatan"
-                                           TextColor="#94A3B8"
-                                           FontSize="10"
-                                           FontAttributes="Bold" />
-                                </HorizontalStackLayout>
-                                <Label x:Name="RevenueLabel"
-                                       Text="Rp 0"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="#38BDF8" />
-                            </VerticalStackLayout>
-                        </Border>
+                                TextColor="#38BDF8"
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                CornerRadius="12"
+                                HeightRequest="56"
+                                Clicked="OnDashboardFabClicked" />
 
-                        <!-- Card Pengeluaran / Beban -->
-                        <Border Grid.Column="1"
-                                BackgroundColor="#1E293B"
-                                Stroke="#334155"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 16"
-                                Padding="14">
-                            <VerticalStackLayout Spacing="6">
-                                <HorizontalStackLayout Spacing="6">
-                                    <Label Text="Pengeluaran"
-                                           TextColor="#94A3B8"
-                                           FontSize="10"
-                                           FontAttributes="Bold" />
-                                </HorizontalStackLayout>
-                                <Label x:Name="ExpenseLabel"
-                                       Text="Rp 0"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="#F87171" />
-                            </VerticalStackLayout>
-                        </Border>
+                        <!-- Go To New Entry Button -->
+                        <Button Grid.Column="1"
+                                Text="➕ New Entry"
+                                BackgroundColor="#2563EB"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                CornerRadius="12"
+                                HeightRequest="56"
+                                Clicked="OnPrimaryFabClicked" />
                     </Grid>
 
-                    <!-- CARD PENGATURAN PEMBARUAN APLIKASI (AUTO UPDATE) -->
+                    <!-- SYSTEM UPDATES CARD -->
                     <Border BackgroundColor="#1E293B"
                             Stroke="#334155"
                             StrokeThickness="1"
                             StrokeShape="RoundRectangle 16"
-                            Padding="16">
+                            Padding="16"
+                            Margin="0,20,0,0">
                         <Border.Shadow>
                             <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
                         </Border.Shadow>
 
                         <VerticalStackLayout Spacing="12">
-                            <Label Text="Pembaruan Sistem"
+                            <Label Text="SYSTEM SETTINGS"
                                    TextColor="#94A3B8"
                                    FontSize="11"
                                    FontAttributes="Bold"
                                    CharacterSpacing="0.8" />
 
-                            <!-- Baris Switch Auto-Update -->
                             <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
                                 <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                    <Label Text="Auto Update dari GitHub"
+                                    <Label Text="Auto-Update from GitHub"
                                            TextColor="White"
                                            FontSize="13"
                                            FontAttributes="Bold" />
-                                    <Label Text="Cek versi baru otomatis saat aplikasi dibuka"
+                                    <Label Text="Keep app up to date automatically"
                                            TextColor="#64748B"
                                            FontSize="10" />
                                 </VerticalStackLayout>
-
                                 <Switch x:Name="AutoUpdateSwitch"
                                         Grid.Column="1"
                                         OnColor="#4F46E5"
@@ -166,8 +125,7 @@
                                         Toggled="OnAutoUpdateToggled" />
                             </Grid>
 
-                            <!-- Tombol Cek Update Manual -->
-                            <Button Text="Cek Versi Baru"
+                            <Button Text="Check for Updates"
                                     BackgroundColor="#334155"
                                     TextColor="#38BDF8"
                                     FontAttributes="Bold"
@@ -180,17 +138,14 @@
 
                 </VerticalStackLayout>
             </ScrollView>
-
         </Grid>
 
-        <!-- FLOATING ACTION BUTTONS (FAB) DI POJOK KANAN BAWAH -->
+        <!-- FLOATING ACTION BUTTON (Minimalist for Homepage) -->
         <VerticalStackLayout VerticalOptions="End" 
                              HorizontalOptions="End" 
                              Margin="0,0,20,24" 
-                             Spacing="10"
                              ZIndex="999">
-
-            <!-- Tombol Kedua (Muat Ulang / Refresh Data) -->
+            <!-- Just one FAB for Refresh on the Homepage -->
             <Button Text="🔄 Refresh"
                     BackgroundColor="#334155"
                     TextColor="White"
@@ -204,24 +159,6 @@
                     <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.3" />
                 </Button.Shadow>
             </Button>
-
-            <!-- Tombol Pertama (Utama: Input Jurnal Cepat) -->
-            <Button Text="➕ Jurnal"
-                    BackgroundColor="#2563EB"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    FontSize="13"
-                    CornerRadius="24"
-                    HeightRequest="48"
-                    Padding="18,0"
-                    Clicked="OnPrimaryFabClicked">
-                <Button.Shadow>
-                    <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.4" />
-                </Button.Shadow>
-            </Button>
-
         </VerticalStackLayout>
-
     </Grid>
-
 </ContentPage>
