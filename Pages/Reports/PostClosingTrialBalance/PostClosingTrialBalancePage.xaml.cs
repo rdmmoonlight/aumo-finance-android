@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
-using AumoFinance.Models;
+using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages;
 
 public partial class PostClosingTrialBalancePage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly TrialBalanceService _trialBalanceService;
 
-    public PostClosingTrialBalancePage(AccountingService accountingService, Guid currentUserId)
+    public PostClosingTrialBalancePage(TrialBalanceService trialBalanceService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _trialBalanceService = trialBalanceService;
     }
 
     protected override async void OnAppearing()
@@ -36,71 +33,43 @@ public partial class PostClosingTrialBalancePage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
-            if (period == null)
+            // Call TrialBalanceService with "post-closing" parameter
+            var (response, errorDetail) = await _trialBalanceService.GetTrialBalanceReportAsync("post-closing");
+
+            if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
+                EmptyStateLabel.Text = errorDetail ?? "Failed to load post-closing trial balance report.";
                 return;
             }
 
-            PeriodNameLabel.Text = period.PeriodName;
-            SubtitleLabel.Text = $"Menampilkan akun permanen per {period.EndDate:MMMM dd, yyyy}";
+            if (!response.HasPeriodSelected)
+            {
+                EmptyStateContainer.IsVisible = true;
+                EmptyStateLabel.Text = "No active period selected.";
+                return;
+            }
 
-            // Ambil SOFP post-closing melalui helper/service
-            var vm = await StatementOfFinancialPositionPage.BuildSofpAsync(_accountingService.DbContext, _currentUserId, period, isPostClosing: true);
+            PeriodNameLabel.Text = response.SelectedPeriodName;
+            SubtitleLabel.Text = response.ReportTitle;
 
             var rows = new List<PostClosingRowModel>();
-            var culture = new System.Globalization.CultureInfo("id-ID");
+            var culture = new System.Globalization.CultureInfo("en-US");
 
-            // 1. Assets
-            foreach (var asset in vm.Assets)
+            if (response.Rows != null)
             {
-                rows.Add(new PostClosingRowModel
+                foreach (var r in response.Rows)
                 {
-                    ReferenceNumber = asset.ReferenceNumber,
-                    AccountName = asset.AccountName,
-                    TypeLabel = "Asset",
-                    DebitAmount = asset.Amount,
-                    CreditAmount = 0
-                });
+                    rows.Add(new PostClosingRowModel
+                    {
+                        ReferenceNumber = r.ReferenceNumber > 0 ? r.ReferenceNumber.ToString() : "-",
+                        AccountName = r.AccountName,
+                        TypeLabel = r.Type,
+                        DebitAmount = r.Debit,
+                        CreditAmount = r.Credit
+                    });
+                }
             }
-
-            // 2. Liabilities
-            foreach (var liab in vm.Liabilities)
-            {
-                rows.Add(new PostClosingRowModel
-                {
-                    ReferenceNumber = liab.ReferenceNumber,
-                    AccountName = liab.AccountName,
-                    TypeLabel = "Liability",
-                    DebitAmount = 0,
-                    CreditAmount = liab.Amount
-                });
-            }
-
-            // 3. Equity excluding Retained Earnings
-            foreach (var eq in vm.EquityExcludingRetainedEarnings)
-            {
-                rows.Add(new PostClosingRowModel
-                {
-                    ReferenceNumber = eq.ReferenceNumber,
-                    AccountName = eq.AccountName,
-                    TypeLabel = "Equity",
-                    DebitAmount = 0,
-                    CreditAmount = eq.Amount
-                });
-            }
-
-            // 4. Retained Earnings (Ending)
-            rows.Add(new PostClosingRowModel
-            {
-                ReferenceNumber = "-",
-                AccountName = $"Retained earnings, {period.EndDate:MMMM d}",
-                TypeLabel = "Equity",
-                DebitAmount = vm.RetainedEarningsEnding < 0 ? Math.Abs(vm.RetainedEarningsEnding) : 0,
-                CreditAmount = vm.RetainedEarningsEnding >= 0 ? vm.RetainedEarningsEnding : 0
-            });
 
             if (!rows.Any())
             {
@@ -108,12 +77,12 @@ public partial class PostClosingTrialBalancePage : ContentPage
                 return;
             }
 
-            decimal totalDebit = rows.Sum(r => r.DebitAmount);
-            decimal totalCredit = rows.Sum(r => r.CreditAmount);
-            bool isBalanced = Math.Round(totalDebit - totalCredit, 2) == 0;
+            decimal totalDebit = response.TotalDebit;
+            decimal totalCredit = response.TotalCredit;
+            bool isBalanced = response.IsBalanced;
 
-            TotalDebitLabel.Text = totalDebit.ToString("N0", culture);
-            TotalCreditLabel.Text = totalCredit.ToString("N0", culture);
+            TotalDebitLabel.Text = totalDebit.ToString("N2", culture);
+            TotalCreditLabel.Text = totalCredit.ToString("N2", culture);
 
             // Status Alert
             BalanceStatusCard.IsVisible = true;
@@ -123,15 +92,15 @@ public partial class PostClosingTrialBalancePage : ContentPage
             BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
             BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
             BalanceStatusText.Text = isBalanced
-                ? "Post-closing trial balance seimbang; buku siap untuk periode berikutnya."
-                : "Post-closing trial balance tidak seimbang! Periksa kembali closing entries.";
+                ? "Post-closing trial balance is balanced; books are ready for the next period."
+                : "Post-closing trial balance is unbalanced! Please review closing entries.";
 
             TrialBalanceCollectionView.ItemsSource = rows;
             TableContainer.IsVisible = true;
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Gagal memuat post-closing trial balance: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Failed to load post-closing trial balance: {ex.Message}", "OK");
         }
         finally
         {
@@ -149,8 +118,8 @@ public class PostClosingRowModel
     public decimal DebitAmount { get; set; }
     public decimal CreditAmount { get; set; }
 
-    private static readonly System.Globalization.CultureInfo Idr = new("id-ID");
+    private static readonly System.Globalization.CultureInfo Usd = new("en-US");
 
-    public string FormattedDebit => DebitAmount > 0 ? DebitAmount.ToString("N0", Idr) : "-";
-    public string FormattedCredit => CreditAmount > 0 ? CreditAmount.ToString("N0", Idr) : "-";
+    public string FormattedDebit => DebitAmount > 0 ? DebitAmount.ToString("N2", Usd) : "-";
+    public string FormattedCredit => CreditAmount > 0 ? CreditAmount.ToString("N2", Usd) : "-";
 }
