@@ -8,31 +8,30 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using AumoFinance.Services;
-using AumoFinance.Services.Transactions;
 
 namespace AumoFinance.Pages.JournalEntry;
 
 public partial class JournalEntryPage : ContentPage
 {
-    private readonly JournalService _journalService;
+    private readonly JournalEntryService _journalEntryService;
     private readonly CoaService _coaService;
     private List<AccountLookupDto> _allAccounts = new();
     
     public ObservableCollection<JournalLineViewModel> Lines { get; set; } = new();
     private readonly CultureInfo _usdCulture = new("en-US");
 
-    public JournalEntryPage(JournalService journalService, CoaService coaService)
+    public JournalEntryPage(JournalEntryService journalEntryService, CoaService coaService)
     {
         InitializeComponent();
-        _journalService = journalService;
+        _journalEntryService = journalEntryService;
         _coaService = coaService;
 
-        JournalTypePicker.SelectedIndex = 0; // Default to "General"
+        JournalTypePicker.SelectedIndex = 0; // Default: "General"
         EntryDatePicker.Date = DateTime.Today;
 
         LinesCollectionView.ItemsSource = Lines;
 
-        // Add 2 initial empty lines for convenience
+        // Tambahkan 2 baris awal untuk kemudahan pengguna
         AddNewLine();
         AddNewLine();
 
@@ -50,7 +49,7 @@ public partial class JournalEntryPage : ContentPage
         try
         {
             var (accounts, errorDetail) = await _coaService.GetAccountsAsync();
-            if (accounts != null)
+            if (accounts != null && accounts.Any())
             {
                 _allAccounts = accounts.Select(a => new AccountLookupDto
                 {
@@ -60,16 +59,20 @@ public partial class JournalEntryPage : ContentPage
                     DisplayName = $"{a.ReferenceNumber} - {a.AccountName}"
                 }).ToList();
 
-                // Refresh existing lines with account choices
+                // Perbarui daftar akun pada setiap baris jurnal yang sudah ada
                 foreach (var line in Lines)
                 {
                     line.AvailableAccounts = _allAccounts;
                 }
             }
+            else if (!string.IsNullOrEmpty(errorDetail))
+            {
+                Debug.WriteLine($"LoadAccountsAsync failed: {errorDetail}");
+            }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex);
+            Debug.WriteLine($"LoadAccountsAsync Exception: {ex}");
         }
     }
 
@@ -127,31 +130,35 @@ public partial class JournalEntryPage : ContentPage
 
         try
         {
-            var dto = new CreateJournalEntryDto
+            var requestDto = new CreateJournalEntryRequest
             {
                 JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
                 EntryDate = EntryDatePicker.Date,
-                ReferenceNumber = ReferenceEntry.Text?.Trim(),
-                Description = DescriptionEditor.Text?.Trim() ?? string.Empty,
-                Lines = Lines.Select(l => new CreateJournalLineDto
-                {
-                    AccountId = l.SelectedAccount?.Id ?? 0,
-                    LineDescription = l.LineDescription,
-                    Debit = l.Debit,
-                    Credit = l.Credit
-                }).ToList()
+                Lines = Lines
+                    .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
+                    .Select(l => new JournalEntryLineRequest
+                    {
+                        AccountId = l.SelectedAccount!.Id,
+                        LineDescription = l.LineDescription,
+                        Debit = l.Debit,
+                        Credit = l.Credit
+                    }).ToList()
             };
 
-            var (success, message) = await _journalService.CreateJournalEntryAsync(dto);
+            var (success, message, entryId, refNumber) = await _journalEntryService.CreateJournalEntryAsync(requestDto);
 
             if (success)
             {
-                await this.DisplayAlertAsync("Success", "Journal entry recorded successfully!", "OK");
+                string successMessage = string.IsNullOrWhiteSpace(refNumber)
+                    ? message
+                    : $"Journal Entry {refNumber} recorded successfully!";
+
+                await this.DisplayAlertAsync("Success", successMessage, "OK");
                 await Navigation.PopAsync();
             }
             else
             {
-                await this.DisplayAlertAsync("Failed to Save", message, "OK");
+                await this.DisplayAlertAsync("Posting Failed", message, "OK");
                 SubmitButton.IsEnabled = true;
             }
         }
@@ -164,38 +171,28 @@ public partial class JournalEntryPage : ContentPage
 
     private bool ValidateForm(out decimal totalDebit, out decimal totalCredit)
     {
-        totalDebit = Lines.Sum(l => l.Debit);
-        totalCredit = Lines.Sum(l => l.Credit);
+        var activeLines = Lines.Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0)).ToList();
+        totalDebit = activeLines.Sum(l => l.Debit);
+        totalCredit = activeLines.Sum(l => l.Credit);
 
-        if (string.IsNullOrWhiteSpace(DescriptionEditor.Text))
+        if (activeLines.Count < 2)
         {
-            this.DisplayAlertAsync("Validation Error", "Please enter a transaction description.", "OK");
+            this.DisplayAlertAsync("Validation Error", "A journal entry must have at least 2 active transaction lines with valid accounts.", "OK");
             return false;
         }
 
-        if (Lines.Count < 2)
+        foreach (var line in activeLines)
         {
-            this.DisplayAlertAsync("Validation Error", "A journal entry must have at least 2 transaction lines.", "OK");
-            return false;
-        }
-
-        foreach (var line in Lines)
-        {
-            if (line.SelectedAccount == null)
-            {
-                this.DisplayAlertAsync("Validation Error", "All lines must have a valid account selected.", "OK");
-                return false;
-            }
             if (line.Debit > 0 && line.Credit > 0)
             {
-                this.DisplayAlertAsync("Validation Error", "A line cannot have both debit and credit amounts greater than zero.", "OK");
+                this.DisplayAlertAsync("Validation Error", "A single transaction line cannot have both Debit and Credit amounts.", "OK");
                 return false;
             }
         }
 
-        if (Math.Round(totalDebit - totalCredit, 2) != 0)
+        if (Math.Round(totalDebit - totalCredit, 2) != 0 || totalDebit == 0)
         {
-            this.DisplayAlertAsync("Validation Error", "Total debits and credits must be balanced before saving.", "OK");
+            this.DisplayAlertAsync("Validation Error", "Total debits must equal total credits and be greater than zero before saving.", "OK");
             return false;
         }
 
