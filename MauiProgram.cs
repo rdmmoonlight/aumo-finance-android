@@ -4,6 +4,9 @@ using AumoFinance.Pages.Dashboard;
 using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Pages.Periods;
 using AumoFinance.Pages.Reports;
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.ClosingJournal;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
 using AumoFinance.Services;
 using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
@@ -38,9 +41,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<PeriodService>();
         builder.Services.AddTransient<JournalEntryService>();
         builder.Services.AddTransient<CoaService>();
-
-        // Registrasi User Context
-        builder.Services.AddSingleton(new UserContext(CurrentUser.Id));
 
         // ==========================================
         // 2. REGISTRASI REPORT SERVICES (Folder Services/Reports)

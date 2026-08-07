@@ -5,6 +5,9 @@ using AumoFinance.Pages;
 using AumoFinance.Pages.Coa;
 using AumoFinance.Pages.Periods;
 using AumoFinance.Pages.Reports;
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.ClosingJournal;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
 
 namespace AumoFinance.Views;
 
