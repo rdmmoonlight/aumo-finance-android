@@ -12,7 +12,7 @@ namespace AumoFinance.Pages;
 public partial class GeneralJournalPage : ContentPage
 {
     private readonly GeneralJournalService _generalJournalService;
-    private readonly CultureInfo _usdCulture = new("en-US");
+    private readonly CultureInfo _idrCulture = new("id-ID");
 
     public GeneralJournalPage(GeneralJournalService generalJournalService)
     {
@@ -60,9 +60,9 @@ public partial class GeneralJournalPage : ContentPage
                         LineDescription = l.LineDescription,
                         Debit = l.Debit,
                         Credit = l.Credit,
-                        UsdCulture = _usdCulture
+                        IdrCulture = _idrCulture
                     }).ToList(),
-                    UsdCulture = _usdCulture
+                    IdrCulture = _idrCulture
                 }).ToList();
 
                 JournalCollectionView.ItemsSource = viewModels;
@@ -100,7 +100,7 @@ public partial class GeneralJournalPage : ContentPage
 }
 
 // ==========================================
-// VIEW MODELS UNTUK GENERAL JOURNAL
+// VIEW MODELS FOR GENERAL JOURNAL
 // ==========================================
 public class GeneralJournalEntryViewModel
 {
@@ -110,7 +110,7 @@ public class GeneralJournalEntryViewModel
     public string? ReferenceNumber { get; set; }
     public string Description { get; set; } = string.Empty;
     public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
-    public CultureInfo UsdCulture { get; set; } = new("en-US");
+    public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
     public string FormattedDate => EntryDate.ToString("MMM dd, yyyy");
     public string ReferenceNumberDisplay => string.IsNullOrWhiteSpace(ReferenceNumber) ? "No Ref" : ReferenceNumber;
@@ -118,8 +118,8 @@ public class GeneralJournalEntryViewModel
     public decimal TotalDebit => Lines.Sum(l => l.Debit);
     public decimal TotalCredit => Lines.Sum(l => l.Credit);
 
-    public string TotalDebitDisplay => TotalDebit > 0 ? TotalDebit.ToString("C2", UsdCulture) : "-";
-    public string TotalCreditDisplay => TotalCredit > 0 ? TotalCredit.ToString("C2", UsdCulture) : "-";
+    public string TotalDebitDisplay => TotalDebit > 0 ? TotalDebit.ToString("C0", IdrCulture) : "-";
+    public string TotalCreditDisplay => TotalCredit > 0 ? TotalCredit.ToString("C0", IdrCulture) : "-";
 }
 
 public class GeneralJournalLineViewModel
@@ -129,9 +129,9 @@ public class GeneralJournalLineViewModel
     public string? LineDescription { get; set; }
     public decimal Debit { get; set; }
     public decimal Credit { get; set; }
-    public CultureInfo UsdCulture { get; set; } = new("en-US");
+    public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
     public string LineDescriptionDisplay => string.IsNullOrWhiteSpace(LineDescription) ? string.Empty : $"({LineDescription})";
-    public string DebitDisplay => Debit > 0 ? Debit.ToString("C2", UsdCulture) : string.Empty;
-    public string CreditDisplay => Credit > 0 ? Credit.ToString("C2", UsdCulture) : string.Empty;
+    public string DebitDisplay => Debit > 0 ? Debit.ToString("C0", IdrCulture) : string.Empty;
+    public string CreditDisplay => Credit > 0 ? Credit.ToString("C0", IdrCulture) : string.Empty;
 }
