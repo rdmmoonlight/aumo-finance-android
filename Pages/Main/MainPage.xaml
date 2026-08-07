@@ -5,160 +5,100 @@
              x:Class="AumoFinance.Pages.MainPage"
              BackgroundColor="#0F172A">
 
-    <Grid>
-        <Grid RowDefinitions="Auto, *">
-            
-            <!-- Top Bar Component -->
-            <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- Top Bar Component -->
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
-            <!-- Loading Indicator -->
-            <ActivityIndicator x:Name="LoadingIndicator"
-                               Grid.Row="1"
-                               Color="#4F46E5"
-                               IsRunning="False"
-                               IsVisible="False"
-                               VerticalOptions="Center"
-                               HorizontalOptions="Center" />
+        <!-- Main Home Content -->
+        <ScrollView Grid.Row="1" Padding="20,20,20,40">
+            <VerticalStackLayout Spacing="24">
 
-            <!-- Main Home Content -->
-            <ScrollView x:Name="HomeContent" Grid.Row="1" Padding="20,20,20,90">
-                <VerticalStackLayout Spacing="24">
+                <!-- Greetings Section -->
+                <VerticalStackLayout Spacing="4">
+                    <Label x:Name="GreetingLabel"
+                           Text="Good Morning,"
+                           TextColor="#94A3B8"
+                           FontSize="16" />
+                    <Label x:Name="UserNameLabel"
+                           Text="Tri Wahyu Abdul Ghofur"
+                           TextColor="White"
+                           FontAttributes="Bold"
+                           FontSize="24" />
+                </VerticalStackLayout>
 
-                    <!-- Greetings Section -->
-                    <VerticalStackLayout Spacing="4">
-                        <Label x:Name="GreetingLabel"
-                               Text="Good Morning,"
+                <!-- Quick Actions Grid -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
+                    <!-- Go To Dashboard Button -->
+                    <Button Grid.Column="0"
+                            Text="📊 Dashboard"
+                            BackgroundColor="#1E293B"
+                            TextColor="#38BDF8"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            CornerRadius="12"
+                            HeightRequest="56"
+                            Clicked="OnDashboardFabClicked" />
+
+                    <!-- Go To New Entry Button -->
+                    <Button Grid.Column="1"
+                            Text="➕ New Entry"
+                            BackgroundColor="#2563EB"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            CornerRadius="12"
+                            HeightRequest="56"
+                            Clicked="OnPrimaryFabClicked" />
+                </Grid>
+
+                <!-- SYSTEM UPDATES CARD -->
+                <Border BackgroundColor="#1E293B"
+                        Stroke="#334155"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="16"
+                        Margin="0,10,0,0">
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="SYSTEM SETTINGS"
                                TextColor="#94A3B8"
-                               FontSize="16" />
-                        <Label x:Name="UserNameLabel"
-                               Text="Tri Wahyu Abdul Ghofur"
-                               TextColor="White"
+                               FontSize="11"
                                FontAttributes="Bold"
-                               FontSize="24" />
-                    </VerticalStackLayout>
+                               CharacterSpacing="0.8" />
 
-                    <!-- Quick Balance Card (Hero) -->
-                    <Border StrokeShape="RoundRectangle 20"
-                            StrokeThickness="0"
-                            Padding="24">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#4F46E5" Offset="0.0" />
-                                <GradientStop Color="#7C3AED" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.Shadow>
-                            <Shadow Brush="#4F46E5" Offset="0,8" Radius="15" Opacity="0.3" />
-                        </Border.Shadow>
+                        <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Auto-Update from GitHub"
+                                       TextColor="White"
+                                       FontSize="13"
+                                       FontAttributes="Bold" />
+                                <Label Text="Keep app up to date automatically"
+                                       TextColor="#64748B"
+                                       FontSize="10" />
+                            </VerticalStackLayout>
+                            <Switch x:Name="AutoUpdateSwitch"
+                                    Grid.Column="1"
+                                    OnColor="#4F46E5"
+                                    ThumbColor="White"
+                                    Toggled="OnAutoUpdateToggled" />
+                        </Grid>
 
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="TOTAL BALANCE"
-                                   TextColor="#E0E7FF"
-                                   FontSize="12"
-                                   FontAttributes="Bold"
-                                   CharacterSpacing="1" />
-                            <Label x:Name="CashLabel"
-                                   Text="$0.00"
-                                   FontSize="36"
-                                   FontAttributes="Bold"
-                                   TextColor="White" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!-- Quick Actions Grid -->
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
-                        <!-- Go To Dashboard Button -->
-                        <Button Grid.Column="0"
-                                Text="📊 Dashboard"
-                                BackgroundColor="#1E293B"
+                        <Button Text="Check for Updates"
+                                BackgroundColor="#334155"
                                 TextColor="#38BDF8"
                                 FontAttributes="Bold"
-                                FontSize="14"
-                                CornerRadius="12"
-                                HeightRequest="56"
-                                Clicked="OnDashboardFabClicked" />
+                                FontSize="12"
+                                CornerRadius="10"
+                                HeightRequest="40"
+                                Clicked="OnCheckUpdateManualClicked" />
+                    </VerticalStackLayout>
+                </Border>
 
-                        <!-- Go To New Entry Button -->
-                        <Button Grid.Column="1"
-                                Text="➕ New Entry"
-                                BackgroundColor="#2563EB"
-                                TextColor="White"
-                                FontAttributes="Bold"
-                                FontSize="14"
-                                CornerRadius="12"
-                                HeightRequest="56"
-                                Clicked="OnPrimaryFabClicked" />
-                    </Grid>
-
-                    <!-- SYSTEM UPDATES CARD -->
-                    <Border BackgroundColor="#1E293B"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 16"
-                            Padding="16"
-                            Margin="0,20,0,0">
-                        <Border.Shadow>
-                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
-                        </Border.Shadow>
-
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="SYSTEM SETTINGS"
-                                   TextColor="#94A3B8"
-                                   FontSize="11"
-                                   FontAttributes="Bold"
-                                   CharacterSpacing="0.8" />
-
-                            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                                <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                    <Label Text="Auto-Update from GitHub"
-                                           TextColor="White"
-                                           FontSize="13"
-                                           FontAttributes="Bold" />
-                                    <Label Text="Keep app up to date automatically"
-                                           TextColor="#64748B"
-                                           FontSize="10" />
-                                </VerticalStackLayout>
-                                <Switch x:Name="AutoUpdateSwitch"
-                                        Grid.Column="1"
-                                        OnColor="#4F46E5"
-                                        ThumbColor="White"
-                                        Toggled="OnAutoUpdateToggled" />
-                            </Grid>
-
-                            <Button Text="Check for Updates"
-                                    BackgroundColor="#334155"
-                                    TextColor="#38BDF8"
-                                    FontAttributes="Bold"
-                                    FontSize="12"
-                                    CornerRadius="10"
-                                    HeightRequest="40"
-                                    Clicked="OnCheckUpdateManualClicked" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                </VerticalStackLayout>
-            </ScrollView>
-        </Grid>
-
-        <!-- FLOATING ACTION BUTTON (Minimalist for Homepage) -->
-        <VerticalStackLayout VerticalOptions="End" 
-                             HorizontalOptions="End" 
-                             Margin="0,0,20,24" 
-                             ZIndex="999">
-            <!-- Just one FAB for Refresh on the Homepage -->
-            <Button Text="🔄 Refresh"
-                    BackgroundColor="#334155"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    FontSize="12"
-                    CornerRadius="20"
-                    HeightRequest="40"
-                    Padding="16,0"
-                    Clicked="OnRefreshClicked">
-                <Button.Shadow>
-                    <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.3" />
-                </Button.Shadow>
-            </Button>
-        </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>

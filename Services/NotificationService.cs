@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -15,10 +16,12 @@ namespace AumoFinance.Services;
 public class PostNotificationsPermission : Permissions.BasePlatformPermission
 {
     public override (string androidPermission, bool isRuntime)[] RequiredPermissions =>
-        new (string androidPermission, bool isRuntime)[]
-        {
-            (Android.Manifest.Permission.PostNotifications, true)
-        };
+        OperatingSystem.IsAndroidVersionAtLeast(33)
+            ? new (string androidPermission, bool isRuntime)[]
+              {
+                  (Android.Manifest.Permission.PostNotifications, true)
+              }
+            : Array.Empty<(string androidPermission, bool isRuntime)>();
 }
 
 /// <summary>
@@ -38,7 +41,7 @@ public class NotificationService
     public async Task<bool> RequestPermissionAsync()
     {
         // POST_NOTIFICATIONS only exists/is enforced from Android 13 (API 33) onward.
-        if (Build.VERSION.SdkInt < BuildVersionCodes.Tiramisu)
+        if (!OperatingSystem.IsAndroidVersionAtLeast(33))
         {
             return true;
         }
@@ -73,7 +76,7 @@ public class NotificationService
         var pendingIntent = BuildReminderPendingIntent(context);
         var alarmManager = (AlarmManager)context.GetSystemService(Context.AlarmService)!;
 
-        if (Build.VERSION.SdkInt >= BuildVersionCodes.S && !alarmManager.CanScheduleExactAlarms())
+        if (OperatingSystem.IsAndroidVersionAtLeast(31) && !alarmManager.CanScheduleExactAlarms())
         {
             // User hasn't granted exact-alarm access (Settings > Alarms & reminders).
             // Fall back to an inexact alarm so the reminder still fires close to the chosen time.
@@ -111,7 +114,7 @@ public class NotificationService
 
     internal static void EnsureChannel()
     {
-        if (Build.VERSION.SdkInt < BuildVersionCodes.O)
+        if (!OperatingSystem.IsAndroidVersionAtLeast(26))
         {
             return;
         }
