@@ -35,7 +35,7 @@ public partial class LoginPage : ContentPage
     private void OnTogglePasswordClicked(object? sender, EventArgs e)
     {
         PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
-        
+
         // Mengubah ikon menjadi ramping & profesional
         TogglePasswordButton.Text = PasswordEntry.IsPassword ? IconEyeHidden : IconEyeVisible;
     }
