@@ -1,21 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Services;
-using AumoFinance.Models;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Periods;
 
 public partial class PeriodsPage : ContentPage
 {
-    private readonly ApiService _apiService;
+    private readonly PeriodService _periodService;
 
-    public PeriodsPage(ApiService apiService)
+    public PeriodsPage(PeriodService periodService)
     {
         InitializeComponent();
-        _apiService = apiService;
+        _periodService = periodService;
     }
 
     protected override async void OnAppearing()
@@ -26,151 +26,153 @@ public partial class PeriodsPage : ContentPage
 
     private async Task LoadPeriodsAsync()
     {
-        LoadingIndicator.IsVisible = true;
-        LoadingIndicator.IsRunning = true;
-        PeriodsCollectionView.IsVisible = false;
-        EmptyStateContainer.IsVisible = false;
-        AlertCard.IsVisible = false;
-        StopViewingButton.IsVisible = false;
+        SetLoadingState(true);
 
         try
         {
-            var (periods, selectedPeriodId, errorDetail) = await _apiService.GetPeriodsAsync();
+            var (periods, activePeriodName, errorDetail) = await _periodService.GetPeriodsAsync();
 
-            if (errorDetail != null)
+            if (!string.IsNullOrEmpty(errorDetail))
             {
-                await DisplayAlertAsync("Koneksi Gagal", $"Gagal memuat periode dari server.\n\nDetail: {errorDetail}", "OK");
+                await this.DisplayAlertAsync("Error Loading Periods", errorDetail, "OK");
                 return;
             }
 
-            if (selectedPeriodId != null)
+            ActivePeriodHeaderLabel.Text = string.IsNullOrWhiteSpace(activePeriodName)
+                ? "No Active Period Selected"
+                : $"Selected: {activePeriodName}";
+
+            var viewModels = periods.Select(p => new PeriodItemViewModel
             {
-                StopViewingButton.IsVisible = true;
-            }
+                Id = p.Id,
+                PeriodName = p.PeriodName,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                IsClosed = p.IsClosed,
+                IsSelected = p.IsSelected
+            }).ToList();
 
-            if (!periods.Any())
-            {
-                EmptyStateContainer.IsVisible = true;
-                return;
-            }
-
-            var displayList = new List<PeriodDisplayModel>();
-            foreach (var p in periods)
-            {
-                bool isSelected = selectedPeriodId == p.Id;
-
-                // Cek apakah ada periode sebelumnya yang belum ditutup
-                bool hasEarlierOpenPeriod = periods.Any(x => x.Id != p.Id && x.StartDate < p.StartDate && !x.IsClosed);
-                bool canClose = !p.IsClosed && !hasEarlierOpenPeriod;
-
-                displayList.Add(new PeriodDisplayModel
-                {
-                    Id = p.Id,
-                    PeriodName = p.PeriodName,
-                    StartDate = p.StartDate,
-                    EndDate = p.EndDate,
-                    IsClosed = p.IsClosed,
-                    IsSelected = isSelected,
-                    CanClose = canClose
-                });
-            }
-
-            PeriodsCollectionView.ItemsSource = displayList;
-            PeriodsCollectionView.IsVisible = true;
+            PeriodsCollectionView.ItemsSource = viewModels;
+            EmptyStateView.IsVisible = !viewModels.Any();
+            PeriodsCollectionView.IsVisible = viewModels.Any();
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Gagal memuat periode: {ex.Message}", "OK");
+            Debug.WriteLine($"LoadPeriodsAsync error: {ex}");
+            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
+            SetLoadingState(false);
+            PeriodsRefreshView.IsRefreshing = false;
         }
+    }
+
+    private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
+    {
+        await LoadPeriodsAsync();
     }
 
     private async void OnSelectPeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is int periodId)
+        if (sender is Button button && button.CommandParameter is PeriodItemViewModel vm)
         {
-            var (success, message) = await _apiService.SelectPeriodAsync(periodId);
-            ShowAlert(message, success);
+            SetLoadingState(true);
+            var (success, message) = await _periodService.SelectPeriodAsync(vm.Id);
+
             if (success)
             {
                 await LoadPeriodsAsync();
             }
-        }
-    }
-
-    private async void OnStopViewingClicked(object? sender, EventArgs e)
-    {
-        var (success, message) = await _apiService.ClearPeriodSelectionAsync();
-        ShowAlert(message, success);
-        if (success)
-        {
-            await LoadPeriodsAsync();
+            else
+            {
+                await this.DisplayAlertAsync("Selection Failed", message, "OK");
+                SetLoadingState(false);
+            }
         }
     }
 
     private async void OnClosePeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is int periodId)
+        if (sender is Button button && button.CommandParameter is PeriodItemViewModel vm)
         {
-            bool confirm = await DisplayAlertAsync("Konfirmasi Tutup Buku", "Apakah Anda yakin ingin menutup periode ini? Tindakan ini akan mengunci transaksi.", "Ya, Tutup", "Batal");
-            if (confirm)
+            bool confirm = await this.DisplayAlertAsync(
+                "Close Period Confirmation",
+                $"Are you sure you want to close the period '{vm.PeriodName}'? Closed periods cannot be modified.",
+                "Yes, Close Period",
+                "Cancel");
+
+            if (!confirm) return;
+
+            SetLoadingState(true);
+            var (success, message) = await _periodService.ClosePeriodAsync(vm.Id);
+
+            if (success)
             {
-                var (success, message) = await _apiService.ClosePeriodAsync(periodId);
-                ShowAlert(message, success);
-                if (success)
-                {
-                    await LoadPeriodsAsync();
-                }
+                await this.DisplayAlertAsync("Success", message, "OK");
+                await LoadPeriodsAsync();
+            }
+            else
+            {
+                await this.DisplayAlertAsync("Close Failed", message, "OK");
+                SetLoadingState(false);
             }
         }
     }
 
-    private async void OnOpenNewPeriodClicked(object? sender, EventArgs e)
+    private async void OnCreatePeriodClicked(object? sender, EventArgs e)
     {
-        string? periodName = await DisplayPromptAsync("Periode Baru", "Nama periode (mis. Agustus 2026):");
-        if (string.IsNullOrWhiteSpace(periodName))
+        string periodName = await DisplayPromptAsync("New Period", "Enter accounting period name (e.g. August 2026):");
+        if (string.IsNullOrWhiteSpace(periodName)) return;
+
+        string startDateStr = await DisplayPromptAsync("Start Date", "Enter start date (YYYY-MM-DD):", initialValue: DateTime.Now.ToString("yyyy-MM-01"));
+        if (!DateTime.TryParse(startDateStr, out DateTime startDate))
         {
+            await this.DisplayAlertAsync("Invalid Date", "Please enter a valid start date.", "OK");
             return;
         }
 
-        string? startText = await DisplayPromptAsync("Tanggal Mulai", "Format: yyyy-MM-dd", initialValue: DateTime.Today.ToString("yyyy-MM-01"));
-        if (!DateTime.TryParse(startText, out DateTime startDate))
+        string endDateStr = await DisplayPromptAsync("End Date", "Enter end date (YYYY-MM-DD):", initialValue: DateTime.Now.ToString("yyyy-MM-31"));
+        if (!DateTime.TryParse(endDateStr, out DateTime endDate))
         {
-            await DisplayAlertAsync("Error", "Format tanggal mulai tidak valid.", "OK");
+            await this.DisplayAlertAsync("Invalid Date", "Please enter a valid end date.", "OK");
             return;
         }
 
-        string? endText = await DisplayPromptAsync("Tanggal Selesai", "Format: yyyy-MM-dd", initialValue: DateTime.Today.ToString("yyyy-MM-dd"));
-        if (!DateTime.TryParse(endText, out DateTime endDate))
-        {
-            await DisplayAlertAsync("Error", "Format tanggal selesai tidak valid.", "OK");
-            return;
-        }
+        SetLoadingState(true);
 
-        var (success, message) = await _apiService.CreatePeriodAsync(periodName.Trim(), startDate, endDate);
-        ShowAlert(message, success);
+        var dto = new CreatePeriodDto
+        {
+            PeriodName = periodName.Trim(),
+            StartDate = startDate,
+            EndDate = endDate
+        };
+
+        var (success, message) = await _periodService.CreatePeriodAsync(dto);
+
         if (success)
         {
+            await this.DisplayAlertAsync("Success", message, "OK");
             await LoadPeriodsAsync();
+        }
+        else
+        {
+            await this.DisplayAlertAsync("Create Failed", message, "OK");
+            SetLoadingState(false);
         }
     }
 
-    private void ShowAlert(string message, bool success)
+    private void SetLoadingState(bool isLoading)
     {
-        AlertCard.BackgroundColor = success ? Color.FromArgb("#064E3B") : Color.FromArgb("#7F1D1D");
-        AlertCard.Stroke = success ? Color.FromArgb("#059669") : Color.FromArgb("#DC2626");
-        AlertIcon.Text = success ? "✓" : "⚠️";
-        AlertText.TextColor = success ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
-        AlertText.Text = message;
-        AlertCard.IsVisible = true;
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
     }
 }
 
-public class PeriodDisplayModel
+// ==========================================
+// VIEW MODEL UNTUK ITEM LIST PERIODE
+// ==========================================
+public class PeriodItemViewModel
 {
     public int Id { get; set; }
     public string PeriodName { get; set; } = string.Empty;
@@ -178,16 +180,8 @@ public class PeriodDisplayModel
     public DateTime EndDate { get; set; }
     public bool IsClosed { get; set; }
     public bool IsSelected { get; set; }
-    public bool CanClose { get; set; }
 
-    public string FormattedStartDate => StartDate.ToString("dd MMM yyyy");
-    public string FormattedEndDate => EndDate.ToString("dd MMM yyyy");
-
-    public string StatusText => IsClosed ? "Closed" : "Active";
-    public Color StatusBackgroundColor => IsClosed ? Color.FromArgb("#334155") : Color.FromArgb("#064E3B");
-    public Color StatusTextColor => IsClosed ? Color.FromArgb("#CBD5E1") : Color.FromArgb("#34D399");
-
-    public Color CardBackgroundColor => IsSelected ? Color.FromArgb("#1E3A8A") : Color.FromArgb("#1E293B");
-    public Color CardBorderColor => IsSelected ? Color.FromArgb("#3B82F6") : Color.FromArgb("#334155");
-    public Color ViewButtonBackgroundColor => IsSelected ? Color.FromArgb("#2563EB") : Color.FromArgb("#334155");
+    public string DateRangeDisplay => $"{StartDate:MMM dd, yyyy} — {EndDate:MMM dd, yyyy}";
+    public bool CanSelect => !IsSelected;
+    public bool CanClose => IsSelected && !IsClosed;
 }
