@@ -60,20 +60,20 @@ public partial class IncomeStatementPage : ContentPage
             decimal totalOpExpense = response.TotalExpenses;
             decimal netIncome = response.NetIncome;
 
-            var culture = new System.Globalization.CultureInfo("en-US");
+            var culture = new System.Globalization.CultureInfo("id-ID");
 
             RevenueCollectionView.ItemsSource = revenues;
-            TotalRevenueLabel.Text = totalRevenue.ToString("N2", culture);
+            TotalRevenueLabel.Text = totalRevenue.ToString("N0", culture);
 
             OpExpenseCollectionView.ItemsSource = opExpenses;
-            TotalOpExpenseLabel.Text = $"({totalOpExpense.ToString("N2", culture)})";
+            TotalOpExpenseLabel.Text = $"({totalOpExpense.ToString("N0", culture)})";
 
-            OperatingIncomeLabel.Text = netIncome.ToString("N2", culture);
+            OperatingIncomeLabel.Text = netIncome.ToString("N0", culture);
             OperatingIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
             OtherSectionContainer.IsVisible = false;
 
-            NetIncomeLabel.Text = netIncome.ToString("N2", culture);
+            NetIncomeLabel.Text = netIncome.ToString("N0", culture);
             NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
             StatementContainer.IsVisible = true;
@@ -96,8 +96,8 @@ public class IncomeStatementLineModel
     public string AccountName { get; set; } = string.Empty;
     public decimal Amount { get; set; }
 
-    private static readonly System.Globalization.CultureInfo Usd = new("en-US");
+    private static readonly System.Globalization.CultureInfo Idr = new("id-ID");
 
-    public string FormattedAmount => Amount.ToString("N2", Usd);
-    public string FormattedAmountBracket => $"({Amount.ToString("N2", Usd)})";
+    public string FormattedAmount => Amount.ToString("N0", Idr);
+    public string FormattedAmountBracket => $"({Amount.ToString("N0", Idr)})";
 }
