@@ -78,6 +78,8 @@ public static class MauiProgram
         builder.Services.AddTransient<PostClosingTrialBalancePage>();
         builder.Services.AddTransient<StatementOfCashFlowsPage>();
 
+        builder.Services.AddTransient<SettingsPage>();
+
         return builder.Build();
     }
 }
