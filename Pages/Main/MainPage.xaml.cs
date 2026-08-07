@@ -55,9 +55,9 @@ public partial class MainPage : ContentPage
             {
                 // Populate Total Balance for Home Page
                 CashLabel.Text = data.TotalAssets.ToString("C2", _usdCulture);
-                
-                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName) 
-                    ? "Welcome to AumoFinance" 
+
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
+                    ? "Welcome to AumoFinance"
                     : data.SelectedPeriodName;
             }
             else
