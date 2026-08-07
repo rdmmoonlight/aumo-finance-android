@@ -2,21 +2,18 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
-using AumoFinance.Models;
+using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages;
 
 public partial class RetainedEarningsPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly RetainedEarningsService _retainedEarningsService;
 
-    public RetainedEarningsPage(AccountingService accountingService, Guid currentUserId)
+    public RetainedEarningsPage(RetainedEarningsService retainedEarningsService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _retainedEarningsService = retainedEarningsService;
     }
 
     protected override async void OnAppearing()
@@ -34,33 +31,34 @@ public partial class RetainedEarningsPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
-            if (period == null)
+            var (response, errorDetail) = await _retainedEarningsService.GetRetainedEarningsReportAsync();
+
+            if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
+                EmptyStateLabel.Text = errorDetail ?? "Failed to load retained earnings report.";
                 return;
             }
 
-            PeriodNameLabel.Text = period.PeriodName;
+            if (!response.HasPeriodSelected)
+            {
+                EmptyStateContainer.IsVisible = true;
+                EmptyStateLabel.Text = "No active period selected.";
+                return;
+            }
 
-            // Ambil Trial Balance dengan penyesuaian
-            var rows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
+            PeriodNameLabel.Text = response.SelectedPeriodName;
 
-            // Hitung Income Statement untuk Net Income
-            var incomeStatement = IncomeStatementPageViewModelHelper(rows, period);
-            var reAccount = rows.FirstOrDefault(r => r.Type.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase) || r.Role?.Equals("RetainedEarnings", StringComparison.OrdinalIgnoreCase) == true);
-
-            decimal beginningBalance = reAccount?.NetBalance ?? 0;
-            decimal netIncome = incomeStatement.NetIncome;
-            decimal dividends = 0; // Dapat disesuaikan jika ada akun Dividen/Prive
-            decimal endingBalance = beginningBalance + netIncome - dividends;
+            decimal beginningBalance = response.BeginningRetainedEarnings;
+            decimal netIncome = response.NetIncome;
+            decimal dividends = response.DividendsOrDraws;
+            decimal endingBalance = response.EndingRetainedEarnings;
 
             var culture = new System.Globalization.CultureInfo("id-ID");
 
             // Update UI Bindings
-            AccountNameTitleLabel.Text = reAccount?.AccountName ?? "Retained Earnings";
-            BeginningLabel.Text = $"Retained earnings, {period.StartDate:MMMM d}";
+            AccountNameTitleLabel.Text = "Retained Earnings";
+            BeginningLabel.Text = "Retained earnings, beginning";
             BeginningBalanceLabel.Text = beginningBalance.ToString("N0", culture);
 
             NetIncomeLabel.Text = netIncome.ToString("N0", culture);
@@ -76,7 +74,7 @@ public partial class RetainedEarningsPage : ContentPage
                 DividendsRowContainer.IsVisible = false;
             }
 
-            EndingLabel.Text = $"Retained earnings, {period.EndDate:MMMM d}";
+            EndingLabel.Text = "Retained earnings, ending";
             EndingBalanceLabel.Text = endingBalance.ToString("N0", culture);
             EndingBalanceLabel.TextColor = endingBalance >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
@@ -84,7 +82,7 @@ public partial class RetainedEarningsPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Gagal memuat Retained Earnings: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Failed to load Retained Earnings: {ex.Message}", "OK");
         }
         finally
         {
@@ -92,22 +90,4 @@ public partial class RetainedEarningsPage : ContentPage
             LoadingIndicator.IsVisible = false;
         }
     }
-
-    private IncomeStatementModelHelper IncomeStatementPageViewModelHelper(List<TrialBalanceRowViewModel> rows, Period period)
-    {
-        decimal totalRevenue = rows.Where(r => r.Type.Equals("OperatingIncome", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Revenue", StringComparison.OrdinalIgnoreCase)).Sum(r => r.NetBalance);
-        decimal totalExpense = rows.Where(r => r.Type.Equals("OperatingExpenses", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Expense", StringComparison.OrdinalIgnoreCase)).Sum(r => Math.Abs(r.NetBalance));
-        decimal operatingIncome = totalRevenue - totalExpense;
-
-        decimal otherInc = rows.Where(r => r.Type.Equals("OtherIncome", StringComparison.OrdinalIgnoreCase)).Sum(r => r.NetBalance);
-        decimal otherExp = rows.Where(r => r.Type.Equals("OtherExpenses", StringComparison.OrdinalIgnoreCase)).Sum(r => Math.Abs(r.NetBalance));
-        decimal netIncome = operatingIncome + otherInc - otherExp;
-
-        return new IncomeStatementModelHelper { NetIncome = netIncome };
-    }
-}
-
-public class IncomeStatementModelHelper
-{
-    public decimal NetIncome { get; set; }
 }

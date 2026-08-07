@@ -2,20 +2,18 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
+using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages;
 
 public partial class GeneralLedgerPermanentPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly GeneralLedgerService _generalLedgerService;
 
-    public GeneralLedgerPermanentPage(AccountingService accountingService, Guid currentUserId)
+    public GeneralLedgerPermanentPage(GeneralLedgerService generalLedgerService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _generalLedgerService = generalLedgerService;
     }
 
     protected override async void OnAppearing()
@@ -33,16 +31,24 @@ public partial class GeneralLedgerPermanentPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
-            if (period == null)
+            // isTemporary = false for General Ledger Permanent (Real Accounts: Assets, Liabilities, Equity)
+            var (response, errorDetail) = await _generalLedgerService.GetGeneralLedgerReportAsync(isTemporary: false);
+
+            if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
                 return;
             }
 
-            var ledgers = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: false);
+            if (!response.HasPeriodSelected)
+            {
+                EmptyStateContainer.IsVisible = true;
+                return;
+            }
 
-            if (!ledgers.Any())
+            var ledgers = response.Accounts;
+
+            if (ledgers == null || !ledgers.Any())
             {
                 EmptyStateContainer.IsVisible = true;
             }
@@ -54,7 +60,7 @@ public partial class GeneralLedgerPermanentPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Gagal terhubung ke database: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Failed to connect to the database: {ex.Message}", "OK");
         }
         finally
         {

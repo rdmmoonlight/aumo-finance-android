@@ -3,21 +3,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Models;
-using AumoFinance.Services;
+using AumoFinance.Services.Reports;
 using AumoFinance.Pages.JournalEntry;
 
 namespace AumoFinance.Pages;
 
 public partial class AdjustingJournalPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly AdjustingJournalService _adjustingJournalService;
 
-    public AdjustingJournalPage(AccountingService accountingService, Guid currentUserId)
+    public AdjustingJournalPage(AdjustingJournalService adjustingJournalService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _adjustingJournalService = adjustingJournalService;
     }
 
     protected override async void OnAppearing()
@@ -35,37 +33,42 @@ public partial class AdjustingJournalPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
+            var (response, errorDetail) = await _adjustingJournalService.GetAdjustingJournalReportAsync();
 
-            if (period == null)
+            if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
+                EmptyStateLabel.Text = errorDetail ?? "Failed to load adjusting journal data.";
                 return;
             }
 
-            PeriodNameLabel.Text = period.PeriodName;
-            ClosedBadge.IsVisible = period.IsClosed;
-
-            var entries = await _accountingService.GetGeneralJournalAsync(_currentUserId, period);
-            var adjustingEntries = entries.Where(j => j.JournalType == "Adjusting").ToList();
-
-            if (!adjustingEntries.Any())
+            if (!response.HasPeriodSelected)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = $"Tidak ada adjusting entries pada periode {period.PeriodName}.";
+                EmptyStateLabel.Text = "No active period selected.";
+                return;
+            }
+
+            PeriodNameLabel.Text = response.SelectedPeriodName;
+            ClosedBadge.IsVisible = false; // Matched with API response
+
+            var entries = response.Entries;
+
+            if (entries == null || !entries.Any())
+            {
+                EmptyStateContainer.IsVisible = true;
+                EmptyStateLabel.Text = $"No adjusting entries found for period {response.SelectedPeriodName}.";
             }
             else
             {
-                var displayList = adjustingEntries.Select(e => new JournalEntryDisplayModel
+                var displayList = entries.Select(e => new JournalEntryDisplayModel
                 {
                     Id = e.Id,
                     EntryDate = e.EntryDate,
-                    Lines = e.Lines.OrderBy(l => l.LineOrder).Select(l => new JournalEntryLineDisplayModel
+                    Lines = e.Lines.Select(l => new JournalEntryLineDisplayModel
                     {
-                        AccountName = l.Account?.AccountName ?? "-",
-                        // PERBAIKAN LINE 68: Konversi int? ke string
-                        RefNumber = l.Account?.ReferenceNumber.ToString() ?? "-",
+                        AccountName = l.AccountName ?? "-",
+                        RefNumber = l.ReferenceNumber.ToString(),
                         LineDescription = l.LineDescription ?? string.Empty,
                         Debit = l.Debit,
                         Credit = l.Credit
@@ -78,8 +81,7 @@ public partial class AdjustingJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            // PERBAIKAN LINE 81: Gunakan DisplayAlertAsync
-            await DisplayAlertAsync("Error", $"Gagal memuat data: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Failed to load data: {ex.Message}", "OK");
         }
         finally
         {
@@ -90,14 +92,12 @@ public partial class AdjustingJournalPage : ContentPage
 
     private async void OnAddAdjustingEntryClicked(object? sender, EventArgs e)
     {
-        // Catatan: route sebelumnya "JournalEntryCreatePage" tidak pernah terdaftar
-        // di AppShell (yang ada "JournalEntryPage") — diperbaiki ke nama yang benar.
         await Shell.Current.GoToAsync($"{nameof(JournalEntryPage)}?type=Adjusting");
     }
 
     private async void OnEditEntryClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is Guid entryId)
+        if (sender is Button btn && btn.CommandParameter is int entryId)
         {
             await Shell.Current.GoToAsync($"//JournalEntryEditPage?id={entryId}");
         }
