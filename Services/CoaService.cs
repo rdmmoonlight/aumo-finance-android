@@ -160,7 +160,7 @@ public class CoaAccountDto
     [JsonPropertyName("isActive")]
     public bool IsActive { get; set; }
 
-    [JsonPropertyName("currentBalance")]
+    [JsonPropertyName("balance")]
     public decimal CurrentBalance { get; set; }
 }
 
