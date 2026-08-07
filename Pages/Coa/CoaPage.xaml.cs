@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using Microsoft.EntityFrameworkCore;
 using AumoFinance.Services;
 using AumoFinance.Models;
 
@@ -11,8 +10,7 @@ namespace AumoFinance.Pages;
 
 public partial class CoaPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly ApiService _apiService;
     private List<ChartOfAccountDisplayModel> _allAccounts = new();
     private string _searchText = string.Empty;
     private string? _selectedCategory = null;
@@ -23,11 +21,10 @@ public partial class CoaPage : ContentPage
         "OperatingExpenses", "OtherIncome", "OtherExpenses"
     };
 
-    public CoaPage(AccountingService accountingService, Guid currentUserId)
+    public CoaPage(ApiService apiService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _apiService = apiService;
 
         // Inisialisasi Picker Kategori
         CategoryPicker.ItemsSource = new List<string> { "Semua Kategori" }.Concat(AccountTypes.Select(FormatCategoryLabel)).ToList();
@@ -48,44 +45,24 @@ public partial class CoaPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
-            var loaded = await _accountingService.DbContext.ChartOfAccounts
-                .Where(a => a.UserId == _currentUserId)
-                .OrderBy(a => a.ReferenceNumber)
-                .ToListAsync();
+            var (accounts, _, errorDetail) = await _apiService.GetChartOfAccountsFullAsync();
 
-            var culture = new System.Globalization.CultureInfo("id-ID");
-            _allAccounts.Clear();
-
-            foreach (var account in loaded)
+            if (errorDetail != null)
             {
-                decimal balance = 0;
-                if (period != null)
-                {
-                    var lines = await _accountingService.DbContext.JournalEntryLines
-                        .Include(l => l.JournalEntry)
-                        .Where(l => l.AccountId == account.Id && l.JournalEntry != null && l.JournalEntry.EntryDate >= period.StartDate && l.JournalEntry.EntryDate <= period.EndDate)
-                        .ToListAsync();
-
-                    decimal totalDebit = lines.Sum(l => l.Debit);
-                    decimal totalCredit = lines.Sum(l => l.Credit);
-
-                    balance = AccountClassification.NormalBalanceIsDebit(account.Type)
-                        ? totalDebit - totalCredit
-                        : totalCredit - totalDebit;
-                }
-
-                _allAccounts.Add(new ChartOfAccountDisplayModel
-                {
-                    Id = account.Id,
-                    ReferenceNumber = account.ReferenceNumber,
-                    AccountName = account.AccountName,
-                    Type = account.Type,
-                    Role = account.Role == "Default" ? string.Empty : account.Role,
-                    IsActive = account.IsActive,
-                    Balance = balance
-                });
+                await DisplayAlertAsync("Koneksi Gagal", $"Gagal memuat Chart of Accounts dari server.\n\nDetail: {errorDetail}", "OK");
+                return;
             }
+
+            _allAccounts = accounts.Select(a => new ChartOfAccountDisplayModel
+            {
+                Id = a.Id,
+                ReferenceNumber = a.ReferenceNumber,
+                AccountName = a.AccountName,
+                Type = a.Type,
+                Role = a.Role == "Default" ? string.Empty : a.Role,
+                IsActive = a.IsActive,
+                Balance = a.Balance
+            }).ToList();
 
             FilterAndDisplayAccounts();
         }
@@ -181,26 +158,14 @@ public partial class CoaPage : ContentPage
             bool confirm = await DisplayAlertAsync("Konfirmasi", "Hapus akun ini? Tindakan ini tidak dapat dibatalkan.", "Ya", "Batal");
             if (confirm)
             {
-                try
+                var (success, message) = await _apiService.DeleteAccountAsync(accountId);
+                if (success)
                 {
-                    var entity = await _accountingService.DbContext.ChartOfAccounts.FindAsync(accountId);
-                    if (entity != null)
-                    {
-                        bool hasLines = await _accountingService.DbContext.JournalEntryLines.AnyAsync(l => l.AccountId == accountId);
-                        if (hasLines)
-                        {
-                            await DisplayAlertAsync("Gagal", "Akun tidak dapat dihapus karena sudah memiliki riwayat jurnal. Ubah status menjadi Inactive.", "OK");
-                            return;
-                        }
-
-                        _accountingService.DbContext.ChartOfAccounts.Remove(entity);
-                        await _accountingService.DbContext.SaveChangesAsync();
-                        await LoadAccountsAsync();
-                    }
+                    await LoadAccountsAsync();
                 }
-                catch (Exception ex)
+                else
                 {
-                    await DisplayAlertAsync("Error", $"Gagal menghapus akun: {ex.Message}", "OK");
+                    await DisplayAlertAsync("Gagal", message, "OK");
                 }
             }
         }

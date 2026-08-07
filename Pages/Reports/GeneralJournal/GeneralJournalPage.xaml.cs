@@ -9,14 +9,12 @@ namespace AumoFinance.Pages;
 
 public partial class GeneralJournalPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly ApiService _apiService;
 
-    public GeneralJournalPage(AccountingService accountingService, Guid currentUserId)
+    public GeneralJournalPage(ApiService apiService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _apiService = apiService;
     }
 
     protected override async void OnAppearing()
@@ -34,24 +32,28 @@ public partial class GeneralJournalPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
+            var (entries, selectedPeriodName, isPeriodClosed, errorDetail) = await _apiService.GetGeneralJournalAsync();
 
-            if (period == null)
+            if (errorDetail != null)
+            {
+                await DisplayAlertAsync("Koneksi Gagal", $"Gagal memuat General Journal dari server.\n\nDetail: {errorDetail}", "OK");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(selectedPeriodName))
             {
                 EmptyStateContainer.IsVisible = true;
                 EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
                 return;
             }
 
-            PeriodNameLabel.Text = period.PeriodName;
-            ClosedBadge.IsVisible = period.IsClosed;
-
-            var entries = await _accountingService.GetGeneralJournalAsync(_currentUserId, period);
+            PeriodNameLabel.Text = selectedPeriodName;
+            ClosedBadge.IsVisible = isPeriodClosed;
 
             if (!entries.Any())
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = $"Tidak ada entri jurnal pada periode {period.PeriodName}.";
+                EmptyStateLabel.Text = $"Tidak ada entri jurnal pada periode {selectedPeriodName}.";
             }
             else
             {
@@ -61,7 +63,7 @@ public partial class GeneralJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Gagal memuat database: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
         }
         finally
         {
@@ -72,16 +74,16 @@ public partial class GeneralJournalPage : ContentPage
 
     private async void OnAddEntryClicked(object? sender, EventArgs e)
     {
-        // Catatan: route sebelumnya "JournalEntryCreatePage" tidak pernah terdaftar
-        // di AppShell (yang ada "JournalEntryPage") — diperbaiki ke nama yang benar.
         await Shell.Current.GoToAsync(nameof(JournalEntryPage));
     }
 
     private async void OnEditEntryClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is Guid entryId)
+        if (sender is Button btn && btn.CommandParameter is int entryId)
         {
-            await Shell.Current.GoToAsync($"//JournalEntryEditPage?id={entryId}");
+            // Catatan: JournalEntryEditPage belum diimplementasikan di sisi mobile
+            // maupun terdaftar sebagai route — fitur edit entri jurnal belum tersedia.
+            await DisplayAlertAsync("Informasi", $"Fitur edit entri jurnal (ID: {entryId}) belum diimplementasikan.", "OK");
         }
     }
 }

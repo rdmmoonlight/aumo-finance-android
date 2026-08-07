@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -75,7 +76,7 @@ public class ApiService
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             var payload = new { email = usernameOrEmail, password = password };
 
-            var response = await _httpClient.PostAsJsonAsync("/api/mobile/login", payload, cts.Token);
+            var response = await _httpClient.PostAsJsonAsync("/api/mobile/auth/login", payload, cts.Token);
             var content = await response.Content.ReadAsStringAsync(cts.Token);
 
             var result = JsonSerializer.Deserialize<MobileLoginResponse>(content, _jsonOptions);
@@ -102,33 +103,84 @@ public class ApiService
     }
 
     // ==========================================
-    // 2. GET ACCOUNTS
+    // 2. GET ACCOUNTS (ringkas — untuk dropdown Journal Entry)
     // ==========================================
     public async Task<List<AccountLookupModel>> GetAccountsAsync()
     {
-        var result = new List<AccountLookupModel>();
+        var (accounts, _, _) = await GetChartOfAccountsFullAsync();
+        return accounts.Where(a => a.IsActive).Select(a => new AccountLookupModel
+        {
+            Id = a.Id,
+            AccountName = a.AccountName,
+            ReferenceNumber = a.ReferenceNumber
+        }).ToList();
+    }
+
+    // ==========================================
+    // 2b. GET CHART OF ACCOUNTS (detail penuh — untuk CoaPage)
+    // ==========================================
+    public async Task<(List<CoaApiModel> data, string? selectedPeriodName, string? errorDetail)> GetChartOfAccountsFullAsync(string? search = null, string? category = null)
+    {
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/accounts");
+            var query = new List<string>();
+            if (!string.IsNullOrWhiteSpace(search)) query.Add($"search={Uri.EscapeDataString(search)}");
+            if (!string.IsNullOrWhiteSpace(category)) query.Add($"category={Uri.EscapeDataString(category)}");
+            string uri = "/api/mobile/chart-of-accounts" + (query.Count > 0 ? "?" + string.Join("&", query) : "");
 
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, uri);
             using var response = await _httpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+
             if (response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync(cts.Token);
-                var accounts = JsonSerializer.Deserialize<List<AccountLookupModel>>(content, _jsonOptions);
-                if (accounts != null)
-                {
-                    result = accounts;
-                }
+                var envelope = JsonSerializer.Deserialize<CoaEnvelopeModel>(content, _jsonOptions);
+                return (envelope?.Accounts ?? new(), envelope?.SelectedPeriodName, null);
             }
+
+            var snippet = content.Length > 150 ? content[..150] : content;
+            return (new List<CoaApiModel>(), null, $"HTTP {(int)response.StatusCode} ({response.StatusCode}) — {snippet}");
+        }
+        catch (TaskCanceledException)
+        {
+            return (new List<CoaApiModel>(), null, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"GetAccountsAsync Error: {ex.Message}");
+            return (new List<CoaApiModel>(), null, $"{ex.GetType().Name}: {ex.Message}");
         }
+    }
 
-        return result;
+    // ==========================================
+    // 2c. DELETE ACCOUNT
+    // ==========================================
+    public async Task<(bool success, string message)> DeleteAccountAsync(int accountId)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Delete, $"/api/mobile/chart-of-accounts/delete/{accountId}");
+
+            using var response = await _httpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+            var apiRes = JsonSerializer.Deserialize<ApiResponseModel>(content, _jsonOptions);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, apiRes?.Message ?? "Akun berhasil dihapus.");
+            }
+
+            return (false, apiRes?.Message ?? $"HTTP {(int)response.StatusCode} ({response.StatusCode}).");
+        }
+        catch (TaskCanceledException)
+        {
+            return (false, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"{ex.GetType().Name}: {ex.Message}");
+        }
     }
 
     // ==========================================
@@ -194,6 +246,52 @@ public class ApiService
     }
 
     // ==========================================
+    // 3b. GET GENERAL JOURNAL LIST
+    // ==========================================
+    public async Task<(List<JournalEntryDisplayModel> data, string? selectedPeriodName, bool isPeriodClosed, string? errorDetail)> GetGeneralJournalAsync()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/journal-entries");
+
+            using var response = await _httpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var envelope = JsonSerializer.Deserialize<GeneralJournalEnvelopeModel>(content, _jsonOptions);
+                var mapped = (envelope?.Entries ?? new()).Select(e => new JournalEntryDisplayModel
+                {
+                    Id = e.Id,
+                    EntryDate = e.EntryDate,
+                    Lines = e.Lines.Select(l => new JournalEntryLineDisplayModel
+                    {
+                        AccountName = l.AccountName,
+                        RefNumber = l.ReferenceNumber.ToString(),
+                        LineDescription = l.LineDescription,
+                        Debit = l.Debit,
+                        Credit = l.Credit
+                    }).ToList()
+                }).ToList();
+
+                return (mapped, envelope?.SelectedPeriodName, envelope?.IsPeriodClosed ?? false, null);
+            }
+
+            var snippet = content.Length > 150 ? content[..150] : content;
+            return (new(), null, false, $"HTTP {(int)response.StatusCode} ({response.StatusCode}) — {snippet}");
+        }
+        catch (TaskCanceledException)
+        {
+            return (new(), null, false, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+        }
+        catch (Exception ex)
+        {
+            return (new(), null, false, $"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    // ==========================================
     // 4. SEARCH DESCRIPTIONS (AUTO-COMPLETE)
     // ==========================================
     public async Task<List<string>> SearchDescriptionsAsync(string query)
@@ -205,7 +303,7 @@ public class ApiService
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             var encodedQuery = Uri.EscapeDataString(query.Trim());
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, $"/api/mobile/search-descriptions?q={encodedQuery}");
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, $"/api/mobile/journal-entries/search-descriptions?q={encodedQuery}");
 
             using var response = await _httpClient.SendAsync(request, cts.Token);
             if (response.IsSuccessStatusCode)
@@ -267,7 +365,7 @@ public class ApiService
     // ==========================================
     // 7. GET PERIODS
     // ==========================================
-    public async Task<(List<PeriodApiModel> data, string? errorDetail)> GetPeriodsAsync()
+    public async Task<(List<PeriodApiModel> data, int? selectedPeriodId, string? errorDetail)> GetPeriodsAsync()
     {
         try
         {
@@ -279,20 +377,20 @@ public class ApiService
 
             if (response.IsSuccessStatusCode)
             {
-                var periods = JsonSerializer.Deserialize<List<PeriodApiModel>>(content, _jsonOptions) ?? new();
-                return (periods, null);
+                var envelope = JsonSerializer.Deserialize<PeriodsEnvelopeModel>(content, _jsonOptions);
+                return (envelope?.Periods ?? new(), envelope?.SelectedPeriodId, null);
             }
 
             var snippet = content.Length > 150 ? content[..150] : content;
-            return (new List<PeriodApiModel>(), $"HTTP {(int)response.StatusCode} ({response.StatusCode}) — {snippet}");
+            return (new List<PeriodApiModel>(), null, $"HTTP {(int)response.StatusCode} ({response.StatusCode}) — {snippet}");
         }
         catch (TaskCanceledException)
         {
-            return (new List<PeriodApiModel>(), "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+            return (new List<PeriodApiModel>(), null, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
         }
         catch (Exception ex)
         {
-            return (new List<PeriodApiModel>(), $"{ex.GetType().Name}: {ex.Message}");
+            return (new List<PeriodApiModel>(), null, $"{ex.GetType().Name}: {ex.Message}");
         }
     }
 
@@ -301,7 +399,7 @@ public class ApiService
     // ==========================================
     public async Task<(bool success, string message)> SelectPeriodAsync(int periodId)
     {
-        return await PostPeriodActionAsync($"/api/mobile/periods/{periodId}/select");
+        return await PostPeriodActionAsync($"/api/mobile/periods/select/{periodId}");
     }
 
     // ==========================================
@@ -317,7 +415,41 @@ public class ApiService
     // ==========================================
     public async Task<(bool success, string message)> ClosePeriodAsync(int periodId)
     {
-        return await PostPeriodActionAsync($"/api/mobile/periods/{periodId}/close");
+        return await PostPeriodActionAsync($"/api/mobile/periods/close/{periodId}");
+    }
+
+    // ==========================================
+    // 11. CREATE (OPEN) NEW PERIOD
+    // ==========================================
+    public async Task<(bool success, string message)> CreatePeriodAsync(string periodName, DateTime startDate, DateTime endDate)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, "/api/mobile/periods/create");
+
+            var payload = new { periodName, startDate, endDate };
+            request.Content = JsonContent.Create(payload);
+
+            using var response = await _httpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+            var apiRes = JsonSerializer.Deserialize<ApiResponseModel>(content, _jsonOptions);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, apiRes?.Message ?? "Periode berhasil dibuka.");
+            }
+
+            return (false, apiRes?.Message ?? $"HTTP {(int)response.StatusCode} ({response.StatusCode}).");
+        }
+        catch (TaskCanceledException)
+        {
+            return (false, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"{ex.GetType().Name}: {ex.Message}");
+        }
     }
 
     // Helper bersama untuk aksi POST periode (select/clear/close) yang polanya identik.

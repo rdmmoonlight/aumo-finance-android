@@ -35,15 +35,13 @@ public partial class PeriodsPage : ContentPage
 
         try
         {
-            var (periods, errorDetail) = await _apiService.GetPeriodsAsync();
+            var (periods, selectedPeriodId, errorDetail) = await _apiService.GetPeriodsAsync();
 
             if (errorDetail != null)
             {
                 await DisplayAlertAsync("Koneksi Gagal", $"Gagal memuat periode dari server.\n\nDetail: {errorDetail}", "OK");
                 return;
             }
-
-            var selectedPeriodId = periods.FirstOrDefault(p => p.IsSelected)?.Id;
 
             if (selectedPeriodId != null)
             {
@@ -133,8 +131,32 @@ public partial class PeriodsPage : ContentPage
 
     private async void OnOpenNewPeriodClicked(object? sender, EventArgs e)
     {
-        // Arahkan ke halaman pembuatan periode baru jika sudah dibuat
-        await DisplayAlertAsync("Informasi", "Form untuk membuka periode baru dapat dihubungkan ke halaman CreatePeriod.", "OK");
+        string? periodName = await DisplayPromptAsync("Periode Baru", "Nama periode (mis. Agustus 2026):");
+        if (string.IsNullOrWhiteSpace(periodName))
+        {
+            return;
+        }
+
+        string? startText = await DisplayPromptAsync("Tanggal Mulai", "Format: yyyy-MM-dd", initialValue: DateTime.Today.ToString("yyyy-MM-01"));
+        if (!DateTime.TryParse(startText, out DateTime startDate))
+        {
+            await DisplayAlertAsync("Error", "Format tanggal mulai tidak valid.", "OK");
+            return;
+        }
+
+        string? endText = await DisplayPromptAsync("Tanggal Selesai", "Format: yyyy-MM-dd", initialValue: DateTime.Today.ToString("yyyy-MM-dd"));
+        if (!DateTime.TryParse(endText, out DateTime endDate))
+        {
+            await DisplayAlertAsync("Error", "Format tanggal selesai tidak valid.", "OK");
+            return;
+        }
+
+        var (success, message) = await _apiService.CreatePeriodAsync(periodName.Trim(), startDate, endDate);
+        ShowAlert(message, success);
+        if (success)
+        {
+            await LoadPeriodsAsync();
+        }
     }
 
     private void ShowAlert(string message, bool success)
