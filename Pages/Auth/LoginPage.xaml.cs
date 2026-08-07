@@ -2,6 +2,7 @@ using System;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using AumoFinance.Services;
+using AumoFinance.Pages.Log;
 
 namespace AumoFinance.Pages;
 
