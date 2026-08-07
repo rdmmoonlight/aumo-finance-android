@@ -60,13 +60,13 @@ public partial class ClosingJournalPage : ContentPage
         SelectedPeriodHeaderLabel.Text = data.SelectedPeriodName ?? "Active Period";
         ShowEmptyState(false);
 
-        // Bind Net Income Card
+        // 1. Set Banner Laba Bersih (Net Income) & Akun Laba Ditahan
         var culture = new CultureInfo("id-ID");
         NetIncomeCard.IsVisible = true;
         NetIncomeLabel.Text = data.ClosingJournal.NetIncome.ToString("C0", culture);
         RetainedEarningsAccountLabel.Text = $"Tujuan: {data.ClosingJournal.RetainedEarningsAccountName ?? "Laba Ditahan"}";
 
-        // Bind Group Items
+        // 2. Set List Groups (Revenue, Expense, Income Summary)
         var groupViewModels = data.ClosingJournal.Groups
             .Select(g => new ClosingJournalGroupViewModel(g))
             .ToList();
@@ -94,7 +94,7 @@ public partial class ClosingJournalPage : ContentPage
 }
 
 // =========================================================================
-// VIEW MODELS / DISPLAY WRAPPERS FOR NEW JSON
+// VIEW MODELS / DISPLAY WRAPPERS UNTUK MAPPING UI
 // =========================================================================
 
 public class ClosingJournalGroupViewModel
