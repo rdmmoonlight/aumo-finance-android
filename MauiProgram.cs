@@ -1,6 +1,7 @@
 using AumoFinance.Pages;
 using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Services;
+using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
 
 namespace AumoFinance;
@@ -25,19 +26,49 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // Registrasi Web API & Services
+        // ==========================================
+        // 1. REGISTRASI CORE SERVICES
+        // ==========================================
+        builder.Services.AddSingleton<AuthService>();
+        builder.Services.AddSingleton<DashboardService>();
+        builder.Services.AddSingleton<PeriodService>();
+        builder.Services.AddSingleton<CoaService>();
+        builder.Services.AddSingleton<JournalService>();
+
+        // Legacy / General ApiService (jika masih digunakan di beberapa komponen lama)
         builder.Services.AddSingleton<ApiService>();
         builder.Services.AddTransient<AccountingService>();
 
         // Registrasi User Context
         builder.Services.AddSingleton(new UserContext(CurrentUser.Id));
 
-        // Registrasi Core Pages
+        // ==========================================
+        // 2. REGISTRASI REPORT SERVICES (Folder Services/Reports)
+        // ==========================================
+        builder.Services.AddTransient<GeneralJournalService>();
+        builder.Services.AddTransient<GeneralLedgerService>();
+        builder.Services.AddTransient<TrialBalanceService>(); // Menangani Unadjusted, Adjusted, & Post-Closing TB
+        builder.Services.AddTransient<AdjustingJournalService>();
+        builder.Services.AddTransient<WorksheetService>();
+        builder.Services.AddTransient<IncomeStatementService>();
+        builder.Services.AddTransient<RetainedEarningsService>();
+        builder.Services.AddTransient<StatementOfFinancialPositionService>();
+        builder.Services.AddTransient<ClosingJournalService>();
+        builder.Services.AddTransient<StatementOfCashFlowsService>();
+
+        // ==========================================
+        // 3. REGISTRASI PAGES (VIEWS)
+        // ==========================================
+        // Core & Authentication Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<JournalEntryPage>();
 
-        // Registrasi Report & Management Pages
+        // Master Data & Period Management Pages
+        builder.Services.AddTransient<CoaPage>();
+        builder.Services.AddTransient<PeriodsPage>();
+
+        // Financial Report Pages
         builder.Services.AddTransient<GeneralJournalPage>();
         builder.Services.AddTransient<GeneralLedgerPermanentPage>();
         builder.Services.AddTransient<GeneralLedgerTemporaryPage>();
@@ -48,8 +79,6 @@ public static class MauiProgram
         builder.Services.AddTransient<RetainedEarningsPage>();
         builder.Services.AddTransient<StatementOfFinancialPositionPage>();
         builder.Services.AddTransient<PostClosingTrialBalancePage>();
-        builder.Services.AddTransient<CoaPage>();
-        builder.Services.AddTransient<PeriodsPage>();
 
         return builder.Build();
     }
