@@ -31,7 +31,7 @@ public partial class GeneralLedgerPermanentPage : ContentPage
 
         try
         {
-            // isTemporary = false untuk General Ledger Permanent (Akun Riil)
+            // isTemporary = false for General Ledger Permanent (Real Accounts: Assets, Liabilities, Equity)
             var (response, errorDetail) = await _generalLedgerService.GetGeneralLedgerReportAsync(isTemporary: false);
 
             if (response == null || !response.Success)
@@ -60,7 +60,7 @@ public partial class GeneralLedgerPermanentPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Gagal terhubung ke database: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Failed to connect to the database: {ex.Message}", "OK");
         }
         finally
         {
