@@ -1,5 +1,14 @@
 using AumoFinance.Pages;
+using AumoFinance.Pages.Coa;
+using AumoFinance.Pages.Dashboard;
+using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Pages.Periods;
+using AumoFinance.Pages.Reports.ClosingJournal;
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
+using AumoFinance.Pages.Settings;
 using AumoFinance.Services;
+using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
 
