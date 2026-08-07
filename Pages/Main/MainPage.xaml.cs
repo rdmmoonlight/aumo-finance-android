@@ -7,7 +7,7 @@ using Microsoft.Maui.Storage;
 using AumoFinance.Services;
 using AumoFinance.Pages.JournalEntry;
 
-namespace AumoFinance.Pages.Main;
+namespace AumoFinance.Pages;
 
 public partial class MainPage : ContentPage
 {
@@ -41,10 +41,12 @@ public partial class MainPage : ContentPage
 
             if (data != null && data.Success)
             {
-                // Update Period Header
-                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName) ? "No Period Selected" : data.SelectedPeriodName;
+                // Update Period Header in TopBarView
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName) 
+                    ? "No Period Selected" 
+                    : data.SelectedPeriodName;
 
-                // Format Financial Figures in USD Currency format ($#,##0.00)
+                // Format Financial Figures in US Currency ($#,##0.00)
                 CashLabel.Text = data.TotalAssets.ToString("C2", _usdCulture);
                 NetIncomeLabel.Text = data.NetIncome.ToString("C2", _usdCulture);
                 RevenueLabel.Text = data.TotalRevenue.ToString("C2", _usdCulture);
