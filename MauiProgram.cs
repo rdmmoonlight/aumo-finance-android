@@ -37,10 +37,6 @@ public static class MauiProgram
         builder.Services.AddTransient<JournalEntryService>();
         builder.Services.AddTransient<CoaService>();
 
-        // Legacy / General ApiService (jika masih digunakan di beberapa komponen lama)
-        builder.Services.AddSingleton<ApiService>();
-        builder.Services.AddTransient<AccountingService>();
-
         // Registrasi User Context
         builder.Services.AddSingleton(new UserContext(CurrentUser.Id));
 
