@@ -1,199 +1,190 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.GeneralJournalPage"
-             BackgroundColor="#0F172A"
-             Title="General Journal">
+             Title="General Journal"
+             BackgroundColor="#0F172A">
 
     <Grid RowDefinitions="Auto, *">
 
-        <!-- Top Bar Navigasi Kustom -->
-        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
-
-        <ScrollView Grid.Row="1" Padding="16,10,16,20">
-            <VerticalStackLayout Spacing="16">
-
-                <!-- Header Halaman & Action Buttons -->
-                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                    <VerticalStackLayout Grid.Column="0" Spacing="2">
-                        <Label Text="General Journal"
-                               FontSize="22"
-                               FontAttributes="Bold"
-                               TextColor="White" />
-                        <Label Text="Catatan kronologis transaksi keuangan"
-                               FontSize="12"
-                               TextColor="#94A3B8" />
-                    </VerticalStackLayout>
-
-                    <!-- Tombol Tambah Entri Jurnal -->
-                    <Button Grid.Column="1"
-                            Text="➕  Tambah"
-                            Clicked="OnAddEntryClicked"
-                            BackgroundColor="#10B981"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            CornerRadius="10"
-                            Padding="12,0"
-                            HeightRequest="40" />
-                </Grid>
-
-                <!-- Indicator Periode Aktif -->
-                <Border x:Name="PeriodCard"
-                        BackgroundColor="#1E293B"
-                        Stroke="#334155"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="12,10">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <Label Text="👁️" FontSize="14" VerticalOptions="Center" />
-                        <Label Text="Menampilkan Periode:"
-                               TextColor="#94A3B8"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                        <Label x:Name="PeriodNameLabel"
-                               Text="-"
-                               TextColor="#F8FAFC"
-                               FontAttributes="Bold"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                        <Border x:Name="ClosedBadge"
-                                BackgroundColor="#334155"
-                                StrokeShape="RoundRectangle 6"
-                                Padding="6,2"
-                                IsVisible="False"
-                                VerticalOptions="Center">
-                            <Label Text="🔒 Closed"
-                                   TextColor="#CBD5E1"
-                                   FontSize="10"
-                                   FontAttributes="Bold" />
-                        </Border>
-                    </HorizontalStackLayout>
-                </Border>
-
-                <!-- Loading Indicator -->
-                <ActivityIndicator x:Name="LoadingIndicator"
-                                   Color="#4F46E5"
-                                   IsRunning="True"
-                                   IsVisible="True"
-                                   HeightRequest="40" />
-
-                <!-- Empty State (Tampil jika data kosong / periode belum dipilih) -->
-                <VerticalStackLayout x:Name="EmptyStateContainer"
-                                     Spacing="12"
-                                     HorizontalOptions="Center"
-                                     Padding="0,40"
-                                     IsVisible="False">
-                    <Label x:Name="EmptyIconLabel"
-                           Text="📑"
-                           FontSize="48"
-                           HorizontalOptions="Center" />
-                    <Label x:Name="EmptyStateLabel"
-                           Text="Tidak ada entri jurnal pada periode ini."
+        <!-- Top Header Banner -->
+        <Border Grid.Row="0"
+                BackgroundColor="#1E293B"
+                Padding="16,12"
+                StrokeShape="RoundRectangle 0"
+                StrokeThickness="0">
+            <Grid ColumnDefinitions="*, Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="GENERAL JOURNAL REPORT"
+                           FontSize="10"
+                           FontAttributes="Bold"
                            TextColor="#94A3B8"
-                           FontSize="14"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center" />
+                           CharacterSpacing="1" />
+                    <Label x:Name="SelectedPeriodHeaderLabel"
+                           Text="Loading Period..."
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="White" />
                 </VerticalStackLayout>
 
-                <!-- Daftar Entri Jurnal (CollectionView Grouped Card) -->
+                <Button Grid.Column="1"
+                        Text="🔄 Refresh"
+                        FontSize="11"
+                        BackgroundColor="#334155"
+                        TextColor="White"
+                        CornerRadius="8"
+                        HeightRequest="36"
+                        Padding="12,0"
+                        Clicked="OnRefreshClicked" />
+            </Grid>
+        </Border>
+
+        <!-- Main Body Content -->
+        <Grid Grid.Row="1" Padding="16">
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="True"
+                               IsVisible="True"
+                               HeightRequest="40"
+                               WidthRequest="40"
+                               Color="#F59E0B"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+
+            <!-- Empty State View -->
+            <VerticalStackLayout x:Name="EmptyStateView"
+                                 IsVisible="False"
+                                 Spacing="12"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <Label Text="📜" FontSize="48" HorizontalOptions="Center" />
+                <Label Text="No Journal Entries Found"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="#CBD5E1"
+                       HorizontalOptions="Center" />
+                <Label Text="There are no recorded transactions for the active period."
+                       FontSize="12"
+                       TextColor="#94A3B8"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <!-- Journal Entries Collection List -->
+            <RefreshView x:Name="JournalRefreshView"
+                         Refreshing="OnRefreshViewRefreshing">
                 <CollectionView x:Name="JournalCollectionView"
-                                IsVisible="False"
                                 SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <!-- Card per Entri Transaksi -->
-                            <Border BackgroundColor="#1E293B"
-                                    Stroke="#334155"
+                            <Border Margin="0,0,0,14"
+                                    BackgroundColor="#1E293B"
+                                    Padding="16"
+                                    StrokeShape="RoundRectangle 12"
                                     StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 16"
-                                    Margin="0,0,0,14"
-                                    Padding="14">
+                                    Stroke="#334155">
                                 <VerticalStackLayout Spacing="10">
 
-                                    <!-- Tanggal Transaksi Header Card -->
+                                    <!-- Header: Date, Ref, and Journal Type Badge -->
                                     <Grid ColumnDefinitions="*, Auto">
-                                        <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
-                                            <Border BackgroundColor="#4F46E5"
-                                                    StrokeShape="RoundRectangle 8"
-                                                    Padding="8,4">
-                                                <Label Text="{Binding EntryDate, StringFormat='{0:dd MMM yyyy}'}"
-                                                       TextColor="White"
-                                                       FontSize="11"
-                                                       FontAttributes="Bold" />
-                                            </Border>
+                                        <HorizontalStackLayout Grid.Column="0" Spacing="8">
+                                            <Label Text="{Binding FormattedDate}"
+                                                   FontSize="13"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#F59E0B"
+                                                   VerticalOptions="Center" />
+                                            <Label Text="•" TextColor="#64748B" VerticalOptions="Center" />
+                                            <Label Text="{Binding ReferenceNumberDisplay}"
+                                                   FontSize="12"
+                                                   TextColor="#94A3B8"
+                                                   VerticalOptions="Center" />
                                         </HorizontalStackLayout>
 
-                                        <!-- Tombol Edit Transaksi (Menggunakan Button biasa agar properti Text & FontSize valid) -->
-                                        <Button Grid.Column="1"
-                                                Text="✏️"
-                                                BackgroundColor="Transparent"
-                                                TextColor="#94A3B8"
-                                                FontSize="14"
-                                                CommandParameter="{Binding Id}"
-                                                Clicked="OnEditEntryClicked"
-                                                HeightRequest="36"
-                                                WidthRequest="36"
-                                                Padding="0" />
+                                        <!-- Type Badge -->
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="#0F172A"
+                                                StrokeShape="RoundRectangle 6"
+                                                StrokeThickness="0"
+                                                Padding="8,3">
+                                            <Label Text="{Binding JournalType}"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#38BDF8" />
+                                        </Border>
                                     </Grid>
+
+                                    <!-- Description / Memo -->
+                                    <Label Text="{Binding Description}"
+                                           FontSize="13"
+                                           TextColor="White"
+                                           FontAttributes="Italic" />
 
                                     <BoxView HeightRequest="1" Color="#334155" Margin="0,2" />
 
-                                    <!-- Detail Baris Debet & Kredit -->
-                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}" Spacing="8">
+                                    <!-- Journal Lines Summary/List -->
+                                    <BindableLayout.ItemTemplate>
+                                        <!-- Ditangani via code-behind / inner layout atau ListView sederhana -->
+                                    </BindableLayout.ItemTemplate>
+
+                                    <!-- Sub-items Container menggunakan BindableLayout -->
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}" Spacing="6">
                                         <BindableLayout.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="10">
-                                                    
-                                                    <!-- Sisi Kiri: Nama Akun & Deskripsi -->
-                                                    <VerticalStackLayout Grid.Column="0" Grid.Row="0" Spacing="2">
-                                                        <HorizontalStackLayout Spacing="6">
-                                                            <!-- Indentasi untuk Akun Kredit -->
-                                                            <Label Text="    " IsVisible="{Binding IsCredit}" />
-                                                            <Label Text="{Binding AccountName}"
-                                                                   TextColor="{Binding AccountTextColor}"
-                                                                   FontAttributes="Bold"
-                                                                   FontSize="13" />
-                                                            <Border BackgroundColor="#0F172A"
-                                                                    StrokeShape="RoundRectangle 4"
-                                                                    Padding="4,1"
-                                                                    VerticalOptions="Center">
-                                                                <Label Text="{Binding RefNumber}"
-                                                                       TextColor="#64748B"
-                                                                       FontSize="9"
-                                                                       FontAttributes="Bold" />
-                                                            </Border>
-                                                        </HorizontalStackLayout>
-                                                        
-                                                        <Label Text="{Binding LineDescription}"
-                                                               TextColor="#64748B"
+                                                <Grid ColumnDefinitions="*, Auto, Auto">
+                                                    <!-- Account Name & Ref -->
+                                                    <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                                                        <Label Text="{Binding AccountReferenceNumber}"
+                                                               FontSize="12"
+                                                               TextColor="#94A3B8"
+                                                               FontAttributes="Bold" />
+                                                        <Label Text="{Binding AccountName}"
+                                                               FontSize="12"
+                                                               TextColor="#E2E8F0" />
+                                                        <Label Text="{Binding LineDescriptionDisplay}"
                                                                FontSize="11"
-                                                               LineBreakMode="WordWrap"
-                                                               IsVisible="{Binding HasDescription}" />
-                                                    </VerticalStackLayout>
+                                                               TextColor="#64748B"
+                                                               FontAttributes="Italic" />
+                                                    </HorizontalStackLayout>
 
-                                                    <!-- Sisi Kanan: Nilai Nominal (Debit / Credit) -->
-                                                    <Label Grid.Column="1" Grid.Row="0"
-                                                           Text="{Binding FormattedAmount}"
-                                                           TextColor="{Binding AmountColor}"
-                                                           FontAttributes="Bold"
-                                                           FontSize="13"
-                                                           HorizontalOptions="End"
-                                                           VerticalOptions="Start" />
+                                                    <!-- Debit Amount -->
+                                                    <Label Grid.Column="1"
+                                                           Text="{Binding DebitDisplay}"
+                                                           FontSize="12"
+                                                           TextColor="#38BDF8"
+                                                           HorizontalTextAlignment="End"
+                                                           WidthRequest="90"
+                                                           VerticalOptions="Center" />
+
+                                                    <!-- Credit Amount -->
+                                                    <Label Grid.Column="2"
+                                                           Text="{Binding CreditDisplay}"
+                                                           FontSize="12"
+                                                           TextColor="#F43F5E"
+                                                           HorizontalTextAlignment="End"
+                                                           WidthRequest="90"
+                                                           VerticalOptions="Center" />
                                                 </Grid>
                                             </DataTemplate>
                                         </BindableLayout.ItemTemplate>
                                     </VerticalStackLayout>
+
+                                    <!-- Total Footers -->
+                                    <BoxView HeightRequest="1" Color="#334155" Margin="0,2" />
+                                    <Grid ColumnDefinitions="*, Auto, Auto">
+                                        <Label Grid.Column="0" Text="Total" FontSize="11" FontAttributes="Bold" TextColor="#94A3B8" />
+                                        <Label Grid.Column="1" Text="{Binding TotalDebitDisplay}" FontSize="12" FontAttributes="Bold" TextColor="#38BDF8" WidthRequest="90" HorizontalTextAlignment="End" />
+                                        <Label Grid.Column="2" Text="{Binding TotalCreditDisplay}" FontSize="12" FontAttributes="Bold" TextColor="#F43F5E" WidthRequest="90" HorizontalTextAlignment="End" />
+                                    </Grid>
 
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+            </RefreshView>
 
-            </VerticalStackLayout>
-        </ScrollView>
+        </Grid>
 
     </Grid>
 
