@@ -4,17 +4,7 @@ using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
 using AumoFinance.Pages.Coa;
 using AumoFinance.Pages.Periods;
-using AumoFinance.Pages.Reports.AdjustingJournal;
-using AumoFinance.Pages.Reports.ClosingJournal;
-using AumoFinance.Pages.Reports.GeneralJournal;
-using AumoFinance.Pages.Reports.GeneralLedger;
-using AumoFinance.Pages.Reports.IncomeStatement;
-using AumoFinance.Pages.Reports.PostClosingTrialBalance;
-using AumoFinance.Pages.Reports.RetainedEarnings;
-using AumoFinance.Pages.Reports.StatementOfCashFlows;
-using AumoFinance.Pages.Reports.StatementOfFinancialPosition;
-using AumoFinance.Pages.Reports.TrialBalance;
-using AumoFinance.Pages.Reports.Worksheet;
+using AumoFinance.Pages.Reports;
 
 namespace AumoFinance.Views;
 
