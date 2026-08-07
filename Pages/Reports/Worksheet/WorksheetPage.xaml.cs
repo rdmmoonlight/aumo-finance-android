@@ -1,22 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
-using AumoFinance.Models;
+using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages;
 
 public partial class WorksheetPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly WorksheetService _worksheetService;
 
-    public WorksheetPage(AccountingService accountingService, Guid currentUserId)
+    public WorksheetPage(WorksheetService worksheetService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _worksheetService = worksheetService;
     }
 
     protected override async void OnAppearing()
@@ -35,107 +33,71 @@ public partial class WorksheetPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
-            if (period == null)
+            var (response, errorDetail) = await _worksheetService.GetWorksheetReportAsync();
+
+            if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
+                EmptyStateLabel.Text = errorDetail ?? "Failed to load worksheet report.";
                 return;
             }
 
-            PeriodNameLabel.Text = period.PeriodName;
-
-            var unadjustedRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: false);
-            var adjustedRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
-
-            var accounts = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: false);
-
-            var allAccountIds = unadjustedRows.Select(r => r.AccountId)
-                .Union(adjustedRows.Select(r => r.AccountId))
-                .Distinct()
-                .ToList();
-
-            if (!allAccountIds.Any())
+            if (!response.HasPeriodSelected)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = $"Tidak ada data worksheet pada periode {period.PeriodName}.";
+                EmptyStateLabel.Text = "No active period selected.";
+                return;
+            }
+
+            PeriodNameLabel.Text = response.SelectedPeriodName;
+
+            var rows = response.Rows;
+
+            if (rows == null || !rows.Any())
+            {
+                EmptyStateContainer.IsVisible = true;
+                EmptyStateLabel.Text = $"No worksheet data available for period {response.SelectedPeriodName}.";
                 return;
             }
 
             var culture = new System.Globalization.CultureInfo("id-ID");
-            var worksheetRows = new System.Collections.Generic.List<WorksheetRowDisplayModel>();
+            var worksheetRows = new List<WorksheetRowDisplayModel>();
 
-            decimal totUnadjDr = 0, totUnadjCr = 0;
-            decimal totAdjDr = 0, totAdjCr = 0;
-            decimal totAdjTbDr = 0, totAdjTbCr = 0;
-            decimal totIncDr = 0, totIncCr = 0;
-            decimal totBsDr = 0, totBsCr = 0;
-
-            foreach (var accId in allAccountIds)
+            foreach (var r in rows)
             {
-                var u = unadjustedRows.FirstOrDefault(r => r.AccountId == accId);
-                var a = adjustedRows.FirstOrDefault(r => r.AccountId == accId);
-
-                // PERBAIKAN LINE 81: Konversi int? ke string terlebih dahulu
-                var refNum = u?.ReferenceNumber.ToString() ?? a?.ReferenceNumber.ToString() ?? "-";
-                var name = u?.AccountName ?? a?.AccountName ?? "-";
-                var type = u?.Type ?? a?.Type ?? "Asset";
-
-                decimal uDr = u?.Debit ?? 0;
-                decimal uCr = u?.Credit ?? 0;
-                decimal aDr = a?.Debit ?? 0;
-                decimal aCr = a?.Credit ?? 0;
-
-                decimal adjNet = (aDr - aCr) - (uDr - uCr);
-                decimal adjDr = adjNet > 0 ? adjNet : 0;
-                decimal adjCr = adjNet < 0 ? -adjNet : 0;
-
-                bool isTemporary = AccountClassification.IsTemporary(type);
-
-                var row = new WorksheetRowDisplayModel
+                worksheetRows.Add(new WorksheetRowDisplayModel
                 {
-                    ReferenceNumber = refNum,
-                    AccountName = name,
-                    UnadjustedDebit = uDr,
-                    UnadjustedCredit = uCr,
-                    AdjustmentDebit = adjDr,
-                    AdjustmentCredit = adjCr,
-                    AdjustedDebit = aDr,
-                    AdjustedCredit = aCr,
-                    IncomeStatementDebit = isTemporary ? aDr : 0,
-                    IncomeStatementCredit = isTemporary ? aCr : 0,
-                    FinancialPositionDebit = !isTemporary ? aDr : 0,
-                    FinancialPositionCredit = !isTemporary ? aCr : 0
-                };
-
-                totUnadjDr += uDr;
-                totUnadjCr += uCr;
-                totAdjDr += adjDr;
-                totAdjCr += adjCr;
-                totAdjTbDr += aDr;
-                totAdjTbCr += aCr;
-                totIncDr += row.IncomeStatementDebit;
-                totIncCr += row.IncomeStatementCredit;
-                totBsDr += row.FinancialPositionDebit;
-                totBsCr += row.FinancialPositionCredit;
-
-                worksheetRows.Add(row);
+                    ReferenceNumber = r.ReferenceNumber > 0 ? r.ReferenceNumber.ToString() : "-",
+                    AccountName = r.AccountName,
+                    UnadjustedDebit = r.TbDebit,
+                    UnadjustedCredit = r.TbCredit,
+                    AdjustmentDebit = r.AdjDebit,
+                    AdjustmentCredit = r.AdjCredit,
+                    AdjustedDebit = r.AdjTbDebit,
+                    AdjustedCredit = r.AdjTbCredit,
+                    IncomeStatementDebit = r.IsDebit,
+                    IncomeStatementCredit = r.IsCredit,
+                    FinancialPositionDebit = r.BsDebit,
+                    FinancialPositionCredit = r.BsCredit
+                });
             }
 
-            decimal netIncome = totIncCr - totIncDr;
+            var totals = response.Totals ?? new WorksheetTotalsDto();
+
+            decimal netIncome = totals.NetIncome;
             NetIncomeLabel.Text = $"Rp {netIncome.ToString("N0", culture)}";
             NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
-            TotUnadjDr.Text = totUnadjDr.ToString("N0", culture);
-            TotUnadjCr.Text = totUnadjCr.ToString("N0", culture);
-            TotAdjDr.Text = totAdjDr.ToString("N0", culture);
-            TotAdjCr.Text = totAdjCr.ToString("N0", culture);
-            TotAdjTbDr.Text = totAdjTbDr.ToString("N0", culture);
-            TotAdjTbCr.Text = totAdjTbCr.ToString("N0", culture);
-            TotIncDr.Text = totIncDr.ToString("N0", culture);
-            TotIncCr.Text = totIncCr.ToString("N0", culture);
-            TotBsDr.Text = totBsDr.ToString("N0", culture);
-            TotBsCr.Text = totBsCr.ToString("N0", culture);
+            TotUnadjDr.Text = totals.TbDebit.ToString("N0", culture);
+            TotUnadjCr.Text = totals.TbCredit.ToString("N0", culture);
+            TotAdjDr.Text = totals.AdjDebit.ToString("N0", culture);
+            TotAdjCr.Text = totals.AdjCredit.ToString("N0", culture);
+            TotAdjTbDr.Text = totals.AdjTbDebit.ToString("N0", culture);
+            TotAdjTbCr.Text = totals.AdjTbCredit.ToString("N0", culture);
+            TotIncDr.Text = totals.IsDebit.ToString("N0", culture);
+            TotIncCr.Text = totals.IsCredit.ToString("N0", culture);
+            TotBsDr.Text = totals.BsDebit.ToString("N0", culture);
+            TotBsCr.Text = totals.BsCredit.ToString("N0", culture);
 
             WorksheetCollectionView.ItemsSource = worksheetRows;
             WorksheetContainer.IsVisible = true;
@@ -143,8 +105,7 @@ public partial class WorksheetPage : ContentPage
         }
         catch (Exception ex)
         {
-            // PERBAIKAN LINE 149: Gunakan DisplayAlertAsync
-            await DisplayAlertAsync("Error", $"Gagal memuat worksheet: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Failed to load worksheet: {ex.Message}", "OK");
         }
         finally
         {
