@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Services;
+using AumoFinance.Services.Periods;
 
 namespace AumoFinance.Pages.Periods;
 
@@ -26,35 +27,24 @@ public partial class PeriodsPage : ContentPage
 
     private async Task LoadPeriodsAsync()
     {
-        SetLoadingState(true);
+        SetLoading(true);
 
         try
         {
-            var (periods, activePeriodName, errorDetail) = await _periodService.GetPeriodsAsync();
+            var (data, errorDetail) = await _periodService.GetPeriodsAsync();
 
             if (!string.IsNullOrEmpty(errorDetail))
             {
-                await this.DisplayAlertAsync("Error Loading Periods", errorDetail, "OK");
+                await this.DisplayAlertAsync("Error", errorDetail, "OK");
                 return;
             }
 
-            ActivePeriodHeaderLabel.Text = string.IsNullOrWhiteSpace(activePeriodName)
-                ? "No Active Period Selected"
-                : $"Selected: {activePeriodName}";
-
-            var viewModels = periods.Select(p => new PeriodItemViewModel
+            if (data != null && data.Periods != null)
             {
-                Id = p.Id,
-                PeriodName = p.PeriodName,
-                StartDate = p.StartDate,
-                EndDate = p.EndDate,
-                IsClosed = p.IsClosed,
-                IsSelected = p.IsSelected
-            }).ToList();
-
-            PeriodsCollectionView.ItemsSource = viewModels;
-            EmptyStateView.IsVisible = !viewModels.Any();
-            PeriodsCollectionView.IsVisible = viewModels.Any();
+                PeriodsCollectionView.ItemsSource = data.Periods;
+                EmptyStateView.IsVisible = !data.Periods.Any();
+                PeriodsCollectionView.IsVisible = data.Periods.Any();
+            }
         }
         catch (Exception ex)
         {
@@ -63,22 +53,17 @@ public partial class PeriodsPage : ContentPage
         }
         finally
         {
-            SetLoadingState(false);
+            SetLoading(false);
             PeriodsRefreshView.IsRefreshing = false;
         }
     }
 
-    private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
-    {
-        await LoadPeriodsAsync();
-    }
-
     private async void OnSelectPeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is PeriodItemViewModel vm)
+        if (sender is Button button && button.CommandParameter is int periodId)
         {
-            SetLoadingState(true);
-            var (success, message) = await _periodService.SelectPeriodAsync(vm.Id);
+            // Perbaikan CS1503: Konversi int? / int ke string?
+            var (success, message) = await _periodService.SetActivePeriodAsync(periodId.ToString());
 
             if (success)
             {
@@ -86,26 +71,24 @@ public partial class PeriodsPage : ContentPage
             }
             else
             {
-                await this.DisplayAlertAsync("Selection Failed", message, "OK");
-                SetLoadingState(false);
+                await this.DisplayAlertAsync("Failed", message, "OK");
             }
         }
     }
 
     private async void OnClosePeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is PeriodItemViewModel vm)
+        if (sender is Button button && button.CommandParameter is int periodId)
         {
             bool confirm = await this.DisplayAlertAsync(
-                "Close Period Confirmation",
-                $"Are you sure you want to close the period '{vm.PeriodName}'? Closed periods cannot be modified.",
-                "Yes, Close Period",
+                "Close Period",
+                "Are you sure you want to close this accounting period? This action will lock all transactions in this period.",
+                "Yes, Close",
                 "Cancel");
 
             if (!confirm) return;
 
-            SetLoadingState(true);
-            var (success, message) = await _periodService.ClosePeriodAsync(vm.Id);
+            var (success, message) = await _periodService.ClosePeriodAsync(periodId);
 
             if (success)
             {
@@ -114,74 +97,54 @@ public partial class PeriodsPage : ContentPage
             }
             else
             {
-                await this.DisplayAlertAsync("Close Failed", message, "OK");
-                SetLoadingState(false);
+                await this.DisplayAlertAsync("Failed", message, "OK");
             }
         }
     }
 
-    private async void OnCreatePeriodClicked(object? sender, EventArgs e)
+    private async void OnReopenPeriodClicked(object? sender, EventArgs e)
     {
-        string periodName = await DisplayPromptAsync("New Period", "Enter accounting period name (e.g. August 2026):");
-        if (string.IsNullOrWhiteSpace(periodName)) return;
-
-        string startDateStr = await DisplayPromptAsync("Start Date", "Enter start date (YYYY-MM-DD):", initialValue: DateTime.Now.ToString("yyyy-MM-01"));
-        if (!DateTime.TryParse(startDateStr, out DateTime startDate))
+        if (sender is Button button && button.CommandParameter is int periodId)
         {
-            await this.DisplayAlertAsync("Invalid Date", "Please enter a valid start date.", "OK");
-            return;
+            var (success, message) = await _periodService.ReopenPeriodAsync(periodId);
+
+            if (success)
+            {
+                await this.DisplayAlertAsync("Success", message, "OK");
+                await LoadPeriodsAsync();
+            }
+            else
+            {
+                await this.DisplayAlertAsync("Failed", message, "OK");
+            }
         }
+    }
 
-        string endDateStr = await DisplayPromptAsync("End Date", "Enter end date (YYYY-MM-DD):", initialValue: DateTime.Now.ToString("yyyy-MM-31"));
-        if (!DateTime.TryParse(endDateStr, out DateTime endDate))
-        {
-            await this.DisplayAlertAsync("Invalid Date", "Please enter a valid end date.", "OK");
-            return;
-        }
+    private async void OnAddPeriodClicked(object? sender, EventArgs e)
+    {
+        string name = await this.DisplayPromptAsync("New Period", "Enter period name (e.g. FY 2026 / March 2026):");
+        if (string.IsNullOrWhiteSpace(name)) return;
 
-        SetLoadingState(true);
-
-        var dto = new CreatePeriodDto
-        {
-            PeriodName = periodName.Trim(),
-            StartDate = startDate,
-            EndDate = endDate
-        };
-
-        var (success, message) = await _periodService.CreatePeriodAsync(dto);
+        // Perbaikan CS0246 & CS8130: Panggilan DTO sesuai dengan ketersediaan Service
+        var (success, message) = await _periodService.CreatePeriodAsync(name.Trim(), DateTime.Today, DateTime.Today.AddMonths(1));
 
         if (success)
         {
-            await this.DisplayAlertAsync("Success", message, "OK");
+            await this.DisplayAlertAsync("Success", "Accounting period created successfully.", "OK");
             await LoadPeriodsAsync();
         }
         else
         {
-            await this.DisplayAlertAsync("Create Failed", message, "OK");
-            SetLoadingState(false);
+            await this.DisplayAlertAsync("Failed", message, "OK");
         }
     }
 
-    private void SetLoadingState(bool isLoading)
+    private async void OnRefreshClicked(object? sender, EventArgs e) => await LoadPeriodsAsync();
+    private async void OnRefreshViewRefreshing(object? sender, EventArgs e) => await LoadPeriodsAsync();
+
+    private void SetLoading(bool isLoading)
     {
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
     }
-}
-
-// ==========================================
-// VIEW MODEL UNTUK ITEM LIST PERIODE
-// ==========================================
-public class PeriodItemViewModel
-{
-    public int Id { get; set; }
-    public string PeriodName { get; set; } = string.Empty;
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public bool IsClosed { get; set; }
-    public bool IsSelected { get; set; }
-
-    public string DateRangeDisplay => $"{StartDate:MMM dd, yyyy} — {EndDate:MMM dd, yyyy}";
-    public bool CanSelect => !IsSelected;
-    public bool CanClose => IsSelected && !IsClosed;
 }
