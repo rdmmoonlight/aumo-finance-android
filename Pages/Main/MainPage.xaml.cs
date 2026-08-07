@@ -6,6 +6,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using AumoFinance.Services;
 using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Pages.Dashboard; // Addition for DashboardPage namespace
 
 namespace AumoFinance.Pages;
 
@@ -83,6 +84,16 @@ public partial class MainPage : ContentPage
         if (journalEntryPage != null)
         {
             await Navigation.PushAsync(journalEntryPage);
+        }
+    }
+
+    // HANDLER TOMBOL KE-3: NAVIGASI KE DASHBOARDPAGE
+    private async void OnDashboardFabClicked(object? sender, EventArgs e)
+    {
+        var dashboardPage = Handler?.MauiContext?.Services.GetService<DashboardPage>();
+        if (dashboardPage != null)
+        {
+            await Navigation.PushAsync(dashboardPage);
         }
     }
 
