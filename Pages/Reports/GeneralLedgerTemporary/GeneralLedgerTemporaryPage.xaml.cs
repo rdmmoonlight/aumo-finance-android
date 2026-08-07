@@ -2,20 +2,18 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
+using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages;
 
 public partial class GeneralLedgerTemporaryPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly GeneralLedgerService _generalLedgerService;
 
-    public GeneralLedgerTemporaryPage(AccountingService accountingService, Guid currentUserId)
+    public GeneralLedgerTemporaryPage(GeneralLedgerService generalLedgerService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _generalLedgerService = generalLedgerService;
     }
 
     protected override async void OnAppearing()
@@ -34,24 +32,32 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
-            if (period == null)
+            // isTemporary = true for General Ledger Temporary (Nominal Accounts: Revenue, Expenses)
+            var (response, errorDetail) = await _generalLedgerService.GetGeneralLedgerReportAsync(isTemporary: true);
+
+            if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
                 return;
             }
 
-            var ledgers = await _accountingService.GetGeneralLedgerAsync(_currentUserId, period, isTemporary: true);
+            if (!response.HasPeriodSelected)
+            {
+                EmptyStateContainer.IsVisible = true;
+                return;
+            }
 
-            if (!ledgers.Any())
+            var ledgers = response.Accounts;
+
+            if (ledgers == null || !ledgers.Any())
             {
                 EmptyStateContainer.IsVisible = true;
             }
             else
             {
-                decimal netTotal = ledgers.Sum(l => l.NormalBalanceIsDebit ? -l.EndingBalance : l.EndingBalance);
+                decimal netTotal = ledgers.Sum(l => l.NormalBalance.Equals("Debit", StringComparison.OrdinalIgnoreCase) ? -l.EndingBalance : l.EndingBalance);
 
-                NetTotalLabel.Text = $"Rp {netTotal:N0}";
+                NetTotalLabel.Text = $"${netTotal:N2}";
                 NetTotalLabel.TextColor = netTotal >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
                 NetIncomeCard.IsVisible = true;
@@ -61,7 +67,7 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Gagal terhubung ke database: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Failed to connect to the database: {ex.Message}", "OK");
         }
         finally
         {
