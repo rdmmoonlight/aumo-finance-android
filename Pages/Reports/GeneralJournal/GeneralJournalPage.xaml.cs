@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -50,9 +51,7 @@ public partial class GeneralJournalPage : ContentPage
                     Id = e.Id,
                     EntryDate = e.EntryDate,
                     JournalType = e.JournalType ?? "General",
-                    ReferenceNumber = e.ReferenceNumber,
-                    // Perbaikan CS1061: Menggunakan ReferenceNumber & JournalType sebagai keterangan deskripsi pengganti
-                    Description = $"{e.JournalType} Entry - {e.ReferenceNumber}",
+                    ReferenceNumber = e.ReferenceNumber ?? string.Empty,
                     Lines = e.Lines.Select(l => new GeneralJournalLineViewModel
                     {
                         AccountReferenceNumber = l.ReferenceNumber,
@@ -82,12 +81,47 @@ public partial class GeneralJournalPage : ContentPage
         }
     }
 
-    private async void OnRefreshClicked(object? sender, EventArgs e) => await LoadGeneralJournalAsync();
-    private async void OnRefreshViewRefreshing(object? sender, EventArgs e) => await LoadGeneralJournalAsync();
+    public async void OnRefreshClicked(object? sender, EventArgs e)
+    {
+        await LoadGeneralJournalAsync();
+    }
+
+    public async void OnRefreshViewRefreshing(object? sender, EventArgs e)
+    {
+        await LoadGeneralJournalAsync();
+    }
 
     private void SetLoadingState(bool isLoading)
     {
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
     }
+}
+
+// ==========================================
+// VIEW MODELS UNTUK BINDING RENDER
+// ==========================================
+public class GeneralJournalEntryViewModel
+{
+    public int Id { get; set; }
+    public DateTime EntryDate { get; set; }
+    public string JournalType { get; set; } = "General";
+    public string ReferenceNumber { get; set; } = string.Empty;
+    public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
+    public CultureInfo UsdCulture { get; set; } = new("en-US");
+
+    public string FormattedDate => EntryDate.ToString("MMM dd, yyyy");
+}
+
+public class GeneralJournalLineViewModel
+{
+    public int AccountReferenceNumber { get; set; }
+    public string AccountName { get; set; } = string.Empty;
+    public string? LineDescription { get; set; }
+    public decimal Debit { get; set; }
+    public decimal Credit { get; set; }
+    public CultureInfo UsdCulture { get; set; } = new("en-US");
+
+    public string FormattedDebit => Debit > 0 ? Debit.ToString("C2", UsdCulture) : "-";
+    public string FormattedCredit => Credit > 0 ? Credit.ToString("C2", UsdCulture) : "-";
 }
