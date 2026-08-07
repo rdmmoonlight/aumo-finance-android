@@ -8,6 +8,7 @@ using AumoFinance.Pages.Reports; // Namespace flat untuk sebagian besar halaman 
 using AumoFinance.Pages.Reports.GeneralJournal;
 using AumoFinance.Pages.Reports.ClosingJournal;
 using AumoFinance.Pages.Reports.StatementOfCashFlows;
+using AumoFinance.Pages.Settings;
 
 namespace AumoFinance;
 
@@ -22,6 +23,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(CoaPage), typeof(CoaPage));
         Routing.RegisterRoute(nameof(PeriodsPage), typeof(PeriodsPage));
         Routing.RegisterRoute(nameof(JournalEntryPage), typeof(JournalEntryPage));
+        Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
 
         // 2. Financial Reports Routes
         Routing.RegisterRoute(nameof(GeneralJournalPage), typeof(GeneralJournalPage));
@@ -37,4 +39,63 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(PostClosingTrialBalancePage), typeof(PostClosingTrialBalancePage));
         Routing.RegisterRoute(nameof(StatementOfCashFlowsPage), typeof(StatementOfCashFlowsPage));
     }
+
+    // ================= FLYOUT MENU HANDLERS =================
+    // Shell otomatis menutup Flyout saat sebuah MenuItem diklik.
+    // Setiap handler hanya melakukan push navigasi (GoToAsync) ke rute
+    // yang sudah didaftarkan di atas — logika bisnis tidak disentuh.
+
+    private async void OnDashboardMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(DashboardPage));
+
+    private async void OnCoaMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(CoaPage));
+
+    private async void OnPeriodsMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(PeriodsPage));
+
+    private async void OnJournalEntryMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(JournalEntryPage));
+
+    private async void OnGeneralJournalMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(GeneralJournalPage));
+
+    private async void OnAdjustingJournalMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(AdjustingJournalPage));
+
+    private async void OnGlPermanentMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(GeneralLedgerPermanentPage));
+
+    private async void OnGlTemporaryMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(GeneralLedgerTemporaryPage));
+
+    private async void OnTrialBalanceMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync($"{nameof(TrialBalancePage)}?includeAdjusting=false");
+
+    private async void OnAdjustedTrialBalanceMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync($"{nameof(TrialBalancePage)}?includeAdjusting=true");
+
+    private async void OnWorksheetMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(WorksheetPage));
+
+    private async void OnIncomeStatementMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(IncomeStatementPage));
+
+    private async void OnRetainedEarningsMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(RetainedEarningsPage));
+
+    private async void OnSofpMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(StatementOfFinancialPositionPage));
+
+    private async void OnClosingJournalMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(ClosingJournalPage));
+
+    private async void OnPostClosingMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(PostClosingTrialBalancePage));
+
+    private async void OnCashFlowMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(StatementOfCashFlowsPage));
+
+    private async void OnSettingsMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(SettingsPage));
 }

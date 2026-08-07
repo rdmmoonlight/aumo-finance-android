@@ -4,19 +4,78 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:AumoFinance.Pages"
+    FlyoutBehavior="Flyout"
     Shell.NavBarIsVisible="False"
     Title="AumoFinance">
 
-    <!-- Halaman Pertama yang Muncul (LoginPage) -->
+    <!--
+        LOGIN
+        Halaman pertama yang muncul (sebelum user login).
+        - Route tetap "LoginPage" agar tidak mengganggu alur yang sudah ada.
+        - Disembunyikan dari Flyout (Shell.FlyoutItemIsVisible="False") karena
+          tidak relevan setelah user berhasil masuk.
+        - Flyout dinonaktifkan di halaman ini (Shell.FlyoutBehavior="Disabled")
+          agar drawer tidak bisa dibuka via gesture sebelum login.
+    -->
     <ShellContent
         Title="Login"
+        Route="LoginPage"
         ContentTemplate="{DataTemplate pages:LoginPage}"
-        Route="LoginPage" />
+        Shell.FlyoutItemIsVisible="False"
+        Shell.FlyoutBehavior="Disabled" />
 
-    <!-- Halaman Dashboard Utama -->
+    <!--
+        HOME
+        Halaman utama setelah login: sapaan, ringkasan saldo cepat, tombol
+        pintasan ke Dashboard & New Entry, dan pengaturan auto-update.
+        Route TETAP "MainPage" (dipakai oleh LoginPage.xaml.cs saat
+        GoToAsync("//MainPage") setelah login berhasil) — hanya Title yang
+        diklarifikasi dari "Dashboard" menjadi "Home" agar tidak rancu
+        dengan DashboardPage (ringkasan keuangan lengkap) di bawah.
+    -->
     <ShellContent
-        Title="Dashboard"
-        ContentTemplate="{DataTemplate pages:MainPage}"
-        Route="MainPage" />
+        Title="Home"
+        Route="MainPage"
+        ContentTemplate="{DataTemplate pages:MainPage}" />
+
+    <!-- ============================================================
+         MENU NAVIGASI (Flyout)
+         Item-item di bawah ini BUKAN ShellContent baru (bukan root/tab),
+         melainkan MenuItem yang memicu GoToAsync(...) menuju rute yang
+         sudah didaftarkan di AppShell.xaml.cs. Pendekatan ini dipilih agar:
+           1) Riwayat navigasi (tombol Back Android) tetap konsisten seperti
+              sebelumnya — setiap halaman di-push, bukan menggantikan root.
+           2) Tidak ada constructor/DI halaman manapun yang perlu diubah.
+         Baris berlabel kapital dengan IsEnabled="False" berfungsi sebagai
+         judul kelompok (non-klik), karena Shell Flyout bawaan tidak
+         menyediakan header kolaps bertingkat tanpa template kustom.
+         ============================================================ -->
+
+    <MenuItem Text="📊  Dashboard" Clicked="OnDashboardMenuItemClicked" />
+
+    <MenuItem Text="MASTER DATA" IsEnabled="False" />
+    <MenuItem Text="Chart of Accounts (COA)" Clicked="OnCoaMenuItemClicked" />
+    <MenuItem Text="Accounting Periods" Clicked="OnPeriodsMenuItemClicked" />
+
+    <MenuItem Text="TRANSACTIONS" IsEnabled="False" />
+    <MenuItem Text="New Journal Entry" Clicked="OnJournalEntryMenuItemClicked" />
+
+    <MenuItem Text="REPORTS &amp; JOURNALS" IsEnabled="False" />
+    <MenuItem Text="General Journal" Clicked="OnGeneralJournalMenuItemClicked" />
+    <MenuItem Text="Adjusting Journal" Clicked="OnAdjustingJournalMenuItemClicked" />
+    <MenuItem Text="General Ledger (Permanent)" Clicked="OnGlPermanentMenuItemClicked" />
+    <MenuItem Text="General Ledger (Temporary)" Clicked="OnGlTemporaryMenuItemClicked" />
+    <MenuItem Text="Trial Balance" Clicked="OnTrialBalanceMenuItemClicked" />
+    <MenuItem Text="Adjusted Trial Balance" Clicked="OnAdjustedTrialBalanceMenuItemClicked" />
+    <MenuItem Text="Worksheet (10-Column)" Clicked="OnWorksheetMenuItemClicked" />
+    <MenuItem Text="Income Statement" Clicked="OnIncomeStatementMenuItemClicked" />
+    <MenuItem Text="Retained Earnings Statement" Clicked="OnRetainedEarningsMenuItemClicked" />
+    <MenuItem Text="Statement of Financial Position" Clicked="OnSofpMenuItemClicked" />
+    <MenuItem Text="Closing Journal" Clicked="OnClosingJournalMenuItemClicked" />
+    <MenuItem Text="Post-Closing Trial Balance" Clicked="OnPostClosingMenuItemClicked" />
+    <MenuItem Text="Statement of Cash Flows" Clicked="OnCashFlowMenuItemClicked" />
+
+    <MenuItem Text="SETTINGS" IsEnabled="False" />
+    <MenuItem Text="App Settings" Clicked="OnSettingsMenuItemClicked" />
 
 </Shell>
