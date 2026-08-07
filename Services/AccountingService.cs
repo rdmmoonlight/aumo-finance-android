@@ -33,21 +33,21 @@ public class AccountingService : BaseApiService
     }
 
     // Proxy methods untuk menjaga kompatibilitas page report lama
-    public async Task<(AdjustingJournalReportApiResponse?, string?)> GetAdjustingJournalReportAsync() 
+    public async Task<(AdjustingJournalReportApiResponse?, string?)> GetAdjustingJournalReportAsync()
         => await _adjustingJournalService.GetAdjustingJournalReportAsync();
 
-    public async Task<(IncomeStatementReportApiResponse?, string?)> GetIncomeStatementReportAsync() 
+    public async Task<(IncomeStatementReportApiResponse?, string?)> GetIncomeStatementReportAsync()
         => await _incomeStatementService.GetIncomeStatementReportAsync();
 
-    public async Task<(RetainedEarningsReportApiResponse?, string?)> GetRetainedEarningsReportAsync() 
+    public async Task<(RetainedEarningsReportApiResponse?, string?)> GetRetainedEarningsReportAsync()
         => await _retainedEarningsService.GetRetainedEarningsReportAsync();
 
-    public async Task<(StatementOfFinancialPositionReportApiResponse?, string?)> GetStatementOfFinancialPositionReportAsync() 
+    public async Task<(StatementOfFinancialPositionReportApiResponse?, string?)> GetStatementOfFinancialPositionReportAsync()
         => await _sofpService.GetStatementOfFinancialPositionReportAsync();
 
-    public async Task<(TrialBalanceReportApiResponse?, string?)> GetTrialBalanceReportAsync(string type = "unadjusted") 
+    public async Task<(TrialBalanceReportApiResponse?, string?)> GetTrialBalanceReportAsync(string type = "unadjusted")
         => await _trialBalanceService.GetTrialBalanceReportAsync(type);
 
-    public async Task<(WorksheetReportApiResponse?, string?)> GetWorksheetReportAsync() 
+    public async Task<(WorksheetReportApiResponse?, string?)> GetWorksheetReportAsync()
         => await _worksheetService.GetWorksheetReportAsync();
 }

@@ -42,8 +42,8 @@ public partial class MainPage : ContentPage
             if (data != null && data.Success)
             {
                 // Update Period Header in TopBarView
-                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName) 
-                    ? "No Period Selected" 
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
+                    ? "No Period Selected"
                     : data.SelectedPeriodName;
 
                 // Format Financial Figures in US Currency ($#,##0.00)
