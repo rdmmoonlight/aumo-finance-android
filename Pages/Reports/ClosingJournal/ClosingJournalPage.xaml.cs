@@ -50,7 +50,7 @@ public partial class ClosingJournalPage : ContentPage
             return;
         }
 
-        if (data == null || !data.Success || data.Entries == null || data.Entries.Count == 0)
+        if (data == null || !data.Success || data.ClosingJournal == null || data.ClosingJournal.Groups.Count == 0)
         {
             SelectedPeriodHeaderLabel.Text = data?.SelectedPeriodName ?? "No Period Selected";
             ShowEmptyState(true);
@@ -60,19 +60,29 @@ public partial class ClosingJournalPage : ContentPage
         SelectedPeriodHeaderLabel.Text = data.SelectedPeriodName ?? "Active Period";
         ShowEmptyState(false);
 
-        // Bind data dengan wrapper ViewModel untuk format tampilan akuntansi
-        var uiModels = data.Entries.Select(e => new ClosingJournalEntryViewModel(e)).ToList();
-        JournalCollectionView.ItemsSource = uiModels;
+        // Bind Net Income Card
+        var culture = new CultureInfo("id-ID");
+        NetIncomeCard.IsVisible = true;
+        NetIncomeLabel.Text = data.ClosingJournal.NetIncome.ToString("C0", culture);
+        RetainedEarningsAccountLabel.Text = $"Tujuan: {data.ClosingJournal.RetainedEarningsAccountName ?? "Laba Ditahan"}";
+
+        // Bind Group Items
+        var groupViewModels = data.ClosingJournal.Groups
+            .Select(g => new ClosingJournalGroupViewModel(g))
+            .ToList();
+
+        JournalCollectionView.ItemsSource = groupViewModels;
     }
 
     private void SetLoadingState(bool isLoading)
     {
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
-        
+
         if (isLoading)
         {
             EmptyStateView.IsVisible = false;
+            NetIncomeCard.IsVisible = false;
         }
     }
 
@@ -84,27 +94,24 @@ public partial class ClosingJournalPage : ContentPage
 }
 
 // =========================================================================
-// VIEW MODELS / DISPLAY WRAPPERS FOR UI FORMATTING
+// VIEW MODELS / DISPLAY WRAPPERS FOR NEW JSON
 // =========================================================================
 
-public class ClosingJournalEntryViewModel
+public class ClosingJournalGroupViewModel
 {
-    private readonly ClosingJournalEntryDto _dto;
+    private readonly ClosingJournalGroupDto _dto;
 
-    public ClosingJournalEntryViewModel(ClosingJournalEntryDto dto)
+    public ClosingJournalGroupViewModel(ClosingJournalGroupDto dto)
     {
         _dto = dto;
         Lines = dto.Lines.Select(l => new ClosingJournalLineViewModel(l)).ToList();
     }
 
-    public string? ReferenceNumber => _dto.ReferenceNumber;
-    public string? JournalType => string.IsNullOrWhiteSpace(_dto.JournalType) ? "CLOSING" : _dto.JournalType;
-    public string FormattedDate => _dto.EntryDate.ToString("dd MMM yyyy", new CultureInfo("id-ID"));
-    
+    public string? Description => _dto.Description;
     public List<ClosingJournalLineViewModel> Lines { get; }
 
-    public string FormattedTotalDebit => _dto.TotalDebit == 0 ? "-" : _dto.TotalDebit.ToString("C0", new CultureInfo("id-ID"));
-    public string FormattedTotalCredit => _dto.TotalCredit == 0 ? "-" : _dto.TotalCredit.ToString("C0", new CultureInfo("id-ID"));
+    public string FormattedTotalDebit => _dto.TotalDebit == 0 ? "-" : _dto.TotalDebit.ToString("N0", new CultureInfo("id-ID"));
+    public string FormattedTotalCredit => _dto.TotalCredit == 0 ? "-" : _dto.TotalCredit.ToString("N0", new CultureInfo("id-ID"));
 }
 
 public class ClosingJournalLineViewModel
@@ -116,10 +123,9 @@ public class ClosingJournalLineViewModel
         _dto = dto;
     }
 
-    public string ReferenceNumber => _dto.ReferenceNumber.ToString();
+    public string FormattedRef => _dto.ReferenceNumber == 0 ? "-" : _dto.ReferenceNumber.ToString();
     public string? AccountName => _dto.AccountName;
-    public string? LineDescription => _dto.LineDescription;
-    
+
     public string FormattedDebit => _dto.Debit == 0 ? "-" : _dto.Debit.ToString("N0", new CultureInfo("id-ID"));
     public string FormattedCredit => _dto.Credit == 0 ? "-" : _dto.Credit.ToString("N0", new CultureInfo("id-ID"));
 }
