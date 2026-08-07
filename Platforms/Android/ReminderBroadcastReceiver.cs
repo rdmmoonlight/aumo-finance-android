@@ -26,9 +26,9 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
 
         NotificationService.EnsureChannel();
 
-        // Mengatasi CS8604 dengan memastikan context.PackageName tidak null
-        string packageName = context.PackageName ?? string.Empty;
-        
+        // Menggunakan ContextCompat agar aman dari masalah null intent launcher
+        var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(context.PackageName);
+
         PendingIntent? pendingIntent = null;
         if (!string.IsNullOrEmpty(packageName))
         {
