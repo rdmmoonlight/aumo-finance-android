@@ -78,7 +78,12 @@ public partial class MainPage : ContentPage
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
-        await Navigation.PushAsync(new JournalEntryPage());
+        // Menggunakan ServiceProvider MAUI agar Dependency Injection terinjeksi sempurna
+        var journalEntryPage = Handler?.MauiContext?.Services.GetService<JournalEntryPage>();
+        if (journalEntryPage != null)
+        {
+            await Navigation.PushAsync(journalEntryPage);
+        }
     }
 
     private void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
