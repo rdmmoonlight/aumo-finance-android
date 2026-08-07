@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using AumoFinance.Services;
+using AumoFinance.Services.Transactions;
 
 namespace AumoFinance.Pages.JournalEntry;
 
@@ -209,7 +210,7 @@ public class AccountLookupDto
 {
     public int Id { get; set; }
     public int ReferenceNumber { get; set; }
-    public string AccountName { get; set; } = string.Empty; // Diperbaiki dari get: set; ke get; set;
+    public string AccountName { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
 }
 
