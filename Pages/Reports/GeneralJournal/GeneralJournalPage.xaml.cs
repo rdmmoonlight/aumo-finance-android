@@ -1,89 +1,137 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
-using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages;
 
 public partial class GeneralJournalPage : ContentPage
 {
-    private readonly ApiService _apiService;
+    private readonly GeneralJournalService _generalJournalService;
+    private readonly CultureInfo _usdCulture = new("en-US");
 
-    public GeneralJournalPage(ApiService apiService)
+    public GeneralJournalPage(GeneralJournalService generalJournalService)
     {
         InitializeComponent();
-        _apiService = apiService;
+        _generalJournalService = generalJournalService;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadJournalEntriesAsync();
+        await LoadGeneralJournalAsync();
     }
 
-    private async Task LoadJournalEntriesAsync()
+    private async Task LoadGeneralJournalAsync()
     {
-        LoadingIndicator.IsVisible = true;
-        LoadingIndicator.IsRunning = true;
-        JournalCollectionView.IsVisible = false;
-        EmptyStateContainer.IsVisible = false;
+        SetLoadingState(true);
 
         try
         {
-            var (entries, selectedPeriodName, isPeriodClosed, errorDetail) = await _apiService.GetGeneralJournalAsync();
+            var (data, errorDetail) = await _generalJournalService.GetGeneralJournalReportAsync();
 
-            if (errorDetail != null)
+            if (!string.IsNullOrEmpty(errorDetail))
             {
-                await DisplayAlertAsync("Koneksi Gagal", $"Gagal memuat General Journal dari server.\n\nDetail: {errorDetail}", "OK");
+                await this.DisplayAlertAsync("Error", errorDetail, "OK");
                 return;
             }
 
-            if (string.IsNullOrEmpty(selectedPeriodName))
+            if (data != null)
             {
-                EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
-                return;
-            }
+                SelectedPeriodHeaderLabel.Text = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
+                    ? "No Active Period"
+                    : data.SelectedPeriodName;
 
-            PeriodNameLabel.Text = selectedPeriodName;
-            ClosedBadge.IsVisible = isPeriodClosed;
+                var viewModels = data.Entries.Select(e => new GeneralJournalEntryViewModel
+                {
+                    Id = e.Id,
+                    EntryDate = e.EntryDate,
+                    JournalType = e.JournalType ?? "General",
+                    ReferenceNumber = e.ReferenceNumber,
+                    Description = e.Description,
+                    Lines = e.Lines.Select(l => new GeneralJournalLineViewModel
+                    {
+                        AccountReferenceNumber = l.ReferenceNumber,
+                        AccountName = l.AccountName ?? string.Empty,
+                        LineDescription = l.LineDescription,
+                        Debit = l.Debit,
+                        Credit = l.Credit,
+                        UsdCulture = _usdCulture
+                    }).ToList(),
+                    UsdCulture = _usdCulture
+                }).ToList();
 
-            if (!entries.Any())
-            {
-                EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = $"Tidak ada entri jurnal pada periode {selectedPeriodName}.";
-            }
-            else
-            {
-                JournalCollectionView.ItemsSource = entries;
-                JournalCollectionView.IsVisible = true;
+                JournalCollectionView.ItemsSource = viewModels;
+                EmptyStateView.IsVisible = !viewModels.Any();
+                JournalCollectionView.IsVisible = viewModels.Any();
             }
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Terjadi kesalahan: {ex.Message}", "OK");
+            Debug.WriteLine($"LoadGeneralJournalAsync error: {ex}");
+            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
+            SetLoadingState(false);
+            JournalRefreshView.IsRefreshing = false;
         }
     }
 
-    private async void OnAddEntryClicked(object? sender, EventArgs e)
+    private async void OnRefreshClicked(object? sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(JournalEntryPage));
+        await LoadGeneralJournalAsync();
     }
 
-    private async void OnEditEntryClicked(object? sender, EventArgs e)
+    private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is int entryId)
-        {
-            // Catatan: JournalEntryEditPage belum diimplementasikan di sisi mobile
-            // maupun terdaftar sebagai route — fitur edit entri jurnal belum tersedia.
-            await DisplayAlertAsync("Informasi", $"Fitur edit entri jurnal (ID: {entryId}) belum diimplementasikan.", "OK");
-        }
+        await LoadGeneralJournalAsync();
     }
+
+    private void SetLoadingState(bool isLoading)
+    {
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
+    }
+}
+
+// ==========================================
+// VIEW MODELS UNTUK GENERAL JOURNAL
+// ==========================================
+public class GeneralJournalEntryViewModel
+{
+    public int Id { get; set; }
+    public DateTime EntryDate { get; set; }
+    public string JournalType { get; set; } = string.Empty;
+    public string? ReferenceNumber { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
+    public CultureInfo UsdCulture { get; set; } = new("en-US");
+
+    public string FormattedDate => EntryDate.ToString("MMM dd, yyyy");
+    public string ReferenceNumberDisplay => string.IsNullOrWhiteSpace(ReferenceNumber) ? "No Ref" : ReferenceNumber;
+
+    public decimal TotalDebit => Lines.Sum(l => l.Debit);
+    public decimal TotalCredit => Lines.Sum(l => l.Credit);
+
+    public string TotalDebitDisplay => TotalDebit > 0 ? TotalDebit.ToString("C2", UsdCulture) : "-";
+    public string TotalCreditDisplay => TotalCredit > 0 ? TotalCredit.ToString("C2", UsdCulture) : "-";
+}
+
+public class GeneralJournalLineViewModel
+{
+    public int AccountReferenceNumber { get; set; }
+    public string AccountName { get; set; } = string.Empty;
+    public string? LineDescription { get; set; }
+    public decimal Debit { get; set; }
+    public decimal Credit { get; set; }
+    public CultureInfo UsdCulture { get; set; } = new("en-US");
+
+    public string LineDescriptionDisplay => string.IsNullOrWhiteSpace(LineDescription) ? string.Empty : $"({LineDescription})";
+    public string DebitDisplay => Debit > 0 ? Debit.ToString("C2", UsdCulture) : string.Empty;
+    public string CreditDisplay => Credit > 0 ? Credit.ToString("C2", UsdCulture) : string.Empty;
 }
