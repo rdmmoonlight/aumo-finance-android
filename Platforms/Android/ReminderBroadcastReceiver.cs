@@ -26,7 +26,6 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
 
         NotificationService.EnsureChannel();
 
-        // Safe check untuk PackageName dan PackageManager
         string? packageName = context.PackageName;
         PendingIntent? pendingIntent = null;
 
@@ -43,20 +42,26 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
             }
         }
 
-        // Perbaikan: Ganti SetSmallResource menjadi SetSmallIcon
-        var builder = new NotificationCompat.Builder(context, NotificationService.ChannelId)
-            .SetSmallIcon(global::Android.Resource.Drawable.IcDialogInfo)
-            .SetContentTitle("AumoFinance")
-            .SetContentText("Jangan lupa catat transaksi keuanganmu hari ini!")
-            .SetAutoCancel(true)
-            .SetPriority(NotificationCompat.PriorityDefault);
+        // Hindari method chaining berantai untuk mencegah CS8602 pada Roslyn
+        var builder = new NotificationCompat.Builder(context, NotificationService.ChannelId);
+        builder.SetSmallIcon(global::Android.Resource.Drawable.IcDialogInfo);
+        builder.SetContentTitle("AumoFinance");
+        builder.SetContentText("Jangan lupa catat transaksi keuanganmu hari ini!");
+        builder.SetAutoCancel(true);
+        builder.SetPriority(NotificationCompat.PriorityDefault);
 
         if (pendingIntent != null)
         {
             builder.SetContentIntent(pendingIntent);
         }
 
+        // Baris 56 & 60: Pengecekan eksplisit pada NotificationManager & Builder
         var notificationManager = context.GetSystemService(Context.NotificationService) as NotificationManager;
-        notificationManager?.Notify(NotificationId, builder.Build());
+        var notification = builder.Build();
+
+        if (notificationManager != null && notification != null)
+        {
+            notificationManager.Notify(NotificationId, notification);
+        }
     }
 }
