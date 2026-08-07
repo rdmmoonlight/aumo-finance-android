@@ -1,6 +1,8 @@
 using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
 using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Pages.Coa;
+using AumoFinance.Pages.Periods;
 
 namespace AumoFinance;
 
