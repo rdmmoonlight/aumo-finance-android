@@ -130,10 +130,21 @@ public class UpdateService
             if (downloadId != -1)
             {
                 var onCompleteReceiver = new DownloadCompleteReceiver(downloadId, fileName);
-                context.RegisterReceiver(
-                    onCompleteReceiver,
-                    new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete),
-                    Android.Content.ReceiverFlags.Exported);
+                var filter = new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete);
+
+                // Perbaikan CA1416: Pengecekan versi OS dinamis untuk RegisterReceiver Flags
+                if (OperatingSystem.IsAndroidVersionAtLeast(33))
+                {
+                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.Exported);
+                }
+                else if (OperatingSystem.IsAndroidVersionAtLeast(26))
+                {
+                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.None);
+                }
+                else
+                {
+                    context.RegisterReceiver(onCompleteReceiver, filter);
+                }
             }
         }
         catch (Exception ex)
@@ -175,9 +186,10 @@ public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
 
     private void TriggerInstall(Android.Content.Context context, string fileName)
     {
-        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+        // Perbaikan CA1416: Pengecekan versi Android 26 (Oreo) ke atas
+        if (OperatingSystem.IsAndroidVersionAtLeast(26))
         {
-            if (!context.PackageManager!.CanRequestPackageInstalls())
+            if (context.PackageManager != null && !context.PackageManager.CanRequestPackageInstalls())
             {
                 var settingsIntent = new Android.Content.Intent(Android.Provider.Settings.ActionManageUnknownAppSources)
                     .SetData(Android.Net.Uri.Parse($"package:{context.PackageName}"))
