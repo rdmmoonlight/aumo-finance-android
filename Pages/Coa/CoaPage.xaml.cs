@@ -14,7 +14,7 @@ public partial class CoaPage : ContentPage
 {
     private readonly CoaService _coaService;
     private List<CoaItemViewModel> _allAccounts = new();
-    private readonly CultureInfo _usdCulture = new("en-US");
+    private readonly CultureInfo _idrCulture = new("id-ID");
 
     public CoaPage(CoaService coaService)
     {
@@ -66,7 +66,7 @@ public partial class CoaPage : ContentPage
                 Role = a.Role,
                 IsActive = a.IsActive,
                 CurrentBalance = a.CurrentBalance,
-                UsdCulture = _usdCulture
+                IdrCulture = _idrCulture
             }).ToList();
 
             ApplyFilterAndSearch();
@@ -245,13 +245,13 @@ public class CoaItemViewModel
     public string Role { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public decimal CurrentBalance { get; set; }
-    public CultureInfo UsdCulture { get; set; } = new("en-US");
+    public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
     public bool HasRole => !string.IsNullOrWhiteSpace(Role);
     public string StatusText => IsActive ? "ACTIVE" : "INACTIVE";
     public Color StatusBackgroundColor => IsActive ? Color.FromArgb("#14532D") : Color.FromArgb("#7F1D1D");
     public Color StatusTextColor => IsActive ? Color.FromArgb("#86EFAC") : Color.FromArgb("#FCA5A5");
 
-    public string FormattedBalance => CurrentBalance.ToString("C2", UsdCulture);
+    public string FormattedBalance => "Rp" + Math.Round(CurrentBalance, 0, MidpointRounding.AwayFromZero).ToString("N0", IdrCulture);
     public Color BalanceColor => CurrentBalance >= 0 ? Color.FromArgb("#38BDF8") : Color.FromArgb("#EF4444");
 }
