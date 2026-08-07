@@ -40,8 +40,8 @@ public partial class DashboardPage : ContentPage
 
             if (data != null && data.Success)
             {
-                PeriodText.Text = string.IsNullOrWhiteSpace(data.SelectedPeriodName) 
-                    ? "No Period Selected" 
+                PeriodText.Text = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
+                    ? "No Period Selected"
                     : data.SelectedPeriodName;
 
                 CashLabel.Text = data.TotalAssets.ToString("C2", _usdCulture);
