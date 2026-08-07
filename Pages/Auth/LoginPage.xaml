@@ -8,7 +8,7 @@
 
     <Grid VerticalOptions="Center" Padding="24">
         
-        <!-- Login Card Container -->
+        <!-- Card Container Login -->
         <Border BackgroundColor="#1E293B"
                 Stroke="#334155"
                 StrokeThickness="1"
@@ -20,21 +20,22 @@
 
             <VerticalStackLayout Spacing="24">
 
-                <!-- Header & App Logo/Icon -->
+                <!-- Header & App Logo/Icon (Elegan & Sleek) -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
                     <Border BackgroundColor="#312E81"
                             Stroke="#4F46E5"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 18"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 20"
                             HeightRequest="60"
                             WidthRequest="60"
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
-                        <Label Text="A" 
-                               FontSize="28" 
-                               FontAttributes="Bold" 
-                               TextColor="#818CF8" 
-                               HorizontalOptions="Center" 
+                        <!-- Unicode Icon Diamond/Vault ramping -->
+                        <Label Text="&#xE8E8;"
+                               FontFamily="MaterialIcons"
+                               FontSize="28"
+                               TextColor="#818CF8"
+                               HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
                     
@@ -42,96 +43,111 @@
                            FontSize="24"
                            FontAttributes="Bold"
                            TextColor="White"
-                           HorizontalTextAlignment="Center" />
+                           HorizontalTextAlignment="Center"
+                           CharacterSpacing="0.5" />
                     
-                    <Label Text="Sign in to your account to continue"
+                    <Label Text="Masuk ke akun Anda untuk melanjutkan"
                            FontSize="13"
                            TextColor="#94A3B8"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
 
-                <!-- Alert / Error Box -->
+                <!-- Alert/Error Box -->
                 <Border x:Name="ErrorCard"
                         IsVisible="False"
-                        BackgroundColor="#450A0A"
-                        Stroke="#DC2626"
+                        BackgroundColor="#451A1A"
+                        Stroke="#F87171"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 12"
-                        Padding="14,10">
-                    <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-                        <Label Text="!" 
-                               FontSize="12"
-                               FontAttributes="Bold"
-                               TextColor="#FCA5A5" 
+                        Padding="12,10">
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10" VerticalOptions="Center">
+                        <!-- Icon Warning Vektor Unicode -->
+                        <Label Grid.Column="0"
+                               Text="&#xE000;"
+                               FontFamily="MaterialIcons"
+                               TextColor="#FCA5A5"
+                               FontSize="16"
                                VerticalOptions="Center" />
                         <Label x:Name="ErrorText"
-                               Text="Invalid email or password."
+                               Grid.Column="1"
+                               Text="Email atau password salah."
                                TextColor="#FCA5A5"
                                FontSize="12"
                                VerticalOptions="Center" />
-                    </HorizontalStackLayout>
+                    </Grid>
                 </Border>
 
-                <!-- Input Username / Email -->
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Email or Username"
-                           TextColor="#CBD5E1"
-                           FontSize="12"
-                           FontAttributes="Bold" />
-                    
-                    <Border BackgroundColor="#0F172A"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="14,2">
-                        <Entry x:Name="UsernameEntry"
-                               Placeholder="name@example.com"
-                               PlaceholderColor="#475569"
-                               TextColor="White"
-                               Keyboard="Email"
-                               ReturnType="Next"
-                               FontSize="14" />
-                    </Border>
-                </VerticalStackLayout>
+                <!-- Input Form Wrapper -->
+                <VerticalStackLayout Spacing="16">
 
-                <!-- Input Password -->
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Password"
-                           TextColor="#CBD5E1"
-                           FontSize="12"
-                           FontAttributes="Bold" />
-                    
-                    <Border BackgroundColor="#0F172A"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="14,2">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <Entry x:Name="PasswordEntry"
-                                   Grid.Column="0"
-                                   Placeholder="••••••••"
-                                   PlaceholderColor="#475569"
+                    <!-- Input Username / Email -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Email / Username"
+                               TextColor="#CBD5E1"
+                               FontSize="12"
+                               FontAttributes="Bold" />
+                        
+                        <Border BackgroundColor="#0F172A"
+                                Stroke="#334155"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="14,2">
+                            <Entry x:Name="UsernameEntry"
+                                   Placeholder="nama@email.com"
+                                   PlaceholderColor="#64748B"
                                    TextColor="White"
-                                   IsPassword="True"
-                                   ReturnType="Done"
                                    FontSize="14"
-                                   Completed="OnLoginButtonClicked" />
-                            
-                            <Button x:Name="TogglePasswordButton"
-                                   Grid.Column="1"
-                                   Text="SHOW"
-                                   BackgroundColor="Transparent"
-                                   TextColor="#64748B"
-                                   FontAttributes="Bold"
-                                   FontSize="11"
-                                   Padding="8,0"
-                                   HeightRequest="36"
-                                   Clicked="OnTogglePasswordClicked" />
-                        </Grid>
-                    </Border>
+                                   Keyboard="Email"
+                                   ReturnType="Next"
+                                   HeightRequest="44" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Input Password -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Password"
+                               TextColor="#CBD5E1"
+                               FontSize="12"
+                               FontAttributes="Bold" />
+                        
+                        <Border BackgroundColor="#0F172A"
+                                Stroke="#334155"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="14,2">
+                            <Grid ColumnDefinitions="*, Auto" AlignmentLayout="Fill">
+                                <Entry x:Name="PasswordEntry"
+                                       Grid.Column="0"
+                                       Placeholder="••••••••"
+                                       PlaceholderColor="#64748B"
+                                       TextColor="White"
+                                       FontSize="14"
+                                       IsPassword="True"
+                                       ReturnType="Done"
+                                       HeightRequest="44"
+                                       VerticalOptions="Center"
+                                       Completed="OnLoginButtonClicked" />
+                                
+                                <!-- Toggle Password Eye Icon -->
+                                <Button x:Name="TogglePasswordButton"
+                                        Grid.Column="1"
+                                        Text="&#xE8F5;"
+                                        FontFamily="MaterialIcons"
+                                        BackgroundColor="Transparent"
+                                        TextColor="#94A3B8"
+                                        FontSize="18"
+                                        Padding="0"
+                                        HeightRequest="40"
+                                        WidthRequest="40"
+                                        VerticalOptions="Center"
+                                        Clicked="OnTogglePasswordClicked" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
                 </VerticalStackLayout>
 
-                <!-- Action Button & Loading Indicator -->
+                <!-- Button Login & Indicator -->
                 <VerticalStackLayout Spacing="12" Margin="0,8,0,0">
                     <ActivityIndicator x:Name="LoadingIndicator"
                                        Color="#6366F1"
@@ -140,16 +156,16 @@
                                        HeightRequest="36" />
 
                     <Button x:Name="LoginButton"
-                            Text="Sign In"
+                            Text="Masuk"
                             Clicked="OnLoginButtonClicked"
                             BackgroundColor="#4F46E5"
                             TextColor="White"
                             FontAttributes="Bold"
                             FontSize="15"
                             CornerRadius="12"
-                            HeightRequest="50">
+                            HeightRequest="48">
                         <Button.Shadow>
-                            <Shadow Brush="#4F46E5" Offset="0,4" Radius="12" Opacity="0.35" />
+                            <Shadow Brush="#4F46E5" Offset="0,6" Radius="12" Opacity="0.35" />
                         </Button.Shadow>
                     </Button>
                 </VerticalStackLayout>
