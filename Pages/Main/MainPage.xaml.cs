@@ -54,7 +54,7 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                string detail = string.IsNullOrWhiteSpace(errorDetail) ? "Unknown error occurred." : errorDetail;
+                string detail = string.IsNullOrWhiteSpace(errorDetail) ? "An unknown error occurred." : errorDetail;
                 await this.DisplayAlertAsync("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
             }
         }
@@ -78,7 +78,7 @@ public partial class MainPage : ContentPage
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
-        // Menggunakan ServiceProvider MAUI agar Dependency Injection terinjeksi sempurna
+        // Resolve JournalEntryPage using MAUI ServiceProvider for proper Dependency Injection
         var journalEntryPage = Handler?.MauiContext?.Services.GetService<JournalEntryPage>();
         if (journalEntryPage != null)
         {
