@@ -2,21 +2,18 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using AumoFinance.Services;
-using AumoFinance.Models;
+using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages;
 
 public partial class IncomeStatementPage : ContentPage
 {
-    private readonly AccountingService _accountingService;
-    private readonly Guid _currentUserId;
+    private readonly IncomeStatementService _incomeStatementService;
 
-    public IncomeStatementPage(AccountingService accountingService, Guid currentUserId)
+    public IncomeStatementPage(IncomeStatementService incomeStatementService)
     {
         InitializeComponent();
-        _accountingService = accountingService;
-        _currentUserId = currentUserId;
+        _incomeStatementService = incomeStatementService;
     }
 
     protected override async void OnAppearing()
@@ -34,77 +31,56 @@ public partial class IncomeStatementPage : ContentPage
 
         try
         {
-            var period = await _accountingService.GetCurrentPeriodAsync(_currentUserId);
-            if (period == null)
+            var (response, errorDetail) = await _incomeStatementService.GetIncomeStatementReportAsync();
+
+            if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
+                EmptyStateLabel.Text = errorDetail ?? "Failed to load income statement report.";
                 return;
             }
 
-            PeriodNameLabel.Text = period.PeriodName;
-            AsOfDateLabel.Text = $"Statement of Profit or Loss (IAS 1) — per {period.EndDate:dd MMMM yyyy}";
-
-            var trialBalanceRows = await _accountingService.GetTrialBalanceAsync(_currentUserId, period, includeAdjusting: true);
-
-            if (!trialBalanceRows.Any())
+            if (!response.HasPeriodSelected)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = $"Tidak ada data laporan pada periode {period.PeriodName}.";
+                EmptyStateLabel.Text = "No active period selected.";
                 return;
             }
 
-            var revenues = trialBalanceRows.Where(r => r.Type.Equals("OperatingIncome", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Revenue", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = r.NetBalance }).ToList();
+            PeriodNameLabel.Text = response.SelectedPeriodName;
+            AsOfDateLabel.Text = $"Statement of Profit or Loss (IAS 1)";
 
-            var opExpenses = trialBalanceRows.Where(r => r.Type.Equals("OperatingExpenses", StringComparison.OrdinalIgnoreCase) || r.Type.Equals("Expense", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = Math.Abs(r.NetBalance) }).ToList();
+            var revenues = response.RevenueAccounts?
+                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = r.Amount }).ToList() ?? new();
 
-            var otherIncome = trialBalanceRows.Where(r => r.Type.Equals("OtherIncome", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = r.NetBalance }).ToList();
+            var opExpenses = response.ExpenseAccounts?
+                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = r.Amount }).ToList() ?? new();
 
-            var otherExpenses = trialBalanceRows.Where(r => r.Type.Equals("OtherExpenses", StringComparison.OrdinalIgnoreCase))
-                .Select(r => new IncomeStatementLineModel { ReferenceNumber = r.ReferenceNumber.ToString(), AccountName = r.AccountName, Amount = Math.Abs(r.NetBalance) }).ToList();
+            decimal totalRevenue = response.TotalRevenue;
+            decimal totalOpExpense = response.TotalExpenses;
+            decimal netIncome = response.NetIncome;
 
-            decimal totalRevenue = revenues.Sum(r => r.Amount);
-            decimal totalOpExpense = opExpenses.Sum(r => r.Amount);
-            decimal operatingIncome = totalRevenue - totalOpExpense;
-
-            decimal totalOtherInc = otherIncome.Sum(r => r.Amount);
-            decimal totalOtherExp = otherExpenses.Sum(r => r.Amount);
-            decimal netIncome = operatingIncome + totalOtherInc - totalOtherExp;
-
-            var culture = new System.Globalization.CultureInfo("id-ID");
+            var culture = new System.Globalization.CultureInfo("en-US");
 
             RevenueCollectionView.ItemsSource = revenues;
-            TotalRevenueLabel.Text = totalRevenue.ToString("N0", culture);
+            TotalRevenueLabel.Text = totalRevenue.ToString("N2", culture);
 
             OpExpenseCollectionView.ItemsSource = opExpenses;
-            TotalOpExpenseLabel.Text = $"({totalOpExpense.ToString("N0", culture)})";
+            TotalOpExpenseLabel.Text = $"({totalOpExpense.ToString("N2", culture)})";
 
-            OperatingIncomeLabel.Text = operatingIncome.ToString("N0", culture);
-            OperatingIncomeLabel.TextColor = operatingIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+            OperatingIncomeLabel.Text = netIncome.ToString("N2", culture);
+            OperatingIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
-            if (otherIncome.Any() || otherExpenses.Any())
-            {
-                var combinedOther = otherIncome.Concat(otherExpenses).ToList();
-                OtherCollectionView.ItemsSource = combinedOther;
-                OtherSectionContainer.IsVisible = true;
-            }
-            else
-            {
-                OtherSectionContainer.IsVisible = false;
-            }
+            OtherSectionContainer.IsVisible = false;
 
-            NetIncomeLabel.Text = netIncome.ToString("N0", culture);
+            NetIncomeLabel.Text = netIncome.ToString("N2", culture);
             NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
             StatementContainer.IsVisible = true;
         }
         catch (Exception ex)
         {
-            // PERBAIKAN LINE 110: Gunakan DisplayAlertAsync
-            await DisplayAlertAsync("Error", $"Gagal memuat laporan laba rugi: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Failed to load income statement: {ex.Message}", "OK");
         }
         finally
         {
@@ -120,8 +96,8 @@ public class IncomeStatementLineModel
     public string AccountName { get; set; } = string.Empty;
     public decimal Amount { get; set; }
 
-    private static readonly System.Globalization.CultureInfo Idr = new("id-ID");
+    private static readonly System.Globalization.CultureInfo Usd = new("en-US");
 
-    public string FormattedAmount => Amount.ToString("N0", Idr);
-    public string FormattedAmountBracket => $"({Amount.ToString("N0", Idr)})";
+    public string FormattedAmount => Amount.ToString("N2", Usd);
+    public string FormattedAmountBracket => $"({Amount.ToString("N2", Usd)})";
 }
