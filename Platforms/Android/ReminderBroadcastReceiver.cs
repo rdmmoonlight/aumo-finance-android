@@ -2,6 +2,7 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
+using AumoFinance.Services; // Menyesuaikan CS0103 agar NotificationService terdeteksi
 
 namespace AumoFinance.Platforms.Android;
 
@@ -13,7 +14,6 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
 
     public override void OnReceive(Context? context, Intent? intent)
     {
-        // Guard clause untuk mencegah dereference jika context/intent null
         if (context == null || intent == null)
         {
             return;
@@ -30,18 +30,21 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
         var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(context.PackageName);
 
         PendingIntent? pendingIntent = null;
-        if (launchIntent != null)
+        if (!string.IsNullOrEmpty(packageName))
         {
-            pendingIntent = PendingIntent.GetActivity(
-                context,
-                0,
-                launchIntent,
-                PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
+            var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(packageName);
+            if (launchIntent != null)
+            {
+                pendingIntent = PendingIntent.GetActivity(
+                    context,
+                    0,
+                    launchIntent,
+                    PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
+            }
         }
 
-        // Baris 59: Penggunaan safe-navigation ?. dan fallback default string
         var builder = new NotificationCompat.Builder(context, NotificationService.ChannelId)
-            .SetSmallResource(global::Android.Resource.Drawable.IcDialogInfo) // Sesuaikan icon jika ada resource lokal (contoh: Resource.Drawable.ic_stat_name)
+            .SetSmallResource(global::Android.Resource.Drawable.IcDialogInfo)
             .SetContentTitle("AumoFinance")
             .SetContentText("Jangan lupa catat transaksi keuanganmu hari ini!")
             .SetAutoCancel(true)
@@ -52,7 +55,6 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
             builder.SetContentIntent(pendingIntent);
         }
 
-        // Baris 71: Menggunakan safe cast dan null check pada GetSystemService & Notify
         var notificationManager = context.GetSystemService(Context.NotificationService) as NotificationManager;
         notificationManager?.Notify(NotificationId, builder.Build());
     }
