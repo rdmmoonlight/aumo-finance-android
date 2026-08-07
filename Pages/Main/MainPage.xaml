@@ -1,227 +1,53 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:AumoFinance.Views"
-             x:Class="AumoFinance.Pages.MainPage"
-             BackgroundColor="#0F172A">
+<!-- FLOATING ACTION BUTTONS (FAB) -->
+<VerticalStackLayout VerticalOptions="End" 
+                     HorizontalOptions="End" 
+                     Margin="0,0,20,24" 
+                     Spacing="10"
+                     ZIndex="999">
 
-    <!-- Grid to overlay Main Content and Floating Action Buttons -->
-    <Grid>
+    <!-- Tombol 3 (Baru): Navigasi ke Dashboard -->
+    <Button Text="📊 Dashboard"
+            BackgroundColor="#334155"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="12"
+            CornerRadius="20"
+            HeightRequest="40"
+            Padding="16,0"
+            Clicked="OnDashboardFabClicked">
+        <Button.Shadow>
+            <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.3" />
+        </Button.Shadow>
+    </Button>
 
-        <Grid RowDefinitions="Auto, *">
+    <!-- Tombol 2: Refresh -->
+    <Button Text="🔄 Refresh"
+            BackgroundColor="#334155"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="12"
+            CornerRadius="20"
+            HeightRequest="40"
+            Padding="16,0"
+            Clicked="OnRefreshClicked">
+        <Button.Shadow>
+            <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.3" />
+        </Button.Shadow>
+    </Button>
 
-            <!-- Top Bar Component -->
-            <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
+    <!-- Tombol 1: Primary Entry -->
+    <Button Text="➕ Entry"
+            BackgroundColor="#2563EB"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="13"
+            CornerRadius="24"
+            HeightRequest="48"
+            Padding="18,0"
+            Clicked="OnPrimaryFabClicked">
+        <Button.Shadow>
+            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.4" />
+        </Button.Shadow>
+    </Button>
 
-            <!-- Loading Indicator -->
-            <ActivityIndicator x:Name="LoadingIndicator"
-                               Grid.Row="1"
-                               Color="#4F46E5"
-                               IsRunning="False"
-                               IsVisible="False"
-                               VerticalOptions="Center"
-                               HorizontalOptions="Center" />
-
-            <!-- Main Dashboard Content Area -->
-            <ScrollView x:Name="DashboardContent" Grid.Row="1" Padding="20,10,20,90">
-                <VerticalStackLayout Spacing="20">
-
-                    <!-- Main Card: Total Cash & Bank Balance (Hero Card) -->
-                    <Border StrokeShape="RoundRectangle 20"
-                            StrokeThickness="0"
-                            Padding="20">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#4F46E5" Offset="0.0" />
-                                <GradientStop Color="#7C3AED" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.Shadow>
-                            <Shadow Brush="#4F46E5" Offset="0,8" Radius="15" Opacity="0.3" />
-                        </Border.Shadow>
-
-                        <VerticalStackLayout Spacing="6">
-                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                                <Label Text="CASH &amp; BANK BALANCE"
-                                       TextColor="#E0E7FF"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       CharacterSpacing="1" />
-                            </HorizontalStackLayout>
-                            <Label x:Name="CashLabel"
-                                   Text="$0.00"
-                                   FontSize="32"
-                                   FontAttributes="Bold"
-                                   TextColor="White" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!-- Net Income Card -->
-                    <Border BackgroundColor="#1E293B"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 16"
-                            Padding="18">
-                        <Border.Shadow>
-                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
-                        </Border.Shadow>
-
-                        <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                            <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                <Label Text="NET INCOME"
-                                       TextColor="#94A3B8"
-                                       FontSize="11"
-                                       FontAttributes="Bold"
-                                       CharacterSpacing="0.8" />
-                                <Label x:Name="NetIncomeLabel"
-                                       Text="$0.00"
-                                       FontSize="22"
-                                       FontAttributes="Bold"
-                                       TextColor="#4ADE80" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </Border>
-
-                    <!-- Revenue & Expenses Grid -->
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-                        
-                        <!-- Revenue Card -->
-                        <Border Grid.Column="0"
-                                BackgroundColor="#1E293B"
-                                Stroke="#334155"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 16"
-                                Padding="14">
-                            <VerticalStackLayout Spacing="6">
-                                <HorizontalStackLayout Spacing="6">
-                                    <Label Text="REVENUE"
-                                           TextColor="#94A3B8"
-                                           FontSize="10"
-                                           FontAttributes="Bold" />
-                                </HorizontalStackLayout>
-                                <Label x:Name="RevenueLabel"
-                                       Text="$0.00"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="#38BDF8" />
-                            </VerticalStackLayout>
-                        </Border>
-
-                        <!-- Expenses Card -->
-                        <Border Grid.Column="1"
-                                BackgroundColor="#1E293B"
-                                Stroke="#334155"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 16"
-                                Padding="14">
-                            <VerticalStackLayout Spacing="6">
-                                <HorizontalStackLayout Spacing="6">
-                                    <Label Text="EXPENSES"
-                                           TextColor="#94A3B8"
-                                           FontSize="10"
-                                           FontAttributes="Bold" />
-                                </HorizontalStackLayout>
-                                <Label x:Name="ExpenseLabel"
-                                       Text="$0.00"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="#F87171" />
-                            </VerticalStackLayout>
-                        </Border>
-                    </Grid>
-
-                    <!-- APP SYSTEM UPDATE SETTINGS CARD -->
-                    <Border BackgroundColor="#1E293B"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 16"
-                            Padding="16">
-                        <Border.Shadow>
-                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
-                        </Border.Shadow>
-
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="SYSTEM UPDATES"
-                                   TextColor="#94A3B8"
-                                   FontSize="11"
-                                   FontAttributes="Bold"
-                                   CharacterSpacing="0.8" />
-
-                            <!-- Auto-Update Switch Row -->
-                            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                                <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                    <Label Text="Auto-Update from GitHub"
-                                           TextColor="White"
-                                           FontSize="13"
-                                           FontAttributes="Bold" />
-                                    <Label Text="Automatically check for new versions on launch"
-                                           TextColor="#64748B"
-                                           FontSize="10" />
-                                </VerticalStackLayout>
-
-                                <Switch x:Name="AutoUpdateSwitch"
-                                        Grid.Column="1"
-                                        OnColor="#4F46E5"
-                                        ThumbColor="White"
-                                        Toggled="OnAutoUpdateToggled" />
-                            </Grid>
-
-                            <!-- Manual Check Update Button -->
-                            <Button Text="Check for Updates"
-                                    BackgroundColor="#334155"
-                                    TextColor="#38BDF8"
-                                    FontAttributes="Bold"
-                                    FontSize="12"
-                                    CornerRadius="10"
-                                    HeightRequest="40"
-                                    Clicked="OnCheckUpdateManualClicked" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                </VerticalStackLayout>
-            </ScrollView>
-
-        </Grid>
-
-        <!-- FLOATING ACTION BUTTONS (FAB) -->
-        <VerticalStackLayout VerticalOptions="End" 
-                             HorizontalOptions="End" 
-                             Margin="0,0,20,24" 
-                             Spacing="10"
-                             ZIndex="999">
-
-            <!-- Secondary Button: Refresh -->
-            <Button Text="🔄 Refresh"
-                    BackgroundColor="#334155"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    FontSize="12"
-                    CornerRadius="20"
-                    HeightRequest="40"
-                    Padding="16,0"
-                    Clicked="OnRefreshClicked">
-                <Button.Shadow>
-                    <Shadow Brush="#000000" Offset="0,4" Radius="8" Opacity="0.3" />
-                </Button.Shadow>
-            </Button>
-
-            <!-- Primary Button: Quick Journal Entry -->
-            <Button Text="➕ Entry"
-                    BackgroundColor="#2563EB"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    FontSize="13"
-                    CornerRadius="24"
-                    HeightRequest="48"
-                    Padding="18,0"
-                    Clicked="OnPrimaryFabClicked">
-                <Button.Shadow>
-                    <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.4" />
-                </Button.Shadow>
-            </Button>
-
-        </VerticalStackLayout>
-
-    </Grid>
-
-</ContentPage>
+</VerticalStackLayout>
