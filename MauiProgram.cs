@@ -10,7 +10,6 @@ using AumoFinance.Pages.Settings;
 using AumoFinance.Services;
 using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
-using Plugin.LocalNotification;
 
 namespace AumoFinance;
 
@@ -24,7 +23,6 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseLocalNotification() // <--- Injeksi Plugin Local Notification
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

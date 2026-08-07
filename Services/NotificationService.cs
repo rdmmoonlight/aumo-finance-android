@@ -1,49 +1,131 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Plugin.LocalNotification;
+using Android.App;
+using Android.Content;
+using Android.OS;
+using AumoFinance.Platforms.Android;
+using Microsoft.Maui.ApplicationModel;
 
 namespace AumoFinance.Services;
 
+/// <summary>
+/// Runtime permission for posting notifications (required from Android 13 / API 33+).
+/// </summary>
+public class PostNotificationsPermission : Permissions.BasePlatformPermission
+{
+    public override (string androidPermission, bool isRuntime)[] RequiredPermissions =>
+        new (string androidPermission, bool isRuntime)[]
+        {
+            (Android.Manifest.Permission.PostNotifications, true)
+        };
+}
+
+/// <summary>
+/// Native Android implementation of the daily reminder notification.
+/// Replaces the previous Plugin.LocalNotification-based implementation, which
+/// could not be reliably resolved for this project's build configuration.
+/// Uses AlarmManager + a BroadcastReceiver (see
+/// Platforms/Android/ReminderBroadcastReceiver.cs) so the reminder still fires
+/// even if the app itself isn't running.
+/// Minimum supported OS: Android 9 (API 28).
+/// </summary>
 public class NotificationService
 {
+    public const string ChannelId = "aumo_daily_reminder";
+    internal const int ReminderRequestCode = 2001;
+
     public async Task<bool> RequestPermissionAsync()
     {
-        // Untuk Android 12 ke bawah (termasuk Android 9), ini akan bernilai true otomatis
-        if (!await LocalNotificationCenter.Current.AreNotificationsEnabled())
+        // POST_NOTIFICATIONS only exists/is enforced from Android 13 (API 33) onward.
+        if (Build.VERSION.SdkInt < BuildVersionCodes.Tiramisu)
         {
-            return await LocalNotificationCenter.Current.RequestNotificationPermission();
+            return true;
         }
-        return true;
+
+        var status = await Permissions.CheckStatusAsync<PostNotificationsPermission>();
+        if (status != PermissionStatus.Granted)
+        {
+            status = await Permissions.RequestAsync<PostNotificationsPermission>();
+        }
+
+        return status == PermissionStatus.Granted;
     }
 
-    public async Task ScheduleDailyReminderAsync(int hour = 20, int minute = 0)
+    public Task ScheduleDailyReminderAsync(int hour = 20, int minute = 0)
     {
-        var now = DateTime.Now;
-        var scheduledTime = new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
+        EnsureChannel();
 
-        if (now > scheduledTime)
+        var context = Android.App.Application.Context;
+
+        var now = Java.Util.Calendar.Instance!;
+        var trigger = Java.Util.Calendar.Instance!;
+        trigger.Set(Java.Util.CalendarField.HourOfDay, hour);
+        trigger.Set(Java.Util.CalendarField.Minute, minute);
+        trigger.Set(Java.Util.CalendarField.Second, 0);
+        trigger.Set(Java.Util.CalendarField.Millisecond, 0);
+
+        if (trigger.TimeInMillis <= now.TimeInMillis)
         {
-            scheduledTime = scheduledTime.AddDays(1);
+            trigger.Add(Java.Util.CalendarField.DayOfMonth, 1);
         }
 
-        var request = new NotificationRequest
-        {
-            NotificationId = 1001,
-            Title = "Sudah Catat Keuangan Hari Ini? 💎",
-            Description = "Jangan lupa rapikan dan catat transaksi pengeluaran/pemasukan AumoFinance kamu ya!",
-            BadgeNumber = 1,
-            Schedule = new NotificationRequestSchedule
-            {
-                NotifyTime = scheduledTime,
-                RepeatType = NotificationRepeat.Daily
-            }
-        };
+        var pendingIntent = BuildReminderPendingIntent(context);
+        var alarmManager = (AlarmManager)context.GetSystemService(Context.AlarmService)!;
 
-        await LocalNotificationCenter.Current.Show(request);
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.S && !alarmManager.CanScheduleExactAlarms())
+        {
+            // User hasn't granted exact-alarm access (Settings > Alarms & reminders).
+            // Fall back to an inexact alarm so the reminder still fires close to the chosen time.
+            alarmManager.SetAndAllowWhileIdle(AlarmType.RtcWakeup, trigger.TimeInMillis, pendingIntent);
+        }
+        else
+        {
+            alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, trigger.TimeInMillis, pendingIntent);
+        }
+
+        return Task.CompletedTask;
     }
 
     public void CancelDailyReminder()
     {
-        LocalNotificationCenter.Current.Cancel(1001);
+        var context = Android.App.Application.Context;
+        var pendingIntent = BuildReminderPendingIntent(context);
+
+        var alarmManager = (AlarmManager)context.GetSystemService(Context.AlarmService)!;
+        alarmManager.Cancel(pendingIntent);
+        pendingIntent.Cancel();
+    }
+
+    internal static PendingIntent BuildReminderPendingIntent(Context context)
+    {
+        var intent = new Intent(context, typeof(ReminderBroadcastReceiver));
+        intent.SetAction(ReminderBroadcastReceiver.ActionShowReminder);
+
+        return PendingIntent.GetBroadcast(
+            context,
+            ReminderRequestCode,
+            intent,
+            PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable)!;
+    }
+
+    internal static void EnsureChannel()
+    {
+        if (Build.VERSION.SdkInt < BuildVersionCodes.O)
+        {
+            return;
+        }
+
+        var context = Android.App.Application.Context;
+        var channel = new NotificationChannel(
+            ChannelId,
+            "Pengingat Harian",
+            NotificationImportance.Default)
+        {
+            Description = "Pengingat harian untuk mencatat transaksi keuangan AumoFinance"
+        };
+
+        var manager = (NotificationManager)context.GetSystemService(Context.NotificationService)!;
+        manager.CreateNotificationChannel(channel);
     }
 }
