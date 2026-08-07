@@ -1,33 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using AumoFinance.Services;
-using AumoFinance.Models;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Coa;
 
 public partial class CoaPage : ContentPage
 {
-    private readonly ApiService _apiService;
-    private List<ChartOfAccountDisplayModel> _allAccounts = new();
-    private string _searchText = string.Empty;
-    private string? _selectedCategory = null;
+    private readonly CoaService _coaService;
+    private List<CoaItemViewModel> _allAccounts = new();
+    private readonly CultureInfo _usdCulture = new("en-US");
 
-    private static readonly string[] AccountTypes =
-    {
-        "Assets", "Liabilities", "Equity", "OperatingIncome",
-        "OperatingExpenses", "OtherIncome", "OtherExpenses"
-    };
-
-    public CoaPage(ApiService apiService)
+    public CoaPage(CoaService coaService)
     {
         InitializeComponent();
-        _apiService = apiService;
-
-        // Inisialisasi Picker Kategori
-        CategoryPicker.ItemsSource = new List<string> { "Semua Kategori" }.Concat(AccountTypes.Select(FormatCategoryLabel)).ToList();
+        _coaService = coaService;
+        SetupCategoryPicker();
     }
 
     protected override async void OnAppearing()
@@ -36,143 +29,214 @@ public partial class CoaPage : ContentPage
         await LoadAccountsAsync();
     }
 
+    private void SetupCategoryPicker()
+    {
+        CategoryPicker.ItemsSource = new List<string>
+        {
+            "All Categories",
+            "Asset",
+            "Liability",
+            "Equity",
+            "Revenue",
+            "Expense"
+        };
+        CategoryPicker.SelectedIndex = 0;
+    }
+
     private async Task LoadAccountsAsync()
     {
-        LoadingIndicator.IsVisible = true;
-        LoadingIndicator.IsRunning = true;
-        CoaCollectionView.IsVisible = false;
-        EmptyStateContainer.IsVisible = false;
+        SetLoadingState(true);
 
         try
         {
-            var (accounts, _, errorDetail) = await _apiService.GetChartOfAccountsFullAsync();
+            var (accounts, errorDetail) = await _coaService.GetAccountsAsync();
 
-            if (errorDetail != null)
+            if (!string.IsNullOrEmpty(errorDetail))
             {
-                await DisplayAlertAsync("Koneksi Gagal", $"Gagal memuat Chart of Accounts dari server.\n\nDetail: {errorDetail}", "OK");
+                ShowAlert(errorDetail, isError: true);
                 return;
             }
 
-            _allAccounts = accounts.Select(a => new ChartOfAccountDisplayModel
+            _allAccounts = accounts.Select(a => new CoaItemViewModel
             {
                 Id = a.Id,
                 ReferenceNumber = a.ReferenceNumber,
                 AccountName = a.AccountName,
                 Type = a.Type,
-                Role = a.Role == "Default" ? string.Empty : a.Role,
+                Role = a.Role,
                 IsActive = a.IsActive,
-                Balance = a.Balance
+                CurrentBalance = a.CurrentBalance,
+                UsdCulture = _usdCulture
             }).ToList();
 
-            FilterAndDisplayAccounts();
+            ApplyFilterAndSearch();
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Gagal memuat Chart of Accounts: {ex.Message}", "OK");
+            Debug.WriteLine($"LoadAccountsAsync error: {ex}");
+            ShowAlert($"An unexpected error occurred: {ex.Message}", isError: true);
         }
         finally
         {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
+            SetLoadingState(false);
         }
     }
 
-    private void FilterAndDisplayAccounts()
+    private void ApplyFilterAndSearch()
     {
-        var filtered = _allAccounts.AsEnumerable();
+        string searchQuery = SearchField.Text?.Trim().ToLower() ?? string.Empty;
+        string selectedCategory = CategoryPicker.SelectedItem?.ToString() ?? "All Categories";
 
-        if (!string.IsNullOrWhiteSpace(_searchText))
+        var filtered = _allAccounts.Where(a =>
         {
-            filtered = filtered.Where(a => a.AccountName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) || a.ReferenceNumber.ToString().Contains(_searchText));
-        }
+            bool matchesSearch = string.IsNullOrEmpty(searchQuery) ||
+                                 a.AccountName.ToLower().Contains(searchQuery) ||
+                                 a.ReferenceNumber.ToString().Contains(searchQuery);
 
-        if (!string.IsNullOrEmpty(_selectedCategory) && _selectedCategory != "Semua Kategori")
-        {
-            // Ambil kembali raw type key dari format label
-            var rawType = AccountTypes.FirstOrDefault(t => FormatCategoryLabel(t) == _selectedCategory);
-            if (!string.IsNullOrEmpty(rawType))
-            {
-                filtered = filtered.Where(a => a.Type == rawType);
-            }
-        }
+            bool matchesCategory = selectedCategory == "All Categories" ||
+                                   a.Type.Equals(selectedCategory, StringComparison.OrdinalIgnoreCase);
 
-        var list = filtered.ToList();
-        if (list.Any())
-        {
-            CoaCollectionView.ItemsSource = list;
-            CoaCollectionView.IsVisible = true;
-            EmptyStateContainer.IsVisible = false;
-        }
-        else
-        {
-            CoaCollectionView.IsVisible = false;
-            EmptyStateContainer.IsVisible = true;
-        }
+            return matchesSearch && matchesCategory;
+        }).ToList();
+
+        CoaCollectionView.ItemsSource = filtered;
+        EmptyStateContainer.IsVisible = !filtered.Any();
+        CoaCollectionView.IsVisible = filtered.Any();
     }
 
     private void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
     {
-        _searchText = e.NewTextValue ?? string.Empty;
-        FilterAndDisplayAccounts();
+        ApplyFilterAndSearch();
     }
 
     private void OnCategoryPickerChanged(object? sender, EventArgs e)
     {
-        if (CategoryPicker.SelectedIndex >= 0)
-        {
-            _selectedCategory = CategoryPicker.SelectedItem?.ToString();
-            FilterAndDisplayAccounts();
-        }
+        ApplyFilterAndSearch();
     }
-
-    private static string FormatCategoryLabel(string type) => type switch
-    {
-        "Assets" => "Assets (100 - 199)",
-        "Liabilities" => "Liabilities (200 - 299)",
-        "Equity" => "Equity (300 - 399)",
-        "OperatingIncome" => "Operating Income (400 - 499)",
-        "OperatingExpenses" => "Operating Expenses (500 - 599)",
-        "OtherIncome" => "Other Income (600 - 799)",
-        "OtherExpenses" => "Other Expenses (800 - 999)",
-        _ => type
-    };
 
     private async void OnOpenAddModalClicked(object? sender, EventArgs e)
     {
-        // Navigasi atau popup tambah akun (bisa diarahkan ke halaman CreateCoaPage jika dibuat terpisah)
-        await DisplayAlertAsync("Informasi", "Fitur form tambah akun baru dapat dibuatkan halaman khusus.", "OK");
+        string name = await DisplayPromptAsync("New Account", "Enter account name:");
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        string refStr = await DisplayPromptAsync("Reference Code", "Enter reference code (e.g. 1010):");
+        if (!int.TryParse(refStr, out int refNum))
+        {
+            await this.DisplayAlertAsync("Invalid Input", "Reference code must be a valid number.", "OK");
+            return;
+        }
+
+        string type = await DisplayActionSheetAsync("Select Account Type", "Cancel", null, "Asset", "Liability", "Equity", "Revenue", "Expense");
+        if (type == "Cancel" || string.IsNullOrEmpty(type)) return;
+
+        var dto = new CreateAccountDto
+        {
+            AccountName = name.Trim(),
+            ReferenceNumber = refNum,
+            Type = type,
+            Role = ""
+        };
+
+        SetLoadingState(true);
+        var (success, message) = await _coaService.CreateAccountAsync(dto);
+
+        if (success)
+        {
+            ShowAlert("Account created successfully!", isError: false);
+            await LoadAccountsAsync();
+        }
+        else
+        {
+            ShowAlert(message, isError: true);
+            SetLoadingState(false);
+        }
     }
 
     private async void OnEditAccountClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is int accountId)
+        if (sender is Button button && button.CommandParameter is int accountId)
         {
-            await DisplayAlertAsync("Informasi", $"Edit akun dengan ID: {accountId}", "OK");
+            var account = _allAccounts.FirstOrDefault(a => a.Id == accountId);
+            if (account == null) return;
+
+            string newName = await DisplayPromptAsync("Edit Account", "Update account name:", initialValue: account.AccountName);
+            if (string.IsNullOrWhiteSpace(newName)) return;
+
+            var dto = new UpdateAccountDto
+            {
+                AccountName = newName.Trim(),
+                ReferenceNumber = account.ReferenceNumber,
+                Type = account.Type,
+                Role = account.Role,
+                IsActive = account.IsActive
+            };
+
+            SetLoadingState(true);
+            var (success, message) = await _coaService.UpdateAccountAsync(accountId, dto);
+
+            if (success)
+            {
+                ShowAlert("Account updated successfully!", isError: false);
+                await LoadAccountsAsync();
+            }
+            else
+            {
+                ShowAlert(message, isError: true);
+                SetLoadingState(false);
+            }
         }
     }
 
     private async void OnDeleteAccountClicked(object? sender, EventArgs e)
     {
-        if (sender is Button btn && btn.CommandParameter is int accountId)
+        if (sender is Button button && button.CommandParameter is int accountId)
         {
-            bool confirm = await DisplayAlertAsync("Konfirmasi", "Hapus akun ini? Tindakan ini tidak dapat dibatalkan.", "Ya", "Batal");
-            if (confirm)
+            bool confirm = await this.DisplayAlertAsync(
+                "Delete Confirmation",
+                "Are you sure you want to delete this account? Accounts with transaction entries cannot be deleted.",
+                "Yes, Delete",
+                "Cancel");
+
+            if (!confirm) return;
+
+            SetLoadingState(true);
+            var (success, message) = await _coaService.DeleteAccountAsync(accountId);
+
+            if (success)
             {
-                var (success, message) = await _apiService.DeleteAccountAsync(accountId);
-                if (success)
-                {
-                    await LoadAccountsAsync();
-                }
-                else
-                {
-                    await DisplayAlertAsync("Gagal", message, "OK");
-                }
+                ShowAlert("Account deleted successfully!", isError: false);
+                await LoadAccountsAsync();
+            }
+            else
+            {
+                ShowAlert(message, isError: true);
+                SetLoadingState(false);
             }
         }
     }
+
+    private void ShowAlert(string message, bool isError)
+    {
+        AlertText.Text = message;
+        AlertIcon.Text = isError ? "⚠️" : "✅";
+        AlertCard.BackgroundColor = isError ? Color.FromArgb("#7F1D1D") : Color.FromArgb("#14532D");
+        AlertCard.Stroke = isError ? Color.FromArgb("#EF4444") : Color.FromArgb("#22C55E");
+        AlertText.TextColor = isError ? Color.FromArgb("#FCA5A5") : Color.FromArgb("#86EFAC");
+        AlertCard.IsVisible = true;
+    }
+
+    private void SetLoadingState(bool isLoading)
+    {
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
+        if (isLoading) AlertCard.IsVisible = false;
+    }
 }
 
-public class ChartOfAccountDisplayModel
+// ==========================================
+// VIEW MODEL ITEM CHART OF ACCOUNTS
+// ==========================================
+public class CoaItemViewModel
 {
     public int Id { get; set; }
     public int ReferenceNumber { get; set; }
@@ -180,14 +244,14 @@ public class ChartOfAccountDisplayModel
     public string Type { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public bool IsActive { get; set; }
-    public decimal Balance { get; set; }
+    public decimal CurrentBalance { get; set; }
+    public CultureInfo UsdCulture { get; set; } = new("en-US");
 
-    public bool HasRole => !string.IsNullOrEmpty(Role);
-    public string StatusText => IsActive ? "Active" : "Inactive";
-    public Color StatusBackgroundColor => IsActive ? Color.FromArgb("#064E3B") : Color.FromArgb("#7F1D1D");
-    public Color StatusTextColor => IsActive ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
-    public Color BalanceColor => Balance >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+    public bool HasRole => !string.IsNullOrWhiteSpace(Role);
+    public string StatusText => IsActive ? "ACTIVE" : "INACTIVE";
+    public Color StatusBackgroundColor => IsActive ? Color.FromArgb("#14532D") : Color.FromArgb("#7F1D1D");
+    public Color StatusTextColor => IsActive ? Color.FromArgb("#86EFAC") : Color.FromArgb("#FCA5A5");
 
-    private static readonly System.Globalization.CultureInfo Idr = new("id-ID");
-    public string FormattedBalance => $"Rp {Balance.ToString("N0", Idr)}";
+    public string FormattedBalance => CurrentBalance.ToString("C2", UsdCulture);
+    public Color BalanceColor => CurrentBalance >= 0 ? Color.FromArgb("#38BDF8") : Color.FromArgb("#EF4444");
 }
