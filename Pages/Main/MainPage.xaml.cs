@@ -13,7 +13,8 @@ namespace AumoFinance.Pages;
 public partial class MainPage : ContentPage
 {
     private readonly DashboardService _dashboardService;
-    private readonly CultureInfo _usdCulture = new("en-US");
+    // Mengubah CultureInfo menjadi Indonesia (id-ID)
+    private readonly CultureInfo _idCulture = new("id-ID");
 
     public MainPage(DashboardService dashboardService)
     {
@@ -53,8 +54,12 @@ public partial class MainPage : ContentPage
 
             if (data != null && data.Success)
             {
-                // Populate Total Balance for Home Page
-                CashLabel.Text = data.TotalAssets.ToString("C2", _usdCulture);
+                // Format angka menggunakan format Rupiah (id-ID)
+                // Opsi 1: "C0" untuk format Rp tanpa sen (misal: Rp150.000)
+                CashLabel.Text = data.TotalAssets.ToString("C0", _idCulture);
+
+                // Opsi 2 (Opsional): Jika ingin memakai sen/desimal (misal: Rp150.000,00), 
+                // ubah "C0" di atas menjadi "C2"
 
                 TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
                     ? "Welcome to AumoFinance"

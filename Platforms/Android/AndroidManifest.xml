@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+	<!-- Izin Jaringan untuk Download Update -->
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<!-- Izin untuk memicu instalasi APK -->
+
+	<!-- Izin Wajib untuk Update APK Internal (Android 8.0+) -->
 	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+	<!-- Izin Alarm / Penjadwalan -->
+	<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+	<uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
 	<application 
 		android:allowBackup="true" 
 		android:icon="@mipmap/appicon" 
 		android:roundIcon="@mipmap/appicon_round" 
-		android:supportsRtl="true">
+		android:supportsRtl="true"
+		android:usesCleartextTraffic="true">
 
-		<!-- FileProvider untuk membagikan file APK ke Installer Android (Android 7.0+) -->
+		<!-- FileProvider untuk membagikan APK ke Package Installer Android -->
 		<provider
 			android:name="androidx.core.content.FileProvider"
 			android:authorities="${applicationId}.fileprovider"
