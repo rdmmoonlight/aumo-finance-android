@@ -32,15 +32,19 @@ jobs:
             9.0.x
             10.0.x
 
-      # 3. Restore Dependencies
+      # 3. Install Workload MAUI Android
+      - name: Install Workloads
+        run: dotnet workload install maui-android
+
+      # 4. Restore Dependencies
       - name: Restore Dependencies
         run: dotnet restore
 
-      # 4. Auto-Fix Format Kode (Perbaiki whitespace dan indentasi otomatis)
+      # 5. Auto-Fix Format Kode (Perbaiki whitespace dan indentasi otomatis)
       - name: Auto-Fix Code Formatting
         run: dotnet format
 
-      # 5. Commit dan Push Perubahan Format (Jika ada yang berubah)
+      # 6. Commit dan Push Perubahan Format (Jika ada yang berubah)
       - name: Commit and Push Format Changes
         shell: pwsh
         run: |
@@ -57,7 +61,7 @@ jobs:
             Write-Host "Semua kode sudah rapi. Tidak ada perubahan."
           }
 
-      # 6. Static Analysis (Gagal jika ada Warning/Error logika pada kodingan)
+      # 7. Static Analysis (Gagal jika ada Warning/Error logika pada kodingan)
       - name: Run Static Code Analysis
         run: dotnet build --no-restore -c Debug /p:TreatWarningsAsErrors=true
 
