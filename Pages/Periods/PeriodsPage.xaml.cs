@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Services;
-using AumoFinance.Services.Periods;
 
 namespace AumoFinance.Pages.Periods;
 
@@ -60,10 +59,10 @@ public partial class PeriodsPage : ContentPage
 
     private async void OnSelectPeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is int periodId)
+        int? periodId = ExtractPeriodId(sender);
+        if (periodId.HasValue)
         {
-            // Perbaikan CS1503: Konversi int? / int ke string?
-            var (success, message) = await _periodService.SetActivePeriodAsync(periodId.ToString());
+            var (success, message) = await _periodService.SetActivePeriodAsync(periodId.Value.ToString());
 
             if (success)
             {
@@ -78,7 +77,8 @@ public partial class PeriodsPage : ContentPage
 
     private async void OnClosePeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is int periodId)
+        int? periodId = ExtractPeriodId(sender);
+        if (periodId.HasValue)
         {
             bool confirm = await this.DisplayAlertAsync(
                 "Close Period",
@@ -88,7 +88,7 @@ public partial class PeriodsPage : ContentPage
 
             if (!confirm) return;
 
-            var (success, message) = await _periodService.ClosePeriodAsync(periodId);
+            var (success, message) = await _periodService.ClosePeriodAsync(periodId.Value);
 
             if (success)
             {
@@ -104,9 +104,10 @@ public partial class PeriodsPage : ContentPage
 
     private async void OnReopenPeriodClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is int periodId)
+        int? periodId = ExtractPeriodId(sender);
+        if (periodId.HasValue)
         {
-            var (success, message) = await _periodService.ReopenPeriodAsync(periodId);
+            var (success, message) = await _periodService.ReopenPeriodAsync(periodId.Value);
 
             if (success)
             {
@@ -120,12 +121,11 @@ public partial class PeriodsPage : ContentPage
         }
     }
 
-    private async void OnAddPeriodClicked(object? sender, EventArgs e)
+    public async void OnAddPeriodClicked(object? sender, EventArgs e)
     {
         string name = await this.DisplayPromptAsync("New Period", "Enter period name (e.g. FY 2026 / March 2026):");
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        // Perbaikan CS0246 & CS8130: Panggilan DTO sesuai dengan ketersediaan Service
         var (success, message) = await _periodService.CreatePeriodAsync(name.Trim(), DateTime.Today, DateTime.Today.AddMonths(1));
 
         if (success)
@@ -139,12 +139,22 @@ public partial class PeriodsPage : ContentPage
         }
     }
 
-    private async void OnRefreshClicked(object? sender, EventArgs e) => await LoadPeriodsAsync();
-    private async void OnRefreshViewRefreshing(object? sender, EventArgs e) => await LoadPeriodsAsync();
+    public async void OnRefreshClicked(object? sender, EventArgs e) => await LoadPeriodsAsync();
+    public async void OnRefreshViewRefreshing(object? sender, EventArgs e) => await LoadPeriodsAsync();
 
     private void SetLoading(bool isLoading)
     {
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
+    }
+
+    private static int? ExtractPeriodId(object? sender)
+    {
+        if (sender is Button button)
+        {
+            if (button.CommandParameter is int intVal) return intVal;
+            if (button.CommandParameter is PeriodDto dto) return dto.Id;
+        }
+        return null;
     }
 }
