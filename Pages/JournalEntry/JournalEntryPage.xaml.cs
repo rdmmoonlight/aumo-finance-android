@@ -31,7 +31,6 @@ public partial class JournalEntryPage : ContentPage
 
         LinesCollectionView.ItemsSource = Lines;
 
-        // Tambahkan 2 baris awal untuk kemudahan pengguna
         AddNewLine();
         AddNewLine();
 
@@ -39,10 +38,7 @@ public partial class JournalEntryPage : ContentPage
     }
 
     protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        await LoadAccountsAsync();
-    }
+    { base.OnAppearing(); await LoadAccountsAsync(); }
 
     private async Task LoadAccountsAsync()
     {
@@ -59,15 +55,10 @@ public partial class JournalEntryPage : ContentPage
                     DisplayName = $"{a.ReferenceNumber} - {a.AccountName}"
                 }).ToList();
 
-                // Perbarui daftar akun pada setiap baris jurnal yang sudah ada
                 foreach (var line in Lines)
                 {
                     line.AvailableAccounts = _allAccounts;
                 }
-            }
-            else if (!string.IsNullOrEmpty(errorDetail))
-            {
-                Debug.WriteLine($"LoadAccountsAsync failed: {errorDetail}");
             }
         }
         catch (Exception ex)
@@ -76,10 +67,7 @@ public partial class JournalEntryPage : ContentPage
         }
     }
 
-    private void OnAddLineClicked(object? sender, EventArgs e)
-    {
-        AddNewLine();
-    }
+    private void OnAddLineClicked(object? sender, EventArgs e) => AddNewLine();
 
     private void AddNewLine()
     {
@@ -133,7 +121,8 @@ public partial class JournalEntryPage : ContentPage
             var requestDto = new CreateJournalEntryRequest
             {
                 JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-                EntryDate = EntryDatePicker.Date,
+                // Memastikan nilai DateTime tidak null (Perbaikan CS0266 / CS8629)
+                EntryDate = EntryDatePicker.Date ?? DateTime.Today,
                 Lines = Lines
                     .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                     .Select(l => new JournalEntryLineRequest
@@ -200,9 +189,6 @@ public partial class JournalEntryPage : ContentPage
     }
 }
 
-// ==========================================
-// VIEW MODELS & DTO HELPERS
-// ==========================================
 public class AccountLookupDto
 {
     public int Id { get; set; }
@@ -241,23 +227,13 @@ public class JournalLineViewModel : BindableObject
     public string DebitText
     {
         get => _debitText;
-        set
-        {
-            _debitText = value;
-            OnPropertyChanged();
-            _onChanged?.Invoke();
-        }
+        set { _debitText = value; OnPropertyChanged(); _onChanged?.Invoke(); }
     }
 
     public string CreditText
     {
         get => _creditText;
-        set
-        {
-            _creditText = value;
-            OnPropertyChanged();
-            _onChanged?.Invoke();
-        }
+        set { _creditText = value; OnPropertyChanged(); _onChanged?.Invoke(); }
     }
 
     public string LineDescription
