@@ -45,7 +45,7 @@
 		<PackageReference Include="Npgsql" Version="9.0.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
 		<!-- Add Local Notification plugin so `using Plugin.LocalNotification;` compiles -->
-		<PackageReference Include="Plugin.LocalNotification" Version="2.0.0" />
+		<PackageReference Include="Plugin.LocalNotification" Version="14.1.1" />
 	</ItemGroup>
 
 </Project>
