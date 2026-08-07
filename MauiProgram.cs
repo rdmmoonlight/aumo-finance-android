@@ -1,10 +1,22 @@
 using AumoFinance.Pages;
+using AumoFinance.Pages.Coa;
+using AumoFinance.Pages.Dashboard;
 using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Pages.Periods;
+using AumoFinance.Pages.Reports.AdjustingJournal;
+using AumoFinance.Pages.Reports.ClosingJournal;
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.GeneralLedger;
+using AumoFinance.Pages.Reports.IncomeStatement;
+using AumoFinance.Pages.Reports.PostClosingTrialBalance;
+using AumoFinance.Pages.Reports.RetainedEarnings;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
+using AumoFinance.Pages.Reports.StatementOfFinancialPosition;
+using AumoFinance.Pages.Reports.TrialBalance;
+using AumoFinance.Pages.Reports.Worksheet;
 using AumoFinance.Services;
 using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
-using AumoFinance.Pages.Coa;
-using AumoFinance.Pages.Periods;
 
 namespace AumoFinance;
 
@@ -45,7 +57,8 @@ public static class MauiProgram
         // ==========================================
         builder.Services.AddTransient<GeneralJournalService>();
         builder.Services.AddTransient<GeneralLedgerService>();
-        builder.Services.AddTransient<TrialBalanceService>(); // Menangani Unadjusted, Adjusted, & Post-Closing TB
+        builder.Services.AddTransient<TrialBalanceService>();
+        builder.Services.AddTransient<PostClosingTrialBalanceService>();
         builder.Services.AddTransient<AdjustingJournalService>();
         builder.Services.AddTransient<WorksheetService>();
         builder.Services.AddTransient<IncomeStatementService>();
@@ -60,6 +73,7 @@ public static class MauiProgram
         // Core & Authentication Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<DashboardPage>();
         builder.Services.AddTransient<JournalEntryPage>();
 
         // Master Data & Period Management Pages
@@ -76,7 +90,9 @@ public static class MauiProgram
         builder.Services.AddTransient<IncomeStatementPage>();
         builder.Services.AddTransient<RetainedEarningsPage>();
         builder.Services.AddTransient<StatementOfFinancialPositionPage>();
+        builder.Services.AddTransient<ClosingJournalPage>();
         builder.Services.AddTransient<PostClosingTrialBalancePage>();
+        builder.Services.AddTransient<StatementOfCashFlowsPage>();
 
         return builder.Build();
     }
