@@ -30,7 +30,7 @@ public partial class PeriodsPage : ContentPage
 
         try
         {
-            var (data, errorDetail) = await _periodService.GetPeriodsAsync();
+            var (periods, selectedPeriodId, errorDetail) = await _periodService.GetPeriodsAsync();
 
             if (!string.IsNullOrEmpty(errorDetail))
             {
@@ -38,11 +38,16 @@ public partial class PeriodsPage : ContentPage
                 return;
             }
 
-            if (data != null && data.Periods != null)
+            if (periods != null)
             {
-                PeriodsCollectionView.ItemsSource = data.Periods;
-                EmptyStateView.IsVisible = !data.Periods.Any();
-                PeriodsCollectionView.IsVisible = data.Periods.Any();
+                PeriodsCollectionView.ItemsSource = periods;
+                EmptyStateView.IsVisible = !periods.Any();
+                PeriodsCollectionView.IsVisible = periods.Any();
+
+                var selectedPeriod = periods.FirstOrDefault(p => p.IsSelected);
+                ActivePeriodHeaderLabel.Text = selectedPeriod != null 
+                    ? selectedPeriod.PeriodName 
+                    : "No Active Period Selected";
             }
         }
         catch (Exception ex)
@@ -62,7 +67,7 @@ public partial class PeriodsPage : ContentPage
         int? periodId = ExtractPeriodId(sender);
         if (periodId.HasValue)
         {
-            var (success, message) = await _periodService.SetActivePeriodAsync(periodId.Value.ToString());
+            var (success, message) = await _periodService.SelectPeriodAsync(periodId.Value.ToString());
 
             if (success)
             {
@@ -153,7 +158,7 @@ public partial class PeriodsPage : ContentPage
         if (sender is Button button)
         {
             if (button.CommandParameter is int intVal) return intVal;
-            if (button.CommandParameter is PeriodDto dto) return dto.Id;
+            if (button.CommandParameter is PeriodApiModel model) return model.Id;
         }
         return null;
     }
