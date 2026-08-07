@@ -2,88 +2,218 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Pages.JournalEntry.JournalEntryPage"
-             Title="Input Jurnal">
+             Title="New Journal Entry"
+             BackgroundColor="#0F172A">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
+    <Grid RowDefinitions="*, Auto">
 
-            <Label Text="Input Jurnal (Double Entry)"
-                   TextColor="#38BDF8"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
+        <!-- Main Form Scrollable Area -->
+        <ScrollView Grid.Row="0" Padding="16">
+            <VerticalStackLayout Spacing="16">
 
-            <!-- Tanggal Transaksi -->
-            <VerticalStackLayout Spacing="6">
-                <Label Text="Tanggal Transaksi"
-                       TextColor="#94A3B8"
-                       FontSize="14" />
-                <Border Stroke="#334155"
+                <!-- Page Header Title -->
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="New Journal Entry"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Record financial transactions with debit and credit lines."
+                           FontSize="12"
+                           TextColor="#94A3B8" />
+                </VerticalStackLayout>
+
+                <!-- Journal Details Card -->
+                <Border BackgroundColor="#1E293B"
+                        Stroke="#334155"
                         StrokeThickness="1"
-                        Background="#1E293B"
-                        StrokeShape="RoundRectangle 10"
-                        Padding="12,0">
-                    <DatePicker x:Name="EntryDatePicker"
-                                TextColor="White"
-                                Format="dd/MM/yyyy"
-                                HeightRequest="48" />
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="12">
+
+                        <!-- Journal Type Selection -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Journal Type" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Picker x:Name="JournalTypePicker"
+                                    BackgroundColor="#0F172A"
+                                    TextColor="White"
+                                    TitleColor="#64748B">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>General</x:String>
+                                        <x:String>Adjusting</x:String>
+                                        <x:String>Closing</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </VerticalStackLayout>
+
+                        <!-- Entry Date -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Entry Date" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <DatePicker x:Name="EntryDatePicker"
+                                        BackgroundColor="#0F172A"
+                                        TextColor="White" />
+                        </VerticalStackLayout>
+
+                        <!-- Reference Number / Memo -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Reference Number (Optional)" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Entry x:Name="ReferenceEntry"
+                                   Placeholder="e.g. JE-2026-001"
+                                   BackgroundColor="#0F172A"
+                                   TextColor="White"
+                                   PlaceholderColor="#64748B" />
+                        </VerticalStackLayout>
+
+                        <!-- Description -->
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Description / Memo" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Editor x:Name="DescriptionEditor"
+                                    Placeholder="Describe the transaction..."
+                                    HeightRequest="80"
+                                    BackgroundColor="#0F172A"
+                                    TextColor="White"
+                                    PlaceholderColor="#64748B" />
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
                 </Border>
-            </VerticalStackLayout>
 
-            <!-- Baris Jurnal (ditambahkan secara dinamis dari code-behind) -->
-            <VerticalStackLayout x:Name="LinesContainer" Spacing="12" />
-
-            <Button Text="+ Tambah Baris"
-                    BackgroundColor="Transparent"
-                    TextColor="#38BDF8"
-                    BorderColor="#334155"
-                    BorderWidth="1"
-                    HeightRequest="44"
-                    CornerRadius="10"
-                    Clicked="OnAddLineClicked" />
-
-            <!-- Ringkasan Total -->
-            <Border Stroke="#334155"
-                    StrokeThickness="1"
-                    Background="#1E293B"
-                    StrokeShape="RoundRectangle 10"
-                    Padding="14">
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="6">
-                    <Label Grid.Row="0" Grid.Column="0" Text="Total Debit" TextColor="#94A3B8" FontSize="13" />
-                    <Label Grid.Row="0" Grid.Column="1" x:Name="TotalDebitLabel" Text="Rp 0" TextColor="White" FontSize="13" HorizontalOptions="End" />
-                    <Label Grid.Row="1" Grid.Column="0" Text="Total Kredit" TextColor="#94A3B8" FontSize="13" />
-                    <Label Grid.Row="1" Grid.Column="1" x:Name="TotalCreditLabel" Text="Rp 0" TextColor="White" FontSize="13" HorizontalOptions="End" />
+                <!-- Journal Lines Section Header -->
+                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center" Margin="0,8,0,0">
+                    <Label Text="Transaction Lines" FontSize="16" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                    <Button Text="➕ Add Line"
+                            Clicked="OnAddLineClicked"
+                            BackgroundColor="#2563EB"
+                            TextColor="White"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            CornerRadius="8"
+                            HeightRequest="36"
+                            Padding="12,0" />
                 </Grid>
-            </Border>
 
-            <Label x:Name="BalanceStatusLabel"
-                   Text="Belum Seimbang"
-                   TextColor="#F87171"
-                   FontSize="13"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
+                <!-- Dynamic Lines Collection View -->
+                <CollectionView x:Name="LinesCollectionView" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="#1E293B"
+                                    Stroke="#334155"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 12"
+                                    Margin="0,0,0,10"
+                                    Padding="12">
+                                <VerticalStackLayout Spacing="8">
 
-            <!-- Tombol Aksi -->
-            <Button x:Name="SaveBtn"
-                    Text="SIMPAN JURNAL"
-                    BackgroundColor="#10B981"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    FontSize="15"
-                    HeightRequest="52"
-                    CornerRadius="10"
-                    Margin="0,15,0,0"
-                    Clicked="OnSaveClicked" />
+                                    <!-- Row 1: Account Picker & Delete Button -->
+                                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                                        <Picker Grid.Column="0"
+                                                Title="Select Account"
+                                                ItemsSource="{Binding AvailableAccounts}"
+                                                ItemDisplayBinding="{Binding DisplayName}"
+                                                SelectedItem="{Binding SelectedAccount}"
+                                                BackgroundColor="#0F172A"
+                                                TextColor="White"
+                                                TitleColor="#64748B" />
 
-            <Button Text="Batal"
-                    BackgroundColor="Transparent"
-                    TextColor="#94A3B8"
-                    BorderColor="#334155"
-                    BorderWidth="1"
-                    HeightRequest="48"
-                    CornerRadius="10"
-                    Clicked="OnCancelClicked" />
+                                        <Button Grid.Column="1"
+                                                Text="🗑️"
+                                                BackgroundColor="#7F1D1D"
+                                                TextColor="White"
+                                                FontSize="12"
+                                                CornerRadius="8"
+                                                CommandParameter="{Binding .}"
+                                                Clicked="OnRemoveLineClicked"
+                                                HeightRequest="40"
+                                                WidthRequest="40"
+                                                Padding="0" />
+                                    </Grid>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                                    <!-- Row 2: Debit & Credit Entry Inputs -->
+                                    <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="Debit" FontSize="10" TextColor="#94A3B8" />
+                                            <Entry Text="{Binding DebitText}"
+                                                   Placeholder="0.00"
+                                                   Keyboard="Numeric"
+                                                   BackgroundColor="#0F172A"
+                                                   TextColor="White"
+                                                   PlaceholderColor="#64748B" />
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="Credit" FontSize="10" TextColor="#94A3B8" />
+                                            <Entry Text="{Binding CreditText}"
+                                                   Placeholder="0.00"
+                                                   Keyboard="Numeric"
+                                                   BackgroundColor="#0F172A"
+                                                   TextColor="White"
+                                                   PlaceholderColor="#64748B" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <!-- Line Description -->
+                                    <Entry Text="{Binding LineDescription}"
+                                           Placeholder="Line note (optional)"
+                                           FontSize="12"
+                                           BackgroundColor="#0F172A"
+                                           TextColor="White"
+                                           PlaceholderColor="#64748B" />
+
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom Action Bar & Totals Summary -->
+        <Border Grid.Row="1"
+                BackgroundColor="#1E293B"
+                Stroke="#334155"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 16,16,0,0"
+                Padding="16">
+            <VerticalStackLayout Spacing="10">
+
+                <!-- Totals & Balance Status -->
+                <Grid ColumnDefinitions="*, *, Auto">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="Total Debit" FontSize="10" TextColor="#94A3B8" />
+                        <Label x:Name="TotalDebitLabel" Text="$0.00" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="Total Credit" FontSize="10" TextColor="#94A3B8" />
+                        <Label x:Name="TotalCreditLabel" Text="$0.00" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                    </VerticalStackLayout>
+
+                    <Border x:Name="BalanceBadge"
+                            Grid.Column="2"
+                            BackgroundColor="#7F1D1D"
+                            StrokeShape="RoundRectangle 6"
+                            Padding="8,4"
+                            VerticalOptions="Center">
+                        <Label x:Name="BalanceStatusLabel" Text="UNBALANCED" FontSize="10" FontAttributes="Bold" TextColor="#FCA5A5" />
+                    </Border>
+                </Grid>
+
+                <!-- Submit Button -->
+                <Button x:Name="SubmitButton"
+                        Text="Save Journal Entry"
+                        Clicked="OnSaveJournalClicked"
+                        BackgroundColor="#16A34A"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+
+            </VerticalStackLayout>
+        </Border>
+
+    </Grid>
+
 </ContentPage>

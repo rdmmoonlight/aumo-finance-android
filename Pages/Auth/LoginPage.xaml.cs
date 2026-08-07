@@ -7,25 +7,24 @@ namespace AumoFinance.Pages;
 
 public partial class LoginPage : ContentPage
 {
-    private readonly ApiService _apiService;
+    private readonly AuthService _authService;
 
-    public LoginPage(ApiService apiService)
+    public LoginPage(AuthService authService)
     {
         InitializeComponent();
-        _apiService = apiService;
+        _authService = authService;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        // Tampilkan crash terakhir (jika ada) — satu-satunya cara melihat detail
-        // crash tanpa akses logcat/PC tools.
+        // Display the last crash log (if any)
         var lastCrash = CrashLogger.ReadAndClearLastCrash();
         if (!string.IsNullOrWhiteSpace(lastCrash))
         {
-            var snippet = lastCrash.Length > 900 ? lastCrash[..900] + "\n...(dipotong)" : lastCrash;
-            await DisplayAlertAsync("Aplikasi Sempat Crash", snippet, "OK");
+            var snippet = lastCrash.Length > 900 ? lastCrash[..900] + "\n...(truncated)" : lastCrash;
+            await DisplayAlertAsync("Application Unexpectedly Quit", snippet, "OK");
         }
     }
 
@@ -42,7 +41,7 @@ public partial class LoginPage : ContentPage
 
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
-            ShowError("Email/Username dan Password tidak boleh kosong.");
+            ShowError("Email/Username and Password cannot be empty.");
             return;
         }
 
@@ -50,21 +49,26 @@ public partial class LoginPage : ContentPage
 
         try
         {
-            var (success, message, userId) = await _apiService.LoginAsync(username, password);
+            var (success, message, userId, fullName) = await _authService.LoginAsync(username, password);
 
             if (success && userId != null)
             {
                 Preferences.Default.Set("current_user_id", userId);
+                if (!string.IsNullOrEmpty(fullName))
+                {
+                    Preferences.Default.Set("current_user_name", fullName);
+                }
+
                 await Shell.Current.GoToAsync("//MainPage");
             }
             else
             {
-                ShowError(message);
+                ShowError(string.IsNullOrWhiteSpace(message) ? "Invalid email or password." : message);
             }
         }
         catch (Exception ex)
         {
-            ShowError($"Gagal terhubung ke server: {ex.Message}");
+            ShowError($"Failed to connect to server: {ex.Message}");
         }
         finally
         {
