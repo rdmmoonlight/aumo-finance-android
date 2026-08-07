@@ -10,12 +10,12 @@ namespace AumoFinance.Pages;
 
 public partial class AdjustingJournalPage : ContentPage
 {
-    private readonly AdjustingJournalService _adjusturingJournalService;
+    private readonly AdjustingJournalService _adjustingJournalService;
 
-    public AdjustingJournalPage(AdjustingJournalService adjusturingJournalService)
+    public AdjustingJournalPage(AdjustingJournalService adjustingJournalService)
     {
         InitializeComponent();
-        _adjusturingJournalService = adjusturingJournalService;
+        _adjustingJournalService = adjustingJournalService;
     }
 
     protected override async void OnAppearing()
@@ -33,31 +33,31 @@ public partial class AdjustingJournalPage : ContentPage
 
         try
         {
-            var (response, errorDetail) = await _adjusturingJournalService.GetAdjustingJournalReportAsync();
+            var (response, errorDetail) = await _adjustingJournalService.GetAdjustingJournalReportAsync();
 
             if (response == null || !response.Success)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = errorDetail ?? "Gagal memuat data adjusting journal.";
+                EmptyStateLabel.Text = errorDetail ?? "Failed to load adjusting journal data.";
                 return;
             }
 
             if (!response.HasPeriodSelected)
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "Belum ada periode aktif yang dipilih.";
+                EmptyStateLabel.Text = "No active period selected.";
                 return;
             }
 
             PeriodNameLabel.Text = response.SelectedPeriodName;
-            ClosedBadge.IsVisible = false; // Disesuaikan dengan API response
+            ClosedBadge.IsVisible = false; // Matched with API response
 
             var entries = response.Entries;
 
             if (entries == null || !entries.Any())
             {
                 EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = $"Tidak ada adjusting entries pada periode {response.SelectedPeriodName}.";
+                EmptyStateLabel.Text = $"No adjusting entries found for period {response.SelectedPeriodName}.";
             }
             else
             {
@@ -81,7 +81,7 @@ public partial class AdjustingJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Gagal memuat data: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Failed to load data: {ex.Message}", "OK");
         }
         finally
         {
