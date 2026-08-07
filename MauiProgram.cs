@@ -3,6 +3,8 @@ using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Services;
 using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
+using AumoFinance.Pages.Coa;
+using AumoFinance.Pages.Periods;
 
 namespace AumoFinance;
 
@@ -32,8 +34,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddSingleton<DashboardService>();
         builder.Services.AddSingleton<PeriodService>();
-        builder.Services.AddSingleton<CoaService>();
-        builder.Services.AddSingleton<JournalService>();
+        builder.Services.AddTransient<JournalEntryService>();
+        builder.Services.AddTransient<CoaService>();
 
         // Legacy / General ApiService (jika masih digunakan di beberapa komponen lama)
         builder.Services.AddSingleton<ApiService>();

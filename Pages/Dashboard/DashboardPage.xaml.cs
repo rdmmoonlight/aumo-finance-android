@@ -75,7 +75,11 @@ public partial class DashboardPage : ContentPage
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
-        await Navigation.PushAsync(new JournalEntryPage());
+        var journalEntryPage = Handler?.MauiContext?.Services.GetService<JournalEntryPage>();
+        if (journalEntryPage != null)
+        {
+            await Navigation.PushAsync(journalEntryPage);
+        }
     }
 
     private void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)

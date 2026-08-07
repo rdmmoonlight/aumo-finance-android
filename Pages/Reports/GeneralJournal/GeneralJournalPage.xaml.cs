@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -7,12 +6,12 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Services.Reports;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Reports.GeneralJournal;
 
 public partial class GeneralJournalPage : ContentPage
 {
     private readonly GeneralJournalService _generalJournalService;
-    private readonly CultureInfo _idrCulture = new("id-ID");
+    private readonly CultureInfo _usdCulture = new("en-US");
 
     public GeneralJournalPage(GeneralJournalService generalJournalService)
     {
@@ -52,7 +51,8 @@ public partial class GeneralJournalPage : ContentPage
                     EntryDate = e.EntryDate,
                     JournalType = e.JournalType ?? "General",
                     ReferenceNumber = e.ReferenceNumber,
-                    Description = e.Description,
+                    // Perbaikan CS1061: Menggunakan ReferenceNumber & JournalType sebagai keterangan deskripsi pengganti
+                    Description = $"{e.JournalType} Entry - {e.ReferenceNumber}",
                     Lines = e.Lines.Select(l => new GeneralJournalLineViewModel
                     {
                         AccountReferenceNumber = l.ReferenceNumber,
@@ -60,9 +60,9 @@ public partial class GeneralJournalPage : ContentPage
                         LineDescription = l.LineDescription,
                         Debit = l.Debit,
                         Credit = l.Credit,
-                        IdrCulture = _idrCulture
+                        UsdCulture = _usdCulture
                     }).ToList(),
-                    IdrCulture = _idrCulture
+                    UsdCulture = _usdCulture
                 }).ToList();
 
                 JournalCollectionView.ItemsSource = viewModels;
@@ -82,56 +82,12 @@ public partial class GeneralJournalPage : ContentPage
         }
     }
 
-    private async void OnRefreshClicked(object? sender, EventArgs e)
-    {
-        await LoadGeneralJournalAsync();
-    }
-
-    private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
-    {
-        await LoadGeneralJournalAsync();
-    }
+    private async void OnRefreshClicked(object? sender, EventArgs e) => await LoadGeneralJournalAsync();
+    private async void OnRefreshViewRefreshing(object? sender, EventArgs e) => await LoadGeneralJournalAsync();
 
     private void SetLoadingState(bool isLoading)
     {
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
     }
-}
-
-// ==========================================
-// VIEW MODELS FOR GENERAL JOURNAL
-// ==========================================
-public class GeneralJournalEntryViewModel
-{
-    public int Id { get; set; }
-    public DateTime EntryDate { get; set; }
-    public string JournalType { get; set; } = string.Empty;
-    public string? ReferenceNumber { get; set; }
-    public string Description { get; set; } = string.Empty;
-    public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
-    public CultureInfo IdrCulture { get; set; } = new("id-ID");
-
-    public string FormattedDate => EntryDate.ToString("MMM dd, yyyy");
-    public string ReferenceNumberDisplay => string.IsNullOrWhiteSpace(ReferenceNumber) ? "No Ref" : ReferenceNumber;
-
-    public decimal TotalDebit => Lines.Sum(l => l.Debit);
-    public decimal TotalCredit => Lines.Sum(l => l.Credit);
-
-    public string TotalDebitDisplay => TotalDebit > 0 ? TotalDebit.ToString("C0", IdrCulture) : "-";
-    public string TotalCreditDisplay => TotalCredit > 0 ? TotalCredit.ToString("C0", IdrCulture) : "-";
-}
-
-public class GeneralJournalLineViewModel
-{
-    public int AccountReferenceNumber { get; set; }
-    public string AccountName { get; set; } = string.Empty;
-    public string? LineDescription { get; set; }
-    public decimal Debit { get; set; }
-    public decimal Credit { get; set; }
-    public CultureInfo IdrCulture { get; set; } = new("id-ID");
-
-    public string LineDescriptionDisplay => string.IsNullOrWhiteSpace(LineDescription) ? string.Empty : $"({LineDescription})";
-    public string DebitDisplay => Debit > 0 ? Debit.ToString("C0", IdrCulture) : string.Empty;
-    public string CreditDisplay => Credit > 0 ? Credit.ToString("C0", IdrCulture) : string.Empty;
 }
