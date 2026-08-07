@@ -8,6 +8,7 @@ namespace AumoFinance.Pages;
 
 public partial class LoginPage : ContentPage
 {
+    // Glyph Unicode Material Icons: E8F4 = visibility, E8F5 = visibility_off
     private const string IconEyeVisible = "\uE8F4";
     private const string IconEyeHidden = "\uE8F5";
 
