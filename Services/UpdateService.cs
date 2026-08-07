@@ -139,7 +139,7 @@ public class UpdateService
                 }
                 else if (OperatingSystem.IsAndroidVersionAtLeast(26))
                 {
-                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.None);
+                    context.RegisterReceiver(onCompleteReceiver, filter);
                 }
                 else
                 {

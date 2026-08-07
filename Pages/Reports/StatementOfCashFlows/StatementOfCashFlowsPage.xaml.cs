@@ -24,12 +24,12 @@ public partial class StatementOfCashFlowsPage : ContentPage
         await LoadReportAsync();
     }
 
-    private async void OnRefreshClicked(object sender, EventArgs e)
+    private async void OnRefreshClicked(object? sender, EventArgs e)
     {
         await LoadReportAsync();
     }
 
-    private async void OnRefreshViewRefreshing(object sender, EventArgs e)
+    private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
     {
         await LoadReportAsync();
         CashFlowRefreshView.IsRefreshing = false;
@@ -45,7 +45,7 @@ public partial class StatementOfCashFlowsPage : ContentPage
 
         if (errorDetail != null)
         {
-            await DisplayAlert("Error Loading Report", errorDetail, "OK");
+            await this.DisplayAlertAsync("Error Loading Report", errorDetail, "OK");
             ShowEmptyState(true);
             return;
         }

@@ -4,7 +4,10 @@ using AumoFinance.Pages.Coa;
 using AumoFinance.Pages.Dashboard;
 using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Pages.Periods;
-using AumoFinance.Pages.Reports; // Single flat namespace untuk semua laporan
+using AumoFinance.Pages.Reports; // Namespace flat untuk sebagian besar halaman laporan
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.ClosingJournal;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
 
 namespace AumoFinance;
 
