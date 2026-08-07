@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -11,104 +11,51 @@ namespace AumoFinance.Services;
 
 public class PeriodService : BaseApiService
 {
-    // ==========================================
-    // 1. GET ALL PERIODS
-    // ==========================================
-    public async Task<(List<PeriodApiModel> periods, int? selectedPeriodId, string? errorDetail)> GetPeriodsAsync()
+    private const string BaseEndpoint = "/api/mobile/periods";
+
+    public async Task<(List<PeriodApiModel>? periods, string? selectedPeriodId, string? errorDetail)> GetPeriodsAsync()
     {
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/periods");
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, BaseEndpoint);
 
             using var response = await HttpClient.SendAsync(request, cts.Token);
             var content = await response.Content.ReadAsStringAsync(cts.Token);
 
             if (response.IsSuccessStatusCode)
             {
-                var envelope = JsonSerializer.Deserialize<PeriodsEnvelopeApiResponse>(content, JsonOptions);
-                return (envelope?.Periods ?? new(), envelope?.SelectedPeriodId, null);
+                var result = JsonSerializer.Deserialize<GetPeriodsApiResponse>(content, JsonOptions);
+                return (result?.Periods ?? new(), result?.SelectedPeriodId?.ToString(), null);
             }
 
             var snippet = content.Length > 150 ? content[..150] : content;
-            return (new List<PeriodApiModel>(), null, $"HTTP {(int)response.StatusCode} ({response.StatusCode}) — {snippet}");
-        }
-        catch (TaskCanceledException)
-        {
-            return (new List<PeriodApiModel>(), null, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+            return (null, null, $"HTTP {(int)response.StatusCode} — {snippet}");
         }
         catch (Exception ex)
         {
-            return (new List<PeriodApiModel>(), null, $"{ex.GetType().Name}: {ex.Message}");
+            return (null, null, $"{ex.GetType().Name}: {ex.Message}");
         }
     }
 
-    // ==========================================
-    // 2. SELECT PERIOD (SET ACTIVE VIEW)
-    // ==========================================
-    public async Task<(bool success, string message)> SelectPeriodAsync(int periodId)
+    public async Task<(bool success, string message)> SelectPeriodAsync(string periodId)
     {
-        return await PostPeriodActionAsync($"/api/mobile/periods/select/{periodId}");
-    }
-
-    // ==========================================
-    // 3. CLEAR PERIOD SELECTION
-    // ==========================================
-    public async Task<(bool success, string message)> ClearPeriodSelectionAsync()
-    {
-        return await PostPeriodActionAsync("/api/mobile/periods/clear-selection");
-    }
-
-    // ==========================================
-    // 4. CLOSE PERIOD
-    // ==========================================
-    public async Task<(bool success, string message)> ClosePeriodAsync(int periodId)
-    {
-        return await PostPeriodActionAsync($"/api/mobile/periods/close/{periodId}");
-    }
-
-    // ==========================================
-    // 5. CREATE NEW PERIOD
-    // ==========================================
-    public async Task<(bool success, string message)> CreatePeriodAsync(string periodName, DateTime startDate, DateTime endDate)
-    {
-        if (string.IsNullOrWhiteSpace(periodName))
-        {
-            return (false, "Nama periode wajib diisi.");
-        }
-
-        if (startDate >= endDate)
-        {
-            return (false, "Tanggal mulai harus sebelum tanggal selesai.");
-        }
-
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, "/api/mobile/periods/create");
-
-            var payload = new
-            {
-                periodName = periodName.Trim(),
-                startDate = startDate,
-                endDate = endDate
-            };
-            request.Content = JsonContent.Create(payload);
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, $"{BaseEndpoint}/select/{periodId}");
 
             using var response = await HttpClient.SendAsync(request, cts.Token);
             var content = await response.Content.ReadAsStringAsync(cts.Token);
-            var apiRes = JsonSerializer.Deserialize<PeriodActionApiResponse>(content, JsonOptions);
 
             if (response.IsSuccessStatusCode)
             {
-                return (true, apiRes?.Message ?? "Periode berhasil dibuka.");
+                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+                return (true, result?.Message ?? "Period selected successfully.");
             }
 
-            return (false, apiRes?.Message ?? $"HTTP {(int)response.StatusCode} ({response.StatusCode}).");
-        }
-        catch (TaskCanceledException)
-        {
-            return (false, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
         }
         catch (Exception ex)
         {
@@ -116,28 +63,78 @@ public class PeriodService : BaseApiService
         }
     }
 
-    // Helper bersama untuk aksi POST periode (select/clear/close)
-    private async Task<(bool success, string message)> PostPeriodActionAsync(string requestUri)
+    public async Task<(bool success, string message)> ClosePeriodAsync(int id)
     {
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, requestUri);
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, $"{BaseEndpoint}/close/{id}");
 
             using var response = await HttpClient.SendAsync(request, cts.Token);
             var content = await response.Content.ReadAsStringAsync(cts.Token);
-            var apiRes = JsonSerializer.Deserialize<PeriodActionApiResponse>(content, JsonOptions);
 
             if (response.IsSuccessStatusCode)
             {
-                return (true, apiRes?.Message ?? "Berhasil.");
+                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+                return (true, result?.Message ?? "Period closed successfully.");
             }
 
-            return (false, apiRes?.Message ?? $"HTTP {(int)response.StatusCode} ({response.StatusCode}).");
+            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
         }
-        catch (TaskCanceledException)
+        catch (Exception ex)
         {
-            return (false, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+            return (false, $"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    public async Task<(bool success, string message)> ReopenPeriodAsync(int id)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, $"{BaseEndpoint}/reopen/{id}");
+
+            using var response = await HttpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+                return (true, result?.Message ?? "Period reopened successfully.");
+            }
+
+            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    public async Task<(bool success, string message)> CreatePeriodAsync(string name, DateTime startDate, DateTime endDate)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, $"{BaseEndpoint}/create");
+
+            var dto = new CreatePeriodRequest { PeriodName = name, StartDate = startDate, EndDate = endDate };
+            var jsonBody = JsonSerializer.Serialize(dto, JsonOptions);
+            request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            using var response = await HttpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+                return (true, result?.Message ?? "Period created successfully.");
+            }
+
+            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
         }
         catch (Exception ex)
         {
@@ -146,10 +143,7 @@ public class PeriodService : BaseApiService
     }
 }
 
-// ==========================================
-// DTO / MODEL RESPONSE PERIOD
-// ==========================================
-public class PeriodsEnvelopeApiResponse
+public class GetPeriodsApiResponse
 {
     [JsonPropertyName("success")]
     public bool Success { get; set; }
@@ -159,6 +153,15 @@ public class PeriodsEnvelopeApiResponse
 
     [JsonPropertyName("periods")]
     public List<PeriodApiModel> Periods { get; set; } = new();
+}
+
+public class BasicPeriodResponse
+{
+    [JsonPropertyName("success")]
+    public bool Success { get; set; }
+
+    [JsonPropertyName("message")]
+    public string? Message { get; set; }
 }
 
 public class PeriodApiModel
@@ -178,18 +181,22 @@ public class PeriodApiModel
     [JsonPropertyName("isClosed")]
     public bool IsClosed { get; set; }
 
-    [JsonPropertyName("closedAt")]
-    public DateTime? ClosedAt { get; set; }
-
     [JsonPropertyName("isSelected")]
     public bool IsSelected { get; set; }
+
+    public string DateRangeDisplay => $"{StartDate:MMM dd, yyyy} - {EndDate:MMM dd, yyyy}";
+    public bool CanSelect => !IsSelected;
+    public bool CanClose => !IsClosed;
 }
 
-public class PeriodActionApiResponse
+public class CreatePeriodRequest
 {
-    [JsonPropertyName("success")]
-    public bool Success { get; set; }
+    [JsonPropertyName("periodName")]
+    public string PeriodName { get; set; } = string.Empty;
 
-    [JsonPropertyName("message")]
-    public string? Message { get; set; }
+    [JsonPropertyName("startDate")]
+    public DateTime StartDate { get; set; }
+
+    [JsonPropertyName("endDate")]
+    public DateTime EndDate { get; set; }
 }
