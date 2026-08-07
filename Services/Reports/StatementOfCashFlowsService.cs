@@ -18,7 +18,8 @@ public class StatementOfCashFlowsService : BaseApiService
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/reports/statement-of-cash-flows");
+            // Updated endpoint to match backend route
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/reports/cash-flow");
 
             using var response = await HttpClient.SendAsync(request, cts.Token);
             var content = await response.Content.ReadAsStringAsync(cts.Token);
