@@ -18,7 +18,8 @@ public class PostClosingTrialBalanceService : BaseApiService
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/reports/post-closing-trial-balance");
+            // Updated endpoint to pass query parameter type=post-closing
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/reports/trial-balance?type=post-closing");
 
             using var response = await HttpClient.SendAsync(request, cts.Token);
             var content = await response.Content.ReadAsStringAsync(cts.Token);
