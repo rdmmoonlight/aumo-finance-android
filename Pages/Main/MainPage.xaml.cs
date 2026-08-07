@@ -6,7 +6,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using AumoFinance.Services;
 using AumoFinance.Pages.JournalEntry;
-using AumoFinance.Pages.Dashboard; // Addition for DashboardPage namespace
+using AumoFinance.Pages.Dashboard;
 
 namespace AumoFinance.Pages;
 
@@ -20,21 +20,32 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         _dashboardService = dashboardService;
 
-        // Load Auto-Update switch state from Preferences (default: true)
         AutoUpdateSwitch.IsToggled = Preferences.Default.Get("AutoUpdateEnabled", true);
+        SetTimeBasedGreeting();
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadDashboardDataAsync();
+        await LoadHomeDataAsync();
     }
 
-    private async Task LoadDashboardDataAsync()
+    private void SetTimeBasedGreeting()
+    {
+        var hour = DateTime.Now.Hour;
+        if (hour < 12)
+            GreetingLabel.Text = "Good Morning,";
+        else if (hour < 17)
+            GreetingLabel.Text = "Good Afternoon,";
+        else
+            GreetingLabel.Text = "Good Evening,";
+    }
+
+    private async Task LoadHomeDataAsync()
     {
         LoadingIndicator.IsVisible = true;
         LoadingIndicator.IsRunning = true;
-        DashboardContent.IsVisible = false;
+        HomeContent.IsVisible = false;
 
         try
         {
@@ -42,58 +53,52 @@ public partial class MainPage : ContentPage
 
             if (data != null && data.Success)
             {
-                // Update Period Header in TopBarView
-                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName) 
-                    ? "No Period Selected" 
-                    : data.SelectedPeriodName;
-
-                // Format Financial Figures in US Currency ($#,##0.00)
+                // Only populate the Total Balance for the Home Page
                 CashLabel.Text = data.TotalAssets.ToString("C2", _usdCulture);
-                NetIncomeLabel.Text = data.NetIncome.ToString("C2", _usdCulture);
-                RevenueLabel.Text = data.TotalRevenue.ToString("C2", _usdCulture);
-                ExpenseLabel.Text = data.TotalExpenses.ToString("C2", _usdCulture);
+                
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName) 
+                    ? "Welcome to AumoFinance" 
+                    : data.SelectedPeriodName;
             }
             else
             {
                 string detail = string.IsNullOrWhiteSpace(errorDetail) ? "An unknown error occurred." : errorDetail;
-                await this.DisplayAlertAsync("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
+                await this.DisplayAlertAsync("Connection Failed", $"Failed to retrieve balance data.\n\nDetails: {detail}", "OK");
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
+            Debug.WriteLine($"LoadHomeDataAsync error: {ex}");
             await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {
             LoadingIndicator.IsVisible = false;
             LoadingIndicator.IsRunning = false;
-            DashboardContent.IsVisible = true;
+            HomeContent.IsVisible = true;
         }
     }
 
     private async void OnRefreshClicked(object? sender, EventArgs e)
     {
-        await LoadDashboardDataAsync();
+        await LoadHomeDataAsync();
     }
 
-    private async void OnPrimaryFabClicked(object? sender, EventArgs e)
-    {
-        // Resolve JournalEntryPage using MAUI ServiceProvider for proper Dependency Injection
-        var journalEntryPage = Handler?.MauiContext?.Services.GetService<JournalEntryPage>();
-        if (journalEntryPage != null)
-        {
-            await Navigation.PushAsync(journalEntryPage);
-        }
-    }
-
-    // HANDLER TOMBOL KE-3: NAVIGASI KE DASHBOARDPAGE
     private async void OnDashboardFabClicked(object? sender, EventArgs e)
     {
         var dashboardPage = Handler?.MauiContext?.Services.GetService<DashboardPage>();
         if (dashboardPage != null)
         {
             await Navigation.PushAsync(dashboardPage);
+        }
+    }
+
+    private async void OnPrimaryFabClicked(object? sender, EventArgs e)
+    {
+        var journalEntryPage = Handler?.MauiContext?.Services.GetService<JournalEntryPage>();
+        if (journalEntryPage != null)
+        {
+            await Navigation.PushAsync(journalEntryPage);
         }
     }
 
