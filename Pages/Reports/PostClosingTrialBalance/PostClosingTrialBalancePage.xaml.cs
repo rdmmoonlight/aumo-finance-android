@@ -54,7 +54,7 @@ public partial class PostClosingTrialBalancePage : ContentPage
             SubtitleLabel.Text = response.ReportTitle;
 
             var rows = new List<PostClosingRowModel>();
-            var culture = new System.Globalization.CultureInfo("en-US");
+            var culture = new System.Globalization.CultureInfo("id-ID");
 
             if (response.Rows != null)
             {
@@ -81,8 +81,8 @@ public partial class PostClosingTrialBalancePage : ContentPage
             decimal totalCredit = response.TotalCredit;
             bool isBalanced = response.IsBalanced;
 
-            TotalDebitLabel.Text = totalDebit.ToString("N2", culture);
-            TotalCreditLabel.Text = totalCredit.ToString("N2", culture);
+            TotalDebitLabel.Text = totalDebit.ToString("N0", culture);
+            TotalCreditLabel.Text = totalCredit.ToString("N0", culture);
 
             // Status Alert
             BalanceStatusCard.IsVisible = true;
@@ -118,8 +118,8 @@ public class PostClosingRowModel
     public decimal DebitAmount { get; set; }
     public decimal CreditAmount { get; set; }
 
-    private static readonly System.Globalization.CultureInfo Usd = new("en-US");
+    private static readonly System.Globalization.CultureInfo Idr = new("id-ID");
 
-    public string FormattedDebit => DebitAmount > 0 ? DebitAmount.ToString("N2", Usd) : "-";
-    public string FormattedCredit => CreditAmount > 0 ? CreditAmount.ToString("N2", Usd) : "-";
+    public string FormattedDebit => DebitAmount > 0 ? DebitAmount.ToString("N0", Idr) : "-";
+    public string FormattedCredit => CreditAmount > 0 ? CreditAmount.ToString("N0", Idr) : "-";
 }
