@@ -28,7 +28,7 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
 
         // Menggunakan ContextCompat agar aman dari masalah null intent launcher
         var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(context.PackageName);
-        
+
         PendingIntent? pendingIntent = null;
         if (launchIntent != null)
         {
