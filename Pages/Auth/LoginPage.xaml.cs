@@ -2,15 +2,14 @@ using System;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using AumoFinance.Services;
-using AumoFinance.Pages;
+using AumoFinance.Pages.Log;
 
 namespace AumoFinance.Pages;
 
 public partial class LoginPage : ContentPage
 {
-    // Icon Glyph Elegan (Material/Fluent Style Unicode)
-    private const string IconEyeVisible = "\uE8F4";   // Eye Open
-    private const string IconEyeHidden = "\uE8F5";    // Eye Slash / Off
+    private const string IconEyeVisible = "\uE8F4";
+    private const string IconEyeHidden = "\uE8F5";
 
     private readonly AuthService _authService;
 
@@ -24,7 +23,6 @@ public partial class LoginPage : ContentPage
     {
         base.OnAppearing();
 
-        // Tampilkan crash log di modal khusus yang bisa di-scroll & copy
         string? lastCrash = CrashLogger.ReadAndClearLastCrash();
         if (!string.IsNullOrWhiteSpace(lastCrash))
         {
@@ -35,8 +33,6 @@ public partial class LoginPage : ContentPage
     private void OnTogglePasswordClicked(object? sender, EventArgs e)
     {
         PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
-
-        // Mengubah ikon menjadi ramping & profesional
         TogglePasswordButton.Text = PasswordEntry.IsPassword ? IconEyeHidden : IconEyeVisible;
     }
 

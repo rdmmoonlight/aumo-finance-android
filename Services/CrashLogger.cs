@@ -5,26 +5,33 @@ using Microsoft.Maui.Storage;
 
 namespace AumoFinance.Services;
 
-// Menangkap crash (unhandled exception) dan menuliskannya ke file lokal,
-// karena environment build hanya lewat GitHub Actions (tidak ada adb logcat
-// / PC tools). Log dibaca & ditampilkan sebagai alert saat aplikasi
-// dibuka kembali setelah crash, lalu file dihapus.
 public static class CrashLogger
 {
     private static string LogFilePath => Path.Combine(FileSystem.CacheDirectory, "aumo_crash_log.txt");
 
     public static void Install()
     {
+        // 1. Tangkap unhandled exception C# standar (.NET)
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
             WriteLog("AppDomain.UnhandledException", e.ExceptionObject as Exception, e.IsTerminating);
         };
 
+        // 2. Tangkap unobserved task exception (Async/Task)
         TaskScheduler.UnobservedTaskException += (sender, e) =>
         {
             WriteLog("TaskScheduler.UnobservedTaskException", e.Exception, isTerminating: false);
             e.SetObserved();
         };
+
+#if ANDROID
+        // 3. Tangkap unhandled exception spesifik dari Android Interop / Java Native
+        Android.Runtime.AndroidEnvironment.UnhandledExceptionRaiser += (sender, e) =>
+        {
+            WriteLog("AndroidEnvironment.UnhandledException", e.Exception, isTerminating: true);
+            e.Handled = true; // Coba cegah crash langsung jika memungkinkan
+        };
+#endif
     }
 
     private static void WriteLog(string source, Exception? ex, bool isTerminating)
@@ -32,17 +39,14 @@ public static class CrashLogger
         try
         {
             var text = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Source: {source} | Terminating: {isTerminating}\n\n{ex}\n";
-            // Tulis synchronous & langsung — proses bisa mati sesaat setelah ini.
             File.AppendAllText(LogFilePath, text + "\n----------------------------------------\n\n");
         }
         catch
         {
-            // Jangan sampai logger sendiri melempar exception baru.
+            // Abaikan error di dalam logger
         }
     }
 
-    // Dipanggil sekali di halaman pertama (LoginPage) saat app dibuka.
-    // Mengembalikan isi log terakhir (jika ada) lalu menghapus filenya.
     public static string? ReadAndClearLastCrash()
     {
         try

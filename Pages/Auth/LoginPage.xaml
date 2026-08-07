@@ -20,7 +20,7 @@
 
             <VerticalStackLayout Spacing="24">
 
-                <!-- Header & App Logo/Icon (Elegan & Sleek) -->
+                <!-- Header & App Logo/Icon -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
                     <Border BackgroundColor="#312E81"
                             Stroke="#4F46E5"
@@ -30,7 +30,6 @@
                             WidthRequest="60"
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
-                        <!-- Unicode Icon Diamond/Vault ramping -->
                         <Label Text="&#xE8E8;"
                                FontFamily="MaterialIcons"
                                FontSize="28"
@@ -61,7 +60,6 @@
                         StrokeShape="RoundRectangle 12"
                         Padding="12,10">
                     <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10" VerticalOptions="Center">
-                        <!-- Icon Warning Vektor Unicode -->
                         <Label Grid.Column="0"
                                Text="&#xE000;"
                                FontFamily="MaterialIcons"
@@ -115,7 +113,7 @@
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 12"
                                 Padding="14,2">
-                            <Grid ColumnDefinitions="*, Auto" AlignmentLayout="Fill">
+                            <Grid ColumnDefinitions="*, Auto">
                                 <Entry x:Name="PasswordEntry"
                                        Grid.Column="0"
                                        Placeholder="••••••••"
@@ -128,7 +126,6 @@
                                        VerticalOptions="Center"
                                        Completed="OnLoginButtonClicked" />
                                 
-                                <!-- Toggle Password Eye Icon -->
                                 <Button x:Name="TogglePasswordButton"
                                         Grid.Column="1"
                                         Text="&#xE8F5;"
