@@ -1,15 +1,7 @@
 using AumoFinance.Pages;
-using AumoFinance.Pages.Coa;
-using AumoFinance.Pages.Dashboard;
-using AumoFinance.Pages.JournalEntry;
-using AumoFinance.Pages.Periods;
-using AumoFinance.Pages.Reports;
-using AumoFinance.Pages.Reports.GeneralJournal;
-using AumoFinance.Pages.Reports.ClosingJournal;
-using AumoFinance.Pages.Reports.StatementOfCashFlows;
 using AumoFinance.Services;
-using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
 
 namespace AumoFinance;
 
@@ -23,6 +15,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseLocalNotification() // <--- Injeksi Plugin Local Notification
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -39,6 +32,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddSingleton<DashboardService>();
         builder.Services.AddSingleton<PeriodService>();
+        builder.Services.AddSingleton<NotificationService>(); // <--- Registrasi NotificationService
         builder.Services.AddTransient<JournalEntryService>();
         builder.Services.AddTransient<CoaService>();
 
