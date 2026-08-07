@@ -126,7 +126,7 @@ jobs:
         run: >
           dotnet publish
           -c Release
-          -f net10.0-android
+          -f net10.0-android36.0
           -p:AndroidPackageFormat=apk
           -p:ApplicationVersion=${{ github.run_number }}
           -p:ApplicationDisplayVersion=${{ steps.get_version.outputs.app_version }}
@@ -138,7 +138,7 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.app_version }}
           name: Aumo Release v${{ steps.get_version.outputs.app_version }}
           body: "Rilisan otomatis build ke-${{ github.run_number }} (Versi ${{ steps.get_version.outputs.app_version }})"
-          files: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
+          files: "**/bin/Release/net10.0-android36.0/publish/*-Signed.apk"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -147,6 +147,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Aumo-Signed-APK-v${{ steps.get_version.outputs.app_version }}
-          path: "**/bin/Release/net10.0-android/publish/*-Signed.apk"
+          path: "**/bin/Release/net10.0-android36.0/publish/*-Signed.apk"
           if-no-files-found: error
           
