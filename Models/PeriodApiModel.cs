@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace AumoFinance.Models;
@@ -19,7 +20,17 @@ public class PeriodApiModel
 
     [JsonPropertyName("isClosed")]
     public bool IsClosed { get; set; }
+}
 
-    [JsonPropertyName("isSelected")]
-    public bool IsSelected { get; set; }
+// Wrapper respons GET /api/mobile/periods: { success, selectedPeriodId, periods: [...] }
+public class PeriodsEnvelopeModel
+{
+    [JsonPropertyName("success")]
+    public bool Success { get; set; }
+
+    [JsonPropertyName("selectedPeriodId")]
+    public int? SelectedPeriodId { get; set; }
+
+    [JsonPropertyName("periods")]
+    public List<PeriodApiModel> Periods { get; set; } = new();
 }
