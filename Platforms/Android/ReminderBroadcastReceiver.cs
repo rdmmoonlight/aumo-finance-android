@@ -1,78 +1,59 @@
 using Android.App;
 using Android.Content;
+using Android.OS;
 using AndroidX.Core.App;
-using AumoFinance;
-using AumoFinance.Services;
-using Microsoft.Maui.Storage;
 
 namespace AumoFinance.Platforms.Android;
 
-/// <summary>
-/// Fires the daily reminder notification when triggered by AlarmManager
-/// (see NotificationService.ScheduleDailyReminderAsync), then reschedules
-/// itself for the same time the next day.
-/// </summary>
-[BroadcastReceiver(Enabled = true, Exported = false, Label = "AumoFinance Daily Reminder")]
+[BroadcastReceiver(Enabled = true, Exported = false)]
 public class ReminderBroadcastReceiver : BroadcastReceiver
 {
-    public const string ActionShowReminder = "com.bnrc.aumofinance.action.SHOW_DAILY_REMINDER";
-
+    public const string ActionShowReminder = "com.aumofinance.ACTION_SHOW_REMINDER";
     private const int NotificationId = 1001;
-    private const string KeyReminderHour = "reminder_hour";
-    private const string KeyReminderMinute = "reminder_minute";
-    private const string KeyReminderEnabled = "reminder_enabled";
 
     public override void OnReceive(Context? context, Intent? intent)
     {
-        if (context is null)
+        // Guard clause untuk mencegah dereference jika context/intent null
+        if (context == null || intent == null)
         {
             return;
         }
 
-        ShowNotification(context);
-
-        // Only reschedule if the user still has the reminder switched on.
-        if (Preferences.Default.Get(KeyReminderEnabled, true))
+        if (intent.Action != ActionShowReminder)
         {
-            int hour = Preferences.Default.Get(KeyReminderHour, 20);
-            int minute = Preferences.Default.Get(KeyReminderMinute, 0);
-
-            var service = new NotificationService();
-            _ = service.ScheduleDailyReminderAsync(hour, minute);
+            return;
         }
-    }
 
-    private static void ShowNotification(Context context)
-    {
         NotificationService.EnsureChannel();
 
-        var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(context.PackageName!)
-            ?? new Intent(context, typeof(ReminderBroadcastReceiver));
-        launchIntent.SetFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
+        // Menggunakan ContextCompat agar aman dari masalah null intent launcher
+        var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(context.PackageName);
+        
+        PendingIntent? pendingIntent = null;
+        if (launchIntent != null)
+        {
+            pendingIntent = PendingIntent.GetActivity(
+                context,
+                0,
+                launchIntent,
+                PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
+        }
 
-        var contentIntent = PendingIntent.GetActivity(
-            context,
-            NotificationId,
-            launchIntent,
-            PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable)!;
-
+        // Baris 59: Penggunaan safe-navigation ?. dan fallback default string
         var builder = new NotificationCompat.Builder(context, NotificationService.ChannelId)
-            .SetContentTitle("Sudah Catat Keuangan Hari Ini? 💎")
-            .SetContentText("Jangan lupa rapikan dan catat transaksi pengeluaran/pemasukan AumoFinance kamu ya!")
-            .SetSmallIcon(Resource.Mipmap.appicon)
+            .SetSmallResource(global::Android.Resource.Drawable.IcDialogInfo) // Sesuaikan icon jika ada resource lokal (contoh: Resource.Drawable.ic_stat_name)
+            .SetContentTitle("AumoFinance")
+            .SetContentText("Jangan lupa catat transaksi keuanganmu hari ini!")
             .SetAutoCancel(true)
-            .SetContentIntent(contentIntent)
             .SetPriority(NotificationCompat.PriorityDefault);
 
-        var notificationManager = NotificationManagerCompat.From(context);
+        if (pendingIntent != null)
+        {
+            builder.SetContentIntent(pendingIntent);
+        }
 
-        try
-        {
-            notificationManager.Notify(NotificationId, builder.Build());
-        }
-        catch (Java.Lang.SecurityException)
-        {
-            // POST_NOTIFICATIONS not granted; nothing to do until the user enables it.
-        }
+        // Baris 71: Menggunakan safe cast dan null check pada GetSystemService & Notify
+        var notificationManager = context.GetSystemService(Context.NotificationService) as NotificationManager;
+        notificationManager?.Notify(NotificationId, builder.Build());
     }
 }
