@@ -13,17 +13,17 @@ namespace AumoFinance.Pages.JournalEntry;
 
 public partial class JournalEntryPage : ContentPage
 {
-    private readonly JournalService _journalService;
+    private readonly AccountingService _accountingService;
     private readonly CoaService _coaService;
     private List<AccountLookupDto> _allAccounts = new();
     
     public ObservableCollection<JournalLineViewModel> Lines { get; set; } = new();
     private readonly CultureInfo _usdCulture = new("en-US");
 
-    public JournalEntryPage(JournalService journalService, CoaService coaService)
+    public JournalEntryPage(AccountingService accountingService, CoaService coaService)
     {
         InitializeComponent();
-        _journalService = journalService;
+        _accountingService = accountingService;
         _coaService = coaService;
 
         JournalTypePicker.SelectedIndex = 0; // Default to "General"
@@ -141,7 +141,8 @@ public partial class JournalEntryPage : ContentPage
                 }).ToList()
             };
 
-            var (success, message) = await _journalService.CreateJournalEntryAsync(dto);
+            // Menggunakan AccountingService atau ubah sesuai service yang menghandle create journal
+            var (success, message) = await _accountingService.CreateJournalEntryAsync(dto);
 
             if (success)
             {
