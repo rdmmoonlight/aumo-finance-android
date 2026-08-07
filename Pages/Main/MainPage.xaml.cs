@@ -53,7 +53,7 @@ public partial class MainPage : ContentPage
 
             if (data != null && data.Success)
             {
-                // Only populate the Total Balance for the Home Page
+                // Populate Total Balance for Home Page
                 CashLabel.Text = data.TotalAssets.ToString("C2", _usdCulture);
                 
                 TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName) 

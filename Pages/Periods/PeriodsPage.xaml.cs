@@ -45,8 +45,8 @@ public partial class PeriodsPage : ContentPage
                 PeriodsCollectionView.IsVisible = periods.Any();
 
                 var selectedPeriod = periods.FirstOrDefault(p => p.IsSelected);
-                ActivePeriodHeaderLabel.Text = selectedPeriod != null 
-                    ? selectedPeriod.PeriodName 
+                ActivePeriodHeaderLabel.Text = selectedPeriod != null
+                    ? selectedPeriod.PeriodName
                     : "No Active Period Selected";
             }
         }

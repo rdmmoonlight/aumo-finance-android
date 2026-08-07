@@ -16,7 +16,7 @@ public partial class JournalEntryPage : ContentPage
     private readonly JournalEntryService _journalEntryService;
     private readonly CoaService _coaService;
     private List<AccountLookupDto> _allAccounts = new();
-    
+
     public ObservableCollection<JournalLineViewModel> Lines { get; set; } = new();
     private readonly CultureInfo _usdCulture = new("en-US");
 
