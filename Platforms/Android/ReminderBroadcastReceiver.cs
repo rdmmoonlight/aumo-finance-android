@@ -2,7 +2,7 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
-using AumoFinance.Services; // Menyesuaikan CS0103 agar NotificationService terdeteksi
+using AumoFinance.Services;
 
 namespace AumoFinance.Platforms.Android;
 
@@ -26,13 +26,13 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
 
         NotificationService.EnsureChannel();
 
-        // Menggunakan ContextCompat agar aman dari masalah null intent launcher
-        var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(context.PackageName);
-
+        // Safe check untuk PackageName dan PackageManager
+        string? packageName = context.PackageName;
         PendingIntent? pendingIntent = null;
-        if (!string.IsNullOrEmpty(packageName))
+
+        if (!string.IsNullOrEmpty(packageName) && context.PackageManager != null)
         {
-            var launchIntent = context.PackageManager?.GetLaunchIntentForPackage(packageName);
+            Intent? launchIntent = context.PackageManager.GetLaunchIntentForPackage(packageName);
             if (launchIntent != null)
             {
                 pendingIntent = PendingIntent.GetActivity(
@@ -43,8 +43,9 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
             }
         }
 
+        // Perbaikan: Ganti SetSmallResource menjadi SetSmallIcon
         var builder = new NotificationCompat.Builder(context, NotificationService.ChannelId)
-            .SetSmallResource(global::Android.Resource.Drawable.IcDialogInfo)
+            .SetSmallIcon(global::Android.Resource.Drawable.IcDialogInfo)
             .SetContentTitle("AumoFinance")
             .SetContentText("Jangan lupa catat transaksi keuanganmu hari ini!")
             .SetAutoCancel(true)
