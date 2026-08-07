@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -58,47 +57,44 @@ public class ClosingJournalReportApiResponse
     [JsonPropertyName("selectedPeriodName")]
     public string? SelectedPeriodName { get; set; }
 
-    [JsonPropertyName("entries")]
-    public List<ClosingJournalEntryDto> Entries { get; set; } = new();
+    [JsonPropertyName("closingJournal")]
+    public ClosingJournalDto? ClosingJournal { get; set; }
 }
 
-public class ClosingJournalEntryDto
+public class ClosingJournalDto
 {
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
+    [JsonPropertyName("netIncome")]
+    public decimal NetIncome { get; set; }
 
-    [JsonPropertyName("referenceNumber")]
-    public string? ReferenceNumber { get; set; }
+    [JsonPropertyName("retainedEarningsAccountName")]
+    public string? RetainedEarningsAccountName { get; set; }
 
-    [JsonPropertyName("entryDate")]
-    public DateTime EntryDate { get; set; }
+    [JsonPropertyName("groups")]
+    public List<ClosingJournalGroupDto> Groups { get; set; } = new();
+}
 
-    [JsonPropertyName("journalType")]
-    public string? JournalType { get; set; }
+public class ClosingJournalGroupDto
+{
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
 
     [JsonPropertyName("lines")]
     public List<ClosingJournalLineDto> Lines { get; set; } = new();
 
-    public decimal TotalDebit => Lines.Sum(l => l.Debit);
-    public decimal TotalCredit => Lines.Sum(l => l.Credit);
+    [JsonPropertyName("totalDebit")]
+    public decimal TotalDebit { get; set; }
+
+    [JsonPropertyName("totalCredit")]
+    public decimal TotalCredit { get; set; }
 }
 
 public class ClosingJournalLineDto
 {
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
-
-    [JsonPropertyName("accountId")]
-    public int AccountId { get; set; }
-
-    [JsonPropertyName("accountName")]
-    public string? AccountName { get; set; }
-
     [JsonPropertyName("referenceNumber")]
     public int ReferenceNumber { get; set; }
 
-    [JsonPropertyName("lineDescription")]
-    public string? LineDescription { get; set; }
+    [JsonPropertyName("accountName")]
+    public string? AccountName { get; set; }
 
     [JsonPropertyName("debit")]
     public decimal Debit { get; set; }
