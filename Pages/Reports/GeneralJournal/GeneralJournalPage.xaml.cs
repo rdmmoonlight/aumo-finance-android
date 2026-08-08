@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using AumoFinance.Models.Reports;
 using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages.Reports.GeneralJournal;
