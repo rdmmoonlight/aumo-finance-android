@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
 using AumoFinance.Pages.Coa;
@@ -19,6 +20,7 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // 1. Core & Master Data Routes
+        Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
         Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(CoaPage), typeof(CoaPage));
         Routing.RegisterRoute(nameof(PeriodsPage), typeof(PeriodsPage));
@@ -42,8 +44,7 @@ public partial class AppShell : Shell
 
     // ================= FLYOUT MENU HANDLERS =================
     // Shell otomatis menutup Flyout saat sebuah MenuItem diklik.
-    // Setiap handler hanya melakukan push navigasi (GoToAsync) ke rute
-    // yang sudah didaftarkan di atas — logika bisnis tidak disentuh.
+    // Setiap handler hanya melakukan push navigasi (GoToAsync) ke rute yang sudah didaftarkan di atas.
 
     private async void OnDashboardMenuItemClicked(object? sender, EventArgs e)
         => await GoToAsync(nameof(DashboardPage));
