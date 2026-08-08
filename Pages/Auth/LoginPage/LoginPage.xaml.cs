@@ -7,7 +7,7 @@ using Plugin.Fingerprint.Abstractions;
 using AumoFinance.Services;
 using AumoFinance.Pages.Log;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Auth;
 
 public partial class LoginPage : ContentPage
 {
