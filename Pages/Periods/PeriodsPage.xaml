@@ -13,6 +13,7 @@
 
         <RefreshView x:Name="PeriodsRefreshView"
                      Grid.Row="1"
+                     BackgroundColor="#0F172A"
                      RefreshColor="#38BDF8"
                      Refreshing="OnRefreshViewRefreshing">
 
