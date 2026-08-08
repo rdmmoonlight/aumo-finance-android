@@ -59,25 +59,19 @@
                                         TextColor="White" />
                         </VerticalStackLayout>
 
-                        <!-- Reference Number / Memo -->
+                        <!-- Reference Number (Auto Generated Display) -->
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="Reference Number (Optional)" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <Entry x:Name="ReferenceEntry"
-                                   Placeholder="e.g. JE-2026-001"
-                                   BackgroundColor="#0F172A"
-                                   TextColor="White"
-                                   PlaceholderColor="#64748B" />
-                        </VerticalStackLayout>
-
-                        <!-- Description -->
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="Description / Memo" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <Editor x:Name="DescriptionEditor"
-                                    Placeholder="Describe the transaction..."
-                                    HeightRequest="80"
-                                    BackgroundColor="#0F172A"
-                                    TextColor="White"
-                                    PlaceholderColor="#64748B" />
+                            <Label Text="Reference Number (Auto)" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Border BackgroundColor="#0F172A"
+                                    Stroke="#334155"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="12,10">
+                                <Label x:Name="ReferenceNumberLabel"
+                                       Text="Auto-generated"
+                                       FontSize="14"
+                                       TextColor="#64748B" />
+                            </Border>
                         </VerticalStackLayout>
 
                     </VerticalStackLayout>
