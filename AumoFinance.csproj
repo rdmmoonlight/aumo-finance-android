@@ -1,49 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net10.0-android36.0</TargetFramework>
-
+		<TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AumoFinance</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
 
-		<NoWarn>$(NoWarn);NU1605</NoWarn>
-
-		<MauiXamlInflator>SourceGen</MauiXamlInflator>
-
-		<ApplicationTitle>Aumo</ApplicationTitle>
-		<ApplicationId>com.bnrc.aumofinance</ApplicationId>
-
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
-
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">28.0</SupportedOSPlatformVersion>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)' == 'Release' AND $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-		<PublishTrimmed>true</PublishTrimmed>
-		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+		<!-- Pastikan MauiXamlInflator bernilai false atau dihapus -->
+		<MauiXamlInflator>false</MauiXamlInflator>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#FFFFFF" />
-		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#FFFFFF" BaseSize="512,512" Resize="true" />
-		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
-		<MauiFont Include="Resources\Fonts\*" />
-		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	</ItemGroup>
-
-	<ItemGroup>
+		<!-- Tambahkan Package Fingerprint disini -->
+		<PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-		<!-- Ditambahkan kembali agar CS0234 & CS0246 teratasi -->
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
-		<PackageReference Include="Npgsql" Version="9.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
 	</ItemGroup>
 
 </Project>

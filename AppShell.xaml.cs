@@ -1,6 +1,26 @@
 using System;
 using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
+using AumoFinance.Pages.Auth.LoginPage;
+using AumoFinance.Pages.Auth.LogoutPage;
+using AumoFinance.Pages.Core.MainPage;
+using AumoFinance.Pages.Core.DashboardPage;
+using AumoFinance.Pages.Core.CoaPage;
+using AumoFinance.Pages.Core.PeriodsPage;
+using AumoFinance.Pages.Core.JournalEntryPage;
+using AumoFinance.Pages.Core.SettingsPage;
+using AumoFinance.Pages.Reports.GeneralJournalPage;
+using AumoFinance.Pages.Reports.GeneralLedgerPermanentPage;
+using AumoFinance.Pages.Reports.GeneralLedgerTemporaryPage;
+using AumoFinance.Pages.Reports.TrialBalancePage;
+using AumoFinance.Pages.Reports.AdjustingJournalPage;
+using AumoFinance.Pages.Reports.WorksheetPage;
+using AumoFinance.Pages.Reports.IncomeStatementPage;
+using AumoFinance.Pages.Reports.RetainedEarningsPage;
+using AumoFinance.Pages.Reports.StatementOfFinancialPositionPage;
+using AumoFinance.Pages.Reports.ClosingJournalPage;
+using AumoFinance.Pages.Reports.PostClosingTrialBalancePage;
+using AumoFinance.Pages.Reports.StatementOfCashFlowsPage;
 
 namespace AumoFinance;
 
