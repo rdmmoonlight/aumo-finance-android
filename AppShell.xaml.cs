@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
+using AumoFinance.Pages.Reports;
 
 namespace AumoFinance;
 

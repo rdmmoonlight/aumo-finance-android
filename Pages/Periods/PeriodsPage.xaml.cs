@@ -34,7 +34,7 @@ public partial class PeriodsPage : ContentPage
 
             if (!string.IsNullOrEmpty(errorDetail))
             {
-                await this.DisplayAlertAsync("Error", errorDetail, "OK");
+                await this.DisplayAlert("Error", errorDetail, "OK");
                 return;
             }
 
@@ -53,7 +53,7 @@ public partial class PeriodsPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadPeriodsAsync error: {ex}");
-            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await this.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {
@@ -75,7 +75,7 @@ public partial class PeriodsPage : ContentPage
             }
             else
             {
-                await this.DisplayAlertAsync("Failed", message, "OK");
+                await this.DisplayAlert("Failed", message, "OK");
             }
         }
     }
@@ -85,7 +85,7 @@ public partial class PeriodsPage : ContentPage
         int? periodId = ExtractPeriodId(sender);
         if (periodId.HasValue)
         {
-            bool confirm = await this.DisplayAlertAsync(
+            bool confirm = await this.DisplayAlert(
                 "Close Period",
                 "Are you sure you want to close this accounting period? This action will lock all transactions in this period.",
                 "Yes, Close",
@@ -97,12 +97,12 @@ public partial class PeriodsPage : ContentPage
 
             if (success)
             {
-                await this.DisplayAlertAsync("Success", message, "OK");
+                await this.DisplayAlert("Success", message, "OK");
                 await LoadPeriodsAsync();
             }
             else
             {
-                await this.DisplayAlertAsync("Failed", message, "OK");
+                await this.DisplayAlert("Failed", message, "OK");
             }
         }
     }
@@ -116,12 +116,12 @@ public partial class PeriodsPage : ContentPage
 
             if (success)
             {
-                await this.DisplayAlertAsync("Success", message, "OK");
+                await this.DisplayAlert("Success", message, "OK");
                 await LoadPeriodsAsync();
             }
             else
             {
-                await this.DisplayAlertAsync("Failed", message, "OK");
+                await this.DisplayAlert("Failed", message, "OK");
             }
         }
     }
@@ -135,12 +135,12 @@ public partial class PeriodsPage : ContentPage
 
         if (success)
         {
-            await this.DisplayAlertAsync("Success", "Accounting period created successfully.", "OK");
+            await this.DisplayAlert("Success", "Accounting period created successfully.", "OK");
             await LoadPeriodsAsync();
         }
         else
         {
-            await this.DisplayAlertAsync("Failed", message, "OK");
+            await this.DisplayAlert("Failed", message, "OK");
         }
     }
 

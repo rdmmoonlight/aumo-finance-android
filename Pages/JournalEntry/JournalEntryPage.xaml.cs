@@ -150,18 +150,18 @@ public partial class JournalEntryPage : ContentPage
                     ? message
                     : $"Journal Entry {refNumber} recorded successfully!";
 
-                await this.DisplayAlertAsync("Success", successMessage, "OK");
+                await this.DisplayAlert("Success", successMessage, "OK");
                 await Navigation.PopAsync();
             }
             else
             {
-                await this.DisplayAlertAsync("Posting Failed", message, "OK");
+                await this.DisplayAlert("Posting Failed", message, "OK");
                 SubmitButton.IsEnabled = true;
             }
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await this.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
             SubmitButton.IsEnabled = true;
         }
     }
@@ -174,7 +174,7 @@ public partial class JournalEntryPage : ContentPage
 
         if (activeLines.Count < 2)
         {
-            this.DisplayAlertAsync("Validation Error", "A journal entry must have at least 2 active transaction lines with valid accounts.", "OK");
+            this.DisplayAlert("Validation Error", "A journal entry must have at least 2 active transaction lines with valid accounts.", "OK");
             return false;
         }
 
@@ -182,14 +182,14 @@ public partial class JournalEntryPage : ContentPage
         {
             if (line.Debit > 0 && line.Credit > 0)
             {
-                this.DisplayAlertAsync("Validation Error", "A single transaction line cannot have both Debit and Credit amounts.", "OK");
+                this.DisplayAlert("Validation Error", "A single transaction line cannot have both Debit and Credit amounts.", "OK");
                 return false;
             }
         }
 
         if (Math.Round(totalDebit - totalCredit, 2) != 0 || totalDebit == 0)
         {
-            this.DisplayAlertAsync("Validation Error", "Total debits must equal total credits and be greater than zero before saving.", "OK");
+            this.DisplayAlert("Validation Error", "Total debits must equal total credits and be greater than zero before saving.", "OK");
             return false;
         }
 

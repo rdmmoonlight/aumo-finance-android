@@ -122,11 +122,11 @@ public partial class CoaPage : ContentPage
         string refStr = await DisplayPromptAsync("Reference Code", "Enter reference code (e.g. 1010):");
         if (!int.TryParse(refStr, out int refNum))
         {
-            await this.DisplayAlertAsync("Invalid Input", "Reference code must be a valid number.", "OK");
+            await this.DisplayAlert("Invalid Input", "Reference code must be a valid number.", "OK");
             return;
         }
 
-        string type = await DisplayActionSheetAsync("Select Account Type", "Cancel", null, "Asset", "Liability", "Equity", "Revenue", "Expense");
+        string type = await DisplayActionSheet("Select Account Type", "Cancel", null, "Asset", "Liability", "Equity", "Revenue", "Expense");
         if (type == "Cancel" || string.IsNullOrEmpty(type)) return;
 
         var dto = new CreateAccountDto
@@ -191,7 +191,7 @@ public partial class CoaPage : ContentPage
     {
         if (sender is Button button && button.CommandParameter is int accountId)
         {
-            bool confirm = await this.DisplayAlertAsync(
+            bool confirm = await this.DisplayAlert(
                 "Delete Confirmation",
                 "Are you sure you want to delete this account? Accounts with transaction entries cannot be deleted.",
                 "Yes, Delete",

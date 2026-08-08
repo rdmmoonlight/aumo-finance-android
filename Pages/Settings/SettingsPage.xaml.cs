@@ -53,12 +53,12 @@ public partial class SettingsPage : ContentPage
         if (isEnabled)
         {
             await _notificationService.ScheduleDailyReminderAsync(selectedTime.Hours, selectedTime.Minutes);
-            await DisplayAlertAsync("Settings Saved", $"Daily reminder set for {DateTime.Today.Add(selectedTime):hh:mm tt}.", "OK");
+            await DisplayAlert("Settings Saved", $"Daily reminder set for {DateTime.Today.Add(selectedTime):hh:mm tt}.", "OK");
         }
         else
         {
             _notificationService.CancelDailyReminder();
-            await DisplayAlertAsync("Settings Saved", "Daily reminder has been disabled.", "OK");
+            await DisplayAlert("Settings Saved", "Daily reminder has been disabled.", "OK");
         }
     }
 }

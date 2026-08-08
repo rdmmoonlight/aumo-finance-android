@@ -82,7 +82,7 @@ public partial class RetainedEarningsPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Failed to load Retained Earnings: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Failed to load Retained Earnings: {ex.Message}", "OK");
         }
         finally
         {
