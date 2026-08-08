@@ -8,6 +8,7 @@
        Shell.NavBarIsVisible="False"
        BackgroundColor="#0F172A">
 
+    <!-- Styles untuk Shell Menu Items -->
     <Shell.Resources>
         <ResourceDictionary>
             <Style TargetType="Element" x:Key="BaseStyle">
@@ -20,7 +21,8 @@
         </ResourceDictionary>
     </Shell.Resources>
 
-    <!-- Halaman Tersembunyi (Awal/Login) -->
+    <!-- 1. HALAMAN UTAMA PERTAMA (LOGIN) -->
+    <!-- Disembunyikan dari Flyout & Flyout dimatikan secara default di halaman ini -->
     <ShellContent
         Title="Login"
         Route="LoginPage"
@@ -28,14 +30,14 @@
         Shell.FlyoutItemIsVisible="False"
         Shell.FlyoutBehavior="Disabled" />
 
-    <!-- Root App Page -->
+    <!-- 2. HALAMAN ROOT APLIKASI SETELAH LOGIN -->
     <ShellContent
         Title="Home"
         Route="MainPage"
         ContentTemplate="{DataTemplate pages:MainPage}" />
 
     <!-- ============================================================
-         DAFTAR MENU FLYOUT (Langsung Muncul Tanpa Header Teks)
+         DAFTAR MENU NAVIGASI (FLYOUT MENU)
          ============================================================ -->
 
     <MenuItem Text="📊  Dashboard" Clicked="OnDashboardMenuItemClicked" />
@@ -64,6 +66,7 @@
 
     <BoxView HeightRequest="1" Color="#334155" Margin="0,6" />
     <MenuItem Text="App Settings" Clicked="OnSettingsMenuItemClicked" />
+    <MenuItem Text="🚪  Logout" Clicked="OnLogoutMenuItemClicked" />
 
     <!-- Footer Flyout Menu -->
     <Shell.FlyoutFooter>

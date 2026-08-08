@@ -19,7 +19,11 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        // 1. Core & Master Data Routes
+        // 1. Auth & Account Routes
+        Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
+        Routing.RegisterRoute(nameof(LogoutPage), typeof(LogoutPage));
+
+        // 2. Core & Master Data Routes
         Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
         Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(CoaPage), typeof(CoaPage));
@@ -27,7 +31,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(JournalEntryPage), typeof(JournalEntryPage));
         Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
 
-        // 2. Financial Reports Routes
+        // 3. Financial Reports Routes
         Routing.RegisterRoute(nameof(GeneralJournalPage), typeof(GeneralJournalPage));
         Routing.RegisterRoute(nameof(GeneralLedgerPermanentPage), typeof(GeneralLedgerPermanentPage));
         Routing.RegisterRoute(nameof(GeneralLedgerTemporaryPage), typeof(GeneralLedgerTemporaryPage));
@@ -40,11 +44,15 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(ClosingJournalPage), typeof(ClosingJournalPage));
         Routing.RegisterRoute(nameof(PostClosingTrialBalancePage), typeof(PostClosingTrialBalancePage));
         Routing.RegisterRoute(nameof(StatementOfCashFlowsPage), typeof(StatementOfCashFlowsPage));
+
+        // KUNCI FLYOUT DRAWER SECARA DEFAULT
+        // Menjamin drawer tidak bisa dibuka via gesture/swipe sebelum user berhasil login
+        Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
     }
 
     // ================= FLYOUT MENU HANDLERS =================
     // Shell otomatis menutup Flyout saat sebuah MenuItem diklik.
-    // Setiap handler hanya melakukan push navigasi (GoToAsync) ke rute yang sudah didaftarkan di atas.
+    // Setiap handler melakukan push navigasi (GoToAsync) ke rute yang sudah didaftarkan.
 
     private async void OnDashboardMenuItemClicked(object? sender, EventArgs e)
         => await GoToAsync(nameof(DashboardPage));
@@ -99,4 +107,7 @@ public partial class AppShell : Shell
 
     private async void OnSettingsMenuItemClicked(object? sender, EventArgs e)
         => await GoToAsync(nameof(SettingsPage));
+
+    private async void OnLogoutMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(LogoutPage));
 }
