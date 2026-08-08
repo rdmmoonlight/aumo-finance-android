@@ -1,45 +1,52 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Dashboard.DashboardPage"
              Title="Dashboard"
-             BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}">
+             BackgroundColor="#0F172A">
 
     <Grid RowDefinitions="Auto, *">
 
-        <!-- Top Navigation / Period Banner Header -->
-        <Border Grid.Row="0"
-                BackgroundColor="{AppThemeBinding Light=#1E293B, Dark=#0F172A}"
-                Padding="16,12"
-                StrokeShape="RoundRectangle 0,0,0,0"
-                StrokeThickness="0">
-            <Grid ColumnDefinitions="*, Auto">
-                <VerticalStackLayout Grid.Column="0" Spacing="2">
-                    <Label Text="ACCOUNTING PERIOD"
-                           FontSize="10"
-                           FontAttributes="Bold"
-                           TextColor="#94A3B8"
-                           CharacterSpacing="1" />
-                    <Label x:Name="PeriodText"
-                           Text="Loading Period..."
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="White" />
-                </VerticalStackLayout>
-
-                <ImageButton Grid.Column="1"
-                             Source="icon_refresh.png"
-                             HeightRequest="24"
-                             WidthRequest="24"
-                             VerticalOptions="Center"
-                             Clicked="OnRefreshClicked"
-                             ToolTipProperties.Text="Refresh Data" />
-            </Grid>
-        </Border>
+        <!-- Top Bar Component (Ditambahkan paling atas) -->
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
         <!-- Main Dashboard Content Scrollable Area -->
-        <ScrollView Grid.Row="1" Padding="16">
-            <VerticalStackLayout Spacing="16">
+        <ScrollView Grid.Row="1" Padding="20,20,20,40">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- Accounting Period Banner Header (Tetap Dipertahankan) -->
+                <Border BackgroundColor="#1E293B"
+                        Stroke="#334155"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="16,12">
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="ACCOUNTING PERIOD"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="#94A3B8"
+                                   CharacterSpacing="0.8" />
+                            <Label x:Name="PeriodText"
+                                   Text="Loading Period..."
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
+                        </VerticalStackLayout>
+
+                        <ImageButton Grid.Column="1"
+                                     Source="icon_refresh.png"
+                                     HeightRequest="24"
+                                     WidthRequest="24"
+                                     VerticalOptions="Center"
+                                     Clicked="OnRefreshClicked"
+                                     ToolTipProperties.Text="Refresh Data" />
+                    </Grid>
+                </Border>
 
                 <!-- Loading Indicator Overlay -->
                 <ActivityIndicator x:Name="LoadingIndicator"
@@ -47,9 +54,9 @@
                                    IsVisible="True"
                                    HeightRequest="40"
                                    WidthRequest="40"
-                                   Color="{AppThemeBinding Light=#2563EB, Dark=#60A5FA}"
+                                   Color="#38BDF8"
                                    HorizontalOptions="Center"
-                                   Margin="0,32,0,0" />
+                                   Margin="0,20,0,0" />
 
                 <!-- Dashboard Metrics Content -->
                 <VerticalStackLayout x:Name="DashboardContent"
@@ -57,19 +64,23 @@
                                      IsVisible="False">
 
                     <!-- Main Balance Card (Total Cash / Assets) -->
-                    <Border BackgroundColor="{AppThemeBinding Light=#2563EB, Dark=#1D4ED8}"
-                            Padding="20"
+                    <Border BackgroundColor="#1E293B"
+                            Stroke="#334155"
+                            StrokeThickness="1"
                             StrokeShape="RoundRectangle 16"
-                            StrokeThickness="0">
-                        <VerticalStackLayout Spacing="8">
+                            Padding="20">
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="6">
                             <Label Text="Total Cash &amp; Assets"
-                                   FontSize="14"
-                                   TextColor="#DBEAFE" />
+                                   FontSize="13"
+                                   TextColor="#94A3B8" />
                             <Label x:Name="CashLabel"
                                    Text="$0.00"
                                    FontSize="32"
                                    FontAttributes="Bold"
-                                   TextColor="White" />
+                                   TextColor="#38BDF8" />
                         </VerticalStackLayout>
                     </Border>
 
@@ -82,100 +93,119 @@
                         <!-- Net Income Card -->
                         <Border Grid.Row="0" Grid.Column="0"
                                 Grid.ColumnSpan="2"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}"
-                                Padding="16"
-                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="#1E293B"
+                                Stroke="#334155"
                                 StrokeThickness="1"
-                                Stroke="{AppThemeBinding Light=#E2E8F0, Dark=#334155}">
+                                StrokeShape="RoundRectangle 16"
+                                Padding="16">
+                            <Border.Shadow>
+                                <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                            </Border.Shadow>
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="Net Income"
-                                       FontSize="12"
-                                       TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" />
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="#94A3B8"
+                                       CharacterSpacing="0.8" />
                                 <Label x:Name="NetIncomeLabel"
                                        Text="$0.00"
                                        FontSize="22"
                                        FontAttributes="Bold"
-                                       TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}" />
+                                       TextColor="White" />
                             </VerticalStackLayout>
                         </Border>
 
                         <!-- Total Revenue Card -->
                         <Border Grid.Row="1" Grid.Column="0"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}"
-                                Padding="16"
-                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="#1E293B"
+                                Stroke="#334155"
                                 StrokeThickness="1"
-                                Stroke="{AppThemeBinding Light=#E2E8F0, Dark=#334155}">
+                                StrokeShape="RoundRectangle 16"
+                                Padding="16">
+                            <Border.Shadow>
+                                <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                            </Border.Shadow>
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="Revenue"
-                                       FontSize="12"
-                                       TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" />
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="#94A3B8"
+                                       CharacterSpacing="0.8" />
                                 <Label x:Name="RevenueLabel"
                                        Text="$0.00"
                                        FontSize="18"
                                        FontAttributes="Bold"
-                                       TextColor="#16A34A" />
+                                       TextColor="#4ADE80" />
                             </VerticalStackLayout>
                         </Border>
 
                         <!-- Total Expenses Card -->
                         <Border Grid.Row="1" Grid.Column="1"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}"
-                                Padding="16"
-                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="#1E293B"
+                                Stroke="#334155"
                                 StrokeThickness="1"
-                                Stroke="{AppThemeBinding Light=#E2E8F0, Dark=#334155}">
+                                StrokeShape="RoundRectangle 16"
+                                Padding="16">
+                            <Border.Shadow>
+                                <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                            </Border.Shadow>
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="Expenses"
-                                       FontSize="12"
-                                       TextColor="{AppThemeBinding Light=#64748B, Dark=#94A3B8}" />
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="#94A3B8"
+                                       CharacterSpacing="0.8" />
                                 <Label x:Name="ExpenseLabel"
                                        Text="$0.00"
                                        FontSize="18"
                                        FontAttributes="Bold"
-                                       TextColor="#DC2626" />
+                                       TextColor="#F87171" />
                             </VerticalStackLayout>
                         </Border>
 
                     </Grid>
 
                     <!-- Application Settings Section -->
-                    <Border BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}"
-                            Padding="16"
-                            StrokeShape="RoundRectangle 12"
+                    <Border BackgroundColor="#1E293B"
+                            Stroke="#334155"
                             StrokeThickness="1"
-                            Stroke="{AppThemeBinding Light=#E2E8F0, Dark=#334155}">
+                            StrokeShape="RoundRectangle 16"
+                            Padding="16">
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                        </Border.Shadow>
+
                         <VerticalStackLayout Spacing="12">
                             <Label Text="SETTINGS &amp; UPDATES"
                                    FontSize="11"
                                    FontAttributes="Bold"
-                                   TextColor="#64748B"
-                                   CharacterSpacing="1" />
+                                   TextColor="#94A3B8"
+                                   CharacterSpacing="0.8" />
 
-                            <Grid ColumnDefinitions="*, Auto">
-                                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
                                     <Label Text="Automatic Updates"
-                                           FontSize="14"
+                                           FontSize="13"
                                            FontAttributes="Bold"
-                                           TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}" />
+                                           TextColor="White" />
                                     <Label Text="Automatically check for app updates on startup"
-                                           FontSize="11"
-                                           TextColor="#94A3B8" />
+                                           FontSize="10"
+                                           TextColor="#64748B" />
                                 </VerticalStackLayout>
                                 <Switch x:Name="AutoUpdateSwitch"
                                         Grid.Column="1"
+                                        OnColor="#4F46E5"
+                                        ThumbColor="White"
                                         Toggled="OnAutoUpdateToggled" />
                             </Grid>
 
-                            <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#F1F5F9, Dark=#334155}" />
-
                             <Button Text="Check for Updates"
-                                    FontSize="13"
-                                    BackgroundColor="Transparent"
-                                    TextColor="{AppThemeBinding Light=#2563EB, Dark=#60A5FA}"
-                                    BorderColor="{AppThemeBinding Light=#CBD5E1, Dark=#475569}"
-                                    BorderWidth="1"
-                                    CornerRadius="8"
+                                    BackgroundColor="#334155"
+                                    TextColor="#38BDF8"
+                                    FontAttributes="Bold"
+                                    FontSize="12"
+                                    CornerRadius="10"
+                                    HeightRequest="40"
                                     Clicked="OnCheckUpdateManualClicked" />
                         </VerticalStackLayout>
                     </Border>
@@ -185,17 +215,17 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Primary Action Floating Button (Create Journal Entry) -->
+        <!-- Primary Action Floating Button -->
         <ImageButton Grid.Row="1"
                      Source="icon_add.png"
-                     BackgroundColor="{AppThemeBinding Light=#2563EB, Dark=#1D4ED8}"
+                     BackgroundColor="#2563EB"
                      CornerRadius="28"
                      HeightRequest="56"
                      WidthRequest="56"
                      HorizontalOptions="End"
                      VerticalOptions="End"
                      Margin="0,0,24,24"
-                     Shadow="{Shadow Brush=Black, Offset='2,4', Radius=8, Opacity=0.25}"
+                     Shadow="{Shadow Brush=Black, Offset='2,4', Radius=8, Opacity=0.3}"
                      Clicked="OnPrimaryFabClicked"
                      ToolTipProperties.Text="New Journal Entry" />
 
