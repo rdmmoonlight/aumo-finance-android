@@ -127,20 +127,18 @@
                                         </Grid>
 
                                         <!-- Lines Items Repeater -->
-                                        <BindableLayout.ItemsSource>
-                                            <Binding Path="Lines" />
-                                        </BindableLayout.ItemsSource>
-
-                                        <BindableLayout.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid ColumnDefinitions="2*, 3*, Auto, Auto" ColumnSpacing="8" Margin="0,2">
-                                                    <Label Grid.Column="0" Text="{Binding AccountReferenceNumber}" FontSize="11" TextColor="#64748B" />
-                                                    <Label Grid.Column="1" Text="{Binding AccountName}" FontSize="11" FontAttributes="Bold" TextColor="#E2E8F0" LineBreakMode="TailTruncation" />
-                                                    <Label Grid.Column="2" Text="{Binding FormattedDebit}" FontSize="11" TextColor="#38BDF8" HorizontalTextAlignment="End" WidthRequest="70" />
-                                                    <Label Grid.Column="3" Text="{Binding FormattedCredit}" FontSize="11" TextColor="#EF4444" HorizontalTextAlignment="End" WidthRequest="70" />
-                                                </Grid>
-                                            </DataTemplate>
-                                        </BindableLayout.ItemTemplate>
+                                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="2*, 3*, Auto, Auto" ColumnSpacing="8" Margin="0,2">
+                                                        <Label Grid.Column="0" Text="{Binding AccountReferenceNumber}" FontSize="11" TextColor="#64748B" />
+                                                        <Label Grid.Column="1" Text="{Binding AccountName}" FontSize="11" FontAttributes="Bold" TextColor="#E2E8F0" LineBreakMode="TailTruncation" />
+                                                        <Label Grid.Column="2" Text="{Binding FormattedDebit}" FontSize="11" TextColor="#38BDF8" HorizontalTextAlignment="End" WidthRequest="70" />
+                                                        <Label Grid.Column="3" Text="{Binding FormattedCredit}" FontSize="11" TextColor="#EF4444" HorizontalTextAlignment="End" WidthRequest="70" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
 
                                     </VerticalStackLayout>
                                 </Border>
