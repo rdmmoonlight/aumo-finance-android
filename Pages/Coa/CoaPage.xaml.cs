@@ -57,13 +57,14 @@ public partial class CoaPage : ContentPage
                 return;
             }
 
-            _allAccounts = accounts.Select(a => new CoaItemViewModel
+            // REVISI: Mengantisipasi null pada accounts dan ReferenceNumber
+            _allAccounts = (accounts ?? new List<CoaAccountDto>()).Select(a => new CoaItemViewModel
             {
                 Id = a.Id,
-                ReferenceNumber = a.ReferenceNumber,
-                AccountName = a.AccountName,
-                Type = a.Type,
-                Role = a.Role,
+                ReferenceNumber = a.ReferenceNumber ?? 0, // REVISI: Default ke 0 jika null
+                AccountName = a.AccountName ?? string.Empty,
+                Type = a.Type ?? string.Empty,
+                Role = a.Role ?? string.Empty,
                 IsActive = a.IsActive,
                 CurrentBalance = a.CurrentBalance,
                 IdrCulture = _idrCulture
