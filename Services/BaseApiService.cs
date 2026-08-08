@@ -9,7 +9,7 @@ namespace AumoFinance.Services;
 
 public abstract class BaseApiService
 {
-    public const string BaseUrl = "https://aumo-preview.up.railway.app";
+    public const string BaseUrl = "https://aumo.up.railway.app";
     protected const string AuthTokenKey = "auth_token_jwt";
 
     protected static readonly HttpClient HttpClient = new HttpClient
