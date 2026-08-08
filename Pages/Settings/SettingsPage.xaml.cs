@@ -44,7 +44,9 @@ public partial class SettingsPage : ContentPage
     private async void OnSaveSettingsClicked(object? sender, EventArgs e)
     {
         bool isEnabled = ReminderSwitch.IsToggled;
-        TimeSpan selectedTime = ReminderTimePicker.Time ?? TimeSpan.Zero;
+        
+        // ReminderTimePicker.Time mengembalikan TimeSpan (non-nullable)
+        TimeSpan selectedTime = ReminderTimePicker.Time;
 
         Preferences.Default.Set(KeyReminderEnabled, isEnabled);
         Preferences.Default.Set(KeyReminderHour, selectedTime.Hours);

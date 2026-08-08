@@ -114,7 +114,8 @@ public partial class JournalEntryPage : ContentPage
 
     private async void OnSaveJournalClicked(object? sender, EventArgs e)
     {
-        if (!ValidateForm(out decimal totalDebit, out decimal totalCredit))
+        var (isValid, totalDebit, totalCredit) = await ValidateFormAsync();
+        if (!isValid)
             return;
 
         SubmitButton.IsEnabled = false;
@@ -124,7 +125,7 @@ public partial class JournalEntryPage : ContentPage
             var requestDto = new CreateJournalEntryRequest
             {
                 JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-                EntryDate = EntryDatePicker.Date ?? DateTime.Today,
+                EntryDate = EntryDatePicker.Date, // EntryDatePicker.Date bernilai DateTime (non-nullable)
                 Lines = Lines
                     .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                     .Select(l => new JournalEntryLineRequest
@@ -150,50 +151,50 @@ public partial class JournalEntryPage : ContentPage
                     ? message
                     : $"Journal Entry {refNumber} recorded successfully!";
 
-                await this.DisplayAlert("Success", successMessage, "OK");
+                await DisplayAlert("Success", successMessage, "OK");
                 await Navigation.PopAsync();
             }
             else
             {
-                await this.DisplayAlert("Posting Failed", message, "OK");
+                await DisplayAlert("Posting Failed", message, "OK");
                 SubmitButton.IsEnabled = true;
             }
         }
         catch (Exception ex)
         {
-            await this.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
             SubmitButton.IsEnabled = true;
         }
     }
 
-    private bool ValidateForm(out decimal totalDebit, out decimal totalCredit)
+    private async Task<(bool IsValid, decimal TotalDebit, decimal TotalCredit)> ValidateFormAsync()
     {
         var activeLines = Lines.Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0)).ToList();
-        totalDebit = activeLines.Sum(l => l.Debit);
-        totalCredit = activeLines.Sum(l => l.Credit);
+        decimal totalDebit = activeLines.Sum(l => l.Debit);
+        decimal totalCredit = activeLines.Sum(l => l.Credit);
 
         if (activeLines.Count < 2)
         {
-            this.DisplayAlert("Validation Error", "A journal entry must have at least 2 active transaction lines with valid accounts.", "OK");
-            return false;
+            await DisplayAlert("Validation Error", "A journal entry must have at least 2 active transaction lines with valid accounts.", "OK");
+            return (false, totalDebit, totalCredit);
         }
 
         foreach (var line in activeLines)
         {
             if (line.Debit > 0 && line.Credit > 0)
             {
-                this.DisplayAlert("Validation Error", "A single transaction line cannot have both Debit and Credit amounts.", "OK");
-                return false;
+                await DisplayAlert("Validation Error", "A single transaction line cannot have both Debit and Credit amounts.", "OK");
+                return (false, totalDebit, totalCredit);
             }
         }
 
         if (Math.Round(totalDebit - totalCredit, 2) != 0 || totalDebit == 0)
         {
-            this.DisplayAlert("Validation Error", "Total debits must equal total credits and be greater than zero before saving.", "OK");
-            return false;
+            await DisplayAlert("Validation Error", "Total debits must equal total credits and be greater than zero before saving.", "OK");
+            return (false, totalDebit, totalCredit);
         }
 
-        return true;
+        return (true, totalDebit, totalCredit);
     }
 }
 
