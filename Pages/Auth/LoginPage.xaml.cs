@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using AumoFinance.Services;
@@ -12,7 +13,7 @@ public partial class LoginPage : ContentPage
     private const string IconEyeHidden = "\uE8F5";
 
     private const string KeyRememberMe = "remember_me";
-    private const string KeySavedUsername = "saved_username";
+    private const string KeySavedEmail = "saved_email";
     private const string KeySavedPassword = "saved_password";
 
     private readonly AuthService _authService;
@@ -38,7 +39,7 @@ public partial class LoginPage : ContentPage
             await Navigation.PushModalAsync(new CrashLogPage(lastCrash));
         }
 
-        // Muat Status Checkbox "Ingat Saya" & Kredensial Terhitung
+        // Muat Status Checkbox "Ingat Saya" & Email/Password Terimpan
         await LoadSavedCredentialsAsync();
     }
 
@@ -51,12 +52,12 @@ public partial class LoginPage : ContentPage
         {
             try
             {
-                string? savedUsername = await SecureStorage.Default.GetAsync(KeySavedUsername);
+                string? savedEmail = await SecureStorage.Default.GetAsync(KeySavedEmail);
                 string? savedPassword = await SecureStorage.Default.GetAsync(KeySavedPassword);
 
-                if (!string.IsNullOrEmpty(savedUsername))
+                if (!string.IsNullOrEmpty(savedEmail))
                 {
-                    UsernameEntry.Text = savedUsername;
+                    EmailEntry.Text = savedEmail;
                 }
 
                 if (!string.IsNullOrEmpty(savedPassword))
@@ -68,7 +69,7 @@ public partial class LoginPage : ContentPage
             }
             catch (Exception)
             {
-                // Penanganan jika SecureStorage tidak didukung oleh perangkat
+                // Penanganan jika SecureStorage tidak dapat diakses
             }
         }
     }
@@ -86,31 +87,30 @@ public partial class LoginPage : ContentPage
 
     private async void OnLoginButtonClicked(object? sender, EventArgs e)
     {
-        string username = UsernameEntry.Text?.Trim() ?? string.Empty;
+        string email = EmailEntry.Text?.Trim() ?? string.Empty;
         string password = PasswordEntry.Text ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            ShowError("Email/Username dan Password tidak boleh kosong.");
+            ShowError("Email dan Password tidak boleh kosong.");
             return;
         }
 
-        await ProcessLoginAsync(username, password);
+        await ProcessLoginAsync(email, password);
     }
 
     private async void OnBiometricButtonClicked(object? sender, EventArgs e)
     {
-        // 1. Jalankan Verifikasi Biometrik Perangkat
         bool isAuthenticated = await AuthenticateWithBiometricsAsync();
 
         if (isAuthenticated)
         {
-            string? savedUsername = await SecureStorage.Default.GetAsync(KeySavedUsername);
+            string? savedEmail = await SecureStorage.Default.GetAsync(KeySavedEmail);
             string? savedPassword = await SecureStorage.Default.GetAsync(KeySavedPassword);
 
-            if (!string.IsNullOrEmpty(savedUsername) && !string.IsNullOrEmpty(savedPassword))
+            if (!string.IsNullOrEmpty(savedEmail) && !string.IsNullOrEmpty(savedPassword))
             {
-                await ProcessLoginAsync(savedUsername, savedPassword);
+                await ProcessLoginAsync(savedEmail, savedPassword);
             }
             else
             {
@@ -123,13 +123,13 @@ public partial class LoginPage : ContentPage
         }
     }
 
-    private async Task ProcessLoginAsync(string username, string password)
+    private async Task ProcessLoginAsync(string email, string password)
     {
         SetLoadingState(true);
 
         try
         {
-            var (success, message, userId, fullName) = await _authService.LoginAsync(username, password);
+            var (success, message, userId, fullName) = await _authService.LoginAsync(email, password);
 
             if (success && userId != null)
             {
@@ -139,17 +139,17 @@ public partial class LoginPage : ContentPage
                     Preferences.Default.Set("current_user_name", fullName);
                 }
 
-                // Simpan atau Hapus Kredensial Berdasarkan Checkbox "Ingat Saya"
+                // Simpan atau hapus kredensial berdasarkan checkbox "Ingat Saya"
                 if (RememberMeCheckBox.IsChecked)
                 {
                     Preferences.Default.Set(KeyRememberMe, true);
-                    await SecureStorage.Default.SetAsync(KeySavedUsername, username);
+                    await SecureStorage.Default.SetAsync(KeySavedEmail, email);
                     await SecureStorage.Default.SetAsync(KeySavedPassword, password);
                 }
                 else
                 {
                     Preferences.Default.Remove(KeyRememberMe);
-                    SecureStorage.Default.Remove(KeySavedUsername);
+                    SecureStorage.Default.Remove(KeySavedEmail);
                     SecureStorage.Default.Remove(KeySavedPassword);
                 }
 
@@ -176,19 +176,9 @@ public partial class LoginPage : ContentPage
 
     private async Task<bool> AuthenticateWithBiometricsAsync()
     {
-        // Jika menggunakan NuGet Plugin.Fingerprint / Plugin.Validation.Biometrics,
-        // panggil fungsi otentikasi di sini. 
-        // Contoh implementasi dummy/panggilan pustaka:
-        
-        /* 
-        var result = await Plugin.Fingerprint.CrossFingerprint.Current.AuthenticateAsync(
-            new Plugin.Fingerprint.Abstractions.AuthenticationRequestConfiguration(
-                "Verifikasi Biometrik", "Pindai sidik jari atau wajah Anda untuk login"));
-        return result.Authenticated;
-        */
-
-        await Task.Delay(300); // Simulasi jeda autentikasi
-        return true; 
+        // Integrasi dengan plugin biometrik seperti Plugin.Fingerprint jika digunakan
+        await Task.Delay(300); // Simulasi panggilan biometrik
+        return true;
     }
 
     private void ShowError(string message)
