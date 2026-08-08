@@ -106,7 +106,7 @@ public partial class TrialBalancePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Failed to load Trial Balance: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Failed to load Trial Balance: {ex.Message}", "OK");
         }
         finally
         {

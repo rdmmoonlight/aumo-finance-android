@@ -62,7 +62,7 @@ public partial class MainPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Manual update check error: {ex}");
-            await this.DisplayAlert("Error", "Failed to check for updates.", "OK");
+            await this.DisplayAlertAsync("Error", "Failed to check for updates.", "OK");
         }
     }
 }

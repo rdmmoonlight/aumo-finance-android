@@ -54,13 +54,13 @@ public partial class DashboardPage : ContentPage
             else
             {
                 string detail = string.IsNullOrWhiteSpace(errorDetail) ? "Unknown error occurred." : errorDetail;
-                await this.DisplayAlert("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
+                await this.DisplayAlertAsync("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await this.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {
@@ -99,7 +99,7 @@ public partial class DashboardPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Manual update check error: {ex}");
-            await this.DisplayAlert("Error", "Failed to check for updates.", "OK");
+            await this.DisplayAlertAsync("Error", "Failed to check for updates.", "OK");
         }
     }
 }

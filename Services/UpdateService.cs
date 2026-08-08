@@ -73,7 +73,7 @@ public class UpdateService
                                 var currentPage = Application.Current?.Windows[0]?.Page;
                                 if (currentPage != null)
                                 {
-                                    return await currentPage.DisplayAlert(
+                                    return await currentPage.DisplayAlertAsync(
                                         "Pembaruan AumoFinance",
                                         $"Versi baru (v{latestVersionStr}) tersedia. Unduh sekarang?",
                                         "Ya, Unduh",
@@ -96,7 +96,7 @@ public class UpdateService
                         var currentPage = Application.Current?.Windows[0]?.Page;
                         if (currentPage != null)
                         {
-                            await currentPage.DisplayAlert("AumoFinance", "Aplikasi Anda sudah menggunakan versi terbaru.", "OK");
+                            await currentPage.DisplayAlertAsync("AumoFinance", "Aplikasi Anda sudah menggunakan versi terbaru.", "OK");
                         }
                     });
                 }

@@ -30,8 +30,8 @@ public partial class LogoutPage : ContentPage
         }
         catch (Exception ex)
         {
-            // Menggunakan DisplayAlert untuk menghindari Obsolete warning
-            await this.DisplayAlert("Error", $"Gagal melakukan logout: {ex.Message}", "OK");
+            // Menggunakan this.DisplayAlertAsync (bukan Application.Current.MainPage) agar konsisten
+            await this.DisplayAlertAsync("Error", $"Gagal melakukan logout: {ex.Message}", "OK");
         }
         finally
         {
