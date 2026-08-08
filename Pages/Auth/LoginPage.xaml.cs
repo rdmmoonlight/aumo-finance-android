@@ -24,6 +24,12 @@ public partial class LoginPage : ContentPage
     {
         base.OnAppearing();
 
+        // Pastikan Flyout drawer tetap terkunci saat berada di Halaman Login
+        if (Shell.Current != null)
+        {
+            Shell.SetFlyoutBehavior(Shell.Current, FlyoutBehavior.Disabled);
+        }
+
         string? lastCrash = CrashLogger.ReadAndClearLastCrash();
         if (!string.IsNullOrWhiteSpace(lastCrash))
         {
@@ -60,6 +66,12 @@ public partial class LoginPage : ContentPage
                 if (!string.IsNullOrEmpty(fullName))
                 {
                     Preferences.Default.Set("current_user_name", fullName);
+                }
+
+                // AKTIFKAN KEMBALI FLYOUT DRAWER SETELAH LOGIN BERHASIL
+                if (Shell.Current != null)
+                {
+                    Shell.SetFlyoutBehavior(Shell.Current, FlyoutBehavior.Flyout);
                 }
 
                 await Shell.Current.GoToAsync("//MainPage");
