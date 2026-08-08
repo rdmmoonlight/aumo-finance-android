@@ -21,21 +21,17 @@ public partial class LogoutPage : ContentPage
             Preferences.Default.Remove("current_user_id");
             Preferences.Default.Remove("current_user_name");
 
-            // Optional: Hapus seluruh preferences jika ingin reset total saat logout
-            // Preferences.Default.Clear();
-
-            // 2. Kunci Kembali Flyout Menu Drawer (Agar tidak bisa di-swipe/dibuka)
-            if (Shell.Current != null)
+            // 2. Kunci Kembali Flyout Menu Drawer & Navigasi ke LoginPage
+            if (Shell.Current is Shell shell)
             {
-                Shell.SetFlyoutBehavior(Shell.Current, FlyoutBehavior.Disabled);
+                Shell.SetFlyoutBehavior(shell, FlyoutBehavior.Disabled);
+                await shell.GoToAsync("//LoginPage");
             }
-
-            // 3. Arahkan User Kembali ke LoginPage & Reset Tumpukan Navigasi
-            await Shell.Current.GoToAsync("//LoginPage");
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Gagal melakukan logout: {ex.Message}", "OK");
+            // Menggunakan DisplayAlertAsync untuk menghindari Obsolete warning
+            await this.DisplayAlertAsync("Error", $"Gagal melakukan logout: {ex.Message}", "OK");
         }
         finally
         {
@@ -45,8 +41,10 @@ public partial class LogoutPage : ContentPage
 
     private async void OnCancelButtonClicked(object? sender, EventArgs e)
     {
-        // Kembali ke halaman sebelumnya
-        await Shell.Current.GoToAsync("..");
+        if (Shell.Current is Shell shell)
+        {
+            await shell.GoToAsync("..");
+        }
     }
 
     private void SetLoadingState(bool isLoading)
