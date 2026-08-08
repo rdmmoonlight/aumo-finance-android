@@ -4,7 +4,6 @@
              x:Class="AumoFinance.Views.TopBarView"
              BackgroundColor="#0F172A">
 
-    <!-- Padding kiri dikurangi menjadi 4 agar tombol menepi ke kiri layar -->
     <Grid ColumnDefinitions="Auto, *, Auto"
           VerticalOptions="Center"
           Padding="4,12,16,12">
@@ -12,7 +11,7 @@
         <!-- SISI KIRI: Tombol Menu Navigasi + Periode -->
         <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
             
-            <!-- Tombol Menu: membuka action sheet (lihat OnMenuButtonClicked di code-behind) -->
+            <!-- Tombol Menu (Trigger AppShell Drawer) -->
             <Button x:Name="MenuButton"
                     Text="☰"
                     FontSize="20"
@@ -33,19 +32,34 @@
                    VerticalOptions="Center" />
         </HorizontalStackLayout>
 
-        <!-- SISI KANAN: Tag Versi -->
+        <!-- SISI KANAN: Indikator Connectivity & Queue Data -->
         <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+            
             <Border BackgroundColor="#1E293B"
                     Stroke="#334155"
                     StrokeThickness="1"
-                    StrokeShape="RoundRectangle 8"
-                    Padding="8,4">
-                <Label Text="v1.0"
-                       FontSize="11"
-                       TextColor="#64748B"
-                       FontAttributes="Bold"
-                       VerticalOptions="Center" />
+                    StrokeShape="RoundRectangle 12"
+                    Padding="10,4">
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    
+                    <!-- Bulatan Indikator Status Koneksi -->
+                    <Ellipse x:Name="ConnectionStatusDot"
+                             WidthRequest="8"
+                             HeightRequest="8"
+                             Fill="#10B981"
+                             VerticalOptions="Center" />
+
+                    <!-- Label Status Queue & Online/Offline -->
+                    <Label x:Name="NetworkQueueLabel"
+                           Text="Online"
+                           FontSize="11"
+                           TextColor="#CBD5E1"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center" />
+
+                </HorizontalStackLayout>
             </Border>
+
         </HorizontalStackLayout>
 
     </Grid>
