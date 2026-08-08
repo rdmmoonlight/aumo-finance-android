@@ -46,15 +46,15 @@ public partial class GeneralJournalPage : ContentPage
                     ? "No Active Period"
                     : data.SelectedPeriodName;
 
-                var viewModels = data.Entries.Select(e => new GeneralJournalEntryViewModel
+                var viewModels = (data.Entries ?? new List<GeneralJournalEntryReportDto>()).Select(e => new GeneralJournalEntryViewModel
                 {
                     Id = e.Id,
                     EntryDate = e.EntryDate,
                     JournalType = e.JournalType ?? "General",
                     ReferenceNumber = e.ReferenceNumber ?? string.Empty,
-                    Lines = e.Lines.Select(l => new GeneralJournalLineViewModel
+                    Lines = (e.Lines ?? new List<GeneralJournalLineReportDto>()).Select(l => new GeneralJournalLineViewModel
                     {
-                        AccountReferenceNumber = l.ReferenceNumber,
+                        AccountReferenceNumber = l.ReferenceNumber ?? 0,
                         AccountName = l.AccountName ?? string.Empty,
                         LineDescription = l.LineDescription,
                         Debit = l.Debit,
