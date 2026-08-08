@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-       xmlns:pages="clr-namespace:AumoFinance.Pages"
+       xmlns:auth="clr-namespace:AumoFinance.Pages.Auth"
+       xmlns:main="clr-namespace:AumoFinance.Pages.Main"
        x:Class="AumoFinance.AppShell"
        FlyoutBehavior="Flyout"
        FlyoutBackgroundColor="#0F172A"
@@ -26,7 +27,7 @@
     <ShellContent
         Title="Login"
         Route="LoginPage"
-        ContentTemplate="{DataTemplate pages:LoginPage}"
+        ContentTemplate="{DataTemplate auth:LoginPage}"
         Shell.FlyoutItemIsVisible="False"
         Shell.FlyoutBehavior="Disabled" />
 
@@ -34,7 +35,7 @@
     <ShellContent
         Title="Home"
         Route="MainPage"
-        ContentTemplate="{DataTemplate pages:MainPage}" />
+        ContentTemplate="{DataTemplate main:MainPage}" />
 
     <!-- TAMPILAN MENU DRAWER (FLYOUT CONTENT) -->
     <Shell.FlyoutContent>

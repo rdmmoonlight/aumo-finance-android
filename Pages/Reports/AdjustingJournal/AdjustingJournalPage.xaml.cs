@@ -6,7 +6,7 @@ using AumoFinance.Models;
 using AumoFinance.Services.Reports;
 using AumoFinance.Pages.JournalEntry;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Reports.AdjustingJournal;
 
 public partial class AdjustingJournalPage : ContentPage
 {

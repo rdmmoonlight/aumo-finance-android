@@ -5,7 +5,7 @@ using Microsoft.Maui.Controls;
 using AumoFinance.Services.Reports;
 using AumoFinance.Pages.Reports.GeneralJournal;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Reports.GeneralLedgerPermanent;
 
 public partial class GeneralLedgerPermanentPage : ContentPage
 {

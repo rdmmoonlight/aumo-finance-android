@@ -6,7 +6,7 @@ using AumoFinance.Services;
 using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Pages.Dashboard;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Main;
 
 public partial class MainPage : ContentPage
 {
