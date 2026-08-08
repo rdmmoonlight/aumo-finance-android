@@ -1,15 +1,6 @@
 using System;
 using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
-using AumoFinance.Pages.Coa;
-using AumoFinance.Pages.Dashboard;
-using AumoFinance.Pages.JournalEntry;
-using AumoFinance.Pages.Periods;
-using AumoFinance.Pages.Reports; // Namespace flat untuk sebagian besar halaman laporan
-using AumoFinance.Pages.Reports.GeneralJournal;
-using AumoFinance.Pages.Reports.ClosingJournal;
-using AumoFinance.Pages.Reports.StatementOfCashFlows;
-using AumoFinance.Pages.Settings;
 
 namespace AumoFinance;
 
@@ -46,68 +37,71 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(StatementOfCashFlowsPage), typeof(StatementOfCashFlowsPage));
 
         // KUNCI FLYOUT DRAWER SECARA DEFAULT
-        // Menjamin drawer tidak bisa dibuka via gesture/swipe sebelum user berhasil login
         Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
     }
 
+    private async void NavigateAndCloseFlyout(string route)
+    {
+        FlyoutIsPresented = false;
+        await GoToAsync(route);
+    }
+
     // ================= FLYOUT MENU HANDLERS =================
-    // Shell otomatis menutup Flyout saat sebuah MenuItem diklik.
-    // Setiap handler melakukan push navigasi (GoToAsync) ke rute yang sudah didaftarkan.
 
-    private async void OnDashboardMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(DashboardPage));
+    private void OnDashboardMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(DashboardPage));
 
-    private async void OnCoaMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(CoaPage));
+    private void OnCoaMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(CoaPage));
 
-    private async void OnPeriodsMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(PeriodsPage));
+    private void OnPeriodsMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(PeriodsPage));
 
-    private async void OnJournalEntryMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(JournalEntryPage));
+    private void OnJournalEntryMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(JournalEntryPage));
 
-    private async void OnGeneralJournalMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(GeneralJournalPage));
+    private void OnGeneralJournalMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(GeneralJournalPage));
 
-    private async void OnAdjustingJournalMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(AdjustingJournalPage));
+    private void OnAdjustingJournalMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(AdjustingJournalPage));
 
-    private async void OnGlPermanentMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(GeneralLedgerPermanentPage));
+    private void OnGlPermanentMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(GeneralLedgerPermanentPage));
 
-    private async void OnGlTemporaryMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(GeneralLedgerTemporaryPage));
+    private void OnGlTemporaryMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(GeneralLedgerTemporaryPage));
 
-    private async void OnTrialBalanceMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync($"{nameof(TrialBalancePage)}?includeAdjusting=false");
+    private void OnTrialBalanceMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout($"{nameof(TrialBalancePage)}?includeAdjusting=false");
 
-    private async void OnAdjustedTrialBalanceMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync($"{nameof(TrialBalancePage)}?includeAdjusting=true");
+    private void OnAdjustedTrialBalanceMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout($"{nameof(TrialBalancePage)}?includeAdjusting=true");
 
-    private async void OnWorksheetMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(WorksheetPage));
+    private void OnWorksheetMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(WorksheetPage));
 
-    private async void OnIncomeStatementMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(IncomeStatementPage));
+    private void OnIncomeStatementMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(IncomeStatementPage));
 
-    private async void OnRetainedEarningsMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(RetainedEarningsPage));
+    private void OnRetainedEarningsMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(RetainedEarningsPage));
 
-    private async void OnSofpMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(StatementOfFinancialPositionPage));
+    private void OnSofpMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(StatementOfFinancialPositionPage));
 
-    private async void OnClosingJournalMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(ClosingJournalPage));
+    private void OnClosingJournalMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(ClosingJournalPage));
 
-    private async void OnPostClosingMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(PostClosingTrialBalancePage));
+    private void OnPostClosingMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(PostClosingTrialBalancePage));
 
-    private async void OnCashFlowMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(StatementOfCashFlowsPage));
+    private void OnCashFlowMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(StatementOfCashFlowsPage));
 
-    private async void OnSettingsMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(SettingsPage));
+    private void OnSettingsMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(SettingsPage));
 
-    private async void OnLogoutMenuItemClicked(object? sender, EventArgs e)
-        => await GoToAsync(nameof(LogoutPage));
+    private void OnLogoutMenuItemClicked(object? sender, EventArgs e)
+        => NavigateAndCloseFlyout(nameof(LogoutPage));
 }

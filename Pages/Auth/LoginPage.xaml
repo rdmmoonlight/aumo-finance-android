@@ -18,7 +18,7 @@
                 <Shadow Brush="#000000" Offset="0,12" Radius="24" Opacity="0.45" />
             </Border.Shadow>
 
-            <VerticalStackLayout Spacing="24">
+            <VerticalStackLayout Spacing="20">
 
                 <!-- Header & App Logo/Icon -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
@@ -78,9 +78,9 @@
                 <!-- Input Form Wrapper -->
                 <VerticalStackLayout Spacing="16">
 
-                    <!-- Input Username / Email -->
+                    <!-- Input Email -->
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Email / Username"
+                        <Label Text="Email"
                                TextColor="#CBD5E1"
                                FontSize="12"
                                FontAttributes="Bold" />
@@ -90,7 +90,7 @@
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 12"
                                 Padding="14,2">
-                            <Entry x:Name="UsernameEntry"
+                            <Entry x:Name="EmailEntry"
                                    Placeholder="nama@email.com"
                                    PlaceholderColor="#64748B"
                                    TextColor="White"
@@ -144,29 +144,65 @@
                         </Border>
                     </VerticalStackLayout>
 
+                    <!-- Keep Me Signed In / Checkbox -->
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8" VerticalOptions="Center">
+                        <CheckBox x:Name="RememberMeCheckBox"
+                                  Grid.Column="0"
+                                  Color="#6366F1"
+                                  VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="Ingat Saya (Keep me signed in)"
+                               TextColor="#94A3B8"
+                               FontSize="13"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnRememberMeLabelTapped" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
                 </VerticalStackLayout>
 
-                <!-- Button Login & Indicator -->
-                <VerticalStackLayout Spacing="12" Margin="0,8,0,0">
+                <!-- Button Login, Biometrics & Indicator -->
+                <VerticalStackLayout Spacing="12" Margin="0,4,0,0">
                     <ActivityIndicator x:Name="LoadingIndicator"
                                        Color="#6366F1"
                                        IsRunning="False"
                                        IsVisible="False"
                                        HeightRequest="36" />
 
-                    <Button x:Name="LoginButton"
-                            Text="Masuk"
-                            Clicked="OnLoginButtonClicked"
-                            BackgroundColor="#4F46E5"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="15"
-                            CornerRadius="12"
-                            HeightRequest="48">
-                        <Button.Shadow>
-                            <Shadow Brush="#4F46E5" Offset="0,6" Radius="12" Opacity="0.35" />
-                        </Button.Shadow>
-                    </Button>
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                        <Button x:Name="LoginButton"
+                                Grid.Column="0"
+                                Text="Masuk"
+                                Clicked="OnLoginButtonClicked"
+                                BackgroundColor="#4F46E5"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                CornerRadius="12"
+                                HeightRequest="48">
+                            <Button.Shadow>
+                                <Shadow Brush="#4F46E5" Offset="0,6" Radius="12" Opacity="0.35" />
+                            </Button.Shadow>
+                        </Button>
+
+                        <!-- Tombol Login Biometrik -->
+                        <Button x:Name="BiometricButton"
+                                Grid.Column="1"
+                                Text="&#xE90D;" 
+                                FontFamily="MaterialIcons"
+                                FontSize="24"
+                                BackgroundColor="#312E81"
+                                TextColor="#818CF8"
+                                BorderColor="#4F46E5"
+                                BorderWidth="1"
+                                CornerRadius="12"
+                                HeightRequest="48"
+                                WidthRequest="48"
+                                IsVisible="False"
+                                Clicked="OnBiometricButtonClicked" />
+                    </Grid>
                 </VerticalStackLayout>
 
             </VerticalStackLayout>

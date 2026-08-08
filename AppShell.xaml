@@ -10,17 +10,19 @@
 
     <Shell.Resources>
         <ResourceDictionary>
-            <Style TargetType="Element" x:Key="BaseStyle">
-                <Setter Property="Shell.BackgroundColor" Value="#0F172A" />
-                <Setter Property="Shell.ForegroundColor" Value="White" />
-                <Setter Property="Shell.TitleColor" Value="White" />
-                <Setter Property="Shell.DisabledColor" Value="#64748B" />
-                <Setter Property="Shell.UnselectedColor" Value="#94A3B8" />
+            <Style TargetType="Button" x:Key="FlyoutMenuItemStyle">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="#E2E8F0" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="HorizontalOptions" Value="Fill" />
+                <Setter Property="HorizontalTextAlignment" Value="Start" />
+                <Setter Property="Padding" Value="16,12" />
+                <Setter Property="CornerRadius" Value="0" />
             </Style>
         </ResourceDictionary>
     </Shell.Resources>
 
-    <!-- Halaman Login (Initial State) -->
+    <!-- Halaman Login (Halaman Awal saat Startup) -->
     <ShellContent
         Title="Login"
         Route="LoginPage"
@@ -28,40 +30,57 @@
         Shell.FlyoutItemIsVisible="False"
         Shell.FlyoutBehavior="Disabled" />
 
-    <!-- Halaman Home Utama -->
+    <!-- Halaman Utama Aplikasi -->
     <ShellContent
         Title="Home"
         Route="MainPage"
         ContentTemplate="{DataTemplate pages:MainPage}" />
 
-    <!-- Menu Navigasi Flyout -->
-    <MenuItem Text="📊  Dashboard" Clicked="OnDashboardMenuItemClicked" />
-    <MenuItem Text="Chart of Accounts (COA)" Clicked="OnCoaMenuItemClicked" />
-    <MenuItem Text="Accounting Periods" Clicked="OnPeriodsMenuItemClicked" />
-    <MenuItem Text="New Journal Entry" Clicked="OnJournalEntryMenuItemClicked" />
-    <MenuItem Text="General Journal" Clicked="OnGeneralJournalMenuItemClicked" />
-    <MenuItem Text="Adjusting Journal" Clicked="OnAdjustingJournalMenuItemClicked" />
-    <MenuItem Text="General Ledger (Permanent)" Clicked="OnGlPermanentMenuItemClicked" />
-    <MenuItem Text="General Ledger (Temporary)" Clicked="OnGlTemporaryMenuItemClicked" />
-    <MenuItem Text="Trial Balance" Clicked="OnTrialBalanceMenuItemClicked" />
-    <MenuItem Text="Adjusted Trial Balance" Clicked="OnAdjustedTrialBalanceMenuItemClicked" />
-    <MenuItem Text="Worksheet (10-Column)" Clicked="OnWorksheetMenuItemClicked" />
-    <MenuItem Text="Income Statement" Clicked="OnIncomeStatementMenuItemClicked" />
-    <MenuItem Text="Retained Earnings Statement" Clicked="OnRetainedEarningsMenuItemClicked" />
-    <MenuItem Text="Statement of Financial Position" Clicked="OnSofpMenuItemClicked" />
-    <MenuItem Text="Closing Journal" Clicked="OnClosingJournalMenuItemClicked" />
-    <MenuItem Text="Post-Closing Trial Balance" Clicked="OnPostClosingMenuItemClicked" />
-    <MenuItem Text="Statement of Cash Flows" Clicked="OnCashFlowMenuItemClicked" />
-    <MenuItem Text="App Settings" Clicked="OnSettingsMenuItemClicked" />
-    <MenuItem Text="🚪  Logout" Clicked="OnLogoutMenuItemClicked" />
+    <!-- TAMPILAN MENU DRAWER (FLYOUT CONTENT) -->
+    <Shell.FlyoutContent>
+        <Grid RowDefinitions="*, Auto" BackgroundColor="#0F172A">
+            <ScrollView Grid.Row="0">
+                <VerticalStackLayout Padding="0,8" Spacing="2">
 
-    <Shell.FlyoutFooter>
-        <VerticalStackLayout Padding="20,12" BackgroundColor="#0F172A">
-            <Label Text="v1.0.0 - Aumo Finance"
-                   FontSize="11"
-                   TextColor="#64748B"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
-    </Shell.FlyoutFooter>
+                    <Button Text="Dashboard" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnDashboardMenuItemClicked" />
+
+                    <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
+                    <Button Text="Chart of Accounts (COA)" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnCoaMenuItemClicked" />
+                    <Button Text="Accounting Periods" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnPeriodsMenuItemClicked" />
+
+                    <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
+                    <Button Text="New Journal Entry" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnJournalEntryMenuItemClicked" />
+
+                    <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
+                    <Button Text="General Journal" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGeneralJournalMenuItemClicked" />
+                    <Button Text="Adjusting Journal" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnAdjustingJournalMenuItemClicked" />
+                    <Button Text="General Ledger (Permanent)" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGlPermanentMenuItemClicked" />
+                    <Button Text="General Ledger (Temporary)" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGlTemporaryMenuItemClicked" />
+                    <Button Text="Trial Balance" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnTrialBalanceMenuItemClicked" />
+                    <Button Text="Adjusted Trial Balance" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnAdjustedTrialBalanceMenuItemClicked" />
+                    <Button Text="Worksheet (10-Column)" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnWorksheetMenuItemClicked" />
+                    <Button Text="Income Statement" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnIncomeStatementMenuItemClicked" />
+                    <Button Text="Retained Earnings Statement" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnRetainedEarningsMenuItemClicked" />
+                    <Button Text="Statement of Financial Position" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnSofpMenuItemClicked" />
+                    <Button Text="Closing Journal" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnClosingJournalMenuItemClicked" />
+                    <Button Text="Post-Closing Trial Balance" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnPostClosingMenuItemClicked" />
+                    <Button Text="Statement of Cash Flows" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnCashFlowMenuItemClicked" />
+
+                    <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
+                    <Button Text="App Settings" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnSettingsMenuItemClicked" />
+                    <Button Text="Logout" Style="{StaticResource FlyoutMenuItemStyle}" TextColor="#F87171" Clicked="OnLogoutMenuItemClicked" />
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <VerticalStackLayout Grid.Row="1" Padding="20,12" BackgroundColor="#0F172A">
+                <BoxView HeightRequest="1" Color="#334155" Margin="0,0,0,8" />
+                <Label Text="v1.0.0 - Aumo Finance"
+                       FontSize="11"
+                       TextColor="#64748B"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutContent>
 
 </Shell>
