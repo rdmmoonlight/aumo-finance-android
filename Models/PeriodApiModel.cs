@@ -20,6 +20,13 @@ public class PeriodApiModel
 
     [JsonPropertyName("isClosed")]
     public bool IsClosed { get; set; }
+
+    [JsonPropertyName("isSelected")]
+    public bool IsSelected { get; set; }
+
+    public string DateRangeDisplay => $"{StartDate:MMM dd, yyyy} - {EndDate:MMM dd, yyyy}";
+    public bool CanSelect => !IsSelected;
+    public bool CanClose => !IsClosed;
 }
 
 // Wrapper respons GET /api/mobile/periods: { success, selectedPeriodId, periods: [...] }

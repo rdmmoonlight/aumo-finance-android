@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using AumoFinance.Models;
 using AumoFinance.Services;
 
 namespace AumoFinance.Pages.Periods;
@@ -40,6 +41,15 @@ public partial class PeriodsPage : ContentPage
 
             if (periods != null)
             {
+                // Sumber kebenaran periode aktif adalah selectedPeriodId dari envelope response,
+                // bukan field isSelected per-item (yang bisa saja tidak konsisten dari backend).
+                int? selectedId = int.TryParse(selectedPeriodId, out var parsedId) ? parsedId : null;
+                foreach (var period in periods)
+                {
+                    period.IsSelected = selectedId.HasValue && period.Id == selectedId.Value;
+                }
+
+                PeriodsCollectionView.ItemsSource = null;
                 PeriodsCollectionView.ItemsSource = periods;
                 EmptyStateView.IsVisible = !periods.Any();
                 PeriodsCollectionView.IsVisible = periods.Any();
