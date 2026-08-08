@@ -2,7 +2,7 @@ using System;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Auth.LogoutPage;
 
 public partial class LogoutPage : ContentPage
 {
