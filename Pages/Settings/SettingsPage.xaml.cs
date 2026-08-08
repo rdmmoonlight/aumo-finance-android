@@ -44,7 +44,7 @@ public partial class SettingsPage : ContentPage
     private async void OnSaveSettingsClicked(object? sender, EventArgs e)
     {
         bool isEnabled = ReminderSwitch.IsToggled;
-        
+
         // ReminderTimePicker.Time bertipe TimeSpan? di versi MAUI ini — fallback ke jam 00:00 jika belum dipilih
         TimeSpan selectedTime = ReminderTimePicker.Time ?? TimeSpan.Zero;
 
