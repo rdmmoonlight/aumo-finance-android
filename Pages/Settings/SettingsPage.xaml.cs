@@ -44,7 +44,7 @@ public partial class SettingsPage : ContentPage
     private async void OnSaveSettingsClicked(object? sender, EventArgs e)
     {
         bool isEnabled = ReminderSwitch.IsToggled;
-        
+
         // ReminderTimePicker.Time mengembalikan TimeSpan (non-nullable)
         TimeSpan selectedTime = ReminderTimePicker.Time;
 
