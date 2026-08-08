@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.JournalEntry.JournalEntryPage"
              Title="New Journal Entry"
              BackgroundColor="#0F172A">
 
-    <Grid RowDefinitions="*, Auto">
+    <Grid RowDefinitions="Auto, *, Auto">
+
+        <!-- Top Bar Component -->
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
         <!-- Main Form Scrollable Area -->
-        <ScrollView Grid.Row="0" Padding="16">
+        <ScrollView Grid.Row="1" Padding="16">
             <VerticalStackLayout Spacing="16">
 
                 <!-- Page Header Title -->
@@ -55,25 +59,19 @@
                                         TextColor="White" />
                         </VerticalStackLayout>
 
-                        <!-- Reference Number / Memo -->
+                        <!-- Reference Number (Auto Generated Display) -->
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="Reference Number (Optional)" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <Entry x:Name="ReferenceEntry"
-                                   Placeholder="e.g. JE-2026-001"
-                                   BackgroundColor="#0F172A"
-                                   TextColor="White"
-                                   PlaceholderColor="#64748B" />
-                        </VerticalStackLayout>
-
-                        <!-- Description -->
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="Description / Memo" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <Editor x:Name="DescriptionEditor"
-                                    Placeholder="Describe the transaction..."
-                                    HeightRequest="80"
-                                    BackgroundColor="#0F172A"
-                                    TextColor="White"
-                                    PlaceholderColor="#64748B" />
+                            <Label Text="Reference Number (Auto)" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Border BackgroundColor="#0F172A"
+                                    Stroke="#334155"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="12,10">
+                                <Label x:Name="ReferenceNumberLabel"
+                                       Text="Auto-generated"
+                                       FontSize="14"
+                                       TextColor="#64748B" />
+                            </Border>
                         </VerticalStackLayout>
 
                     </VerticalStackLayout>
@@ -134,7 +132,7 @@
                                         <VerticalStackLayout Grid.Column="0" Spacing="2">
                                             <Label Text="Debit" FontSize="10" TextColor="#94A3B8" />
                                             <Entry Text="{Binding DebitText}"
-                                                   Placeholder="0.00"
+                                                   Placeholder="0"
                                                    Keyboard="Numeric"
                                                    BackgroundColor="#0F172A"
                                                    TextColor="White"
@@ -144,7 +142,7 @@
                                         <VerticalStackLayout Grid.Column="1" Spacing="2">
                                             <Label Text="Credit" FontSize="10" TextColor="#94A3B8" />
                                             <Entry Text="{Binding CreditText}"
-                                                   Placeholder="0.00"
+                                                   Placeholder="0"
                                                    Keyboard="Numeric"
                                                    BackgroundColor="#0F172A"
                                                    TextColor="White"
@@ -170,7 +168,7 @@
         </ScrollView>
 
         <!-- Bottom Action Bar & Totals Summary -->
-        <Border Grid.Row="1"
+        <Border Grid.Row="2"
                 BackgroundColor="#1E293B"
                 Stroke="#334155"
                 StrokeThickness="1"
@@ -182,12 +180,12 @@
                 <Grid ColumnDefinitions="*, *, Auto">
                     <VerticalStackLayout Grid.Column="0">
                         <Label Text="Total Debit" FontSize="10" TextColor="#94A3B8" />
-                        <Label x:Name="TotalDebitLabel" Text="$0.00" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                        <Label x:Name="TotalDebitLabel" Text="Rp 0" FontSize="14" FontAttributes="Bold" TextColor="White" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="1">
                         <Label Text="Total Credit" FontSize="10" TextColor="#94A3B8" />
-                        <Label x:Name="TotalCreditLabel" Text="$0.00" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                        <Label x:Name="TotalCreditLabel" Text="Rp 0" FontSize="14" FontAttributes="Bold" TextColor="White" />
                     </VerticalStackLayout>
 
                     <Border x:Name="BalanceBadge"

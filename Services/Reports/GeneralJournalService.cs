@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,14 +11,11 @@ namespace AumoFinance.Services.Reports;
 
 public class GeneralJournalService : BaseApiService
 {
-    // ==========================================
-    // GET GENERAL JOURNAL REPORT
-    // ==========================================
     public async Task<(GeneralJournalReportApiResponse? data, string? errorDetail)> GetGeneralJournalReportAsync()
     {
         try
         {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(45));
             using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, "/api/mobile/journal-entries");
 
             using var response = await HttpClient.SendAsync(request, cts.Token);
@@ -34,7 +32,7 @@ public class GeneralJournalService : BaseApiService
         }
         catch (TaskCanceledException)
         {
-            return (null, "Timeout — server tidak merespons dalam 15 detik (kemungkinan cold start Railway).");
+            return (null, "Timeout — server tidak merespons dalam 45 detik.");
         }
         catch (Exception ex)
         {
@@ -43,9 +41,6 @@ public class GeneralJournalService : BaseApiService
     }
 }
 
-// ==========================================
-// DTO / MODEL RESPONSE GENERAL JOURNAL
-// ==========================================
 public class GeneralJournalReportApiResponse
 {
     [JsonPropertyName("success")]
@@ -97,7 +92,7 @@ public class GeneralJournalLineReportDto
     public string? AccountName { get; set; }
 
     [JsonPropertyName("referenceNumber")]
-    public int ReferenceNumber { get; set; }
+    public int? ReferenceNumber { get; set; } // REVISI: Dibuat nullable (int?) agar aman jika bernilai null
 
     [JsonPropertyName("lineDescription")]
     public string? LineDescription { get; set; }
@@ -107,4 +102,7 @@ public class GeneralJournalLineReportDto
 
     [JsonPropertyName("credit")]
     public decimal Credit { get; set; }
+
+    [JsonPropertyName("lineOrder")]
+    public int LineOrder { get; set; }
 }

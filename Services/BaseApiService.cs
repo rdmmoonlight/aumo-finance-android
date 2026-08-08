@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Maui.Storage;
 
@@ -9,21 +10,23 @@ namespace AumoFinance.Services;
 
 public abstract class BaseApiService
 {
-    public const string BaseUrl = "https://aumo-preview.up.railway.app";
+    // REVISI: Menggunakan host Render
+    public const string BaseUrl = "https://aumo.onrender.com";
     protected const string AuthTokenKey = "auth_token_jwt";
 
     protected static readonly HttpClient HttpClient = new HttpClient
     {
         BaseAddress = new Uri(BaseUrl),
-        Timeout = TimeSpan.FromSeconds(15)
+        Timeout = TimeSpan.FromSeconds(45) // REVISI: Waktu tunggu 45 detik
     };
 
     protected static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        // REVISI: Mengizinkan pembacaan angka jika sewaktu-waktu dikirim dalam bentuk string
+        NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
-    // Helper membuat Request bertoken Bearer
     protected async Task<HttpRequestMessage> CreateAuthenticatedRequestAsync(HttpMethod method, string requestUri)
     {
         var request = new HttpRequestMessage(method, requestUri);
