@@ -78,9 +78,9 @@
                 <!-- Input Form Wrapper -->
                 <VerticalStackLayout Spacing="16">
 
-                    <!-- Input Username / Email -->
+                    <!-- Input Email -->
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="Email / Username"
+                        <Label Text="Email"
                                TextColor="#CBD5E1"
                                FontSize="12"
                                FontAttributes="Bold" />
@@ -90,7 +90,7 @@
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 12"
                                 Padding="14,2">
-                            <Entry x:Name="UsernameEntry"
+                            <Entry x:Name="EmailEntry"
                                    Placeholder="nama@email.com"
                                    PlaceholderColor="#64748B"
                                    TextColor="White"
@@ -144,7 +144,7 @@
                         </Border>
                     </VerticalStackLayout>
 
-                    <!-- Keep Me Signed In & Checkbox -->
+                    <!-- Keep Me Signed In / Checkbox -->
                     <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8" VerticalOptions="Center">
                         <CheckBox x:Name="RememberMeCheckBox"
                                   Grid.Column="0"
@@ -187,7 +187,7 @@
                             </Button.Shadow>
                         </Button>
 
-                        <!-- Tombol Login Biometrik (Fingerprint / Face ID) -->
+                        <!-- Tombol Login Biometrik -->
                         <Button x:Name="BiometricButton"
                                 Grid.Column="1"
                                 Text="&#xE90D;" 
