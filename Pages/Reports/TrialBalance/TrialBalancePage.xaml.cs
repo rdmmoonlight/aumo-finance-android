@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Services.Reports;
 
-namespace AumoFinance.Pages;
+namespace AumoFinance.Pages.Reports.TrialBalance;
 
 [QueryProperty(nameof(IncludeAdjustingStr), "includeAdjusting")]
 public partial class TrialBalancePage : ContentPage

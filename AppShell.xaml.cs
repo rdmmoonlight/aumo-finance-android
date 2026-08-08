@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Maui.Controls;
 
-// Import Namespace Sesuai Subfolder
+// Import Namespace Sesuai Subfolder — satu using per folder, mengikuti struktur fisik file
 using AumoFinance.Pages.Auth;
 using AumoFinance.Pages.Main;
 using AumoFinance.Pages.Dashboard;
@@ -9,8 +9,18 @@ using AumoFinance.Pages.Coa;
 using AumoFinance.Pages.Periods;
 using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Pages.Settings;
-using AumoFinance.Pages.Log;
-using AumoFinance.Pages.Reports;
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.ClosingJournal;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
+using AumoFinance.Pages.Reports.GeneralLedgerPermanent;
+using AumoFinance.Pages.Reports.GeneralLedgerTemporary;
+using AumoFinance.Pages.Reports.TrialBalance;
+using AumoFinance.Pages.Reports.AdjustingJournal;
+using AumoFinance.Pages.Reports.Worksheet;
+using AumoFinance.Pages.Reports.IncomeStatement;
+using AumoFinance.Pages.Reports.RetainedEarnings;
+using AumoFinance.Pages.Reports.StatementOfFinancialPosition;
+using AumoFinance.Pages.Reports.PostClosingTrialBalance;
 
 namespace AumoFinance;
 
