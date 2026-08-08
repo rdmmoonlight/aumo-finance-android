@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
+using Plugin.Fingerprint;
+using Plugin.Fingerprint.Abstractions;
 using AumoFinance.Services;
 using AumoFinance.Pages.Log;
 
@@ -39,7 +41,7 @@ public partial class LoginPage : ContentPage
             await Navigation.PushModalAsync(new CrashLogPage(lastCrash));
         }
 
-        // Muat Status Checkbox "Ingat Saya" & Email/Password Terimpan
+        // Load "Keep Me Signed In" status and saved credentials
         await LoadSavedCredentialsAsync();
     }
 
@@ -63,13 +65,13 @@ public partial class LoginPage : ContentPage
                 if (!string.IsNullOrEmpty(savedPassword))
                 {
                     PasswordEntry.Text = savedPassword;
-                    // Tampilkan tombol biometrik jika ada data login tersimpan di SecureStorage
+                    // Show biometric button only if saved credentials exist in SecureStorage
                     BiometricButton.IsVisible = true;
                 }
             }
             catch (Exception)
             {
-                // Penanganan jika SecureStorage tidak dapat diakses
+                // Handle cases where SecureStorage is unavailable on the device
             }
         }
     }
@@ -92,7 +94,7 @@ public partial class LoginPage : ContentPage
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            ShowError("Email dan Password tidak boleh kosong.");
+            ShowError("Email and Password cannot be empty.");
             return;
         }
 
@@ -114,12 +116,54 @@ public partial class LoginPage : ContentPage
             }
             else
             {
-                ShowError("Kredensial tersimpan tidak ditemukan. Silakan login manual.");
+                ShowError("Saved credentials not found. Please log in manually.");
             }
         }
-        else
+    }
+
+    private async Task<bool> AuthenticateWithBiometricsAsync()
+    {
+        try
         {
-            ShowError("Otentikasi biometrik gagal atau dibatalkan.");
+            // 1. Check if biometric hardware/permissions are available on device
+            var isAvailable = await CrossFingerprint.Current.IsAvailableAsync();
+            if (!isAvailable)
+            {
+                ShowError("Biometric authentication is not available on this device.");
+                return false;
+            }
+
+            // 2. Configure system biometric prompt dialog
+            var request = new AuthenticationRequestConfiguration(
+                "Biometric Authentication",
+                "Scan your fingerprint or face to sign in to AumoFinance")
+            {
+                CancelTitle = "Cancel",
+                FallbackTitle = "Use Password"
+            };
+
+            // 3. Trigger OS native biometric prompt
+            var result = await CrossFingerprint.Current.AuthenticateAsync(request);
+
+            if (result.Authenticated)
+            {
+                return true;
+            }
+            else if (result.Status == FingerprintAuthenticationResultStatus.Canceled)
+            {
+                // User explicitly canceled prompt; do not display error message
+                return false;
+            }
+            else
+            {
+                ShowError("Biometric authentication failed. Please try again.");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Biometric error: {ex.Message}");
+            return false;
         }
     }
 
@@ -139,7 +183,7 @@ public partial class LoginPage : ContentPage
                     Preferences.Default.Set("current_user_name", fullName);
                 }
 
-                // Simpan atau hapus kredensial berdasarkan checkbox "Ingat Saya"
+                // Save or clear encrypted credentials based on "Keep Me Signed In" checkbox
                 if (RememberMeCheckBox.IsChecked)
                 {
                     Preferences.Default.Set(KeyRememberMe, true);
@@ -161,24 +205,17 @@ public partial class LoginPage : ContentPage
             }
             else
             {
-                ShowError(string.IsNullOrWhiteSpace(message) ? "Email atau password salah." : message);
+                ShowError(string.IsNullOrWhiteSpace(message) ? "Invalid email or password." : message);
             }
         }
         catch (Exception ex)
         {
-            ShowError($"Gagal terhubung ke server: {ex.Message}");
+            ShowError($"Failed to connect to server: {ex.Message}");
         }
         finally
         {
             SetLoadingState(false);
         }
-    }
-
-    private async Task<bool> AuthenticateWithBiometricsAsync()
-    {
-        // Integrasi dengan plugin biometrik seperti Plugin.Fingerprint jika digunakan
-        await Task.Delay(300); // Simulasi panggilan biometrik
-        return true;
     }
 
     private void ShowError(string message)
