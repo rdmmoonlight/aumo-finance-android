@@ -140,6 +140,12 @@ public partial class JournalEntryPage : ContentPage
 
             if (success)
             {
+                if (!string.IsNullOrWhiteSpace(refNumber))
+                {
+                    ReferenceNumberLabel.Text = refNumber;
+                    ReferenceNumberLabel.TextColor = Colors.White;
+                }
+
                 string successMessage = string.IsNullOrWhiteSpace(refNumber)
                     ? message
                     : $"Journal Entry {refNumber} recorded successfully!";
