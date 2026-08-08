@@ -44,9 +44,9 @@ public partial class SettingsPage : ContentPage
     private async void OnSaveSettingsClicked(object? sender, EventArgs e)
     {
         bool isEnabled = ReminderSwitch.IsToggled;
-
-        // ReminderTimePicker.Time mengembalikan TimeSpan (non-nullable)
-        TimeSpan selectedTime = ReminderTimePicker.Time;
+        
+        // ReminderTimePicker.Time bertipe TimeSpan? di versi MAUI ini — fallback ke jam 00:00 jika belum dipilih
+        TimeSpan selectedTime = ReminderTimePicker.Time ?? TimeSpan.Zero;
 
         Preferences.Default.Set(KeyReminderEnabled, isEnabled);
         Preferences.Default.Set(KeyReminderHour, selectedTime.Hours);
@@ -55,12 +55,12 @@ public partial class SettingsPage : ContentPage
         if (isEnabled)
         {
             await _notificationService.ScheduleDailyReminderAsync(selectedTime.Hours, selectedTime.Minutes);
-            await DisplayAlert("Settings Saved", $"Daily reminder set for {DateTime.Today.Add(selectedTime):hh:mm tt}.", "OK");
+            await DisplayAlertAsync("Settings Saved", $"Daily reminder set for {DateTime.Today.Add(selectedTime):hh:mm tt}.", "OK");
         }
         else
         {
             _notificationService.CancelDailyReminder();
-            await DisplayAlert("Settings Saved", "Daily reminder has been disabled.", "OK");
+            await DisplayAlertAsync("Settings Saved", "Daily reminder has been disabled.", "OK");
         }
     }
 }

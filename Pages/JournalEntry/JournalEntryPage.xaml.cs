@@ -125,7 +125,7 @@ public partial class JournalEntryPage : ContentPage
             var requestDto = new CreateJournalEntryRequest
             {
                 JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-                EntryDate = EntryDatePicker.Date, // EntryDatePicker.Date bernilai DateTime (non-nullable)
+                EntryDate = EntryDatePicker.Date ?? DateTime.Today, // EntryDatePicker.Date bertipe DateTime? di versi MAUI ini
                 Lines = Lines
                     .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                     .Select(l => new JournalEntryLineRequest
@@ -151,18 +151,18 @@ public partial class JournalEntryPage : ContentPage
                     ? message
                     : $"Journal Entry {refNumber} recorded successfully!";
 
-                await DisplayAlert("Success", successMessage, "OK");
+                await DisplayAlertAsync("Success", successMessage, "OK");
                 await Navigation.PopAsync();
             }
             else
             {
-                await DisplayAlert("Posting Failed", message, "OK");
+                await DisplayAlertAsync("Posting Failed", message, "OK");
                 SubmitButton.IsEnabled = true;
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
             SubmitButton.IsEnabled = true;
         }
     }
@@ -175,7 +175,7 @@ public partial class JournalEntryPage : ContentPage
 
         if (activeLines.Count < 2)
         {
-            await DisplayAlert("Validation Error", "A journal entry must have at least 2 active transaction lines with valid accounts.", "OK");
+            await DisplayAlertAsync("Validation Error", "A journal entry must have at least 2 active transaction lines with valid accounts.", "OK");
             return (false, totalDebit, totalCredit);
         }
 
@@ -183,14 +183,14 @@ public partial class JournalEntryPage : ContentPage
         {
             if (line.Debit > 0 && line.Credit > 0)
             {
-                await DisplayAlert("Validation Error", "A single transaction line cannot have both Debit and Credit amounts.", "OK");
+                await DisplayAlertAsync("Validation Error", "A single transaction line cannot have both Debit and Credit amounts.", "OK");
                 return (false, totalDebit, totalCredit);
             }
         }
 
         if (Math.Round(totalDebit - totalCredit, 2) != 0 || totalDebit == 0)
         {
-            await DisplayAlert("Validation Error", "Total debits must equal total credits and be greater than zero before saving.", "OK");
+            await DisplayAlertAsync("Validation Error", "Total debits must equal total credits and be greater than zero before saving.", "OK");
             return (false, totalDebit, totalCredit);
         }
 

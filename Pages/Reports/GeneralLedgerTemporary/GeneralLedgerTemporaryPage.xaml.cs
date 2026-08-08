@@ -68,7 +68,7 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlert("Error", $"Failed to connect to the database: {ex.Message}", "OK");
+            await this.DisplayAlertAsync("Error", $"Failed to connect to the database: {ex.Message}", "OK");
         }
         finally
         {

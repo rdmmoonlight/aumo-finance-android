@@ -100,7 +100,7 @@ public partial class PostClosingTrialBalancePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Failed to load post-closing trial balance: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"Failed to load post-closing trial balance: {ex.Message}", "OK");
         }
         finally
         {
