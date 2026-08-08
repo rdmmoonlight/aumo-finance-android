@@ -8,14 +8,18 @@
     Shell.NavBarIsVisible="False"
     Title="AumoFinance">
 
+    <!-- Area kosong/Header untuk memberi jarak dari atas layar -->
+    <Shell.FlyoutHeader>
+        <Grid Padding="16,40,16,10">
+            <Label Text="AumoFinance" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="{AppThemeBinding Light=#1F2937, Dark=#F3F4F6}" />
+        </Grid>
+    </Shell.FlyoutHeader>
+
     <!--
         LOGIN
-        Halaman pertama yang muncul (sebelum user login).
-        - Route tetap "LoginPage" agar tidak mengganggu alur yang sudah ada.
-        - Disembunyikan dari Flyout (Shell.FlyoutItemIsVisible="False") karena
-          tidak relevan setelah user berhasil masuk.
-        - Flyout dinonaktifkan di halaman ini (Shell.FlyoutBehavior="Disabled")
-          agar drawer tidak bisa dibuka via gesture sebelum login.
     -->
     <ShellContent
         Title="Login"
@@ -26,12 +30,6 @@
 
     <!--
         HOME
-        Halaman utama setelah login: sapaan, ringkasan saldo cepat, tombol
-        pintasan ke Dashboard & New Entry, dan pengaturan auto-update.
-        Route TETAP "MainPage" (dipakai oleh LoginPage.xaml.cs saat
-        GoToAsync("//MainPage") setelah login berhasil) — hanya Title yang
-        diklarifikasi dari "Dashboard" menjadi "Home" agar tidak rancu
-        dengan DashboardPage (ringkasan keuangan lengkap) di bawah.
     -->
     <ShellContent
         Title="Home"
@@ -40,9 +38,6 @@
 
     <!-- ============================================================
          MENU NAVIGASI (Flyout)
-         Item-item di bawah ini BUKAN ShellContent baru (bukan root/tab),
-         melainkan MenuItem yang memicu GoToAsync(...) menuju rute yang
-         sudah didaftarkan di AppShell.xaml.cs.
          ============================================================ -->
 
     <MenuItem Text="📊  Dashboard" Clicked="OnDashboardMenuItemClicked" />
