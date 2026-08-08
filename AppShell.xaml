@@ -16,7 +16,6 @@
                 <Setter Property="TextColor" Value="#E2E8F0" />
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="HorizontalOptions" Value="Fill" />
-                <Setter Property="HorizontalTextAlignment" Value="Start" />
                 <Setter Property="Padding" Value="16,12" />
                 <Setter Property="CornerRadius" Value="0" />
             </Style>
