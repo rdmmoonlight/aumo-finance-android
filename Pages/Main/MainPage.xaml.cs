@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using AumoFinance.Services;
@@ -16,6 +18,30 @@ public partial class MainPage : ContentPage
 
         AutoUpdateSwitch.IsToggled = Preferences.Default.Get("AutoUpdateEnabled", true);
         SetTimeBasedGreeting();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Warm-up server Render secara terbelakang (fire-and-forget / non-blocking)
+        _ = WarmupServerAsync();
+    }
+
+    private async Task WarmupServerAsync()
+    {
+        try
+        {
+            Debug.WriteLine("Warming up Render server...");
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
+            // Ping endpoint kesehatan / endpoint ringan apapun di Render
+            await client.GetAsync("https://aumo.onrender.com/api/mobile/chart-of-accounts");
+            Debug.WriteLine("Render server is warm and ready!");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Server warm-up ping finished with notice: {ex.Message}");
+        }
     }
 
     private void SetTimeBasedGreeting()
