@@ -11,12 +11,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<!-- Abaikan warning CS0649 & CS0169 (field x:Name XAML) agar tidak meledak di TreatWarningsAsErrors -->
-		<NoWarn>$(NoWarn);NU1605;CS0649;CS0169</NoWarn>
-
-		<!-- Matikan XAML SourceGen eksperimental yang bermasalah di .NET 10 -->
+		<!-- Matikan XAML Inflator eksperimental saja -->
 		<MauiXamlInflator>false</MauiXamlInflator>
-		<MauiEnableXamlCBindingWithSourceCompilation>false</MauiEnableXamlCBindingWithSourceCompilation>
+
+		<!-- Abaikan warning CS0649 & CS0169 agar TreatWarningsAsErrors tidak membatalkan build -->
+		<NoWarn>$(NoWarn);NU1605;CS0649;CS0169</NoWarn>
 
 		<ApplicationTitle>Aumo</ApplicationTitle>
 		<ApplicationId>com.bnrc.aumofinance</ApplicationId>
@@ -24,7 +23,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<!-- TETAP MINIMAL ANDROID 9.0 (API LEVEL 28) -->
+		<!-- MINIMAL ANDROID 9.0 (API LEVEL 28) -->
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">28.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
