@@ -74,65 +74,44 @@ public partial class PeriodsPage : ContentPage
 
     private async void OnSelectPeriodClicked(object? sender, EventArgs e)
     {
-        int? periodId = ExtractPeriodId(sender);
-        if (periodId.HasValue)
-        {
-            var (success, message) = await _periodService.SelectPeriodAsync(periodId.Value.ToString());
+        if (sender is not Button button || button.BindingContext is not PeriodApiModel period)
+            return;
 
-            if (success)
-            {
-                await LoadPeriodsAsync();
-            }
-            else
-            {
-                await this.DisplayAlertAsync("Failed", message, "OK");
-            }
+        var (success, message) = await _periodService.SelectPeriodAsync(period.Id.ToString());
+
+        if (success)
+        {
+            await LoadPeriodsAsync();
+        }
+        else
+        {
+            await this.DisplayAlertAsync("Failed", message, "OK");
         }
     }
 
     private async void OnClosePeriodClicked(object? sender, EventArgs e)
     {
-        int? periodId = ExtractPeriodId(sender);
-        if (periodId.HasValue)
+        if (sender is not Button button || button.BindingContext is not PeriodApiModel period)
+            return;
+
+        bool confirm = await this.DisplayAlertAsync(
+            "Close Period",
+            "Are you sure you want to close this accounting period? This action will lock all transactions in this period.",
+            "Yes, Close",
+            "Cancel");
+
+        if (!confirm) return;
+
+        var (success, message) = await _periodService.ClosePeriodAsync(period.Id);
+
+        if (success)
         {
-            bool confirm = await this.DisplayAlertAsync(
-                "Close Period",
-                "Are you sure you want to close this accounting period? This action will lock all transactions in this period.",
-                "Yes, Close",
-                "Cancel");
-
-            if (!confirm) return;
-
-            var (success, message) = await _periodService.ClosePeriodAsync(periodId.Value);
-
-            if (success)
-            {
-                await this.DisplayAlertAsync("Success", message, "OK");
-                await LoadPeriodsAsync();
-            }
-            else
-            {
-                await this.DisplayAlertAsync("Failed", message, "OK");
-            }
+            await this.DisplayAlertAsync("Success", message, "OK");
+            await LoadPeriodsAsync();
         }
-    }
-
-    private async void OnReopenPeriodClicked(object? sender, EventArgs e)
-    {
-        int? periodId = ExtractPeriodId(sender);
-        if (periodId.HasValue)
+        else
         {
-            var (success, message) = await _periodService.ReopenPeriodAsync(periodId.Value);
-
-            if (success)
-            {
-                await this.DisplayAlertAsync("Success", message, "OK");
-                await LoadPeriodsAsync();
-            }
-            else
-            {
-                await this.DisplayAlertAsync("Failed", message, "OK");
-            }
+            await this.DisplayAlertAsync("Failed", message, "OK");
         }
     }
 
@@ -161,15 +140,5 @@ public partial class PeriodsPage : ContentPage
     {
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
-    }
-
-    private static int? ExtractPeriodId(object? sender)
-    {
-        if (sender is Button button)
-        {
-            if (button.CommandParameter is int intVal) return intVal;
-            if (button.CommandParameter is PeriodApiModel model) return model.Id;
-        }
-        return null;
     }
 }
