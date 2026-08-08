@@ -1,8 +1,14 @@
 using System;
 using Microsoft.Maui.Controls;
 using AumoFinance.Pages;
+using AumoFinance.Pages.Coa;
+using AumoFinance.Pages.Dashboard;
+using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Pages.Periods;
-using AumoFinance.Pages.Reports;
+using AumoFinance.Pages.Reports; // Namespace flat untuk sebagian besar halaman laporan
+using AumoFinance.Pages.Reports.GeneralJournal;
+using AumoFinance.Pages.Reports.ClosingJournal;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
 using AumoFinance.Pages.Settings;
 
 namespace AumoFinance;
@@ -13,8 +19,9 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        // 1. Registrasi Route LoginPage (SANGAT PENTING)
+        // 1. Auth & Account Routes
         Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
+        Routing.RegisterRoute(nameof(LogoutPage), typeof(LogoutPage));
 
         // 2. Core & Master Data Routes
         Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
@@ -39,11 +46,14 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(StatementOfCashFlowsPage), typeof(StatementOfCashFlowsPage));
 
         // KUNCI FLYOUT DRAWER SECARA DEFAULT
-        // Menjamin drawer tidak bisa dibuka via gesture/swipe sebelum login
+        // Menjamin drawer tidak bisa dibuka via gesture/swipe sebelum user berhasil login
         Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
     }
 
     // ================= FLYOUT MENU HANDLERS =================
+    // Shell otomatis menutup Flyout saat sebuah MenuItem diklik.
+    // Setiap handler melakukan push navigasi (GoToAsync) ke rute yang sudah didaftarkan.
+
     private async void OnDashboardMenuItemClicked(object? sender, EventArgs e)
         => await GoToAsync(nameof(DashboardPage));
 
@@ -97,4 +107,7 @@ public partial class AppShell : Shell
 
     private async void OnSettingsMenuItemClicked(object? sender, EventArgs e)
         => await GoToAsync(nameof(SettingsPage));
+
+    private async void OnLogoutMenuItemClicked(object? sender, EventArgs e)
+        => await GoToAsync(nameof(LogoutPage));
 }
