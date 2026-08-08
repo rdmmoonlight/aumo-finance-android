@@ -99,7 +99,7 @@ public partial class DashboardPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Manual update check error: {ex}");
-            await this.DisplayAlertAsync("Error", "Failed to check for updates.", "OK");
+            await this.DisplayAlert("Error", "Failed to check for updates.", "OK");
         }
     }
 }
