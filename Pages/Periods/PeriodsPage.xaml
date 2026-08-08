@@ -1,173 +1,190 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Periods.PeriodsPage"
              Title="Accounting Periods"
-             BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}">
+             BackgroundColor="#0F172A">
 
     <Grid RowDefinitions="Auto, *">
 
-        <!-- Top Action Header Banner -->
-        <Border Grid.Row="0"
-                BackgroundColor="{AppThemeBinding Light=#1E293B, Dark=#0F172A}"
-                Padding="16,12"
-                StrokeShape="RoundRectangle 0"
-                StrokeThickness="0">
-            <Grid ColumnDefinitions="*, Auto">
-                <VerticalStackLayout Grid.Column="0" Spacing="2">
-                    <Label Text="PERIOD MANAGEMENT"
-                           FontSize="10"
-                           FontAttributes="Bold"
-                           TextColor="#94A3B8"
-                           CharacterSpacing="1" />
-                    <Label x:Name="ActivePeriodHeaderLabel"
-                           Text="Loading Active Period..."
-                           FontSize="15"
-                           FontAttributes="Bold"
-                           TextColor="White" />
-                </VerticalStackLayout>
+        <!-- Top Navigation Bar (Disamakan dengan halaman lain) -->
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
-                <Button Grid.Column="1"
-                        Text="+ New Period"
-                        FontSize="12"
-                        FontAttributes="Bold"
-                        BackgroundColor="{AppThemeBinding Light=#2563EB, Dark=#1D4ED8}"
-                        TextColor="White"
-                        CornerRadius="8"
-                        Padding="12,0"
-                        HeightRequest="36"
-                        Clicked="OnAddPeriodClicked" />
-            </Grid>
-        </Border>
+        <RefreshView x:Name="PeriodsRefreshView"
+                     Grid.Row="1"
+                     RefreshColor="#38BDF8"
+                     Refreshing="OnRefreshViewRefreshing">
 
-        <!-- Main Body Content -->
-        <Grid Grid.Row="1" Padding="16">
+            <ScrollView Padding="20,20,20,40">
+                <VerticalStackLayout Spacing="20">
 
-            <!-- Loading Indicator -->
-            <ActivityIndicator x:Name="LoadingIndicator"
-                               IsRunning="True"
-                               IsVisible="True"
-                               HeightRequest="40"
-                               WidthRequest="40"
-                               Color="{AppThemeBinding Light=#2563EB, Dark=#60A5FA}"
+                    <!-- Page Header Card -->
+                    <Border BackgroundColor="#1E293B"
+                            Stroke="#334155"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="16,12">
+                        <Border.Shadow>
+                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                        </Border.Shadow>
+                        <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="PERIOD MANAGEMENT"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="#94A3B8"
+                                       CharacterSpacing="0.8" />
+                                <Label x:Name="ActivePeriodHeaderLabel"
+                                       Text="Loading Active Period..."
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                            </VerticalStackLayout>
+
+                            <Button Grid.Column="1"
+                                    Text="➕ New Period"
+                                    Clicked="OnAddPeriodClicked"
+                                    BackgroundColor="#2563EB"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    FontSize="12"
+                                    CornerRadius="10"
+                                    Padding="12,0"
+                                    HeightRequest="40" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Loading Indicator Overlay -->
+                    <ActivityIndicator x:Name="LoadingIndicator"
+                                       IsRunning="True"
+                                       IsVisible="True"
+                                       HeightRequest="40"
+                                       WidthRequest="40"
+                                       Color="#38BDF8"
+                                       HorizontalOptions="Center"
+                                       Margin="0,20,0,0" />
+
+                    <!-- Empty State View -->
+                    <VerticalStackLayout x:Name="EmptyStateView"
+                                         IsVisible="False"
+                                         Spacing="12"
+                                         HorizontalOptions="Center"
+                                         Padding="0,40">
+                        <Label Text="📅"
+                               FontSize="48"
+                               HorizontalOptions="Center" />
+                        <Label Text="No Accounting Periods Found"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#CBD5E1"
+                               HorizontalOptions="Center" />
+                        <Label Text="Tap '+ New Period' above to create your first accounting period."
+                               FontSize="12"
+                               TextColor="#94A3B8"
                                HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
 
-            <!-- Empty State View -->
-            <VerticalStackLayout x:Name="EmptyStateView"
-                                 IsVisible="False"
-                                 Spacing="12"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center">
-                <Label Text="📅"
-                       FontSize="48"
-                       HorizontalOptions="Center" />
-                <Label Text="No Accounting Periods Found"
-                       FontSize="16"
-                       FontAttributes="Bold"
-                       TextColor="{AppThemeBinding Light=#475569, Dark=#CBD5E1}"
-                       HorizontalOptions="Center" />
-                <Label Text="Tap '+ New Period' above to create your first accounting period."
-                       FontSize="12"
-                       TextColor="#94A3B8"
-                       HorizontalOptions="Center"
-                       HorizontalTextAlignment="Center" />
-            </VerticalStackLayout>
+                    <!-- Periods Collection List -->
+                    <CollectionView x:Name="PeriodsCollectionView"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,0,12"
+                                        BackgroundColor="#1E293B"
+                                        Padding="16"
+                                        StrokeShape="RoundRectangle 16"
+                                        StrokeThickness="1"
+                                        Stroke="#334155">
+                                    <Border.Shadow>
+                                        <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
+                                    </Border.Shadow>
 
-            <!-- Periods Collection List -->
-            <RefreshView x:Name="PeriodsRefreshView"
-                         Refreshing="OnRefreshViewRefreshing">
-                <CollectionView x:Name="PeriodsCollectionView"
-                                SelectionMode="None">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="0,0,0,12"
-                                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E293B}"
-                                    Padding="16"
-                                    StrokeShape="RoundRectangle 12"
-                                    StrokeThickness="1"
-                                    Stroke="{AppThemeBinding Light=#E2E8F0, Dark=#334155}">
-                                <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" RowSpacing="6">
+                                    <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto, Auto" RowSpacing="8">
 
-                                    <!-- Period Name & Badges -->
-                                    <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8">
-                                        <Label Text="{Binding PeriodName}"
-                                               FontSize="16"
-                                               FontAttributes="Bold"
-                                               TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"
-                                               VerticalOptions="Center" />
-
-                                        <!-- Selected Active Badge -->
-                                        <Border IsVisible="{Binding IsSelected}"
-                                                BackgroundColor="#DCFCE7"
-                                                StrokeShape="RoundRectangle 6"
-                                                StrokeThickness="0"
-                                                Padding="6,2"
-                                                VerticalOptions="Center">
-                                            <Label Text="ACTIVE"
-                                                   FontSize="9"
+                                        <!-- Period Name & Badges -->
+                                        <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                                            <Label Text="{Binding PeriodName}"
+                                                   FontSize="16"
                                                    FontAttributes="Bold"
-                                                   TextColor="#166534" />
-                                        </Border>
+                                                   TextColor="White"
+                                                   VerticalOptions="Center" />
 
-                                        <!-- Closed Badge -->
-                                        <Border IsVisible="{Binding IsClosed}"
-                                                BackgroundColor="#FEE2E2"
-                                                StrokeShape="RoundRectangle 6"
-                                                StrokeThickness="0"
-                                                Padding="6,2"
-                                                VerticalOptions="Center">
-                                            <Label Text="CLOSED"
-                                                   FontSize="9"
-                                                   FontAttributes="Bold"
-                                                   TextColor="#991B1B" />
-                                        </Border>
-                                    </HorizontalStackLayout>
+                                            <!-- Selected Active Badge -->
+                                            <Border IsVisible="{Binding IsSelected}"
+                                                    BackgroundColor="#14532D"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    StrokeThickness="0"
+                                                    Padding="6,2"
+                                                    VerticalOptions="Center">
+                                                <Label Text="ACTIVE"
+                                                       FontSize="10"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#86EFAC" />
+                                            </Border>
 
-                                    <!-- Date Range -->
-                                    <Label Grid.Row="1" Grid.Column="0"
-                                           Text="{Binding DateRangeDisplay}"
-                                           FontSize="12"
-                                           TextColor="#64748B" />
+                                            <!-- Closed Badge -->
+                                            <Border IsVisible="{Binding IsClosed}"
+                                                    BackgroundColor="#7F1D1D"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    StrokeThickness="0"
+                                                    Padding="6,2"
+                                                    VerticalOptions="Center">
+                                                <Label Text="CLOSED"
+                                                       FontSize="10"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#FCA5A5" />
+                                            </Border>
+                                        </HorizontalStackLayout>
 
-                                    <!-- Actions (Select / Close) -->
-                                    <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
-                                                           Spacing="8" 
-                                                           Margin="0,8,0,0">
+                                        <!-- Date Range -->
+                                        <Label Grid.Row="1" Grid.Column="0"
+                                               Text="{Binding DateRangeDisplay}"
+                                               FontSize="12"
+                                               TextColor="#94A3B8" />
 
-                                        <!-- Select Period Button -->
-                                        <Button Text="Select Period"
-                                                FontSize="11"
-                                                HeightRequest="32"
-                                                CornerRadius="6"
-                                                Padding="12,0"
-                                                BackgroundColor="{AppThemeBinding Light=#F1F5F9, Dark=#334155}"
-                                                TextColor="{AppThemeBinding Light=#0F172A, Dark=#F8FAFC}"
-                                                IsVisible="{Binding CanSelect}"
-                                                Clicked="OnSelectPeriodClicked"
-                                                CommandParameter="{Binding .}" />
+                                        <!-- Actions (Select / Close) -->
+                                        <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                               Spacing="8" 
+                                                               Margin="0,4,0,0">
 
-                                        <!-- Close Period Button -->
-                                        <Button Text="Close Period"
-                                                FontSize="11"
-                                                HeightRequest="32"
-                                                CornerRadius="6"
-                                                Padding="12,0"
-                                                BackgroundColor="#DC2626"
-                                                TextColor="White"
-                                                IsVisible="{Binding CanClose}"
-                                                Clicked="OnClosePeriodClicked"
-                                                CommandParameter="{Binding .}" />
-                                    </HorizontalStackLayout>
+                                            <!-- Select Period Button -->
+                                            <Button Text="Select Period"
+                                                    FontSize="11"
+                                                    FontAttributes="Bold"
+                                                    HeightRequest="32"
+                                                    CornerRadius="8"
+                                                    Padding="12,0"
+                                                    BackgroundColor="#334155"
+                                                    TextColor="#38BDF8"
+                                                    IsVisible="{Binding CanSelect}"
+                                                    Clicked="OnSelectPeriodClicked"
+                                                    CommandParameter="{Binding .}" />
 
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </RefreshView>
+                                            <!-- Close Period Button -->
+                                            <Button Text="Close Period"
+                                                    FontSize="11"
+                                                    FontAttributes="Bold"
+                                                    HeightRequest="32"
+                                                    CornerRadius="8"
+                                                    Padding="12,0"
+                                                    BackgroundColor="#7F1D1D"
+                                                    TextColor="#FCA5A5"
+                                                    IsVisible="{Binding CanClose}"
+                                                    Clicked="OnClosePeriodClicked"
+                                                    CommandParameter="{Binding .}" />
+                                        </HorizontalStackLayout>
 
-        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
 
     </Grid>
 
