@@ -86,29 +86,6 @@ public class PeriodService : BaseApiService
         }
     }
 
-    public async Task<(bool success, string message)> ReopenPeriodAsync(int id)
-    {
-        try
-        {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Post, $"{BaseEndpoint}/reopen/{id}");
-
-            using var response = await HttpClient.SendAsync(request, cts.Token);
-            var content = await response.Content.ReadAsStringAsync(cts.Token);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return (true, ExtractMessage(content, response.StatusCode, "Period reopened successfully."));
-            }
-
-            return (false, ExtractMessage(content, response.StatusCode, "Failed to reopen period."));
-        }
-        catch (Exception ex)
-        {
-            return (false, $"{ex.GetType().Name}: {ex.Message}");
-        }
-    }
-
     public async Task<(bool success, string message)> CreatePeriodAsync(string name, DateTime startDate, DateTime endDate)
     {
         try

@@ -11,60 +11,65 @@
         <!-- Top Navigation Bar -->
         <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
-        <ScrollView Grid.Row="1" Padding="16,10,16,20">
-            <VerticalStackLayout Spacing="16">
+        <Grid Grid.Row="1" RowDefinitions="Auto, Auto, Auto, *" Padding="16,10,16,0" RowSpacing="16">
 
-                <!-- Page Header & Refresh Button -->
-                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                    <VerticalStackLayout Grid.Column="0" Spacing="2">
-                        <Label Text="General Journal"
-                               FontSize="22"
-                               FontAttributes="Bold"
-                               TextColor="White" />
-                        <Label Text="Chronological record of all transactions."
-                               FontSize="12"
-                               TextColor="#94A3B8" />
-                    </VerticalStackLayout>
+            <!-- Page Header & Refresh Button -->
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="General Journal"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Chronological record of all transactions."
+                           FontSize="12"
+                           TextColor="#94A3B8" />
+                </VerticalStackLayout>
 
-                    <Button Grid.Column="1"
-                            Text="🔄 Refresh"
-                            Clicked="OnRefreshClicked"
-                            BackgroundColor="#F59E0B"
-                            TextColor="#0F172A"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            CornerRadius="10"
-                            Padding="12,0"
-                            HeightRequest="40" />
-                </Grid>
+                <Button Grid.Column="1"
+                        Text="🔄 Refresh"
+                        Clicked="OnRefreshClicked"
+                        BackgroundColor="#F59E0B"
+                        TextColor="#0F172A"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        CornerRadius="10"
+                        Padding="12,0"
+                        HeightRequest="40" />
+            </Grid>
 
-                <!-- Active Period Indicator -->
-                <Border BackgroundColor="#1E293B"
-                        Stroke="#334155"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="12,10">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <Label Text="👁️" FontSize="14" VerticalOptions="Center" />
-                        <Label Text="Menampilkan Periode:"
-                               TextColor="#94A3B8"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                        <Label x:Name="SelectedPeriodHeaderLabel"
-                               Text="Loading Active Period..."
-                               TextColor="#F8FAFC"
-                               FontAttributes="Bold"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                </Border>
+            <!-- Active Period Indicator -->
+            <Border Grid.Row="1"
+                    BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="12,10">
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <Label Text="👁️" FontSize="14" VerticalOptions="Center" />
+                    <Label Text="Menampilkan Periode:"
+                           TextColor="#94A3B8"
+                           FontSize="12"
+                           VerticalOptions="Center" />
+                    <Label x:Name="SelectedPeriodHeaderLabel"
+                           Text="Loading Active Period..."
+                           TextColor="#F8FAFC"
+                           FontAttributes="Bold"
+                           FontSize="12"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
 
-                <!-- Loading Indicator -->
-                <ActivityIndicator x:Name="LoadingIndicator"
-                                   Color="#F59E0B"
-                                   IsRunning="True"
-                                   IsVisible="True"
-                                   HeightRequest="40" />
+            <!-- Loading Indicator -->
+            <ActivityIndicator Grid.Row="2"
+                               x:Name="LoadingIndicator"
+                               Color="#F59E0B"
+                               IsRunning="True"
+                               IsVisible="True"
+                               HeightRequest="40" />
+
+            <!-- Empty state + list share the remaining space. CollectionView provides
+                 its own scrolling/virtualization, so it must not be nested inside a ScrollView. -->
+            <Grid Grid.Row="3">
 
                 <!-- Empty State View -->
                 <VerticalStackLayout x:Name="EmptyStateView"
@@ -87,8 +92,10 @@
 
                 <!-- RefreshView List -->
                 <RefreshView x:Name="JournalRefreshView"
+                             BackgroundColor="#0F172A"
+                             RefreshColor="#F59E0B"
                              Refreshing="OnRefreshViewRefreshing">
-                    <CollectionView x:Name="JournalCollectionView" SelectionMode="None">
+                    <CollectionView x:Name="JournalCollectionView" SelectionMode="None" Margin="0,0,0,20">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Border BackgroundColor="#1E293B"
@@ -146,9 +153,9 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </RefreshView>
+            </Grid>
 
-            </VerticalStackLayout>
-        </ScrollView>
+        </Grid>
 
     </Grid>
 
