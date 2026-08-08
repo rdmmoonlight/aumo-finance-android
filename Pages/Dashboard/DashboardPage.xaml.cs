@@ -12,7 +12,8 @@ namespace AumoFinance.Pages.Dashboard;
 public partial class DashboardPage : ContentPage
 {
     private readonly DashboardService _dashboardService;
-    private readonly CultureInfo _usdCulture = new("en-US");
+    // Menggunakan kultur Indonesia
+    private readonly CultureInfo _idCulture = new("id-ID");
 
     public DashboardPage(DashboardService dashboardService)
     {
@@ -44,10 +45,11 @@ public partial class DashboardPage : ContentPage
                     ? "No Period Selected"
                     : data.SelectedPeriodName;
 
-                CashLabel.Text = data.TotalAssets.ToString("C2", _usdCulture);
-                NetIncomeLabel.Text = data.NetIncome.ToString("C2", _usdCulture);
-                RevenueLabel.Text = data.TotalRevenue.ToString("C2", _usdCulture);
-                ExpenseLabel.Text = data.TotalExpenses.ToString("C2", _usdCulture);
+                // Format ke Rupiah tanpa desimal (N0) dengan simbol "Rp " di depannya
+                CashLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalAssets);
+                NetIncomeLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.NetIncome);
+                RevenueLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalRevenue);
+                ExpenseLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalExpenses);
             }
             else
             {
