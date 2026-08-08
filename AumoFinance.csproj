@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- SDK Kompilasi sesuai kebutuhan .NET 10 (API 36) -->
+		<!-- Target SDK Kompilasi Android (net10.0-android36.0) -->
 		<TargetFramework>net10.0-android36.0</TargetFramework>
 
 		<OutputType>Exe</OutputType>
@@ -11,10 +11,12 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<NoWarn>$(NoWarn);NU1605</NoWarn>
+		<!-- Abaikan warning CS0649 & CS0169 (field x:Name XAML) agar tidak meledak di TreatWarningsAsErrors -->
+		<NoWarn>$(NoWarn);NU1605;CS0649;CS0169</NoWarn>
 
-		<!-- Dimatikan untuk mencegah error XAML Source Generator -->
+		<!-- Matikan XAML SourceGen eksperimental yang bermasalah di .NET 10 -->
 		<MauiXamlInflator>false</MauiXamlInflator>
+		<MauiEnableXamlCBindingWithSourceCompilation>false</MauiEnableXamlCBindingWithSourceCompilation>
 
 		<ApplicationTitle>Aumo</ApplicationTitle>
 		<ApplicationId>com.bnrc.aumofinance</ApplicationId>
@@ -22,7 +24,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<!-- TETAP MINIMAL ANDROID 9.0 (API 28) -->
+		<!-- TETAP MINIMAL ANDROID 9.0 (API LEVEL 28) -->
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">28.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
@@ -49,7 +51,7 @@
 		<PackageReference Include="Npgsql" Version="9.0.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
 		
-		<!-- Library Otentikasi Biometrik (Sidik Jari) -->
+		<!-- Library Otentikasi Biometrik -->
 		<PackageReference Include="Plugin.Fingerprint" Version="3.0.0-beta.1" />
 	</ItemGroup>
 
