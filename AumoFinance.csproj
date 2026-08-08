@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- Gunakan Target Framework .NET 9 Android yang stabil -->
-		<TargetFramework>net9.0-android</TargetFramework>
+		<!-- Target Framework mengikuti workload SDK yang dipakai CI (net10.0-android36.0) -->
+		<TargetFramework>net10.0-android36.0</TargetFramework>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AumoFinance</RootNamespace>
