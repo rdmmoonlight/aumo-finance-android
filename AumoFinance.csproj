@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- Disesuaikan untuk target Android 9.0 (API Level 28) -->
-		<TargetFramework>net9.0-android28.0</TargetFramework>
+		<!-- SDK Kompilasi Server/PC Build -->
+		<TargetFramework>net10.0-android35.0</TargetFramework>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AumoFinance</RootNamespace>
@@ -13,7 +13,7 @@
 
 		<NoWarn>$(NoWarn);NU1605</NoWarn>
 
-		<!-- Dimatikan untuk mencegah error XAML Source Generator (MAUIG1001 & CS8795) -->
+		<!-- Dimatikan untuk mencegah error XAML Source Generator -->
 		<MauiXamlInflator>false</MauiXamlInflator>
 
 		<ApplicationTitle>Aumo</ApplicationTitle>
@@ -22,7 +22,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<!-- Versi minimal Android yang didukung: Android 9.0 (API 28) -->
+		<!-- PENENTU MINIMAL ANDROID: 28.0 = MINIMAL ANDROID 9.0 -->
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">28.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
@@ -42,7 +42,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 		
 		<!-- Database & Entity Framework Core -->
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
