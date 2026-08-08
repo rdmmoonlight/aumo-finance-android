@@ -8,14 +8,14 @@
 
     <Grid RowDefinitions="Auto, *">
 
-        <!-- Top Bar Component (Ditambahkan paling atas) -->
+        <!-- Top Bar Component -->
         <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
         <!-- Main Dashboard Content Scrollable Area -->
         <ScrollView Grid.Row="1" Padding="20,20,20,40">
             <VerticalStackLayout Spacing="20">
 
-                <!-- Accounting Period Banner Header (Tetap Dipertahankan) -->
+                <!-- Accounting Period Banner Header -->
                 <Border BackgroundColor="#1E293B"
                         Stroke="#334155"
                         StrokeThickness="1"
@@ -77,7 +77,7 @@
                                    FontSize="13"
                                    TextColor="#94A3B8" />
                             <Label x:Name="CashLabel"
-                                   Text="$0.00"
+                                   Text="Rp 0"
                                    FontSize="32"
                                    FontAttributes="Bold"
                                    TextColor="#38BDF8" />
@@ -108,7 +108,7 @@
                                        TextColor="#94A3B8"
                                        CharacterSpacing="0.8" />
                                 <Label x:Name="NetIncomeLabel"
-                                       Text="$0.00"
+                                       Text="Rp 0"
                                        FontSize="22"
                                        FontAttributes="Bold"
                                        TextColor="White" />
@@ -132,7 +132,7 @@
                                        TextColor="#94A3B8"
                                        CharacterSpacing="0.8" />
                                 <Label x:Name="RevenueLabel"
-                                       Text="$0.00"
+                                       Text="Rp 0"
                                        FontSize="18"
                                        FontAttributes="Bold"
                                        TextColor="#4ADE80" />
@@ -156,7 +156,7 @@
                                        TextColor="#94A3B8"
                                        CharacterSpacing="0.8" />
                                 <Label x:Name="ExpenseLabel"
-                                       Text="$0.00"
+                                       Text="Rp 0"
                                        FontSize="18"
                                        FontAttributes="Bold"
                                        TextColor="#F87171" />
