@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- SDK Kompilasi Server/PC Build -->
-		<TargetFramework>net10.0-android35.0</TargetFramework>
+		<!-- SDK Kompilasi sesuai kebutuhan .NET 10 (API 36) -->
+		<TargetFramework>net10.0-android36.0</TargetFramework>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AumoFinance</RootNamespace>
@@ -22,7 +22,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<!-- PENENTU MINIMAL ANDROID: 28.0 = MINIMAL ANDROID 9.0 -->
+		<!-- TETAP MINIMAL ANDROID 9.0 (API 28) -->
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">28.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
