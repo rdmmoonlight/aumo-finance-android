@@ -67,8 +67,8 @@ public partial class TopBarView : ContentView
         {
             // Tampilan saat OFFLINE
             ConnectionStatusDot.Fill = new SolidColorBrush(Color.Parse("#EF4444")); // Red
-            NetworkQueueLabel.Text = _pendingQueueCount > 0 
-                ? $"Offline ({_pendingQueueCount} pending)" 
+            NetworkQueueLabel.Text = _pendingQueueCount > 0
+                ? $"Offline ({_pendingQueueCount} pending)"
                 : "Offline";
             NetworkQueueLabel.TextColor = Color.Parse("#FCA5A5");
         }

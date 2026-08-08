@@ -38,9 +38,9 @@ public partial class JournalEntryPage : ContentPage
     }
 
     protected override async void OnAppearing()
-    { 
-        base.OnAppearing(); 
-        await LoadAccountsAsync(); 
+    {
+        base.OnAppearing();
+        await LoadAccountsAsync();
     }
 
     private async Task LoadAccountsAsync()

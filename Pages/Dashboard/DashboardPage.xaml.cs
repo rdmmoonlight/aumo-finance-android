@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
 using AumoFinance.Services;
 using AumoFinance.Pages.JournalEntry;
 
@@ -11,12 +12,15 @@ namespace AumoFinance.Pages.Dashboard;
 public partial class DashboardPage : ContentPage
 {
     private readonly DashboardService _dashboardService;
+    // Menggunakan kultur Indonesia
     private readonly CultureInfo _idCulture = new("id-ID");
 
     public DashboardPage(DashboardService dashboardService)
     {
         InitializeComponent();
         _dashboardService = dashboardService;
+
+        AutoUpdateSwitch.IsToggled = Preferences.Default.Get("AutoUpdateEnabled", true);
     }
 
     protected override async void OnAppearing()
@@ -41,6 +45,7 @@ public partial class DashboardPage : ContentPage
                     ? "No Period Selected"
                     : data.SelectedPeriodName;
 
+                // Format ke Rupiah tanpa desimal (N0) dengan simbol "Rp " di depannya
                 CashLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalAssets);
                 NetIncomeLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.NetIncome);
                 RevenueLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalRevenue);
@@ -76,6 +81,25 @@ public partial class DashboardPage : ContentPage
         if (journalEntryPage != null)
         {
             await Navigation.PushAsync(journalEntryPage);
+        }
+    }
+
+    private void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
+    {
+        Preferences.Default.Set("AutoUpdateEnabled", e.Value);
+    }
+
+    private async void OnCheckUpdateManualClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            var updateService = new UpdateService();
+            await updateService.CheckAndInstallUpdateAsync("rdmmoonlight", "aumo-finance-android", isSilent: false);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Manual update check error: {ex}");
+            await this.DisplayAlertAsync("Error", "Failed to check for updates.", "OK");
         }
     }
 }
