@@ -80,7 +80,7 @@ public partial class IncomeStatementPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Failed to load income statement: {ex.Message}", "OK");
+            await this.DisplayAlert("Error", $"Failed to load income statement: {ex.Message}", "OK");
         }
         finally
         {

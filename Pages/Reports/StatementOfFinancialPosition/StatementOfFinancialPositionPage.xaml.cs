@@ -84,7 +84,7 @@ public partial class StatementOfFinancialPositionPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Failed to load balance sheet: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Failed to load balance sheet: {ex.Message}", "OK");
         }
         finally
         {

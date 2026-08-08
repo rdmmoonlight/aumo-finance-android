@@ -105,7 +105,7 @@ public partial class WorksheetPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Failed to load worksheet: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"Failed to load worksheet: {ex.Message}", "OK");
         }
         finally
         {

@@ -36,7 +36,7 @@ public partial class GeneralJournalPage : ContentPage
 
             if (!string.IsNullOrEmpty(errorDetail))
             {
-                await this.DisplayAlertAsync("Error", errorDetail, "OK");
+                await this.DisplayAlert("Error", errorDetail, "OK");
                 return;
             }
 
@@ -72,7 +72,7 @@ public partial class GeneralJournalPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadGeneralJournalAsync error: {ex}");
-            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await this.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {

@@ -17,7 +17,7 @@ public partial class CrashLogPage : ContentPage
         if (!string.IsNullOrEmpty(LogEditor.Text))
         {
             await Clipboard.Default.SetTextAsync(LogEditor.Text);
-            await DisplayAlertAsync("Sukses", "Seluruh teks log berhasil disalin ke clipboard!", "OK");
+            await DisplayAlert("Sukses", "Seluruh teks log berhasil disalin ke clipboard!", "OK");
         }
     }
 

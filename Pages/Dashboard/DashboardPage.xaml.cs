@@ -49,13 +49,13 @@ public partial class DashboardPage : ContentPage
             else
             {
                 string detail = string.IsNullOrWhiteSpace(errorDetail) ? "Unknown error occurred." : errorDetail;
-                await this.DisplayAlertAsync("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
+                await this.DisplayAlert("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await this.DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {

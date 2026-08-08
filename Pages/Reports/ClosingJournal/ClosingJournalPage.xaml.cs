@@ -45,7 +45,7 @@ public partial class ClosingJournalPage : ContentPage
 
         if (errorDetail != null)
         {
-            await this.DisplayAlertAsync("Error Loading Report", errorDetail, "OK");
+            await this.DisplayAlert("Error Loading Report", errorDetail, "OK");
             ShowEmptyState(true);
             return;
         }

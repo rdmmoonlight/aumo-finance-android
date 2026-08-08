@@ -81,7 +81,7 @@ public partial class AdjustingJournalPage : ContentPage
         }
         catch (Exception ex)
         {
-            await this.DisplayAlertAsync("Error", $"Failed to load data: {ex.Message}", "OK");
+            await this.DisplayAlert("Error", $"Failed to load data: {ex.Message}", "OK");
         }
         finally
         {
