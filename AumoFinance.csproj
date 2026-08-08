@@ -12,7 +12,7 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Abaikan warning CS0649 & CS0169 agar TreatWarningsAsErrors tidak membatalkan build -->
-		<!-- XC0022/XC0025: saran optimisasi compiled-binding (x:DataType) -- bukan error logika,
+		<!-- XC0022/XC0025: saran optimisasi compiled-binding (x:DataType), bukan error logika,
 		     jadi tidak perlu menggagalkan build. Bisa dirapikan bertahap di kemudian hari. -->
 		<NoWarn>$(NoWarn);NU1605;CS0649;CS0169;NETSDK1202;XC0022;XC0025</NoWarn>
 
