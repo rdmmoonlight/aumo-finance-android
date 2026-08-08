@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -51,12 +52,10 @@ public class PeriodService : BaseApiService
 
             if (response.IsSuccessStatusCode)
             {
-                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-                return (true, result?.Message ?? "Period selected successfully.");
+                return (true, ExtractMessage(content, response.StatusCode, "Period selected successfully."));
             }
 
-            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
+            return (false, ExtractMessage(content, response.StatusCode, "Failed to select period."));
         }
         catch (Exception ex)
         {
@@ -76,12 +75,10 @@ public class PeriodService : BaseApiService
 
             if (response.IsSuccessStatusCode)
             {
-                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-                return (true, result?.Message ?? "Period closed successfully.");
+                return (true, ExtractMessage(content, response.StatusCode, "Period closed successfully."));
             }
 
-            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
+            return (false, ExtractMessage(content, response.StatusCode, "Failed to close period."));
         }
         catch (Exception ex)
         {
@@ -101,12 +98,10 @@ public class PeriodService : BaseApiService
 
             if (response.IsSuccessStatusCode)
             {
-                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-                return (true, result?.Message ?? "Period reopened successfully.");
+                return (true, ExtractMessage(content, response.StatusCode, "Period reopened successfully."));
             }
 
-            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
+            return (false, ExtractMessage(content, response.StatusCode, "Failed to reopen period."));
         }
         catch (Exception ex)
         {
@@ -130,17 +125,43 @@ public class PeriodService : BaseApiService
 
             if (response.IsSuccessStatusCode)
             {
-                var result = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-                return (true, result?.Message ?? "Period created successfully.");
+                return (true, ExtractMessage(content, response.StatusCode, "Period created successfully."));
             }
 
-            var errResult = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
-            return (false, errResult?.Message ?? $"HTTP {(int)response.StatusCode}");
+            return (false, ExtractMessage(content, response.StatusCode, "Failed to create period."));
         }
         catch (Exception ex)
         {
             return (false, $"{ex.GetType().Name}: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Membaca pesan dari body JSON secara aman. Jika body kosong atau bukan JSON valid
+    /// (mis. cold-start server, 401 kosong dari token kedaluwarsa, atau error gateway),
+    /// kembalikan pesan fallback beserta status code alih-alih melempar JsonException.
+    /// </summary>
+    private static string ExtractMessage(string content, HttpStatusCode statusCode, string fallback)
+    {
+        if (!string.IsNullOrWhiteSpace(content))
+        {
+            try
+            {
+                var parsed = JsonSerializer.Deserialize<BasicPeriodResponse>(content, JsonOptions);
+                if (!string.IsNullOrWhiteSpace(parsed?.Message))
+                {
+                    return parsed.Message;
+                }
+            }
+            catch (JsonException)
+            {
+                // Body bukan JSON valid — abaikan dan pakai fallback di bawah.
+            }
+        }
+
+        return statusCode == HttpStatusCode.Unauthorized
+            ? "Your session has expired. Please log in again."
+            : $"{fallback} (HTTP {(int)statusCode})";
     }
 }
 
