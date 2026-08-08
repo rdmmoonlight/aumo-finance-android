@@ -18,7 +18,7 @@ public partial class JournalEntryPage : ContentPage
     private List<AccountLookupDto> _allAccounts = new();
 
     public ObservableCollection<JournalLineViewModel> Lines { get; set; } = new();
-    private readonly CultureInfo _usdCulture = new("en-US");
+    private readonly CultureInfo _idCulture = new("id-ID");
 
     public JournalEntryPage(JournalEntryService journalEntryService, CoaService coaService)
     {
@@ -38,7 +38,10 @@ public partial class JournalEntryPage : ContentPage
     }
 
     protected override async void OnAppearing()
-    { base.OnAppearing(); await LoadAccountsAsync(); }
+    { 
+        base.OnAppearing(); 
+        await LoadAccountsAsync(); 
+    }
 
     private async Task LoadAccountsAsync()
     {
@@ -90,8 +93,8 @@ public partial class JournalEntryPage : ContentPage
         decimal totalDebit = Lines.Sum(l => l.Debit);
         decimal totalCredit = Lines.Sum(l => l.Credit);
 
-        TotalDebitLabel.Text = totalDebit.ToString("C2", _usdCulture);
-        TotalCreditLabel.Text = totalCredit.ToString("C2", _usdCulture);
+        TotalDebitLabel.Text = string.Format(_idCulture, "Rp {0:N0}", totalDebit);
+        TotalCreditLabel.Text = string.Format(_idCulture, "Rp {0:N0}", totalCredit);
 
         bool isBalanced = Math.Round(totalDebit - totalCredit, 2) == 0 && totalDebit > 0;
 
@@ -121,7 +124,6 @@ public partial class JournalEntryPage : ContentPage
             var requestDto = new CreateJournalEntryRequest
             {
                 JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-                // Memastikan nilai DateTime tidak null (Perbaikan CS0266 / CS8629)
                 EntryDate = EntryDatePicker.Date ?? DateTime.Today,
                 Lines = Lines
                     .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
