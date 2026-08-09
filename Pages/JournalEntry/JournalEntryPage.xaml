@@ -76,18 +76,23 @@
                                         TextColor="White" />
                         </VerticalStackLayout>
 
-                        <!-- Transaction Number (previewed live from server, or shown as-is when editing) -->
+                        <!-- Transaction Number (read-only — previewed live from server, or shown as-is when editing) -->
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Transaction Number" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <Border BackgroundColor="#0F172A"
-                                    Stroke="#334155"
+                            <Border BackgroundColor="#334155"
+                                    Stroke="#475569"
                                     StrokeThickness="1"
+                                    StrokeDashArray="4,3"
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
-                                <Label x:Name="TransactionNumberLabel"
-                                       Text="Auto-generated"
-                                       FontSize="14"
-                                       TextColor="#64748B" />
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="🔒" FontSize="12" VerticalOptions="Center" />
+                                    <Label x:Name="TransactionNumberLabel"
+                                           Text="Auto-generated"
+                                           FontSize="14"
+                                           TextColor="#94A3B8"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
                             </Border>
                         </VerticalStackLayout>
 
@@ -145,7 +150,15 @@
                                                 Padding="0" />
                                     </Grid>
 
-                                    <!-- Row 2: Debit & Credit Entry Inputs -->
+                                    <!-- Description -->
+                                    <Entry Text="{Binding LineDescription}"
+                                           Placeholder="Description"
+                                           FontSize="12"
+                                           BackgroundColor="#0F172A"
+                                           TextColor="White"
+                                           PlaceholderColor="#64748B" />
+
+                                    <!-- Row: Debit & Credit Entry Inputs -->
                                     <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
                                         <VerticalStackLayout Grid.Column="0" Spacing="2">
                                             <Label Text="Debit" FontSize="10" TextColor="#94A3B8" />
@@ -167,14 +180,6 @@
                                                    PlaceholderColor="#64748B" />
                                         </VerticalStackLayout>
                                     </Grid>
-
-                                    <!-- Line Description -->
-                                    <Entry Text="{Binding LineDescription}"
-                                           Placeholder="Line note (optional)"
-                                           FontSize="12"
-                                           BackgroundColor="#0F172A"
-                                           TextColor="White"
-                                           PlaceholderColor="#64748B" />
 
                                 </VerticalStackLayout>
                             </Border>

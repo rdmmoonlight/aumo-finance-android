@@ -16,6 +16,7 @@ public partial class JournalEntryPage : ContentPage
 {
     private readonly JournalEntryService _journalEntryService;
     private readonly CoaService _coaService;
+    private readonly PeriodService _periodService;
     private List<AccountLookupDto> _allAccounts = new();
     private int? _editingEntryId;
     private bool _isLocked;
@@ -27,11 +28,12 @@ public partial class JournalEntryPage : ContentPage
     // mis. GoToAsync($"{nameof(JournalEntryPage)}?entryId={id}").
     public string? EntryId { get; set; }
 
-    public JournalEntryPage(JournalEntryService journalEntryService, CoaService coaService)
+    public JournalEntryPage(JournalEntryService journalEntryService, CoaService coaService, PeriodService periodService)
     {
         InitializeComponent();
         _journalEntryService = journalEntryService;
         _coaService = coaService;
+        _periodService = periodService;
 
         JournalTypePicker.SelectedIndex = 0; // Default: "General"
         EntryDatePicker.Date = DateTime.Today;
@@ -47,6 +49,8 @@ public partial class JournalEntryPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        _ = SelectedPeriodDisplayHelper.ApplyToTopBarAsync(TopHeader, _periodService);
 
         bool isEditRequest = int.TryParse(EntryId, out var parsedId) && parsedId > 0;
 
@@ -133,12 +137,13 @@ public partial class JournalEntryPage : ContentPage
             };
             Lines.Add(lineVm);
         }
-        UpdateTotals();
 
         _isLocked = entry.IsLocked;
         SetLockedState(_isLocked);
 
-        SubmitButton.IsEnabled = !_isLocked;
+        // Dipanggil setelah _isLocked diketahui, supaya SubmitButton.IsEnabled langsung
+        // mencerminkan balanced-state DAN locked-state yang benar.
+        UpdateTotals();
     }
 
     private void SetLockedState(bool isLocked)
@@ -220,6 +225,11 @@ public partial class JournalEntryPage : ContentPage
             BalanceStatusLabel.Text = "UNBALANCED";
             BalanceStatusLabel.TextColor = Color.FromArgb("#FCA5A5");
         }
+
+        // Tombol Save/Update hanya bisa ditekan saat entry balanced DAN tidak locked —
+        // satu-satunya tempat yang mengontrol IsEnabled, supaya tidak ada state yang
+        // saling menimpa dari tempat lain.
+        SubmitButton.IsEnabled = isBalanced && !_isLocked;
     }
 
     private async void OnSaveJournalClicked(object? sender, EventArgs e)
@@ -246,7 +256,7 @@ public partial class JournalEntryPage : ContentPage
         catch (Exception ex)
         {
             await DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
-            SubmitButton.IsEnabled = true;
+            UpdateTotals();
         }
     }
 
@@ -287,7 +297,7 @@ public partial class JournalEntryPage : ContentPage
         else
         {
             await DisplayAlertAsync("Posting Failed", message, "OK");
-            SubmitButton.IsEnabled = true;
+            UpdateTotals();
         }
     }
 
@@ -319,7 +329,7 @@ public partial class JournalEntryPage : ContentPage
         else
         {
             await DisplayAlertAsync("Update Failed", message, "OK");
-            SubmitButton.IsEnabled = true;
+            UpdateTotals();
         }
     }
 

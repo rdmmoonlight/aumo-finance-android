@@ -98,7 +98,7 @@
                                     <VerticalStackLayout Spacing="10">
 
                                         <!-- Entry Header (Date & Reference) -->
-                                        <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="6">
+                                        <Grid ColumnDefinitions="*, Auto, Auto, Auto" ColumnSpacing="6">
                                             <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
                                                 <Border BackgroundColor="#0F172A" StrokeShape="RoundRectangle 6" Padding="6,2">
                                                     <Label Text="{Binding FormattedDate}" TextColor="#F59E0B" FontSize="11" FontAttributes="Bold" />
@@ -124,6 +124,18 @@
                                                     BackgroundColor="#334155"
                                                     IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:GeneralJournalPage}}, Path=IsEditMode}"
                                                     Clicked="OnEditEntryClicked" />
+
+                                            <!-- Delete Entry (trash) — hanya muncul saat mode Edit aktif -->
+                                            <Button Grid.Column="3"
+                                                    Text="🗑️"
+                                                    FontSize="13"
+                                                    WidthRequest="30"
+                                                    HeightRequest="30"
+                                                    Padding="0"
+                                                    CornerRadius="8"
+                                                    BackgroundColor="#7F1D1D"
+                                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:GeneralJournalPage}}, Path=IsEditMode}"
+                                                    Clicked="OnDeleteEntryClicked" />
                                         </Grid>
 
                                         <!-- Divider Line -->
@@ -143,7 +155,14 @@
                                                 <DataTemplate>
                                                     <Grid ColumnDefinitions="2*, 3*, Auto, Auto" ColumnSpacing="8" Margin="0,2">
                                                         <Label Grid.Column="0" Text="{Binding AccountReferenceNumber}" FontSize="11" TextColor="#64748B" />
-                                                        <Label Grid.Column="1" Text="{Binding AccountName}" FontSize="11" FontAttributes="Bold" TextColor="#E2E8F0" LineBreakMode="TailTruncation" />
+                                                        <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                                            <Label Text="{Binding AccountName}" FontSize="11" FontAttributes="Bold" TextColor="#E2E8F0" LineBreakMode="TailTruncation" />
+                                                            <Label Text="{Binding LineDescriptionDisplay}"
+                                                                   FontSize="9"
+                                                                   TextColor="#64748B"
+                                                                   LineBreakMode="TailTruncation"
+                                                                   IsVisible="{Binding HasDescription}" />
+                                                        </VerticalStackLayout>
                                                         <Label Grid.Column="2" Text="{Binding FormattedDebit}" FontSize="11" TextColor="#38BDF8" HorizontalTextAlignment="End" WidthRequest="70" />
                                                         <Label Grid.Column="3" Text="{Binding FormattedCredit}" FontSize="11" TextColor="#EF4444" HorizontalTextAlignment="End" WidthRequest="70" />
                                                     </Grid>

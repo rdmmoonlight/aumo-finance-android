@@ -8,6 +8,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using AumoFinance.Models.Reports;
 using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Services;
 using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages.Reports.GeneralJournal;
@@ -15,12 +16,14 @@ namespace AumoFinance.Pages.Reports.GeneralJournal;
 public partial class GeneralJournalPage : ContentPage
 {
     private readonly GeneralJournalService _generalJournalService;
-    private readonly CultureInfo _usdCulture = new("en-US");
+    private readonly JournalEntryService _journalEntryService;
+    private readonly CultureInfo _idrCulture = new("id-ID");
 
-    public GeneralJournalPage(GeneralJournalService generalJournalService)
+    public GeneralJournalPage(GeneralJournalService generalJournalService, JournalEntryService journalEntryService)
     {
         InitializeComponent();
         _generalJournalService = generalJournalService;
+        _journalEntryService = journalEntryService;
     }
 
     protected override async void OnAppearing()
@@ -64,9 +67,9 @@ public partial class GeneralJournalPage : ContentPage
                         LineDescription = l.LineDescription,
                         Debit = l.Debit,
                         Credit = l.Credit,
-                        UsdCulture = _usdCulture
+                        IdrCulture = _idrCulture
                     }).ToList(),
-                    UsdCulture = _usdCulture
+                    IdrCulture = _idrCulture
                 }).ToList();
 
                 JournalCollectionView.ItemsSource = viewModels;
@@ -121,6 +124,31 @@ public partial class GeneralJournalPage : ContentPage
         if (sender is Button button && button.BindingContext is GeneralJournalEntryViewModel entry)
         {
             await Shell.Current.GoToAsync($"{nameof(JournalEntryPage)}?entryId={entry.Id}");
+        }
+    }
+
+    private async void OnDeleteEntryClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button button || button.BindingContext is not GeneralJournalEntryViewModel entry)
+            return;
+
+        bool confirm = await this.DisplayAlertAsync(
+            "Delete Journal Entry",
+            $"Delete transaction {entry.TransactionNumber}? This action cannot be undone.",
+            "Yes, Delete",
+            "Cancel");
+
+        if (!confirm) return;
+
+        var (success, message) = await _journalEntryService.DeleteJournalEntryAsync(entry.Id);
+
+        if (success)
+        {
+            await LoadGeneralJournalAsync();
+        }
+        else
+        {
+            await this.DisplayAlertAsync("Delete Failed", message, "OK");
         }
     }
 

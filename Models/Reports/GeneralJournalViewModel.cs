@@ -11,9 +11,9 @@ public class GeneralJournalEntryViewModel
     public string JournalType { get; set; } = "General";
     public string TransactionNumber { get; set; } = string.Empty;
     public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
-    public CultureInfo UsdCulture { get; set; } = new("en-US");
+    public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
-    public string FormattedDate => EntryDate.ToString("MMM dd, yyyy");
+    public string FormattedDate => EntryDate.ToString("dd MMM yyyy");
 }
 
 public class GeneralJournalLineViewModel
@@ -23,8 +23,12 @@ public class GeneralJournalLineViewModel
     public string? LineDescription { get; set; }
     public decimal Debit { get; set; }
     public decimal Credit { get; set; }
-    public CultureInfo UsdCulture { get; set; } = new("en-US");
+    public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
-    public string FormattedDebit => Debit > 0 ? Debit.ToString("C2", UsdCulture) : "-";
-    public string FormattedCredit => Credit > 0 ? Credit.ToString("C2", UsdCulture) : "-";
+    // Rupiah, tanpa desimal/koma — mis. "Rp1.500.000".
+    public string FormattedDebit => Debit > 0 ? Debit.ToString("C0", IdrCulture) : "-";
+    public string FormattedCredit => Credit > 0 ? Credit.ToString("C0", IdrCulture) : "-";
+
+    public bool HasDescription => !string.IsNullOrWhiteSpace(LineDescription);
+    public string LineDescriptionDisplay => HasDescription ? LineDescription!.ToLowerInvariant() : string.Empty;
 }
