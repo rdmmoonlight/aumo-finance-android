@@ -12,7 +12,7 @@
         <!-- Top Navigation Bar -->
         <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
-        <Grid Grid.Row="1" RowDefinitions="Auto, Auto, Auto, *" Padding="16,10,16,0" RowSpacing="16">
+        <Grid Grid.Row="1" RowDefinitions="Auto, Auto, *" Padding="16,10,16,0" RowSpacing="16">
 
             <!-- Page Header, New Entry & Refresh Buttons -->
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8" VerticalOptions="Center">
@@ -50,30 +50,8 @@
                         HeightRequest="40" />
             </Grid>
 
-            <!-- Active Period Indicator -->
-            <Border Grid.Row="1"
-                    BackgroundColor="#1E293B"
-                    Stroke="#334155"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="12,10">
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <Label Text="👁️" FontSize="14" VerticalOptions="Center" />
-                    <Label Text="Menampilkan Periode:"
-                           TextColor="#94A3B8"
-                           FontSize="12"
-                           VerticalOptions="Center" />
-                    <Label x:Name="SelectedPeriodHeaderLabel"
-                           Text="Loading Active Period..."
-                           TextColor="#F8FAFC"
-                           FontAttributes="Bold"
-                           FontSize="12"
-                           VerticalOptions="Center" />
-                </HorizontalStackLayout>
-            </Border>
-
             <!-- Loading Indicator -->
-            <ActivityIndicator Grid.Row="2"
+            <ActivityIndicator Grid.Row="1"
                                x:Name="LoadingIndicator"
                                Color="#F59E0B"
                                IsRunning="True"
@@ -82,7 +60,7 @@
 
             <!-- Empty state + list share the remaining space. CollectionView provides
                  its own scrolling/virtualization, so it must not be nested inside a ScrollView. -->
-            <Grid Grid.Row="3">
+            <Grid Grid.Row="2">
 
                 <!-- Empty State View -->
                 <VerticalStackLayout x:Name="EmptyStateView"

@@ -24,9 +24,14 @@ public class PeriodApiModel
     [JsonPropertyName("isSelected")]
     public bool IsSelected { get; set; }
 
-    public string DateRangeDisplay => $"{StartDate:MMM dd, yyyy} - {EndDate:MMM dd, yyyy}";
+    public string DateRangeDisplay => $"{StartDate:dd MMM yyyy} - {EndDate:dd MMM yyyy}";
     public bool CanSelect => !IsSelected;
     public bool CanClose => !IsClosed;
+
+    // Periode closed tetap bisa "dibuka" untuk dilihat datanya (jadi periode yang
+    // sedang di-view di seluruh aplikasi), tapi tidak bisa diedit lagi — jadi
+    // labelnya "View", bukan "Select Period", supaya jelas ini bukan aksi transaksi.
+    public string SelectButtonText => IsClosed ? "View" : "Select Period";
 }
 
 // Wrapper respons GET /api/mobile/periods: { success, selectedPeriodId, periods: [...] }

@@ -45,7 +45,9 @@ public partial class GeneralJournalPage : ContentPage
 
             if (data != null)
             {
-                SelectedPeriodHeaderLabel.Text = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
+                // Periode yang di-view ditampilkan di top bar (dipakai bersama semua
+                // halaman), jadi halaman ini tidak perlu indikator periode sendiri lagi.
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
                     ? "No Active Period"
                     : data.SelectedPeriodName;
 
