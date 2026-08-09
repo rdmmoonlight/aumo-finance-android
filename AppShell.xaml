@@ -52,19 +52,29 @@
                     <Button Text="New Journal Entry" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnJournalEntryMenuItemClicked" />
 
                     <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
-                    <Button Text="General Journal" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGeneralJournalMenuItemClicked" />
-                    <Button Text="Adjusting Journal" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnAdjustingJournalMenuItemClicked" />
-                    <Button Text="General Ledger (Permanent)" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGlPermanentMenuItemClicked" />
-                    <Button Text="General Ledger (Temporary)" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGlTemporaryMenuItemClicked" />
-                    <Button Text="Trial Balance" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnTrialBalanceMenuItemClicked" />
-                    <Button Text="Adjusted Trial Balance" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnAdjustedTrialBalanceMenuItemClicked" />
-                    <Button Text="Worksheet (10-Column)" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnWorksheetMenuItemClicked" />
-                    <Button Text="Income Statement" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnIncomeStatementMenuItemClicked" />
-                    <Button Text="Retained Earnings Statement" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnRetainedEarningsMenuItemClicked" />
-                    <Button Text="Statement of Financial Position" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnSofpMenuItemClicked" />
-                    <Button Text="Closing Journal" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnClosingJournalMenuItemClicked" />
-                    <Button Text="Post-Closing Trial Balance" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnPostClosingMenuItemClicked" />
-                    <Button Text="Statement of Cash Flows" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnCashFlowMenuItemClicked" />
+
+                    <!-- Reports Group Header (collapsible) -->
+                    <Button x:Name="ReportsToggleButton"
+                            Text="📊  Reports  ▸"
+                            Style="{StaticResource FlyoutMenuItemStyle}"
+                            FontAttributes="Bold"
+                            Clicked="OnToggleReportsClicked" />
+
+                    <VerticalStackLayout x:Name="ReportsSection" IsVisible="False" Spacing="2">
+                        <Button Text="General Journal" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGeneralJournalMenuItemClicked" />
+                        <Button Text="Adjusting Journal" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnAdjustingJournalMenuItemClicked" />
+                        <Button Text="General Ledger (Permanent)" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGlPermanentMenuItemClicked" />
+                        <Button Text="General Ledger (Temporary)" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnGlTemporaryMenuItemClicked" />
+                        <Button Text="Trial Balance" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnTrialBalanceMenuItemClicked" />
+                        <Button Text="Adjusted Trial Balance" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnAdjustedTrialBalanceMenuItemClicked" />
+                        <Button Text="Worksheet (10-Column)" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnWorksheetMenuItemClicked" />
+                        <Button Text="Income Statement" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnIncomeStatementMenuItemClicked" />
+                        <Button Text="Retained Earnings Statement" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnRetainedEarningsMenuItemClicked" />
+                        <Button Text="Statement of Financial Position" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnSofpMenuItemClicked" />
+                        <Button Text="Closing Journal" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnClosingJournalMenuItemClicked" />
+                        <Button Text="Post-Closing Trial Balance" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnPostClosingMenuItemClicked" />
+                        <Button Text="Statement of Cash Flows" Padding="32,10" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnCashFlowMenuItemClicked" />
+                    </VerticalStackLayout>
 
                     <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
                     <Button Text="App Settings" Style="{StaticResource FlyoutMenuItemStyle}" Clicked="OnSettingsMenuItemClicked" />

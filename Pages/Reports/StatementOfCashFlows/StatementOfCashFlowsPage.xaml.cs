@@ -53,11 +53,13 @@ public partial class StatementOfCashFlowsPage : ContentPage
         if (data == null || !data.Success)
         {
             SelectedPeriodHeaderLabel.Text = data?.SelectedPeriodName ?? "No Period Selected";
+            TopHeader.PeriodText = data?.SelectedPeriodName ?? "No Active Period";
             ShowEmptyState(true);
             return;
         }
 
         SelectedPeriodHeaderLabel.Text = data.SelectedPeriodName ?? "Active Period";
+        TopHeader.PeriodText = data.SelectedPeriodName ?? "Active Period";
         ShowEmptyState(false);
 
         // Render Activity Categories

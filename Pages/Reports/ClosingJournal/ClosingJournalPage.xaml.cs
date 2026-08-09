@@ -53,11 +53,13 @@ public partial class ClosingJournalPage : ContentPage
         if (data == null || !data.Success || data.ClosingJournal == null || data.ClosingJournal.Groups.Count == 0)
         {
             SelectedPeriodHeaderLabel.Text = data?.SelectedPeriodName ?? "No Period Selected";
+            TopHeader.PeriodText = data?.SelectedPeriodName ?? "No Active Period";
             ShowEmptyState(true);
             return;
         }
 
         SelectedPeriodHeaderLabel.Text = data.SelectedPeriodName ?? "Active Period";
+        TopHeader.PeriodText = data.SelectedPeriodName ?? "Active Period";
         ShowEmptyState(false);
 
         // 1. Set Banner Laba Bersih (Net Income) & Akun Laba Ditahan

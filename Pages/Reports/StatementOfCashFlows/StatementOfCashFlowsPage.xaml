@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Reports.StatementOfCashFlows.StatementOfCashFlowsPage"
              Title="Cash Flow Statement"
              BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}">
 
-    <Grid RowDefinitions="Auto, *">
+    <Grid RowDefinitions="Auto, Auto, *">
+
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
         <!-- Top Header Banner -->
-        <Border Grid.Row="0"
+        <Border Grid.Row="1"
                 BackgroundColor="{AppThemeBinding Light=#1E293B, Dark=#0F172A}"
                 Padding="16,12"
                 StrokeShape="RoundRectangle 0"
@@ -41,7 +44,7 @@
         </Border>
 
         <!-- Main Content Body -->
-        <Grid Grid.Row="1" Padding="16">
+        <Grid Grid.Row="2" Padding="16">
 
             <!-- Loading Indicator -->
             <ActivityIndicator x:Name="LoadingIndicator"
