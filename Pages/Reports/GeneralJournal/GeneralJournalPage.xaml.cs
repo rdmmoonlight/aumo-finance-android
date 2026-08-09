@@ -5,7 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using AumoFinance.Models.Reports;
+using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages.Reports.GeneralJournal;
@@ -82,14 +84,42 @@ public partial class GeneralJournalPage : ContentPage
         }
     }
 
-    public async void OnRefreshClicked(object? sender, EventArgs e)
+    public async void OnRefreshViewRefreshing(object? sender, EventArgs e)
     {
         await LoadGeneralJournalAsync();
     }
 
-    public async void OnRefreshViewRefreshing(object? sender, EventArgs e)
+    private async void OnNewEntryClicked(object? sender, EventArgs e)
     {
-        await LoadGeneralJournalAsync();
+        await Shell.Current.GoToAsync(nameof(JournalEntryPage));
+    }
+
+    // Mengontrol tampil/sembunyi ikon pensil di setiap baris entry.
+    // Diikat lewat RelativeSource dari XAML, jadi tetap benar meski
+    // CollectionView me-recycle item saat di-scroll.
+    public static readonly BindableProperty IsEditModeProperty =
+        BindableProperty.Create(nameof(IsEditMode), typeof(bool), typeof(GeneralJournalPage), false);
+
+    public bool IsEditMode
+    {
+        get => (bool)GetValue(IsEditModeProperty);
+        set => SetValue(IsEditModeProperty, value);
+    }
+
+    private void OnToggleEditModeClicked(object? sender, EventArgs e)
+    {
+        IsEditMode = !IsEditMode;
+        EditModeButton.Text = IsEditMode ? "✅ Done" : "✏️ Edit";
+        EditModeButton.BackgroundColor = IsEditMode ? Color.FromArgb("#F59E0B") : Color.FromArgb("#334155");
+        EditModeButton.TextColor = IsEditMode ? Color.FromArgb("#0F172A") : Color.FromArgb("#F8FAFC");
+    }
+
+    private async void OnEditEntryClicked(object? sender, EventArgs e)
+    {
+        if (sender is Button button && button.BindingContext is GeneralJournalEntryViewModel entry)
+        {
+            await Shell.Current.GoToAsync($"{nameof(JournalEntryPage)}?entryId={entry.Id}");
+        }
     }
 
     private void SetLoadingState(bool isLoading)
