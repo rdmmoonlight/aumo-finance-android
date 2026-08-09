@@ -71,6 +71,7 @@
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Entry Date" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
                             <DatePicker x:Name="EntryDatePicker"
+                                        Format="dd/MM/yyyy"
                                         BackgroundColor="#0F172A"
                                         TextColor="White" />
                         </VerticalStackLayout>
