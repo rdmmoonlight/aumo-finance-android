@@ -136,7 +136,7 @@ public partial class AppShell : Shell
 
     private async void OnLogoutMenuItemClicked(object? sender, EventArgs e)
     {
-        bool confirm = await DisplayAlert(
+        bool confirm = await DisplayAlertAsync(
             "Logout",
             "Are you sure you want to log out?",
             "Yes, Logout",
