@@ -54,10 +54,10 @@ public partial class PeriodsPage : ContentPage
                 EmptyStateView.IsVisible = !periods.Any();
                 PeriodsCollectionView.IsVisible = periods.Any();
 
+                // Periode yang di-view sekarang ditampilkan di top bar (dipakai bersama
+                // seluruh halaman), jadi tidak perlu ditampilkan lagi di sini.
                 var selectedPeriod = periods.FirstOrDefault(p => p.IsSelected);
-                ActivePeriodHeaderLabel.Text = selectedPeriod != null
-                    ? selectedPeriod.PeriodName
-                    : "No Active Period Selected";
+                TopHeader.PeriodText = selectedPeriod?.PeriodName ?? "No Active Period";
             }
         }
         catch (Exception ex)

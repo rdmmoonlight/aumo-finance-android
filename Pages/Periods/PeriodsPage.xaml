@@ -30,8 +30,7 @@
                                FontAttributes="Bold"
                                TextColor="#94A3B8"
                                CharacterSpacing="0.8" />
-                        <Label x:Name="ActivePeriodHeaderLabel"
-                               Text="Loading Active Period..."
+                        <Label Text="All Accounting Periods"
                                FontSize="16"
                                FontAttributes="Bold"
                                TextColor="White" />
@@ -153,8 +152,8 @@
                                                                Spacing="8" 
                                                                Margin="0,4,0,0">
 
-                                            <!-- Select Period Button -->
-                                            <Button Text="Select Period"
+                                            <!-- Select/View Period Button -->
+                                            <Button Text="{Binding SelectButtonText}"
                                                     FontSize="11"
                                                     FontAttributes="Bold"
                                                     HeightRequest="32"
