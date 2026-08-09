@@ -116,7 +116,7 @@
                                             </HorizontalStackLayout>
 
                                             <Label Grid.Column="1"
-                                                   Text="{Binding ReferenceNumber}"
+                                                   Text="{Binding TransactionNumber}"
                                                    FontSize="12"
                                                    FontAttributes="Bold"
                                                    TextColor="#64748B" />

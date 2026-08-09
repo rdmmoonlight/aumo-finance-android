@@ -28,8 +28,8 @@ public class GeneralJournalEntryReportDto
     [JsonPropertyName("id")]
     public int Id { get; set; }
 
-    [JsonPropertyName("referenceNumber")]
-    public string? ReferenceNumber { get; set; }
+    [JsonPropertyName("transactionNumber")]
+    public string? TransactionNumber { get; set; }
 
     [JsonPropertyName("entryDate")]
     public DateTime EntryDate { get; set; }
