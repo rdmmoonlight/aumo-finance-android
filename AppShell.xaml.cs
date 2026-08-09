@@ -76,6 +76,13 @@ public partial class AppShell : Shell
     private void OnDashboardMenuItemClicked(object? sender, EventArgs e)
         => NavigateAndCloseFlyout(nameof(DashboardPage));
 
+    private void OnToggleReportsClicked(object? sender, EventArgs e)
+    {
+        bool expanded = !ReportsSection.IsVisible;
+        ReportsSection.IsVisible = expanded;
+        ReportsToggleButton.Text = expanded ? "📊  Reports  ▾" : "📊  Reports  ▸";
+    }
+
     private void OnCoaMenuItemClicked(object? sender, EventArgs e)
         => NavigateAndCloseFlyout(nameof(CoaPage));
 
@@ -127,6 +134,17 @@ public partial class AppShell : Shell
     private void OnSettingsMenuItemClicked(object? sender, EventArgs e)
         => NavigateAndCloseFlyout(nameof(SettingsPage));
 
-    private void OnLogoutMenuItemClicked(object? sender, EventArgs e)
-        => NavigateAndCloseFlyout(nameof(LogoutPage));
+    private async void OnLogoutMenuItemClicked(object? sender, EventArgs e)
+    {
+        bool confirm = await DisplayAlert(
+            "Logout",
+            "Are you sure you want to log out?",
+            "Yes, Logout",
+            "Cancel");
+
+        if (!confirm) return;
+
+        FlyoutIsPresented = false;
+        await GoToAsync($"//{nameof(LogoutPage)}");
+    }
 }

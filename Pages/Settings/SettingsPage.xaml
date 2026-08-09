@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Settings.SettingsPage"
              BackgroundColor="#0F172A"
              Title="Settings">
 
-    <ScrollView>
+    <Grid RowDefinitions="Auto, *">
+
+        <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
+
+        <ScrollView Grid.Row="1">
         <VerticalStackLayout Padding="20" Spacing="20">
 
             <!-- Section: Daily Reminder Notifications -->
@@ -105,6 +110,8 @@
             </Button>
 
         </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+
+    </Grid>
 
 </ContentPage>
