@@ -63,7 +63,12 @@ public partial class AppShell : Shell
     private async void NavigateAndCloseFlyout(string route)
     {
         FlyoutIsPresented = false;
-        await GoToAsync(route);
+        // Rute absolut ("//") supaya tiap tap menu flyout SELALU reset ke satu
+        // halaman bersih, bukan menumpuk di atas halaman flyout sebelumnya.
+        // Navigasi relatif berulang (tap Periods -> Coa -> General Journal, dst.)
+        // membuat stack terus bertambah dalam, sampai akhirnya Shell gagal
+        // meresolusi rute berikutnya dan melempar "Ambiguous routes matched".
+        await GoToAsync($"//{route}");
     }
 
     // ================= FLYOUT MENU HANDLERS =================
