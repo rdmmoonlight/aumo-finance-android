@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 
 // Import Namespace Sesuai Subfolder — satu using per folder, mengikuti struktur fisik file
 using AumoFinance.Pages.Auth;
@@ -63,12 +64,30 @@ public partial class AppShell : Shell
     private async void NavigateAndCloseFlyout(string route)
     {
         FlyoutIsPresented = false;
-        // Rute absolut ("//") supaya tiap tap menu flyout SELALU reset ke satu
-        // halaman bersih, bukan menumpuk di atas halaman flyout sebelumnya.
-        // Navigasi relatif berulang (tap Periods -> Coa -> General Journal, dst.)
-        // membuat stack terus bertambah dalam, sampai akhirnya Shell gagal
-        // meresolusi rute berikutnya dan melempar "Ambiguous routes matched".
-        await GoToAsync($"//{route}");
+
+        try
+        {
+            // Rute-rute ini (selain LoginPage/MainPage) hanya didaftarkan lewat
+            // Routing.RegisterRoute — bukan ShellContent di visual tree — jadi
+            // navigasi ABSOLUT ("//route") gagal di-resolve Shell untuk rute
+            // semacam ini (silently gagal karena method ini async void, makanya
+            // tombol terlihat "tidak merespons"). Perbaikannya: pop dulu ke root
+            // section (MainPage), baru push rute baru secara RELATIF — ini tetap
+            // mencegah stack menumpuk tak terbatas (penyebab "Ambiguous routes
+            // matched" sebelumnya) tanpa memakai sintaks yang tidak didukung
+            // untuk rute global.
+            if (Shell.Current.Navigation.NavigationStack.Count > 1)
+            {
+                await Shell.Current.Navigation.PopToRootAsync(false);
+            }
+
+            await GoToAsync(route);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"NavigateAndCloseFlyout('{route}') failed: {ex}");
+            await DisplayAlertAsync("Navigation Error", $"Couldn't open this page: {ex.Message}", "OK");
+        }
     }
 
     // ================= FLYOUT MENU HANDLERS =================
@@ -80,7 +99,12 @@ public partial class AppShell : Shell
     {
         bool expanded = !ReportsSection.IsVisible;
         ReportsSection.IsVisible = expanded;
-        ReportsToggleButton.Text = expanded ? "📊  Reports  ▾" : "📊  Reports  ▸";
+
+        // Dua tanda sekaligus: panah berganti arah, dan baris header di-highlight
+        // selama grup Reports sedang terbuka — supaya statusnya jelas terlihat,
+        // bukan cuma dari perubahan karakter panah yang kecil.
+        ReportsToggleLabel.Text = expanded ? "📊  Reports  ▾" : "📊  Reports  ▸";
+        ReportsToggleRow.BackgroundColor = expanded ? Color.FromArgb("#1E293B") : Colors.Transparent;
     }
 
     private void OnCoaMenuItemClicked(object? sender, EventArgs e)
@@ -144,7 +168,6 @@ public partial class AppShell : Shell
 
         if (!confirm) return;
 
-        FlyoutIsPresented = false;
-        await GoToAsync($"//{nameof(LogoutPage)}");
+        NavigateAndCloseFlyout(nameof(LogoutPage));
     }
 }
