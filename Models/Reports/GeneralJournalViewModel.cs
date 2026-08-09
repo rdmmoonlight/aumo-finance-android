@@ -9,7 +9,7 @@ public class GeneralJournalEntryViewModel
     public int Id { get; set; }
     public DateTime EntryDate { get; set; }
     public string JournalType { get; set; } = "General";
-    public string ReferenceNumber { get; set; } = string.Empty;
+    public string TransactionNumber { get; set; } = string.Empty;
     public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
     public CultureInfo UsdCulture { get; set; } = new("en-US");
 

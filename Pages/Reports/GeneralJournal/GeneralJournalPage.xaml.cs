@@ -52,7 +52,7 @@ public partial class GeneralJournalPage : ContentPage
                     Id = e.Id,
                     EntryDate = e.EntryDate,
                     JournalType = e.JournalType ?? "General",
-                    ReferenceNumber = e.ReferenceNumber ?? string.Empty,
+                    TransactionNumber = e.TransactionNumber ?? string.Empty,
                     Lines = (e.Lines ?? new List<GeneralJournalLineReportDto>()).Select(l => new GeneralJournalLineViewModel
                     {
                         AccountReferenceNumber = l.ReferenceNumber ?? 0,

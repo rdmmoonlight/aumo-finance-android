@@ -48,7 +48,7 @@ public class JournalEntryService : BaseApiService
     // ==========================================
     // 2. CREATE: /api/mobile/journal-entry/create
     // ==========================================
-    public async Task<(bool success, string message, int entryId, string referenceNumber)> CreateJournalEntryAsync(CreateJournalEntryRequest dto)
+    public async Task<(bool success, string message, int entryId, string transactionNumber)> CreateJournalEntryAsync(CreateJournalEntryRequest dto)
     {
         try
         {
@@ -64,7 +64,7 @@ public class JournalEntryService : BaseApiService
             if (response.IsSuccessStatusCode)
             {
                 var result = JsonSerializer.Deserialize<CreateJournalEntryApiResponse>(content, JsonOptions);
-                return (true, result?.Message ?? "Journal entry created successfully.", result?.EntryId ?? 0, result?.ReferenceNumber ?? string.Empty);
+                return (true, result?.Message ?? "Journal entry created successfully.", result?.EntryId ?? 0, result?.TransactionNumber ?? string.Empty);
             }
 
             var errResult = JsonSerializer.Deserialize<BasicApiResponse>(content, JsonOptions);
@@ -180,6 +180,33 @@ public class JournalEntryService : BaseApiService
             return new List<string>();
         }
     }
+    // ==========================================
+    // 6. PREVIEW NEXT NUMBER: /api/mobile/journal-entry/next-transaction-number?journalType=xxx
+    // ==========================================
+    public async Task<(string? transactionNumber, string? errorDetail)> GetNextTransactionNumberAsync(string journalType)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            string encodedType = Uri.EscapeDataString(journalType);
+            using var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, $"{BaseEndpoint}/next-transaction-number?journalType={encodedType}");
+
+            using var response = await HttpClient.SendAsync(request, cts.Token);
+            var content = await response.Content.ReadAsStringAsync(cts.Token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonSerializer.Deserialize<NextTransactionNumberApiResponse>(content, JsonOptions);
+                return (result?.TransactionNumber, null);
+            }
+
+            return (null, $"HTTP {(int)response.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            return (null, $"{ex.GetType().Name}: {ex.Message}");
+        }
+    }
 }
 
 // ==========================================
@@ -241,8 +268,8 @@ public class CreateJournalEntryApiResponse : BasicApiResponse
     [JsonPropertyName("entryId")]
     public int EntryId { get; set; }
 
-    [JsonPropertyName("referenceNumber")]
-    public string? ReferenceNumber { get; set; }
+    [JsonPropertyName("transactionNumber")]
+    public string? TransactionNumber { get; set; }
 }
 
 public class GetJournalEntryApiResponse : BasicApiResponse
@@ -251,13 +278,19 @@ public class GetJournalEntryApiResponse : BasicApiResponse
     public JournalEntryDetailDto? Entry { get; set; }
 }
 
+public class NextTransactionNumberApiResponse : BasicApiResponse
+{
+    [JsonPropertyName("transactionNumber")]
+    public string? TransactionNumber { get; set; }
+}
+
 public class JournalEntryDetailDto
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
 
-    [JsonPropertyName("referenceNumber")]
-    public string ReferenceNumber { get; set; } = string.Empty;
+    [JsonPropertyName("transactionNumber")]
+    public string TransactionNumber { get; set; } = string.Empty;
 
     [JsonPropertyName("journalType")]
     public string JournalType { get; set; } = string.Empty;

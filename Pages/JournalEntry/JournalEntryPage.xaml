@@ -17,7 +17,8 @@
 
                 <!-- Page Header Title -->
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="New Journal Entry"
+                    <Label x:Name="PageHeaderLabel"
+                           Text="New Journal Entry"
                            FontSize="22"
                            FontAttributes="Bold"
                            TextColor="White" />
@@ -25,6 +26,20 @@
                            FontSize="12"
                            TextColor="#94A3B8" />
                 </VerticalStackLayout>
+
+                <!-- Locked Period Warning (shown only when editing a locked entry) -->
+                <Border x:Name="LockedWarningBanner"
+                        IsVisible="False"
+                        BackgroundColor="#7F1D1D"
+                        Stroke="#B91C1C"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="12,10">
+                    <Label Text="⚠️ This entry falls in a closed accounting period and cannot be modified."
+                           TextColor="#FCA5A5"
+                           FontSize="12"
+                           FontAttributes="Bold" />
+                </Border>
 
                 <!-- Journal Details Card -->
                 <Border BackgroundColor="#1E293B"
@@ -40,7 +55,8 @@
                             <Picker x:Name="JournalTypePicker"
                                     BackgroundColor="#0F172A"
                                     TextColor="White"
-                                    TitleColor="#64748B">
+                                    TitleColor="#64748B"
+                                    SelectedIndexChanged="OnJournalTypeChanged">
                                 <Picker.ItemsSource>
                                     <x:Array Type="{x:Type x:String}">
                                         <x:String>General</x:String>
@@ -59,15 +75,15 @@
                                         TextColor="White" />
                         </VerticalStackLayout>
 
-                        <!-- Reference Number (Auto Generated Display) -->
+                        <!-- Transaction Number (previewed live from server, or shown as-is when editing) -->
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="Reference Number (Auto)" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Label Text="Transaction Number" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
                             <Border BackgroundColor="#0F172A"
                                     Stroke="#334155"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
-                                <Label x:Name="ReferenceNumberLabel"
+                                <Label x:Name="TransactionNumberLabel"
                                        Text="Auto-generated"
                                        FontSize="14"
                                        TextColor="#64748B" />
@@ -80,7 +96,8 @@
                 <!-- Journal Lines Section Header -->
                 <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center" Margin="0,8,0,0">
                     <Label Text="Transaction Lines" FontSize="16" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
-                    <Button Text="➕ Add Line"
+                    <Button x:Name="AddLineButton"
+                            Text="➕ Add Line"
                             Clicked="OnAddLineClicked"
                             BackgroundColor="#2563EB"
                             TextColor="White"

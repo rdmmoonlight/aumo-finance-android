@@ -11,14 +11,21 @@ using AumoFinance.Services;
 
 namespace AumoFinance.Pages.JournalEntry;
 
+[QueryProperty(nameof(EntryId), "entryId")]
 public partial class JournalEntryPage : ContentPage
 {
     private readonly JournalEntryService _journalEntryService;
     private readonly CoaService _coaService;
     private List<AccountLookupDto> _allAccounts = new();
+    private int? _editingEntryId;
+    private bool _isLocked;
 
     public ObservableCollection<JournalLineViewModel> Lines { get; set; } = new();
     private readonly CultureInfo _idCulture = new("id-ID");
+
+    // Diset oleh Shell lewat query string "entryId" saat navigasi ke mode edit,
+    // mis. GoToAsync($"{nameof(JournalEntryPage)}?entryId={id}").
+    public string? EntryId { get; set; }
 
     public JournalEntryPage(JournalEntryService journalEntryService, CoaService coaService)
     {
@@ -40,7 +47,20 @@ public partial class JournalEntryPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadAccountsAsync();
+
+        bool isEditRequest = int.TryParse(EntryId, out var parsedId) && parsedId > 0;
+
+        if (isEditRequest && _editingEntryId != parsedId)
+        {
+            _editingEntryId = parsedId;
+            await LoadAccountsAsync();
+            await LoadEntryForEditAsync(parsedId);
+        }
+        else if (!isEditRequest && _editingEntryId == null)
+        {
+            await LoadAccountsAsync();
+            await RefreshNextTransactionNumberAsync();
+        }
     }
 
     private async Task LoadAccountsAsync()
@@ -67,6 +87,96 @@ public partial class JournalEntryPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadAccountsAsync Exception: {ex}");
+        }
+    }
+
+    private async Task LoadEntryForEditAsync(int entryId)
+    {
+        SubmitButton.IsEnabled = false;
+
+        var (entry, errorDetail) = await _journalEntryService.GetJournalEntryByIdAsync(entryId);
+
+        if (!string.IsNullOrEmpty(errorDetail) || entry == null)
+        {
+            await DisplayAlertAsync("Error", errorDetail ?? "Journal entry not found.", "OK");
+            await Shell.Current.GoToAsync("..");
+            return;
+        }
+
+        PageHeaderLabel.Text = "Edit Journal Entry";
+        Title = "Edit Journal Entry";
+        SubmitButton.Text = "Update Journal Entry";
+
+        // Journal type & date
+        int typeIndex = JournalTypePicker.ItemsSource
+            .Cast<string>()
+            .ToList()
+            .FindIndex(t => string.Equals(t, entry.JournalType, StringComparison.OrdinalIgnoreCase));
+        JournalTypePicker.SelectedIndex = typeIndex >= 0 ? typeIndex : 0;
+
+        EntryDatePicker.Date = entry.EntryDate;
+
+        // Transaction number sudah ada dari server — tampilkan apa adanya, jangan di-generate ulang.
+        TransactionNumberLabel.Text = entry.TransactionNumber;
+        TransactionNumberLabel.TextColor = Colors.White;
+
+        // Rebuild lines dari data server, cocokkan AccountId dengan daftar akun yang sudah dimuat.
+        Lines.Clear();
+        foreach (var line in entry.Lines.OrderBy(l => l.LineOrder))
+        {
+            var lineVm = new JournalLineViewModel(_allAccounts, () => UpdateTotals())
+            {
+                SelectedAccount = _allAccounts.FirstOrDefault(a => a.Id == line.AccountId),
+                DebitText = line.Debit > 0 ? line.Debit.ToString(CultureInfo.InvariantCulture) : string.Empty,
+                CreditText = line.Credit > 0 ? line.Credit.ToString(CultureInfo.InvariantCulture) : string.Empty,
+                LineDescription = line.LineDescription ?? string.Empty
+            };
+            Lines.Add(lineVm);
+        }
+        UpdateTotals();
+
+        _isLocked = entry.IsLocked;
+        SetLockedState(_isLocked);
+
+        SubmitButton.IsEnabled = !_isLocked;
+    }
+
+    private void SetLockedState(bool isLocked)
+    {
+        LockedWarningBanner.IsVisible = isLocked;
+        JournalTypePicker.IsEnabled = !isLocked;
+        EntryDatePicker.IsEnabled = !isLocked;
+        LinesCollectionView.IsEnabled = !isLocked;
+        AddLineButton.IsEnabled = !isLocked;
+    }
+
+    private async void OnJournalTypeChanged(object? sender, EventArgs e)
+    {
+        // Nomor transaksi hanya di-preview untuk entry baru; saat edit, nomor yang sudah ada dipertahankan.
+        if (_editingEntryId == null)
+        {
+            await RefreshNextTransactionNumberAsync();
+        }
+    }
+
+    private async Task RefreshNextTransactionNumberAsync()
+    {
+        string journalType = JournalTypePicker.SelectedItem?.ToString() ?? "General";
+
+        TransactionNumberLabel.Text = "Loading...";
+        TransactionNumberLabel.TextColor = Color.FromArgb("#64748B");
+
+        var (nextNumber, _) = await _journalEntryService.GetNextTransactionNumberAsync(journalType);
+
+        if (!string.IsNullOrWhiteSpace(nextNumber))
+        {
+            TransactionNumberLabel.Text = nextNumber;
+            TransactionNumberLabel.TextColor = Colors.White;
+        }
+        else
+        {
+            TransactionNumberLabel.Text = "Auto-generated";
+            TransactionNumberLabel.TextColor = Color.FromArgb("#64748B");
         }
     }
 
@@ -114,6 +224,8 @@ public partial class JournalEntryPage : ContentPage
 
     private async void OnSaveJournalClicked(object? sender, EventArgs e)
     {
+        if (_isLocked) return;
+
         var (isValid, totalDebit, totalCredit) = await ValidateFormAsync();
         if (!isValid)
             return;
@@ -122,47 +234,91 @@ public partial class JournalEntryPage : ContentPage
 
         try
         {
-            var requestDto = new CreateJournalEntryRequest
+            if (_editingEntryId.HasValue)
             {
-                JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-                EntryDate = EntryDatePicker.Date ?? DateTime.Today, // EntryDatePicker.Date bertipe DateTime? di versi MAUI ini
-                Lines = Lines
-                    .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
-                    .Select(l => new JournalEntryLineRequest
-                    {
-                        AccountId = l.SelectedAccount!.Id,
-                        LineDescription = l.LineDescription,
-                        Debit = l.Debit,
-                        Credit = l.Credit
-                    }).ToList()
-            };
-
-            var (success, message, entryId, refNumber) = await _journalEntryService.CreateJournalEntryAsync(requestDto);
-
-            if (success)
-            {
-                if (!string.IsNullOrWhiteSpace(refNumber))
-                {
-                    ReferenceNumberLabel.Text = refNumber;
-                    ReferenceNumberLabel.TextColor = Colors.White;
-                }
-
-                string successMessage = string.IsNullOrWhiteSpace(refNumber)
-                    ? message
-                    : $"Journal Entry {refNumber} recorded successfully!";
-
-                await DisplayAlertAsync("Success", successMessage, "OK");
-                await Navigation.PopAsync();
+                await SaveAsUpdateAsync(_editingEntryId.Value);
             }
             else
             {
-                await DisplayAlertAsync("Posting Failed", message, "OK");
-                SubmitButton.IsEnabled = true;
+                await SaveAsCreateAsync();
             }
         }
         catch (Exception ex)
         {
             await DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            SubmitButton.IsEnabled = true;
+        }
+    }
+
+    private async Task SaveAsCreateAsync()
+    {
+        var requestDto = new CreateJournalEntryRequest
+        {
+            JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
+            EntryDate = EntryDatePicker.Date ?? DateTime.Today, // EntryDatePicker.Date bertipe DateTime? di versi MAUI ini
+            Lines = Lines
+                .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
+                .Select(l => new JournalEntryLineRequest
+                {
+                    AccountId = l.SelectedAccount!.Id,
+                    LineDescription = l.LineDescription,
+                    Debit = l.Debit,
+                    Credit = l.Credit
+                }).ToList()
+        };
+
+        var (success, message, entryId, transactionNumber) = await _journalEntryService.CreateJournalEntryAsync(requestDto);
+
+        if (success)
+        {
+            if (!string.IsNullOrWhiteSpace(transactionNumber))
+            {
+                TransactionNumberLabel.Text = transactionNumber;
+                TransactionNumberLabel.TextColor = Colors.White;
+            }
+
+            string successMessage = string.IsNullOrWhiteSpace(transactionNumber)
+                ? message
+                : $"Journal Entry {transactionNumber} recorded successfully!";
+
+            await DisplayAlertAsync("Success", successMessage, "OK");
+            await Navigation.PopAsync();
+        }
+        else
+        {
+            await DisplayAlertAsync("Posting Failed", message, "OK");
+            SubmitButton.IsEnabled = true;
+        }
+    }
+
+    private async Task SaveAsUpdateAsync(int entryId)
+    {
+        var updateDto = new UpdateJournalEntryRequest
+        {
+            JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
+            EntryDate = EntryDatePicker.Date ?? DateTime.Today,
+            Lines = Lines
+                .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
+                .Select(l => new JournalEntryLineRequest
+                {
+                    AccountId = l.SelectedAccount!.Id,
+                    LineDescription = l.LineDescription,
+                    Debit = l.Debit,
+                    Credit = l.Credit
+                }).ToList()
+        };
+
+        var (success, message) = await _journalEntryService.EditJournalEntryAsync(entryId, updateDto);
+
+        if (success)
+        {
+            await DisplayAlertAsync("Success", message, "OK");
+            // Kembali ke General Journal; OnAppearing halaman itu akan me-refresh daftarnya sendiri.
+            await Navigation.PopAsync();
+        }
+        else
+        {
+            await DisplayAlertAsync("Update Failed", message, "OK");
             SubmitButton.IsEnabled = true;
         }
     }
