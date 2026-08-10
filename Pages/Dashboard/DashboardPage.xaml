@@ -165,51 +165,6 @@
 
                     </Grid>
 
-                    <!-- Application Settings Section -->
-                    <Border BackgroundColor="#1E293B"
-                            Stroke="#334155"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 16"
-                            Padding="16">
-                        <Border.Shadow>
-                            <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
-                        </Border.Shadow>
-
-                        <VerticalStackLayout Spacing="12">
-                            <Label Text="SETTINGS &amp; UPDATES"
-                                   FontSize="11"
-                                   FontAttributes="Bold"
-                                   TextColor="#94A3B8"
-                                   CharacterSpacing="0.8" />
-
-                            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                                <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                    <Label Text="Automatic Updates"
-                                           FontSize="13"
-                                           FontAttributes="Bold"
-                                           TextColor="White" />
-                                    <Label Text="Automatically check for app updates on startup"
-                                           FontSize="10"
-                                           TextColor="#64748B" />
-                                </VerticalStackLayout>
-                                <Switch x:Name="AutoUpdateSwitch"
-                                        Grid.Column="1"
-                                        OnColor="#4F46E5"
-                                        ThumbColor="White"
-                                        Toggled="OnAutoUpdateToggled" />
-                            </Grid>
-
-                            <Button Text="Check for Updates"
-                                    BackgroundColor="#334155"
-                                    TextColor="#38BDF8"
-                                    FontAttributes="Bold"
-                                    FontSize="12"
-                                    CornerRadius="10"
-                                    HeightRequest="40"
-                                    Clicked="OnCheckUpdateManualClicked" />
-                        </VerticalStackLayout>
-                    </Border>
-
                 </VerticalStackLayout>
 
             </VerticalStackLayout>
