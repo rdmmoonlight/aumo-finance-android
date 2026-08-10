@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using AumoFinance.Services;
+using AumoFinance.ViewModels;
+using AumoFinance.Models.Dtos;
 
 namespace AumoFinance.Pages.JournalEntry;
 
