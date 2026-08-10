@@ -103,12 +103,6 @@
                         </Grid>
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnAdjustingJournalMenuItemClicked" />
-                            </Grid.GestureRecognizers>
-                            <Label Text="Adjusting Journal" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
-                        </Grid>
-                        <Grid Padding="32,10" BackgroundColor="Transparent">
-                            <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnGlPermanentMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="General Ledger (Permanent)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
@@ -118,6 +112,12 @@
                                 <TapGestureRecognizer Tapped="OnGlTemporaryMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="General Ledger (Temporary)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
+                        </Grid>
+                        <Grid Padding="32,10" BackgroundColor="Transparent">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAdjustingJournalMenuItemClicked" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="Adjusting Journal" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>

@@ -67,7 +67,7 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
             }
             else
             {
-                decimal netTotal = ledgers.Sum(l => l.NormalBalance.Equals("Debit", StringComparison.OrdinalIgnoreCase) ? -l.EndingBalance : l.EndingBalance);
+                decimal netTotal = ledgers.Sum(l => l.NormalBalanceIsDebit ? -l.EndingBalance : l.EndingBalance);
 
                 NetTotalLabel.Text = netTotal.ToString("C0", _idrCulture);
                 NetTotalLabel.TextColor = netTotal >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
@@ -77,13 +77,12 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
                     AccountId = a.AccountId,
                     ReferenceNumber = a.ReferenceNumber,
                     AccountName = a.AccountName,
-                    Type = a.NormalBalance,
+                    Type = a.Type,
                     EndingBalance = a.EndingBalance,
                     Lines = (a.Entries ?? new List<GeneralLedgerEntryDto>()).Select(en => new GeneralLedgerLineViewModel
                     {
                         EntryDate = en.EntryDate,
-                        JournalType = en.JournalType,
-                        Description = en.Description,
+                        Description = en.Description ?? string.Empty,
                         Debit = en.Debit,
                         Credit = en.Credit,
                         RunningBalance = en.RunningBalance,

@@ -63,7 +63,9 @@ public class GeneralLedgerReportApiResponse
     [JsonPropertyName("isTemporary")]
     public bool IsTemporary { get; set; }
 
-    [JsonPropertyName("accounts")]
+    // Backend (GeneralLedgerControllers.GetGeneralLedger) returns the account list under
+    // the "ledgers" key, not "accounts".
+    [JsonPropertyName("ledgers")]
     public List<GeneralLedgerAccountDto> Accounts { get; set; } = new();
 }
 
@@ -78,10 +80,16 @@ public class GeneralLedgerAccountDto
     [JsonPropertyName("accountName")]
     public string AccountName { get; set; } = string.Empty;
 
-    [JsonPropertyName("normalBalance")]
-    public string NormalBalance { get; set; } = string.Empty;
+    // Account classification, e.g. Asset/Liability/Equity/Revenue/Expense — shown as the chip.
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = string.Empty;
 
-    [JsonPropertyName("entries")]
+    // Backend sends a bool, not the "Debit"/"Credit" string this DTO previously expected.
+    [JsonPropertyName("normalBalanceIsDebit")]
+    public bool NormalBalanceIsDebit { get; set; }
+
+    // Backend (LedgerAccountApiResponse.Lines) returns the line list under "lines", not "entries".
+    [JsonPropertyName("lines")]
     public List<GeneralLedgerEntryDto> Entries { get; set; } = new();
 
     [JsonPropertyName("endingBalance")]
@@ -93,11 +101,8 @@ public class GeneralLedgerEntryDto
     [JsonPropertyName("entryDate")]
     public DateTime EntryDate { get; set; }
 
-    [JsonPropertyName("journalType")]
-    public string JournalType { get; set; } = string.Empty;
-
     [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
 
     [JsonPropertyName("debit")]
     public decimal Debit { get; set; }
