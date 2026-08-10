@@ -91,10 +91,6 @@ public partial class DashboardPage : ContentPage
         }
     }
 
-    /// <summary>
-    /// Event handler untuk tombol cek update manual di XAML DashboardPage (Baris 209).
-    /// Memperbaiki error XAML XC0002.
-    /// </summary>
     private async void OnCheckUpdateManualClicked(object? sender, EventArgs e)
     {
         if (sender is VisualElement button)
@@ -114,9 +110,9 @@ public partial class DashboardPage : ContentPage
         }
         finally
         {
-            if (sender is VisualElement button)
+            if (sender is VisualElement btn)
             {
-                button.IsEnabled = true;
+                btn.IsEnabled = true;
             }
         }
     }
