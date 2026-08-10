@@ -53,13 +53,13 @@ public partial class DashboardPage : ContentPage
             else
             {
                 string detail = string.IsNullOrWhiteSpace(errorDetail) ? "Unknown error occurred." : errorDetail;
-                await DisplayAlert("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
+                await DisplayAlertAsync("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {
@@ -74,10 +74,6 @@ public partial class DashboardPage : ContentPage
         await LoadDashboardDataAsync();
     }
 
-    /// <summary>
-    /// Event handler untuk Toggle/Switch Auto-Update di XAML DashboardPage.
-    /// Memperbaiki error XAML XC0002 pada proses build CI/CD.
-    /// </summary>
     private async void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
     {
         try
@@ -86,7 +82,6 @@ public partial class DashboardPage : ContentPage
             
             if (isAutoUpdateEnabled)
             {
-                // Muat ulang data secara otomatis saat di-enable
                 await LoadDashboardDataAsync();
             }
         }
@@ -112,13 +107,13 @@ public partial class DashboardPage : ContentPage
             }
             else
             {
-                await DisplayAlert("Error", "Page could not be loaded.", "OK");
+                await DisplayAlertAsync("Error", "Page could not be loaded.", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Navigation error: {ex}");
-            await DisplayAlert("Error", "Failed to navigate to Journal Entry page.", "OK");
+            await DisplayAlertAsync("Error", "Failed to navigate to Journal Entry page.", "OK");
         }
         finally
         {
