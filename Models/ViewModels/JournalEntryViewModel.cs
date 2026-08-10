@@ -22,8 +22,8 @@ public partial class JournalEntryViewModel : BindableObject
     private int? _editingEntryId;
 
     public JournalEntryViewModel(
-        JournalEntryService journalEntryService, 
-        CoaService coaService, 
+        JournalEntryService journalEntryService,
+        CoaService coaService,
         PeriodService periodService)
     {
         _journalEntryService = journalEntryService;

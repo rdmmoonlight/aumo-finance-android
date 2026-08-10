@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Maui.Controls;
 
 // Sesuaikan namespace dengan lokasi folder barumu:
-namespace AumoFinance.ViewModels; 
+namespace AumoFinance.ViewModels;
 // Atau jika folder Models/ViewModels: namespace AumoFinance.Models.ViewModels;
 
 public class JournalLineViewModel : BindableObject
