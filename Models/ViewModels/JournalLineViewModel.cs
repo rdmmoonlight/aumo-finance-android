@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Controls;
+using AumoFinance.Models.Dtos;
 
 // Sesuaikan namespace dengan lokasi folder barumu:
 namespace AumoFinance.ViewModels;

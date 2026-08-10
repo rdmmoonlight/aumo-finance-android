@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Graphics;
-using AumoFinance.Models.Dtos;
+using AumoFinance.Pages.JournalEntry;
 
 namespace AumoFinance.ViewModels;
 
