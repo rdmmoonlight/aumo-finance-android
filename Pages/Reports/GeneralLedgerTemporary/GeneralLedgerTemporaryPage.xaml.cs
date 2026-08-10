@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using AumoFinance.Models.Reports;
 using AumoFinance.Services.Reports;
 using AumoFinance.Pages.Reports.GeneralJournal;
 
@@ -10,11 +13,15 @@ namespace AumoFinance.Pages.Reports.GeneralLedgerTemporary;
 public partial class GeneralLedgerTemporaryPage : ContentPage
 {
     private readonly GeneralLedgerService _generalLedgerService;
+    private readonly CultureInfo _idrCulture;
 
     public GeneralLedgerTemporaryPage(GeneralLedgerService generalLedgerService)
     {
         InitializeComponent();
         _generalLedgerService = generalLedgerService;
+
+        _idrCulture = (CultureInfo)CultureInfo.GetCultureInfo("id-ID").Clone();
+        _idrCulture.NumberFormat.CurrencySymbol = "Rp ";
     }
 
     protected override async void OnAppearing()
@@ -48,6 +55,10 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
                 return;
             }
 
+            TopHeader.PeriodText = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
+                ? "No Active Period"
+                : response.SelectedPeriodName;
+
             var ledgers = response.Accounts;
 
             if (ledgers == null || !ledgers.Any())
@@ -58,11 +69,31 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
             {
                 decimal netTotal = ledgers.Sum(l => l.NormalBalance.Equals("Debit", StringComparison.OrdinalIgnoreCase) ? -l.EndingBalance : l.EndingBalance);
 
-                NetTotalLabel.Text = $"${netTotal:N2}";
+                NetTotalLabel.Text = netTotal.ToString("C0", _idrCulture);
                 NetTotalLabel.TextColor = netTotal >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
+                var viewModels = ledgers.Select(a => new GeneralLedgerAccountViewModel
+                {
+                    AccountId = a.AccountId,
+                    ReferenceNumber = a.ReferenceNumber,
+                    AccountName = a.AccountName,
+                    Type = a.NormalBalance,
+                    EndingBalance = a.EndingBalance,
+                    Lines = (a.Entries ?? new List<GeneralLedgerEntryDto>()).Select(en => new GeneralLedgerLineViewModel
+                    {
+                        EntryDate = en.EntryDate,
+                        JournalType = en.JournalType,
+                        Description = en.Description,
+                        Debit = en.Debit,
+                        Credit = en.Credit,
+                        RunningBalance = en.RunningBalance,
+                        IdrCulture = _idrCulture
+                    }).ToList(),
+                    IdrCulture = _idrCulture
+                }).ToList();
+
                 NetIncomeCard.IsVisible = true;
-                LedgersCollectionView.ItemsSource = ledgers;
+                LedgersCollectionView.ItemsSource = viewModels;
                 LedgersCollectionView.IsVisible = true;
             }
         }
