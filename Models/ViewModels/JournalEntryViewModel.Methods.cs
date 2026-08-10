@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Graphics;
 using AumoFinance.Pages.JournalEntry;
+using AumoFinance.Services;
 
 namespace AumoFinance.ViewModels;
 

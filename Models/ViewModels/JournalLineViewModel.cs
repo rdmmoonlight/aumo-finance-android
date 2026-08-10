@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Controls;
-using AumoFinance.Models.Dtos;
+using AumoFinance.Pages.JournalEntry;
 
-// Sesuaikan namespace dengan lokasi folder barumu:
 namespace AumoFinance.ViewModels;
-// Atau jika folder Models/ViewModels: namespace AumoFinance.Models.ViewModels;
 
 public class JournalLineViewModel : BindableObject
 {
@@ -80,11 +78,10 @@ public class JournalLineViewModel : BindableObject
     {
         if (string.IsNullOrWhiteSpace(input)) return string.Empty;
 
-        // Hanya ambil digit angka
         string digitsOnly = Regex.Replace(input, @"[^\d]", "");
         if (decimal.TryParse(digitsOnly, out decimal value))
         {
-            return value.ToString("N0", _idCulture); // Format dengan titik sebagai pemisah ribuan
+            return value.ToString("N0", _idCulture);
         }
         return string.Empty;
     }
