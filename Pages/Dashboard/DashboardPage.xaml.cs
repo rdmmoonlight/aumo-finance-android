@@ -83,7 +83,7 @@ public partial class DashboardPage : ContentPage
         try
         {
             bool isAutoUpdateEnabled = e.Value;
-            
+
             if (isAutoUpdateEnabled)
             {
                 // Muat ulang data secara otomatis saat di-enable
