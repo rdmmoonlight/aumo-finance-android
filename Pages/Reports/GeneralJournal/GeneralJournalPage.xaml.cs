@@ -17,13 +17,17 @@ public partial class GeneralJournalPage : ContentPage
 {
     private readonly GeneralJournalService _generalJournalService;
     private readonly JournalEntryService _journalEntryService;
-    private readonly CultureInfo _idrCulture = new("id-ID");
+    private readonly CultureInfo _idrCulture;
 
     public GeneralJournalPage(GeneralJournalService generalJournalService, JournalEntryService journalEntryService)
     {
         InitializeComponent();
         _generalJournalService = generalJournalService;
         _journalEntryService = journalEntryService;
+
+        // Memberikan spasi antara 'Rp' dan nominal angka (Rp 1.000.000)
+        _idrCulture = (CultureInfo)CultureInfo.GetCultureInfo("id-ID").Clone();
+        _idrCulture.NumberFormat.CurrencySymbol = "Rp ";
     }
 
     protected override async void OnAppearing()
@@ -48,8 +52,6 @@ public partial class GeneralJournalPage : ContentPage
 
             if (data != null)
             {
-                // Periode yang di-view ditampilkan di top bar (dipakai bersama semua
-                // halaman), jadi halaman ini tidak perlu indikator periode sendiri lagi.
                 TopHeader.PeriodText = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
                     ? "No Active Period"
                     : data.SelectedPeriodName;
@@ -58,7 +60,8 @@ public partial class GeneralJournalPage : ContentPage
                 {
                     Id = e.Id,
                     EntryDate = e.EntryDate,
-                    JournalType = e.JournalType ?? "General",
+                    // Tetap diset jika dibutuhkan logic internal, namun tidak ditampilkan lagi di Header XAML
+                    JournalType = e.JournalType ?? "General", 
                     TransactionNumber = e.TransactionNumber ?? string.Empty,
                     Lines = (e.Lines ?? new List<GeneralJournalLineReportDto>()).Select(l => new GeneralJournalLineViewModel
                     {
@@ -99,9 +102,6 @@ public partial class GeneralJournalPage : ContentPage
         await Shell.Current.GoToAsync(nameof(JournalEntryPage));
     }
 
-    // Mengontrol tampil/sembunyi ikon pensil di setiap baris entry.
-    // Diikat lewat RelativeSource dari XAML, jadi tetap benar meski
-    // CollectionView me-recycle item saat di-scroll.
     public static readonly BindableProperty IsEditModeProperty =
         BindableProperty.Create(nameof(IsEditMode), typeof(bool), typeof(GeneralJournalPage), false);
 
