@@ -74,49 +74,6 @@ public partial class DashboardPage : ContentPage
         await LoadDashboardDataAsync();
     }
 
-    private async void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
-    {
-        try
-        {
-            bool isAutoUpdateEnabled = e.Value;
-            
-            if (isAutoUpdateEnabled)
-            {
-                await LoadDashboardDataAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"OnAutoUpdateToggled error: {ex}");
-        }
-    }
-
-    private async void OnCheckUpdateManualClicked(object? sender, EventArgs e)
-    {
-        if (sender is VisualElement button)
-        {
-            button.IsEnabled = false;
-        }
-
-        try
-        {
-            await LoadDashboardDataAsync();
-            await DisplayAlertAsync("Check Update", "App is up to date.", "OK");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"OnCheckUpdateManualClicked error: {ex}");
-            await DisplayAlertAsync("Error", "Failed to check for updates.", "OK");
-        }
-        finally
-        {
-            if (sender is VisualElement btn)
-            {
-                btn.IsEnabled = true;
-            }
-        }
-    }
-
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
         if (sender is VisualElement button)
@@ -139,7 +96,7 @@ public partial class DashboardPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Navigation error: {ex}");
-            await DisplayAlertAsync("Error", "Failed to navigate to Journal Entry page.", "OK");
+            await DisplayAlertAsync("Error", $"Failed to navigate to Journal Entry page: {ex.Message}", "OK");
         }
         finally
         {
