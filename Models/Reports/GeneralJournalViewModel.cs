@@ -8,13 +8,17 @@ public class GeneralJournalEntryViewModel
 {
     public int Id { get; set; }
     public DateTime EntryDate { get; set; }
+
+    // Timestamp pembuatan asli dari server — dipakai untuk urutan & tampilan jam,
+    // karena EntryDate (tanggal transaksi pilihan user) tidak punya komponen waktu asli.
+    public DateTime CreatedAt { get; set; }
     public string JournalType { get; set; } = "General";
     public string TransactionNumber { get; set; } = string.Empty;
     public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
     public string FormattedDate => EntryDate.ToString("dd MMM yyyy");
-    public string FormattedTime => EntryDate.ToString("HH:mm:ss");
+    public string FormattedTime => CreatedAt.ToString("HH:mm:ss");
 }
 
 public class GeneralJournalLineViewModel

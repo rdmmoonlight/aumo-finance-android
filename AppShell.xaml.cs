@@ -32,11 +32,16 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // 1. Auth & Account Routes
-        Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
+        // LoginPage & MainPage TIDAK didaftarkan di sini lagi — keduanya sudah
+        // dideklarasikan sebagai <ShellContent> di AppShell.xaml (visual hierarchy),
+        // yang otomatis membuat rute implisit "IMPL_...". Mendaftarkan ulang lewat
+        // Routing.RegisterRoute menghasilkan DUA entri rute untuk halaman yang sama,
+        // itulah penyebab "Ambiguous routes matched" saat Shell mencoba resolve balik
+        // ke MainPage/GeneralJournalPage. RegisterRoute hanya untuk halaman "detail"
+        // yang TIDAK ada di visual hierarchy (JournalEntryPage, semua Report pages, dst).
         Routing.RegisterRoute(nameof(LogoutPage), typeof(LogoutPage));
 
         // 2. Core & Master Data Routes
-        Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
         Routing.RegisterRoute(nameof(DashboardPage), typeof(DashboardPage));
         Routing.RegisterRoute(nameof(CoaPage), typeof(CoaPage));
         Routing.RegisterRoute(nameof(PeriodsPage), typeof(PeriodsPage));

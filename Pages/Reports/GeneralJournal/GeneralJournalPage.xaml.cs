@@ -60,6 +60,7 @@ public partial class GeneralJournalPage : ContentPage
                 {
                     Id = e.Id,
                     EntryDate = e.EntryDate,
+                    CreatedAt = e.CreatedAt,
                     // Tetap diset jika dibutuhkan logic internal, namun tidak ditampilkan lagi di Header XAML
                     JournalType = e.JournalType ?? "General",
                     TransactionNumber = e.TransactionNumber ?? string.Empty,
@@ -79,7 +80,8 @@ public partial class GeneralJournalPage : ContentPage
                 // di dalam & antar grup tetap pakai timestamp penuh (jam:menit:detik)
                 // dari yang paling lama -> paling baru.
                 var grouped = viewModels
-                    .OrderBy(v => v.EntryDate)
+                    .OrderBy(v => v.EntryDate.Date)
+                    .ThenBy(v => v.CreatedAt)
                     .ThenBy(v => v.Id)
                     .GroupBy(v => v.EntryDate.Date)
                     .OrderBy(g => g.Key)
