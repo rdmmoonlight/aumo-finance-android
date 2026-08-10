@@ -20,6 +20,7 @@ using AumoFinance.Pages.Settings;
 using AumoFinance.Services;
 using AumoFinance.Services.Reports;
 using Microsoft.Extensions.Logging;
+using AumoFinance.ViewModels;
 
 namespace AumoFinance;
 
