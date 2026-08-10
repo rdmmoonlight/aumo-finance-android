@@ -78,6 +78,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<DashboardPage>();
         builder.Services.AddTransient<JournalEntryPage>();
+        builder.Services.AddTransient<JournalEntryViewModel>();
 
         // Master Data & Period Management Pages
         builder.Services.AddTransient<CoaPage>();

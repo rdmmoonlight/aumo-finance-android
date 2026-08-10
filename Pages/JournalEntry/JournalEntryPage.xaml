@@ -2,8 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:AumoFinance.Views"
+             xmlns:vm="clr-namespace:AumoFinance.ViewModels"
              x:Class="AumoFinance.Pages.JournalEntry.JournalEntryPage"
-             Title="New Journal Entry"
+             x:DataType="vm:JournalEntryViewModel"
+             Title="{Binding PageTitle}"
              BackgroundColor="#0F172A">
 
     <Grid RowDefinitions="Auto, *, Auto">
@@ -17,8 +19,7 @@
 
                 <!-- Page Header Title -->
                 <VerticalStackLayout Spacing="2">
-                    <Label x:Name="PageHeaderLabel"
-                           Text="New Journal Entry"
+                    <Label Text="{Binding PageTitle}"
                            FontSize="22"
                            FontAttributes="Bold"
                            TextColor="White" />
@@ -27,9 +28,8 @@
                            TextColor="#94A3B8" />
                 </VerticalStackLayout>
 
-                <!-- Locked Period Warning (shown only when editing a locked entry) -->
-                <Border x:Name="LockedWarningBanner"
-                        IsVisible="False"
+                <!-- Locked Period Warning -->
+                <Border IsVisible="{Binding IsLocked}"
                         BackgroundColor="#7F1D1D"
                         Stroke="#B91C1C"
                         StrokeThickness="1"
@@ -52,11 +52,11 @@
                         <!-- Journal Type Selection -->
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Journal Type" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <Picker x:Name="JournalTypePicker"
+                            <Picker SelectedItem="{Binding SelectedJournalType}"
+                                    IsEnabled="{Binding IsEditable}"
                                     BackgroundColor="#0F172A"
                                     TextColor="White"
-                                    TitleColor="#64748B"
-                                    SelectedIndexChanged="OnJournalTypeChanged">
+                                    TitleColor="#64748B">
                                 <Picker.ItemsSource>
                                     <x:Array Type="{x:Type x:String}">
                                         <x:String>General</x:String>
@@ -70,13 +70,14 @@
                         <!-- Entry Date -->
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Entry Date" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <DatePicker x:Name="EntryDatePicker"
+                            <DatePicker Date="{Binding EntryDate}"
+                                        IsEnabled="{Binding IsEditable}"
                                         Format="dd/MM/yyyy"
                                         BackgroundColor="#0F172A"
                                         TextColor="White" />
                         </VerticalStackLayout>
 
-                        <!-- Transaction Number (read-only — previewed live from server, or shown as-is when editing) -->
+                        <!-- Transaction Number -->
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Transaction Number" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
                             <Border BackgroundColor="#334155"
@@ -86,11 +87,9 @@
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
                                 <HorizontalStackLayout Spacing="6">
-                                    <Label Text="🔒" FontSize="12" VerticalOptions="Center" />
-                                    <Label x:Name="TransactionNumberLabel"
-                                           Text="Auto-generated"
+                                    <Label Text="{Binding TransactionNumber}"
+                                           TextColor="{Binding TransactionNumberColor}"
                                            FontSize="14"
-                                           TextColor="#94A3B8"
                                            VerticalOptions="Center" />
                                 </HorizontalStackLayout>
                             </Border>
@@ -102,9 +101,9 @@
                 <!-- Journal Lines Section Header -->
                 <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center" Margin="0,8,0,0">
                     <Label Text="Transaction Lines" FontSize="16" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
-                    <Button x:Name="AddLineButton"
-                            Text="➕ Add Line"
-                            Clicked="OnAddLineClicked"
+                    <Button Text="➕ Add Line"
+                            Command="{Binding AddLineCommand}"
+                            IsEnabled="{Binding IsEditable}"
                             BackgroundColor="#2563EB"
                             TextColor="White"
                             FontSize="12"
@@ -115,9 +114,11 @@
                 </Grid>
 
                 <!-- Dynamic Lines Collection View -->
-                <CollectionView x:Name="LinesCollectionView" SelectionMode="None">
+                <CollectionView ItemsSource="{Binding Lines}"
+                                IsEnabled="{Binding IsEditable}"
+                                SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="vm:JournalLineViewModel">
                             <Border BackgroundColor="#1E293B"
                                     Stroke="#334155"
                                     StrokeThickness="1"
@@ -139,12 +140,12 @@
 
                                         <Button Grid.Column="1"
                                                 Text="🗑️"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:JournalEntryViewModel}}, Path=RemoveLineCommand}"
+                                                CommandParameter="{Binding .}"
                                                 BackgroundColor="#7F1D1D"
                                                 TextColor="White"
                                                 FontSize="12"
                                                 CornerRadius="8"
-                                                CommandParameter="{Binding .}"
-                                                Clicked="OnRemoveLineClicked"
                                                 HeightRequest="40"
                                                 WidthRequest="40"
                                                 Padding="0" />
@@ -203,28 +204,30 @@
                 <Grid ColumnDefinitions="*, *, Auto">
                     <VerticalStackLayout Grid.Column="0">
                         <Label Text="Total Debit" FontSize="10" TextColor="#94A3B8" />
-                        <Label x:Name="TotalDebitLabel" Text="Rp 0" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="{Binding TotalDebitText}" FontSize="14" FontAttributes="Bold" TextColor="White" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="1">
                         <Label Text="Total Credit" FontSize="10" TextColor="#94A3B8" />
-                        <Label x:Name="TotalCreditLabel" Text="Rp 0" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="{Binding TotalCreditText}" FontSize="14" FontAttributes="Bold" TextColor="White" />
                     </VerticalStackLayout>
 
-                    <Border x:Name="BalanceBadge"
-                            Grid.Column="2"
-                            BackgroundColor="#7F1D1D"
+                    <Border Grid.Column="2"
+                            BackgroundColor="{Binding BalanceBadgeBg}"
                             StrokeShape="RoundRectangle 6"
                             Padding="8,4"
                             VerticalOptions="Center">
-                        <Label x:Name="BalanceStatusLabel" Text="UNBALANCED" FontSize="10" FontAttributes="Bold" TextColor="#FCA5A5" />
+                        <Label Text="{Binding BalanceStatusText}"
+                               TextColor="{Binding BalanceStatusTextColor}"
+                               FontSize="10"
+                               FontAttributes="Bold" />
                     </Border>
                 </Grid>
 
                 <!-- Submit Button -->
-                <Button x:Name="SubmitButton"
-                        Text="Save Journal Entry"
-                        Clicked="OnSaveJournalClicked"
+                <Button Text="{Binding SubmitButtonText}"
+                        Command="{Binding SaveJournalCommand}"
+                        IsVisible="{Binding IsSaveVisible}"
                         BackgroundColor="#16A34A"
                         TextColor="White"
                         FontAttributes="Bold"
