@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using AumoFinance.Services;
@@ -10,6 +11,7 @@ public partial class SettingsPage : ContentPage
     private const string KeyReminderEnabled = "reminder_enabled";
     private const string KeyReminderHour = "reminder_hour";
     private const string KeyReminderMinute = "reminder_minute";
+    private const string KeyAutoUpdateEnabled = "auto_update_enabled";
 
     private readonly NotificationService _notificationService;
 
@@ -29,6 +31,9 @@ public partial class SettingsPage : ContentPage
         ReminderSwitch.IsToggled = isEnabled;
         ReminderTimePicker.Time = new TimeSpan(hour, minute, 0);
         TimePickerContainer.IsVisible = isEnabled;
+
+        // Load status Auto Update
+        AutoUpdateSwitch.IsToggled = Preferences.Default.Get(KeyAutoUpdateEnabled, true);
     }
 
     private void OnReminderToggled(object? sender, ToggledEventArgs e)
@@ -39,6 +44,37 @@ public partial class SettingsPage : ContentPage
     private void OnTimeSelected(object? sender, TimeChangedEventArgs e)
     {
         // Handled upon clicking Save
+    }
+
+    private void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
+    {
+        Preferences.Default.Set(KeyAutoUpdateEnabled, e.Value);
+    }
+
+    private async void OnCheckUpdateManualClicked(object? sender, EventArgs e)
+    {
+        if (sender is VisualElement button)
+        {
+            button.IsEnabled = false;
+        }
+
+        try
+        {
+            // Tambahkan logika pengecekan update manual jika ada
+            await DisplayAlertAsync("Check Update", "App is up to date.", "OK");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"OnCheckUpdateManualClicked error: {ex}");
+            await DisplayAlertAsync("Error", "Failed to check for updates.", "OK");
+        }
+        finally
+        {
+            if (sender is VisualElement btn)
+            {
+                btn.IsEnabled = true;
+            }
+        }
     }
 
     private async void OnSaveSettingsClicked(object? sender, EventArgs e)
