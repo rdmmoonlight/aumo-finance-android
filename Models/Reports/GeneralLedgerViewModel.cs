@@ -21,7 +21,6 @@ public class GeneralLedgerAccountViewModel
 public class GeneralLedgerLineViewModel
 {
     public DateTime EntryDate { get; set; }
-    public string JournalType { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Debit { get; set; }
     public decimal Credit { get; set; }

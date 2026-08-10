@@ -71,13 +71,12 @@ public partial class GeneralLedgerPermanentPage : ContentPage
                     AccountId = a.AccountId,
                     ReferenceNumber = a.ReferenceNumber,
                     AccountName = a.AccountName,
-                    Type = a.NormalBalance,
+                    Type = a.Type,
                     EndingBalance = a.EndingBalance,
                     Lines = (a.Entries ?? new List<GeneralLedgerEntryDto>()).Select(en => new GeneralLedgerLineViewModel
                     {
                         EntryDate = en.EntryDate,
-                        JournalType = en.JournalType,
-                        Description = en.Description,
+                        Description = en.Description ?? string.Empty,
                         Debit = en.Debit,
                         Credit = en.Credit,
                         RunningBalance = en.RunningBalance,
