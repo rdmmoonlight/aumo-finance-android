@@ -55,6 +55,7 @@ public partial class JournalEntryViewModel
 
         PageTitle = "Edit Journal Entry";
         SubmitButtonText = "Update Journal Entry";
+        IsEditingMode = true;
 
         SelectedJournalType = entry.JournalType;
         EntryDate = entry.EntryDate;
@@ -181,6 +182,8 @@ public partial class JournalEntryViewModel
                 ? message
                 : $"Journal Entry {transactionNumber} recorded successfully!";
 
+            RememberLineDescriptions();
+
             if (RequestAlert != null)
                 await RequestAlert.Invoke("Success", successMessage, "OK");
 
@@ -216,6 +219,8 @@ public partial class JournalEntryViewModel
 
         if (success)
         {
+            RememberLineDescriptions();
+
             if (RequestAlert != null)
                 await RequestAlert.Invoke("Success", message, "OK");
 
@@ -228,6 +233,12 @@ public partial class JournalEntryViewModel
                 await RequestAlert.Invoke("Update Failed", message, "OK");
             UpdateTotals();
         }
+    }
+
+    private void RememberLineDescriptions()
+    {
+        foreach (var line in Lines)
+            DescriptionSuggestionService.Remember(line.LineDescription);
     }
 
     private async Task<bool> ValidateFormAsync()

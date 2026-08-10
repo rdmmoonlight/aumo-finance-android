@@ -14,6 +14,7 @@ public class GeneralJournalEntryViewModel
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
     public string FormattedDate => EntryDate.ToString("dd MMM yyyy");
+    public string FormattedTime => EntryDate.ToString("HH:mm:ss");
 }
 
 public class GeneralJournalLineViewModel
@@ -31,4 +32,17 @@ public class GeneralJournalLineViewModel
 
     public bool HasDescription => !string.IsNullOrWhiteSpace(LineDescription);
     public string LineDescriptionDisplay => HasDescription ? LineDescription!.ToLowerInvariant() : string.Empty;
+}
+
+// Grup entri jurnal per tanggal (dipakai CollectionView.IsGrouped) — entri dengan
+// tanggal sama dikelompokkan jadi satu header, tapi urutan di dalamnya tetap
+// berdasarkan jam:menit:detik (paling lama dulu).
+public class GeneralJournalDateGroup : List<GeneralJournalEntryViewModel>
+{
+    public string GroupHeader { get; }
+
+    public GeneralJournalDateGroup(string groupHeader, IEnumerable<GeneralJournalEntryViewModel> items) : base(items)
+    {
+        GroupHeader = groupHeader;
+    }
 }

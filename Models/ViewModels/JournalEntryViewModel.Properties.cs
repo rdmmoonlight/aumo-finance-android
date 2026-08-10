@@ -8,6 +8,7 @@ public partial class JournalEntryViewModel
 {
     private bool _isLocked;
     private bool _isBusy;
+    private bool _isEditingMode;
     private string _pageTitle = "New Journal Entry";
     private string _submitButtonText = "Save Journal Entry";
     private string _selectedJournalType = "General";
@@ -111,6 +112,12 @@ public partial class JournalEntryViewModel
     }
 
     public bool IsEditable => !IsLocked;
+
+    public bool IsEditingMode
+    {
+        get => _isEditingMode;
+        set { _isEditingMode = value; OnPropertyChanged(); }
+    }
 
     public bool IsBusy
     {
