@@ -61,7 +61,9 @@
                                     <x:Array Type="{x:Type x:String}">
                                         <x:String>General</x:String>
                                         <x:String>Adjusting</x:String>
-                                        <x:String>Closing</x:String>
+                                        <!-- Closing sengaja tidak disediakan di sini — closing journal
+                                             dibuat otomatis oleh sistem periode-tutup, bukan input manual -->
+
                                     </x:Array>
                                 </Picker.ItemsSource>
                             </Picker>
