@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
-using AumoFinance.Models.Dtos;
+using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Services;
 
 namespace AumoFinance.ViewModels;
