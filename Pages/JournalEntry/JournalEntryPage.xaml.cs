@@ -24,8 +24,6 @@ public partial class JournalEntryPage : ContentPage
     public ObservableCollection<JournalLineViewModel> Lines { get; set; } = new();
     private readonly CultureInfo _idCulture = new("id-ID");
 
-    // Diset oleh Shell lewat query string "entryId" saat navigasi ke mode edit,
-    // mis. GoToAsync($"{nameof(JournalEntryPage)}?entryId={id}").
     public string? EntryId { get; set; }
 
     public JournalEntryPage(JournalEntryService journalEntryService, CoaService coaService, PeriodService periodService)
@@ -35,15 +33,12 @@ public partial class JournalEntryPage : ContentPage
         _coaService = coaService;
         _periodService = periodService;
 
-        JournalTypePicker.SelectedIndex = 0; // Default: "General"
+        JournalTypePicker.SelectedIndex = 0;
         EntryDatePicker.Date = DateTime.Today;
 
         LinesCollectionView.ItemsSource = Lines;
 
-        AddNewLine();
-        AddNewLine();
-
-        UpdateTotals();
+        ResetFormLines();
     }
 
     protected override async void OnAppearing()
@@ -96,7 +91,7 @@ public partial class JournalEntryPage : ContentPage
 
     private async Task LoadEntryForEditAsync(int entryId)
     {
-        SubmitButton.IsEnabled = false;
+        SubmitButton.IsVisible = false;
 
         var (entry, errorDetail) = await _journalEntryService.GetJournalEntryByIdAsync(entryId);
 
@@ -111,7 +106,6 @@ public partial class JournalEntryPage : ContentPage
         Title = "Edit Journal Entry";
         SubmitButton.Text = "Update Journal Entry";
 
-        // Journal type & date
         int typeIndex = JournalTypePicker.ItemsSource
             .Cast<string>()
             .ToList()
@@ -120,19 +114,17 @@ public partial class JournalEntryPage : ContentPage
 
         EntryDatePicker.Date = entry.EntryDate;
 
-        // Transaction number sudah ada dari server — tampilkan apa adanya, jangan di-generate ulang.
         TransactionNumberLabel.Text = entry.TransactionNumber;
         TransactionNumberLabel.TextColor = Colors.White;
 
-        // Rebuild lines dari data server, cocokkan AccountId dengan daftar akun yang sudah dimuat.
         Lines.Clear();
         foreach (var line in entry.Lines.OrderBy(l => l.LineOrder))
         {
             var lineVm = new JournalLineViewModel(_allAccounts, () => UpdateTotals())
             {
                 SelectedAccount = _allAccounts.FirstOrDefault(a => a.Id == line.AccountId),
-                DebitText = line.Debit > 0 ? line.Debit.ToString(CultureInfo.InvariantCulture) : string.Empty,
-                CreditText = line.Credit > 0 ? line.Credit.ToString(CultureInfo.InvariantCulture) : string.Empty,
+                DebitText = line.Debit > 0 ? string.Format(_idCulture, "{0:N0}", line.Debit) : string.Empty,
+                CreditText = line.Credit > 0 ? string.Format(_idCulture, "{0:N0}", line.Credit) : string.Empty,
                 LineDescription = line.LineDescription ?? string.Empty
             };
             Lines.Add(lineVm);
@@ -141,8 +133,6 @@ public partial class JournalEntryPage : ContentPage
         _isLocked = entry.IsLocked;
         SetLockedState(_isLocked);
 
-        // Dipanggil setelah _isLocked diketahui, supaya SubmitButton.IsEnabled langsung
-        // mencerminkan balanced-state DAN locked-state yang benar.
         UpdateTotals();
     }
 
@@ -157,7 +147,6 @@ public partial class JournalEntryPage : ContentPage
 
     private async void OnJournalTypeChanged(object? sender, EventArgs e)
     {
-        // Nomor transaksi hanya di-preview untuk entry baru; saat edit, nomor yang sudah ada dipertahankan.
         if (_editingEntryId == null)
         {
             await RefreshNextTransactionNumberAsync();
@@ -203,6 +192,13 @@ public partial class JournalEntryPage : ContentPage
         }
     }
 
+    private void ResetFormLines()
+    {
+        Lines.Clear();
+        AddNewLine();
+        AddNewLine();
+    }
+
     private void UpdateTotals()
     {
         decimal totalDebit = Lines.Sum(l => l.Debit);
@@ -226,9 +222,7 @@ public partial class JournalEntryPage : ContentPage
             BalanceStatusLabel.TextColor = Color.FromArgb("#FCA5A5");
         }
 
-        // Tombol Save/Update hanya bisa ditekan saat entry balanced DAN tidak locked —
-        // satu-satunya tempat yang mengontrol IsEnabled, supaya tidak ada state yang
-        // saling menimpa dari tempat lain.
+        SubmitButton.IsVisible = isBalanced && !_isLocked;
         SubmitButton.IsEnabled = isBalanced && !_isLocked;
     }
 
@@ -237,8 +231,7 @@ public partial class JournalEntryPage : ContentPage
         if (_isLocked) return;
 
         var (isValid, totalDebit, totalCredit) = await ValidateFormAsync();
-        if (!isValid)
-            return;
+        if (!isValid) return;
 
         SubmitButton.IsEnabled = false;
 
@@ -265,7 +258,7 @@ public partial class JournalEntryPage : ContentPage
         var requestDto = new CreateJournalEntryRequest
         {
             JournalType = JournalTypePicker.SelectedItem?.ToString() ?? "General",
-            EntryDate = EntryDatePicker.Date ?? DateTime.Today, // EntryDatePicker.Date bertipe DateTime? di versi MAUI ini
+            EntryDate = EntryDatePicker.Date ?? DateTime.Today,
             Lines = Lines
                 .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                 .Select(l => new JournalEntryLineRequest
@@ -281,18 +274,14 @@ public partial class JournalEntryPage : ContentPage
 
         if (success)
         {
-            if (!string.IsNullOrWhiteSpace(transactionNumber))
-            {
-                TransactionNumberLabel.Text = transactionNumber;
-                TransactionNumberLabel.TextColor = Colors.White;
-            }
-
             string successMessage = string.IsNullOrWhiteSpace(transactionNumber)
                 ? message
                 : $"Journal Entry {transactionNumber} recorded successfully!";
 
             await DisplayAlertAsync("Success", successMessage, "OK");
-            await Navigation.PopAsync();
+
+            ResetFormLines();
+            await RefreshNextTransactionNumberAsync();
         }
         else
         {
@@ -323,7 +312,6 @@ public partial class JournalEntryPage : ContentPage
         if (success)
         {
             await DisplayAlertAsync("Success", message, "OK");
-            // Kembali ke General Journal; OnAppearing halaman itu akan me-refresh daftarnya sendiri.
             await Navigation.PopAsync();
         }
         else
@@ -362,61 +350,4 @@ public partial class JournalEntryPage : ContentPage
 
         return (true, totalDebit, totalCredit);
     }
-}
-
-public class AccountLookupDto
-{
-    public int Id { get; set; }
-    public int ReferenceNumber { get; set; }
-    public string AccountName { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
-}
-
-public class JournalLineViewModel : BindableObject
-{
-    private readonly Action _onChanged;
-    private List<AccountLookupDto> _availableAccounts;
-    private AccountLookupDto? _selectedAccount;
-    private string _debitText = string.Empty;
-    private string _creditText = string.Empty;
-    private string _lineDescription = string.Empty;
-
-    public JournalLineViewModel(List<AccountLookupDto> availableAccounts, Action onChanged)
-    {
-        _availableAccounts = availableAccounts;
-        _onChanged = onChanged;
-    }
-
-    public List<AccountLookupDto> AvailableAccounts
-    {
-        get => _availableAccounts;
-        set { _availableAccounts = value; OnPropertyChanged(); }
-    }
-
-    public AccountLookupDto? SelectedAccount
-    {
-        get => _selectedAccount;
-        set { _selectedAccount = value; OnPropertyChanged(); }
-    }
-
-    public string DebitText
-    {
-        get => _debitText;
-        set { _debitText = value; OnPropertyChanged(); _onChanged?.Invoke(); }
-    }
-
-    public string CreditText
-    {
-        get => _creditText;
-        set { _creditText = value; OnPropertyChanged(); _onChanged?.Invoke(); }
-    }
-
-    public string LineDescription
-    {
-        get => _lineDescription;
-        set { _lineDescription = value; OnPropertyChanged(); }
-    }
-
-    public decimal Debit => decimal.TryParse(DebitText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal val) ? val : 0m;
-    public decimal Credit => decimal.TryParse(CreditText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal val) ? val : 0m;
 }
