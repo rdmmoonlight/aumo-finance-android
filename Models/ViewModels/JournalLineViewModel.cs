@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Controls;
-using AumoFinance.Pages.JournalEntry; // <-- PERBAIKAN: Mengacu ke namespace AccountLookupDto yang benar
+using AumoFinance.Pages.JournalEntry;
 
-namespace AumoFinance.ViewModels; // atau AumoFinance.Models.ViewModels sesuai lokasi file kamu
+namespace AumoFinance.ViewModels;
 
 public class JournalLineViewModel : BindableObject
 {
