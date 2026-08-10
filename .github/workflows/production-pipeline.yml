@@ -125,7 +125,17 @@ jobs:
       - name: Decode Keystore
         shell: pwsh
         run: |
-          $bytes = [System.Convert]::FromBase64String("${{ secrets.ANDROID_KEYSTORE_BASE64 }}")
+          $b64 = "${{ secrets.ANDROID_KEYSTORE_BASE64 }}".Trim()
+          if ([string]::IsNullOrWhiteSpace($b64)) {
+            Write-Error "Secret ANDROID_KEYSTORE_BASE64 kosong atau belum di-set di GitHub repo settings."
+            exit 1
+          }
+          try {
+            $bytes = [System.Convert]::FromBase64String($b64)
+          } catch {
+            Write-Error "ANDROID_KEYSTORE_BASE64 bukan string base64 yang valid. Regenerate dengan: base64 -w 0 keystore.jks lalu paste hasilnya tanpa spasi/baris baru ke secret."
+            exit 1
+          }
           [System.IO.File]::WriteAllBytes("aumo-release.keystore", $bytes)
 
       # 8. Build & Sign Android APK
