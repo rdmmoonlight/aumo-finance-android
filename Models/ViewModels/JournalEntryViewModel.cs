@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
-using AumoFinance.Pages.JournalEntry; // Menggunakan namespace AccountLookupDto yang benar
+using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Services;
+using AumoFinance.Views; // Tambahkan namespace Views untuk TopBarView
 
 namespace AumoFinance.ViewModels;
 
@@ -64,9 +65,13 @@ public partial class JournalEntryViewModel : BindableObject
         }
     }
 
+    // Menggunakan TopBarView secara eksplisit (atau aman via casting) untuk mencegah error CS1503
     public async Task ApplyPeriodHeaderAsync(object topHeader)
     {
-        await SelectedPeriodDisplayHelper.ApplyToTopBarAsync(topHeader, _periodService);
+        if (topHeader is TopBarView topBar)
+        {
+            await SelectedPeriodDisplayHelper.ApplyToTopBarAsync(topBar, _periodService);
+        }
     }
 
     private void AddNewLine()
