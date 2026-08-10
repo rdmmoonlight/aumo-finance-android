@@ -75,7 +75,18 @@ public partial class GeneralJournalPage : ContentPage
                     IdrCulture = _idrCulture
                 }).ToList();
 
-                JournalCollectionView.ItemsSource = viewModels;
+                // Grup per tanggal (kalo tanggalnya sama, satu header), tapi urutan
+                // di dalam & antar grup tetap pakai timestamp penuh (jam:menit:detik)
+                // dari yang paling lama -> paling baru.
+                var grouped = viewModels
+                    .OrderBy(v => v.EntryDate)
+                    .ThenBy(v => v.Id)
+                    .GroupBy(v => v.EntryDate.Date)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new GeneralJournalDateGroup(g.Key.ToString("dd MMMM yyyy", _idrCulture), g))
+                    .ToList();
+
+                JournalCollectionView.ItemsSource = grouped;
                 EmptyStateView.IsVisible = !viewModels.Any();
                 JournalCollectionView.IsVisible = viewModels.Any();
             }

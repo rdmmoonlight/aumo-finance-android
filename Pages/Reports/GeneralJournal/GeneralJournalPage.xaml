@@ -85,7 +85,22 @@
                              BackgroundColor="#0F172A"
                              RefreshColor="#F59E0B"
                              Refreshing="OnRefreshViewRefreshing">
-                    <CollectionView x:Name="JournalCollectionView" SelectionMode="None" Margin="0,0,0,20">
+                    <CollectionView x:Name="JournalCollectionView" IsGrouped="True" SelectionMode="None" Margin="0,0,0,20">
+                        <CollectionView.GroupHeaderTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="#0F172A"
+                                        Stroke="#F59E0B"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="10,5"
+                                        Margin="0,12,0,6">
+                                    <Label Text="{Binding GroupHeader}"
+                                           TextColor="#F59E0B"
+                                           FontAttributes="Bold"
+                                           FontSize="13" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.GroupHeaderTemplate>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Border BackgroundColor="#1E293B"
@@ -100,9 +115,9 @@
                                         <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="6" VerticalOptions="Center">
                                             
                                             <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
-                                                <!-- Badge Tanggal -->
+                                                <!-- Badge Jam (tanggal sudah jadi header grup) -->
                                                 <Border BackgroundColor="#0F172A" StrokeShape="RoundRectangle 6" Padding="6,3" VerticalOptions="Center">
-                                                    <Label Text="{Binding FormattedDate}" TextColor="#F59E0B" FontSize="11" FontAttributes="Bold" />
+                                                    <Label Text="{Binding FormattedTime}" TextColor="#F59E0B" FontSize="11" FontAttributes="Bold" />
                                                 </Border>
                                                 
                                                 <!-- Nomor Transaksi -->

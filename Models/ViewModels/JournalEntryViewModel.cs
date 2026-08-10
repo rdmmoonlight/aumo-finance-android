@@ -36,12 +36,20 @@ public partial class JournalEntryViewModel : BindableObject
         AddLineCommand = new Command(AddNewLine);
         RemoveLineCommand = new Command<JournalLineViewModel>(RemoveLine);
         SaveJournalCommand = new Command(async () => await SaveJournalAsync(), () => !IsBusy && IsBalanced && !IsLocked);
+        CancelCommand = new Command(async () => await CancelAsync());
     }
 
     public ObservableCollection<JournalLineViewModel> Lines { get; }
     public ICommand AddLineCommand { get; }
     public ICommand RemoveLineCommand { get; }
     public Command SaveJournalCommand { get; }
+    public ICommand CancelCommand { get; }
+
+    private async Task CancelAsync()
+    {
+        if (RequestNavigationPop != null)
+            await RequestNavigationPop.Invoke();
+    }
 
     public event Func<string, string, string, Task>? RequestAlert;
     public event Func<Task>? RequestNavigationPop;

@@ -151,13 +151,37 @@
                                                 Padding="0" />
                                     </Grid>
 
-                                    <!-- Description -->
-                                    <Entry Text="{Binding LineDescription}"
-                                           Placeholder="Description"
-                                           FontSize="12"
-                                           BackgroundColor="#0F172A"
-                                           TextColor="White"
-                                           PlaceholderColor="#64748B" />
+                                    <!-- Description dengan auto-fill dari riwayat -->
+                                    <VerticalStackLayout Spacing="0">
+                                        <Entry Text="{Binding LineDescription}"
+                                               Placeholder="Description"
+                                               FontSize="12"
+                                               BackgroundColor="#0F172A"
+                                               TextColor="White"
+                                               PlaceholderColor="#64748B" />
+
+                                        <!-- Saran otomatis berdasarkan deskripsi yang pernah diketik -->
+                                        <VerticalStackLayout IsVisible="{Binding ShowSuggestions}"
+                                                             BindableLayout.ItemsSource="{Binding DescriptionSuggestions}"
+                                                             BackgroundColor="#0B1220"
+                                                             Margin="0,2,0,0"
+                                                             Spacing="1">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Label Text="{Binding .}"
+                                                           FontSize="11"
+                                                           TextColor="#38BDF8"
+                                                           Padding="10,7">
+                                                        <Label.GestureRecognizers>
+                                                            <TapGestureRecognizer
+                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:JournalLineViewModel}}, Path=SelectSuggestionCommand}"
+                                                                CommandParameter="{Binding .}" />
+                                                        </Label.GestureRecognizers>
+                                                    </Label>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </VerticalStackLayout>
+                                    </VerticalStackLayout>
 
                                     <!-- Row: Debit & Credit Entry Inputs -->
                                     <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
@@ -224,16 +248,33 @@
                     </Border>
                 </Grid>
 
-                <!-- Submit Button -->
-                <Button Text="{Binding SubmitButtonText}"
-                        Command="{Binding SaveJournalCommand}"
-                        IsVisible="{Binding IsSaveVisible}"
-                        BackgroundColor="#16A34A"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        CornerRadius="10"
-                        HeightRequest="48" />
+                <!-- Cancel & Submit Buttons -->
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+
+                    <!-- Cancel — hanya muncul saat mode Edit, kembali tanpa menyimpan -->
+                    <Button Grid.Column="0"
+                            Text="Cancel"
+                            Command="{Binding CancelCommand}"
+                            IsVisible="{Binding IsEditingMode}"
+                            BackgroundColor="#334155"
+                            TextColor="#F8FAFC"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            CornerRadius="10"
+                            HeightRequest="48"
+                            WidthRequest="110" />
+
+                    <Button Grid.Column="1"
+                            Text="{Binding SubmitButtonText}"
+                            Command="{Binding SaveJournalCommand}"
+                            IsVisible="{Binding IsSaveVisible}"
+                            BackgroundColor="#16A34A"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            CornerRadius="10"
+                            HeightRequest="48" />
+                </Grid>
 
             </VerticalStackLayout>
         </Border>
