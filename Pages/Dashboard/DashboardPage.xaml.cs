@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using AumoFinance.Services;
 using AumoFinance.Pages.JournalEntry;
 
@@ -12,15 +12,14 @@ namespace AumoFinance.Pages.Dashboard;
 public partial class DashboardPage : ContentPage
 {
     private readonly DashboardService _dashboardService;
-    // Menggunakan kultur Indonesia
+    private readonly IServiceProvider _serviceProvider;
     private readonly CultureInfo _idCulture = new("id-ID");
 
-    public DashboardPage(DashboardService dashboardService)
+    public DashboardPage(DashboardService dashboardService, IServiceProvider serviceProvider)
     {
         InitializeComponent();
         _dashboardService = dashboardService;
-
-        AutoUpdateSwitch.IsToggled = Preferences.Default.Get("AutoUpdateEnabled", true);
+        _serviceProvider = serviceProvider;
     }
 
     protected override async void OnAppearing()
@@ -77,29 +76,34 @@ public partial class DashboardPage : ContentPage
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
     {
-        var journalEntryPage = Handler?.MauiContext?.Services.GetService<JournalEntryPage>();
-        if (journalEntryPage != null)
+        if (sender is VisualElement button)
         {
-            await Navigation.PushAsync(journalEntryPage);
+            button.IsEnabled = false; // Mencegah double tap
         }
-    }
 
-    private void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
-    {
-        Preferences.Default.Set("AutoUpdateEnabled", e.Value);
-    }
-
-    private async void OnCheckUpdateManualClicked(object? sender, EventArgs e)
-    {
         try
         {
-            var updateService = new UpdateService();
-            await updateService.CheckAndInstallUpdateAsync("rdmmoonlight", "aumo-finance-android", isSilent: false);
+            var journalEntryPage = _serviceProvider.GetService<JournalEntryPage>();
+            if (journalEntryPage != null)
+            {
+                await Navigation.PushAsync(journalEntryPage);
+            }
+            else
+            {
+                await this.DisplayAlertAsync("Error", "Page could not be loaded.", "OK");
+            }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Manual update check error: {ex}");
-            await this.DisplayAlertAsync("Error", "Failed to check for updates.", "OK");
+            Debug.WriteLine($"Navigation error: {ex}");
+            await this.DisplayAlertAsync("Error", "Failed to navigate to Journal Entry page.", "OK");
+        }
+        finally
+        {
+            if (sender is VisualElement button)
+            {
+                button.IsEnabled = true;
+            }
         }
     }
 }
