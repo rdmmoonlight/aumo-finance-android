@@ -78,7 +78,7 @@ jobs:
       contents: write # Izin untuk membuat Tag dan GitHub Release otomatis
 
     steps:
-      # 1. Checkout repository (Ambil commit terbaru termasuk jika ada auto-fix)
+      # 1. Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -121,12 +121,22 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore
 
-      # 7. Decode Keystore dari GitHub Secrets (Menggunakan PowerShell untuk Runner Windows)
+      # 7. Decode Keystore dari GitHub Secrets ke nama file asli
       - name: Decode Keystore
         shell: pwsh
         run: |
-          $bytes = [System.Convert]::FromBase64String("${{ secrets.ANDROID_KEYSTORE_BASE64 }}")
-          [System.IO.File]::WriteAllBytes("aumo-release.keystore", $bytes)
+          $b64 = "${{ secrets.ANDROID_KEYSTORE_BASE64 }}".Trim()
+          if ([string]::IsNullOrWhiteSpace($b64)) {
+            Write-Error "Secret ANDROID_KEYSTORE_BASE64 kosong atau belum di-set di GitHub repo settings."
+            exit 1
+          }
+          try {
+            $bytes = [System.Convert]::FromBase64String($b64)
+          } catch {
+            Write-Error "ANDROID_KEYSTORE_BASE64 bukan string base64 yang valid."
+            exit 1
+          }
+          [System.IO.File]::WriteAllBytes("aumo's-release-key.jks", $bytes)
 
       # 8. Build & Sign Android APK
       - name: Build Android APK
@@ -138,18 +148,18 @@ jobs:
           -p:ApplicationVersion=${{ github.run_number }}
           -p:ApplicationDisplayVersion=${{ steps.get_version.outputs.app_version }}
           -p:AndroidKeyStore=true
-          -p:AndroidSigningKeyStore=aumo-release.keystore
-          -p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          -p:AndroidSigningKeyPass=${{ secrets.ANDROID_KEY_PASSWORD }}
-          -p:AndroidSigningStorePass=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          -p:AndroidSigningKeyStore="aumo's-release-key.jks"
+          -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
+          -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
+          -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
 
-      # 9. Hapus File Keystore Fisik dari Runner (Praktik Keamanan)
+      # 9. Hapus File Keystore Fisik dari Runner
       - name: Clean up Keystore
         if: always()
         shell: pwsh
         run: |
-          if (Test-Path "aumo-release.keystore") {
-            Remove-Item "aumo-release.keystore" -Force
+          if (Test-Path "aumo's-release-key.jks") {
+            Remove-Item "aumo's-release-key.jks" -Force
           }
 
       # 10. Upload File -Signed.apk ke GitHub Releases

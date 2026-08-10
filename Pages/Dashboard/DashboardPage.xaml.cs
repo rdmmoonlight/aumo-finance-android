@@ -53,13 +53,13 @@ public partial class DashboardPage : ContentPage
             else
             {
                 string detail = string.IsNullOrWhiteSpace(errorDetail) ? "Unknown error occurred." : errorDetail;
-                await this.DisplayAlertAsync("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
+                await DisplayAlert("Connection Failed", $"Failed to retrieve dashboard data from the server.\n\nDetails: {detail}", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"LoadDashboardDataAsync error: {ex}");
-            await this.DisplayAlertAsync("Error", $"An unexpected error occurred: {ex.Message}", "OK");
+            await DisplayAlert("Error", $"An unexpected error occurred: {ex.Message}", "OK");
         }
         finally
         {
@@ -72,6 +72,28 @@ public partial class DashboardPage : ContentPage
     private async void OnRefreshClicked(object? sender, EventArgs e)
     {
         await LoadDashboardDataAsync();
+    }
+
+    /// <summary>
+    /// Event handler untuk Toggle/Switch Auto-Update di XAML DashboardPage.
+    /// Memperbaiki error XAML XC0002 pada proses build CI/CD.
+    /// </summary>
+    private async void OnAutoUpdateToggled(object? sender, ToggledEventArgs e)
+    {
+        try
+        {
+            bool isAutoUpdateEnabled = e.Value;
+            
+            if (isAutoUpdateEnabled)
+            {
+                // Muat ulang data secara otomatis saat di-enable
+                await LoadDashboardDataAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"OnAutoUpdateToggled error: {ex}");
+        }
     }
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
@@ -90,13 +112,13 @@ public partial class DashboardPage : ContentPage
             }
             else
             {
-                await this.DisplayAlertAsync("Error", "Page could not be loaded.", "OK");
+                await DisplayAlert("Error", "Page could not be loaded.", "OK");
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Navigation error: {ex}");
-            await this.DisplayAlertAsync("Error", "Failed to navigate to Journal Entry page.", "OK");
+            await DisplayAlert("Error", "Failed to navigate to Journal Entry page.", "OK");
         }
         finally
         {
