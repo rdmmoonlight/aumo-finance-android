@@ -100,9 +100,9 @@ public partial class DashboardPage : ContentPage
         }
         finally
         {
-            if (sender is VisualElement button)
+            if (sender is VisualElement fabButton)
             {
-                button.IsEnabled = true;
+                fabButton.IsEnabled = true;
             }
         }
     }
