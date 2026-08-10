@@ -86,7 +86,6 @@
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
                                 <HorizontalStackLayout Spacing="6">
-                                    <Label Text="🔒" FontSize="12" VerticalOptions="Center" />
                                     <Label x:Name="TransactionNumberLabel"
                                            Text="Auto-generated"
                                            FontSize="14"
