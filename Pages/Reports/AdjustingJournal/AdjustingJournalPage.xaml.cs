@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using AumoFinance.Models;
+using AumoFinance.Services;
 using AumoFinance.Services.Reports;
 using AumoFinance.Pages.JournalEntry;
 
