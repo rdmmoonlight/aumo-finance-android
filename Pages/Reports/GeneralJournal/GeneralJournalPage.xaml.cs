@@ -62,7 +62,7 @@ public partial class GeneralJournalPage : ContentPage
                     EntryDate = e.EntryDate,
                     CreatedAt = e.CreatedAt,
                     // Tetap diset jika dibutuhkan logic internal, namun tidak ditampilkan lagi di Header XAML
-                    JournalType = e.JournalType ?? "General", 
+                    JournalType = e.JournalType ?? "General",
                     TransactionNumber = e.TransactionNumber ?? string.Empty,
                     Lines = (e.Lines ?? new List<GeneralJournalLineReportDto>()).Select(l => new GeneralJournalLineViewModel
                     {
