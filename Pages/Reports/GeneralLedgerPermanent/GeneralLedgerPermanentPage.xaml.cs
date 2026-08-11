@@ -72,9 +72,6 @@ public partial class GeneralLedgerPermanentPage : ContentPage
                     ReferenceNumber = a.ReferenceNumber,
                     AccountName = a.AccountName,
                     Type = a.Type,
-                    // Map tanggal periode dari response
-                    SelectedStartDate = response.StartDate,
-                    SelectedEndDate = response.EndDate,
                     EndingBalance = a.EndingBalance,
                     Lines = (a.Entries ?? new List<GeneralLedgerEntryDto>()).Select(en => new GeneralLedgerLineViewModel
                     {
