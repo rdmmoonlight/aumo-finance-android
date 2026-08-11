@@ -33,6 +33,7 @@ public partial class TrialBalancePage : ContentPage
     {
         base.OnAppearing();
 
+        // Update Judul Halaman berdasarkan query parameter
         if (_includeAdjusting)
         {
             PageTitleLabel.Text = "Adjusted Trial Balance";
@@ -46,6 +47,7 @@ public partial class TrialBalancePage : ContentPage
             Title = "Trial Balance";
         }
 
+        // Muat data jika belum dimuat
         if (!_isDataLoaded)
         {
             await LoadTrialBalanceAsync();
@@ -59,6 +61,8 @@ public partial class TrialBalancePage : ContentPage
         try
         {
             string reportType = _includeAdjusting ? "adjusted" : "unadjusted";
+            
+            // Panggil API Trial Balance
             var (response, errorDetail) = await _trialBalanceService.GetTrialBalanceReportAsync(reportType);
 
             if (response == null || !response.Success)
@@ -67,17 +71,26 @@ public partial class TrialBalancePage : ContentPage
                 return;
             }
 
+            // Validasi apakah periode aktif sudah dipilih di sistem
             if (!response.HasPeriodSelected)
             {
-                ShowEmptyState("No active period selected.");
+                ShowEmptyState("No active accounting period selected.");
                 return;
+            }
+
+            // Update TopHeader dengan nama periode dari API (Seperti pada GeneralLedger)
+            if (TopHeader != null)
+            {
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
+                    ? "No Active Period"
+                    : response.SelectedPeriodName;
             }
 
             var rows = response.Rows;
 
             if (rows == null || !rows.Any())
             {
-                ShowEmptyState("No account transaction history found.");
+                ShowEmptyState("No account transaction history found for this period.");
             }
             else
             {
@@ -85,10 +98,12 @@ public partial class TrialBalancePage : ContentPage
                 decimal totalCredit = response.TotalCredit;
                 bool isBalanced = response.IsBalanced;
 
+                // Format total saldo ke Rupiah
                 var culture = new CultureInfo("id-ID");
                 TotalDebitLabel.Text = totalDebit.ToString("N0", culture);
                 TotalCreditLabel.Text = totalCredit.ToString("N0", culture);
 
+                // Update Status Keseimbangan (Balanced Alert Card)
                 BalanceStatusCard.IsVisible = true;
                 BalanceStatusCard.BackgroundColor = Color.Parse(isBalanced ? "#064E3B" : "#7F1D1D");
                 BalanceStatusCard.Stroke = Color.Parse(isBalanced ? "#059669" : "#DC2626");
@@ -102,6 +117,7 @@ public partial class TrialBalancePage : ContentPage
                     ? "Trial balance is balanced; total Debits equal Credits."
                     : "Trial balance is unbalanced! Please check your journal entries.";
 
+                // Binding data baris ke CollectionView
                 TrialBalanceCollectionView.ItemsSource = rows;
                 TableContainer.IsVisible = true;
                 _isDataLoaded = true;
@@ -109,7 +125,6 @@ public partial class TrialBalancePage : ContentPage
         }
         catch (Exception ex)
         {
-            // Menggunakan DisplayAlertAsync sesuai spesifikasi MAUI SDK terbaru
             await DisplayAlertAsync("Error", $"Failed to load Trial Balance: {ex.Message}", "OK");
         }
         finally
