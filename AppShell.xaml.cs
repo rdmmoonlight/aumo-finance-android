@@ -11,17 +11,18 @@ using AumoFinance.Pages.Periods;
 using AumoFinance.Pages.JournalEntry;
 using AumoFinance.Pages.Settings;
 using AumoFinance.Pages.Reports.GeneralJournal;
-using AumoFinance.Pages.Reports.ClosingJournal;
-using AumoFinance.Pages.Reports.StatementOfCashFlows;
 using AumoFinance.Pages.Reports.GeneralLedgerPermanent;
 using AumoFinance.Pages.Reports.GeneralLedgerTemporary;
 using AumoFinance.Pages.Reports.TrialBalance;
 using AumoFinance.Pages.Reports.AdjustingJournal;
+using AumoFinance.Pages.Reports.AdjustedTrialBalance;
 using AumoFinance.Pages.Reports.Worksheet;
 using AumoFinance.Pages.Reports.IncomeStatement;
 using AumoFinance.Pages.Reports.RetainedEarnings;
 using AumoFinance.Pages.Reports.StatementOfFinancialPosition;
+using AumoFinance.Pages.Reports.ClosingJournal;
 using AumoFinance.Pages.Reports.PostClosingTrialBalance;
+using AumoFinance.Pages.Reports.StatementOfCashFlows;
 
 namespace AumoFinance;
 
@@ -54,6 +55,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(GeneralLedgerTemporaryPage), typeof(GeneralLedgerTemporaryPage));
         Routing.RegisterRoute(nameof(TrialBalancePage), typeof(TrialBalancePage));
         Routing.RegisterRoute(nameof(AdjustingJournalPage), typeof(AdjustingJournalPage));
+        Routing.RegisterRoute(nameof(AdjustedTrialBalancePage), typeof(AdjustedTrialBalancePage));
         Routing.RegisterRoute(nameof(WorksheetPage), typeof(WorksheetPage));
         Routing.RegisterRoute(nameof(IncomeStatementPage), typeof(IncomeStatementPage));
         Routing.RegisterRoute(nameof(RetainedEarningsPage), typeof(RetainedEarningsPage));
