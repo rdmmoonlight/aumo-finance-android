@@ -2,7 +2,7 @@ using System;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 
-// Import Namespace Sesuai Subfolder — satu using per folder, mengikuti struktur fisik file
+// Import Namespace Sesuai Subfolder
 using AumoFinance.Pages.Auth;
 using AumoFinance.Pages.Main;
 using AumoFinance.Pages.Dashboard;
@@ -33,13 +33,6 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // 1. Auth & Account Routes
-        // LoginPage & MainPage TIDAK didaftarkan di sini lagi — keduanya sudah
-        // dideklarasikan sebagai <ShellContent> di AppShell.xaml (visual hierarchy),
-        // yang otomatis membuat rute implisit "IMPL_...". Mendaftarkan ulang lewat
-        // Routing.RegisterRoute menghasilkan DUA entri rute untuk halaman yang sama,
-        // itulah penyebab "Ambiguous routes matched" saat Shell mencoba resolve balik
-        // ke MainPage/GeneralJournalPage. RegisterRoute hanya untuk halaman "detail"
-        // yang TIDAK ada di visual hierarchy (JournalEntryPage, semua Report pages, dst).
         Routing.RegisterRoute(nameof(LogoutPage), typeof(LogoutPage));
 
         // 2. Core & Master Data Routes
@@ -74,15 +67,6 @@ public partial class AppShell : Shell
 
         try
         {
-            // Rute-rute ini (selain LoginPage/MainPage) hanya didaftarkan lewat
-            // Routing.RegisterRoute — bukan ShellContent di visual tree — jadi
-            // navigasi ABSOLUT ("//route") gagal di-resolve Shell untuk rute
-            // semacam ini (silently gagal karena method ini async void, makanya
-            // tombol terlihat "tidak merespons"). Perbaikannya: pop dulu ke root
-            // section (MainPage), baru push rute baru secara RELATIF — ini tetap
-            // mencegah stack menumpuk tak terbatas (penyebab "Ambiguous routes
-            // matched" sebelumnya) tanpa memakai sintaks yang tidak didukung
-            // untuk rute global.
             if (Shell.Current.Navigation.NavigationStack.Count > 1)
             {
                 await Shell.Current.Navigation.PopToRootAsync(false);
@@ -93,7 +77,7 @@ public partial class AppShell : Shell
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"NavigateAndCloseFlyout('{route}') failed: {ex}");
-            await DisplayAlertAsync("Navigation Error", $"Couldn't open this page: {ex.Message}", "OK");
+            await DisplayAlert("Navigation Error", $"Couldn't open this page: {ex.Message}", "OK");
         }
     }
 
@@ -107,9 +91,6 @@ public partial class AppShell : Shell
         bool expanded = !ReportsSection.IsVisible;
         ReportsSection.IsVisible = expanded;
 
-        // Dua tanda sekaligus: panah berganti arah, dan baris header di-highlight
-        // selama grup Reports sedang terbuka — supaya statusnya jelas terlihat,
-        // bukan cuma dari perubahan karakter panah yang kecil.
         ReportsToggleLabel.Text = expanded ? "📊  Reports  ▾" : "📊  Reports  ▸";
         ReportsToggleRow.BackgroundColor = expanded ? Color.FromArgb("#1E293B") : Colors.Transparent;
     }
@@ -136,10 +117,11 @@ public partial class AppShell : Shell
         => NavigateAndCloseFlyout(nameof(GeneralLedgerTemporaryPage));
 
     private void OnTrialBalanceMenuItemClicked(object? sender, EventArgs e)
-        => NavigateAndCloseFlyout($"{nameof(TrialBalancePage)}?includeAdjusting=false");
+        => NavigateAndCloseFlyout(nameof(TrialBalancePage));
 
+    // REVISI: Mengarah langsung ke AdjustedTrialBalancePage mandiri
     private void OnAdjustedTrialBalanceMenuItemClicked(object? sender, EventArgs e)
-        => NavigateAndCloseFlyout($"{nameof(TrialBalancePage)}?includeAdjusting=true");
+        => NavigateAndCloseFlyout(nameof(AdjustedTrialBalancePage));
 
     private void OnWorksheetMenuItemClicked(object? sender, EventArgs e)
         => NavigateAndCloseFlyout(nameof(WorksheetPage));
@@ -167,7 +149,7 @@ public partial class AppShell : Shell
 
     private async void OnLogoutMenuItemClicked(object? sender, EventArgs e)
     {
-        bool confirm = await DisplayAlertAsync(
+        bool confirm = await DisplayAlert(
             "Logout",
             "Are you sure you want to log out?",
             "Yes, Logout",
