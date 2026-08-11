@@ -17,9 +17,9 @@ public partial class TrialBalancePage : ContentPage
 
     public string IncludeAdjustingStr
     {
-        set 
-        { 
-            _includeAdjusting = bool.TryParse(value, out var result) && result; 
+        set
+        {
+            _includeAdjusting = bool.TryParse(value, out var result) && result;
         }
     }
 
@@ -101,7 +101,7 @@ public partial class TrialBalancePage : ContentPage
                 BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
                 BalanceStatusIcon.TextColor = accentColor;
                 BalanceStatusText.TextColor = accentColor;
-                
+
                 BalanceStatusText.Text = isBalanced
                     ? "Trial balance is balanced; total Debits equal Credits."
                     : "Trial balance is unbalanced! Please check your journal entries.";
