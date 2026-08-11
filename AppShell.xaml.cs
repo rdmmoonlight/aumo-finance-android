@@ -77,7 +77,8 @@ public partial class AppShell : Shell
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"NavigateAndCloseFlyout('{route}') failed: {ex}");
-            await DisplayAlert("Navigation Error", $"Couldn't open this page: {ex.Message}", "OK");
+            // FIX Baris 80: Gunakan DisplayAlertAsync
+            await DisplayAlertAsync("Navigation Error", $"Couldn't open this page: {ex.Message}", "OK");
         }
     }
 
@@ -119,7 +120,6 @@ public partial class AppShell : Shell
     private void OnTrialBalanceMenuItemClicked(object? sender, EventArgs e)
         => NavigateAndCloseFlyout(nameof(TrialBalancePage));
 
-    // REVISI: Mengarah langsung ke AdjustedTrialBalancePage mandiri
     private void OnAdjustedTrialBalanceMenuItemClicked(object? sender, EventArgs e)
         => NavigateAndCloseFlyout(nameof(AdjustedTrialBalancePage));
 
@@ -149,7 +149,8 @@ public partial class AppShell : Shell
 
     private async void OnLogoutMenuItemClicked(object? sender, EventArgs e)
     {
-        bool confirm = await DisplayAlert(
+        // FIX Baris 152: Gunakan DisplayAlertAsync
+        bool confirm = await DisplayAlertAsync(
             "Logout",
             "Are you sure you want to log out?",
             "Yes, Logout",
