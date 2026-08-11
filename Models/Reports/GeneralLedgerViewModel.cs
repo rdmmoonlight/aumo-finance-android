@@ -10,11 +10,6 @@ public class GeneralLedgerAccountViewModel
     public int ReferenceNumber { get; set; }
     public string AccountName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
-
-    // Periode yang sedang dipilih di COA
-    public DateTime SelectedStartDate { get; set; }
-    public DateTime SelectedEndDate { get; set; }
-
     public decimal EndingBalance { get; set; }
     public List<GeneralLedgerLineViewModel> Lines { get; set; } = new();
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
