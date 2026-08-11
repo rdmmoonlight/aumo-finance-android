@@ -13,7 +13,7 @@ public partial class TrialBalancePage : ContentPage
 {
     private readonly TrialBalanceService _trialBalanceService;
     private bool _includeAdjusting;
-    private bool _isDataLoaded; // Flag untuk mencegah reload ganda
+    private bool _isDataLoaded;
 
     public string IncludeAdjustingStr
     {
@@ -33,7 +33,6 @@ public partial class TrialBalancePage : ContentPage
     {
         base.OnAppearing();
 
-        // Update UI Text berdasarkan query parameter
         if (_includeAdjusting)
         {
             PageTitleLabel.Text = "Adjusted Trial Balance";
@@ -47,7 +46,6 @@ public partial class TrialBalancePage : ContentPage
             Title = "Trial Balance";
         }
 
-        // Hanya load data sekali saat halaman terbuka pertama kali
         if (!_isDataLoaded)
         {
             await LoadTrialBalanceAsync();
@@ -87,12 +85,10 @@ public partial class TrialBalancePage : ContentPage
                 decimal totalCredit = response.TotalCredit;
                 bool isBalanced = response.IsBalanced;
 
-                // Format mata uang Indonesia
                 var culture = new CultureInfo("id-ID");
                 TotalDebitLabel.Text = totalDebit.ToString("N0", culture);
                 TotalCreditLabel.Text = totalCredit.ToString("N0", culture);
 
-                // Update Status Card
                 BalanceStatusCard.IsVisible = true;
                 BalanceStatusCard.BackgroundColor = Color.Parse(isBalanced ? "#064E3B" : "#7F1D1D");
                 BalanceStatusCard.Stroke = Color.Parse(isBalanced ? "#059669" : "#DC2626");
@@ -108,13 +104,13 @@ public partial class TrialBalancePage : ContentPage
 
                 TrialBalanceCollectionView.ItemsSource = rows;
                 TableContainer.IsVisible = true;
-                _isDataLoaded = true; // Tandai bahwa data berhasil dimuat
+                _isDataLoaded = true;
             }
         }
         catch (Exception ex)
         {
-            // Menggunakan DisplayAlert bawaan MAUI (tanpa akhiran Async)
-            await DisplayAlert("Error", $"Failed to load Trial Balance: {ex.Message}", "OK");
+            // Menggunakan DisplayAlertAsync sesuai spesifikasi MAUI SDK terbaru
+            await DisplayAlertAsync("Error", $"Failed to load Trial Balance: {ex.Message}", "OK");
         }
         finally
         {
