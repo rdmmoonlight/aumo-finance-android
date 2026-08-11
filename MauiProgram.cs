@@ -61,13 +61,14 @@ public static class MauiProgram
         builder.Services.AddTransient<GeneralJournalService>();
         builder.Services.AddTransient<GeneralLedgerService>();
         builder.Services.AddTransient<TrialBalanceService>();
-        builder.Services.AddTransient<PostClosingTrialBalanceService>();
         builder.Services.AddTransient<AdjustingJournalService>();
+        builder.Services.AddTransient<AdjustedTrialBalancePage>();
         builder.Services.AddTransient<WorksheetService>();
         builder.Services.AddTransient<IncomeStatementService>();
         builder.Services.AddTransient<RetainedEarningsService>();
         builder.Services.AddTransient<StatementOfFinancialPositionService>();
         builder.Services.AddTransient<ClosingJournalService>();
+        builder.Services.AddTransient<PostClosingTrialBalanceService>();
         builder.Services.AddTransient<StatementOfCashFlowsService>();
 
         // ==========================================
