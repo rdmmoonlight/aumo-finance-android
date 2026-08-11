@@ -71,19 +71,21 @@ public partial class TrialBalancePage : ContentPage
                 return;
             }
 
-            // Validasi apakah periode aktif sudah dipilih di sistem
-            if (!response.HasPeriodSelected)
-            {
-                ShowEmptyState("No active accounting period selected.");
-                return;
-            }
-
-            // Update TopHeader dengan nama periode dari API (Seperti pada GeneralLedger)
+            // Update TopHeader dengan nama periode dari API segera setelah respons
+            // diterima (sama seperti pada General Journal), agar top bar selalu
+            // sinkron walaupun belum ada periode aktif yang dipilih.
             if (TopHeader != null)
             {
                 TopHeader.PeriodText = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
                     ? "No Active Period"
                     : response.SelectedPeriodName;
+            }
+
+            // Validasi apakah periode aktif sudah dipilih di sistem
+            if (!response.HasPeriodSelected)
+            {
+                ShowEmptyState("No accounting period is currently selected.");
+                return;
             }
 
             var rows = response.Rows;

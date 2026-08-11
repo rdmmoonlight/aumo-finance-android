@@ -112,14 +112,7 @@
                             <Label Text="General Ledger (Temporary)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
 
-                        <Grid Padding="32,10" BackgroundColor="Transparent">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnAdjustingJournalMenuItemClicked" />
-                            </Grid.GestureRecognizers>
-                            <Label Text="Adjusting Journal" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
-                        </Grid>
-
-                        <!-- Trial Balance (Unadjusted) -->
+                        <!-- Trial Balance (Unadjusted) — sebelum Adjusting Journal, sesuai siklus akuntansi -->
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnTrialBalanceMenuItemClicked" />
@@ -127,7 +120,14 @@
                             <Label Text="Trial Balance" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
 
-                        <!-- Adjusted Trial Balance -->
+                        <Grid Padding="32,10" BackgroundColor="Transparent">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAdjustingJournalMenuItemClicked" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="Adjusting Journal" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
+                        </Grid>
+
+                        <!-- Adjusted Trial Balance — tepat setelah Adjusting Journal -->
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnAdjustedTrialBalanceMenuItemClicked" />
