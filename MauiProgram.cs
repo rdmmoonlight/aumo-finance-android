@@ -11,6 +11,7 @@ using AumoFinance.Pages.Reports.GeneralLedgerPermanent;
 using AumoFinance.Pages.Reports.GeneralLedgerTemporary;
 using AumoFinance.Pages.Reports.TrialBalance;
 using AumoFinance.Pages.Reports.AdjustingJournal;
+using AumoFinance.Pages.Reports.AdjustedTrialBalance;
 using AumoFinance.Pages.Reports.Worksheet;
 using AumoFinance.Pages.Reports.IncomeStatement;
 using AumoFinance.Pages.Reports.RetainedEarnings;
@@ -61,13 +62,14 @@ public static class MauiProgram
         builder.Services.AddTransient<GeneralJournalService>();
         builder.Services.AddTransient<GeneralLedgerService>();
         builder.Services.AddTransient<TrialBalanceService>();
-        builder.Services.AddTransient<PostClosingTrialBalanceService>();
         builder.Services.AddTransient<AdjustingJournalService>();
+        builder.Services.AddTransient<AdjustedTrialBalancePage>();
         builder.Services.AddTransient<WorksheetService>();
         builder.Services.AddTransient<IncomeStatementService>();
         builder.Services.AddTransient<RetainedEarningsService>();
         builder.Services.AddTransient<StatementOfFinancialPositionService>();
         builder.Services.AddTransient<ClosingJournalService>();
+        builder.Services.AddTransient<PostClosingTrialBalanceService>();
         builder.Services.AddTransient<StatementOfCashFlowsService>();
 
         // ==========================================

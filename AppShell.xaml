@@ -11,9 +11,6 @@
 
     <Shell.Resources>
         <ResourceDictionary>
-            <!-- Button tidak punya properti perataan teks internal di MAUI, jadi item
-                 menu flyout dibuat dari Grid (area tap penuh + padding) + Label
-                 (HorizontalOptions=Start -> benar-benar rata kiri) + TapGestureRecognizer. -->
             <Style TargetType="Grid" x:Key="FlyoutMenuItemStyle">
                 <Setter Property="BackgroundColor" Value="Transparent" />
                 <Setter Property="Padding" Value="16,12" />
@@ -82,8 +79,7 @@
 
                     <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
 
-                    <!-- Reports Group Header (collapsible) — background berubah + panah
-                         berganti arah saat expanded, sebagai tanda status collapsed/expanded. -->
+                    <!-- Reports Group Header (collapsible) -->
                     <Grid x:Name="ReportsToggleRow" Style="{StaticResource FlyoutMenuItemStyle}">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnToggleReportsClicked" />
@@ -101,72 +97,86 @@
                             </Grid.GestureRecognizers>
                             <Label Text="General Journal" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnGlPermanentMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="General Ledger (Permanent)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnGlTemporaryMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="General Ledger (Temporary)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnAdjustingJournalMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Adjusting Journal" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
+                        <!-- Trial Balance (Unadjusted) -->
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnTrialBalanceMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Trial Balance" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
+                        <!-- Adjusted Trial Balance -->
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnAdjustedTrialBalanceMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Adjusted Trial Balance" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnWorksheetMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Worksheet (10-Column)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnIncomeStatementMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Income Statement" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnRetainedEarningsMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Retained Earnings Statement" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnSofpMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Statement of Financial Position" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnClosingJournalMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Closing Journal" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnPostClosingMenuItemClicked" />
                             </Grid.GestureRecognizers>
                             <Label Text="Post-Closing Trial Balance" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
+
                         <Grid Padding="32,10" BackgroundColor="Transparent">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnCashFlowMenuItemClicked" />
