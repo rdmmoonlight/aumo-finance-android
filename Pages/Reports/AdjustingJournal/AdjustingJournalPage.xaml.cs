@@ -11,11 +11,13 @@ namespace AumoFinance.Pages.Reports.AdjustingJournal;
 public partial class AdjustingJournalPage : ContentPage
 {
     private readonly AdjustingJournalService _adjustingJournalService;
+    private readonly JournalEntryService _journalEntryService;
 
-    public AdjustingJournalPage(AdjustingJournalService adjustingJournalService)
+    public AdjustingJournalPage(AdjustingJournalService adjustingJournalService, JournalEntryService journalEntryService)
     {
         InitializeComponent();
         _adjustingJournalService = adjustingJournalService;
+        _journalEntryService = journalEntryService;
     }
 
     protected override async void OnAppearing()
@@ -50,7 +52,7 @@ public partial class AdjustingJournalPage : ContentPage
             }
 
             PeriodNameLabel.Text = response.SelectedPeriodName;
-            ClosedBadge.IsVisible = false; // Matched with API response
+            ClosedBadge.IsVisible = response.IsPeriodClosed;
 
             var entries = response.Entries;
 
@@ -64,6 +66,7 @@ public partial class AdjustingJournalPage : ContentPage
                 var displayList = entries.Select(e => new JournalEntryDisplayModel
                 {
                     Id = e.Id,
+                    TransactionNumber = e.TransactionNumber ?? string.Empty,
                     EntryDate = e.EntryDate,
                     Lines = e.Lines.Select(l => new JournalEntryLineDisplayModel
                     {
@@ -87,6 +90,7 @@ public partial class AdjustingJournalPage : ContentPage
         {
             LoadingIndicator.IsRunning = false;
             LoadingIndicator.IsVisible = false;
+            AdjustingJournalRefreshView.IsRefreshing = false;
         }
     }
 
@@ -95,11 +99,45 @@ public partial class AdjustingJournalPage : ContentPage
         await Shell.Current.GoToAsync($"{nameof(JournalEntryPage)}?type=Adjusting");
     }
 
+    public async void OnRefreshViewRefreshing(object? sender, EventArgs e)
+    {
+        await LoadAdjustingEntriesAsync();
+    }
+
     private async void OnEditEntryClicked(object? sender, EventArgs e)
     {
         if (sender is Button btn && btn.CommandParameter is int entryId)
         {
-            await Shell.Current.GoToAsync($"//JournalEntryEditPage?id={entryId}");
+            await Shell.Current.GoToAsync($"{nameof(JournalEntryPage)}?entryId={entryId}");
+        }
+    }
+
+    private async void OnDeleteEntryClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button button || button.BindingContext is not JournalEntryDisplayModel entry)
+            return;
+
+        var label = string.IsNullOrWhiteSpace(entry.TransactionNumber)
+            ? entry.Id.ToString()
+            : entry.TransactionNumber;
+
+        bool confirm = await this.DisplayAlertAsync(
+            "Delete Adjusting Entry",
+            $"Delete transaction {label}? This action cannot be undone.",
+            "Yes, Delete",
+            "Cancel");
+
+        if (!confirm) return;
+
+        var (success, message) = await _journalEntryService.DeleteJournalEntryAsync(entry.Id);
+
+        if (success)
+        {
+            await LoadAdjustingEntriesAsync();
+        }
+        else
+        {
+            await this.DisplayAlertAsync("Delete Failed", message, "OK");
         }
     }
 }
