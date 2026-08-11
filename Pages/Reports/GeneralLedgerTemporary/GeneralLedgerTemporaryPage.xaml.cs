@@ -78,7 +78,7 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
                     ReferenceNumber = a.ReferenceNumber,
                     AccountName = a.AccountName,
                     Type = a.Type,
-                    
+
                     // Map tanggal periode dari response
                     SelectedStartDate = response.StartDate,
                     SelectedEndDate = response.EndDate,
