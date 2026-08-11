@@ -61,7 +61,7 @@ public partial class TrialBalancePage : ContentPage
         try
         {
             string reportType = _includeAdjusting ? "adjusted" : "unadjusted";
-            
+
             // Panggil API Trial Balance
             var (response, errorDetail) = await _trialBalanceService.GetTrialBalanceReportAsync(reportType);
 

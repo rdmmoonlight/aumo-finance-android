@@ -83,7 +83,7 @@ public partial class AdjustedTrialBalancePage : ContentPage
                 BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
                 BalanceStatusIcon.TextColor = accentColor;
                 BalanceStatusText.TextColor = accentColor;
-                
+
                 BalanceStatusText.Text = isBalanced
                     ? "Adjusted trial balance is balanced; total Debits equal Credits."
                     : "Adjusted trial balance is unbalanced! Please check your adjusting entries.";
