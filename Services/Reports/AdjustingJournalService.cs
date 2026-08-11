@@ -58,6 +58,9 @@ public class AdjustingJournalReportApiResponse
     [JsonPropertyName("selectedPeriodName")]
     public string? SelectedPeriodName { get; set; }
 
+    [JsonPropertyName("isPeriodClosed")]
+    public bool IsPeriodClosed { get; set; }
+
     [JsonPropertyName("entries")]
     public List<AdjustingJournalEntryDto> Entries { get; set; } = new();
 }
@@ -67,8 +70,8 @@ public class AdjustingJournalEntryDto
     [JsonPropertyName("id")]
     public int Id { get; set; }
 
-    [JsonPropertyName("referenceNumber")]
-    public string? ReferenceNumber { get; set; }
+    [JsonPropertyName("transactionNumber")]
+    public string? TransactionNumber { get; set; }
 
     [JsonPropertyName("entryDate")]
     public DateTime EntryDate { get; set; }

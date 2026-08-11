@@ -5,6 +5,7 @@ namespace AumoFinance.Models;
 public class JournalEntryDisplayModel
 {
     public int Id { get; set; }
+    public string TransactionNumber { get; set; } = string.Empty;
     public DateTime EntryDate { get; set; }
     public List<JournalEntryLineDisplayModel> Lines { get; set; } = new();
 }
