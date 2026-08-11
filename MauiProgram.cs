@@ -11,6 +11,7 @@ using AumoFinance.Pages.Reports.GeneralLedgerPermanent;
 using AumoFinance.Pages.Reports.GeneralLedgerTemporary;
 using AumoFinance.Pages.Reports.TrialBalance;
 using AumoFinance.Pages.Reports.AdjustingJournal;
+using AumoFinance.Pages.Reports.AdjustedTrialBalance;
 using AumoFinance.Pages.Reports.Worksheet;
 using AumoFinance.Pages.Reports.IncomeStatement;
 using AumoFinance.Pages.Reports.RetainedEarnings;
