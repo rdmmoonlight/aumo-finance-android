@@ -1,7 +1,9 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 using AumoFinance.Services.Reports;
 
 namespace AumoFinance.Pages.Reports.TrialBalance;
@@ -11,10 +13,14 @@ public partial class TrialBalancePage : ContentPage
 {
     private readonly TrialBalanceService _trialBalanceService;
     private bool _includeAdjusting;
+    private bool _isDataLoaded; // Flag untuk mencegah reload ganda
 
     public string IncludeAdjustingStr
     {
-        set { _includeAdjusting = bool.TryParse(value, out var result) && result; }
+        set 
+        { 
+            _includeAdjusting = bool.TryParse(value, out var result) && result; 
+        }
     }
 
     public TrialBalancePage(TrialBalanceService trialBalanceService)
@@ -27,30 +33,30 @@ public partial class TrialBalancePage : ContentPage
     {
         base.OnAppearing();
 
-        // Update UI text based on query parameter
+        // Update UI Text berdasarkan query parameter
         if (_includeAdjusting)
         {
             PageTitleLabel.Text = "Adjusted Trial Balance";
             PageSubtitleLabel.Text = "Account balances after adjusting entries.";
-            this.Title = "Adjusted Trial Balance";
+            Title = "Adjusted Trial Balance";
         }
         else
         {
             PageTitleLabel.Text = "Trial Balance";
             PageSubtitleLabel.Text = "Account balances before adjusting entries.";
-            this.Title = "Trial Balance";
+            Title = "Trial Balance";
         }
 
-        await LoadTrialBalanceAsync();
+        // Hanya load data sekali saat halaman terbuka pertama kali
+        if (!_isDataLoaded)
+        {
+            await LoadTrialBalanceAsync();
+        }
     }
 
     private async Task LoadTrialBalanceAsync()
     {
-        LoadingIndicator.IsVisible = true;
-        LoadingIndicator.IsRunning = true;
-        TableContainer.IsVisible = false;
-        EmptyStateContainer.IsVisible = false;
-        BalanceStatusCard.IsVisible = false;
+        SetLoadingState(true);
 
         try
         {
@@ -59,15 +65,13 @@ public partial class TrialBalancePage : ContentPage
 
             if (response == null || !response.Success)
             {
-                EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = errorDetail ?? "Failed to load trial balance report.";
+                ShowEmptyState(errorDetail ?? "Failed to load trial balance report.");
                 return;
             }
 
             if (!response.HasPeriodSelected)
             {
-                EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "No active period selected.";
+                ShowEmptyState("No active period selected.");
                 return;
             }
 
@@ -75,8 +79,7 @@ public partial class TrialBalancePage : ContentPage
 
             if (rows == null || !rows.Any())
             {
-                EmptyStateContainer.IsVisible = true;
-                EmptyStateLabel.Text = "No account transaction history found.";
+                ShowEmptyState("No account transaction history found.");
             }
             else
             {
@@ -84,34 +87,59 @@ public partial class TrialBalancePage : ContentPage
                 decimal totalCredit = response.TotalCredit;
                 bool isBalanced = response.IsBalanced;
 
-                // Update Footer Totals
-                var culture = new System.Globalization.CultureInfo("id-ID");
+                // Format mata uang Indonesia
+                var culture = new CultureInfo("id-ID");
                 TotalDebitLabel.Text = totalDebit.ToString("N0", culture);
                 TotalCreditLabel.Text = totalCredit.ToString("N0", culture);
 
                 // Update Status Card
                 BalanceStatusCard.IsVisible = true;
-                BalanceStatusCard.BackgroundColor = isBalanced ? Color.FromArgb("#064E3B") : Color.FromArgb("#7F1D1D");
-                BalanceStatusCard.Stroke = isBalanced ? Color.FromArgb("#059669") : Color.FromArgb("#DC2626");
+                BalanceStatusCard.BackgroundColor = Color.Parse(isBalanced ? "#064E3B" : "#7F1D1D");
+                BalanceStatusCard.Stroke = Color.Parse(isBalanced ? "#059669" : "#DC2626");
+
+                var accentColor = Color.Parse(isBalanced ? "#34D399" : "#FCA5A5");
                 BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
-                BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
-                BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
+                BalanceStatusIcon.TextColor = accentColor;
+                BalanceStatusText.TextColor = accentColor;
+                
                 BalanceStatusText.Text = isBalanced
                     ? "Trial balance is balanced; total Debits equal Credits."
                     : "Trial balance is unbalanced! Please check your journal entries.";
 
                 TrialBalanceCollectionView.ItemsSource = rows;
                 TableContainer.IsVisible = true;
+                _isDataLoaded = true; // Tandai bahwa data berhasil dimuat
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlertAsync("Error", $"Failed to load Trial Balance: {ex.Message}", "OK");
+            // Menggunakan DisplayAlert bawaan MAUI (tanpa akhiran Async)
+            await DisplayAlert("Error", $"Failed to load Trial Balance: {ex.Message}", "OK");
         }
         finally
         {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
+            SetLoadingState(false);
         }
+    }
+
+    private void SetLoadingState(bool isLoading)
+    {
+        LoadingIndicator.IsRunning = isLoading;
+        LoadingIndicator.IsVisible = isLoading;
+
+        if (isLoading)
+        {
+            TableContainer.IsVisible = false;
+            EmptyStateContainer.IsVisible = false;
+            BalanceStatusCard.IsVisible = false;
+        }
+    }
+
+    private void ShowEmptyState(string message)
+    {
+        EmptyStateContainer.IsVisible = true;
+        EmptyStateLabel.Text = message;
+        TableContainer.IsVisible = false;
+        BalanceStatusCard.IsVisible = false;
     }
 }
