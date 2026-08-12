@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
@@ -13,12 +16,17 @@ public partial class AdjustingJournalPage : ContentPage
 {
     private readonly AdjustingJournalService _adjustingJournalService;
     private readonly JournalEntryService _journalEntryService;
+    private readonly CultureInfo _idrCulture;
 
     public AdjustingJournalPage(AdjustingJournalService adjustingJournalService, JournalEntryService journalEntryService)
     {
         InitializeComponent();
         _adjustingJournalService = adjustingJournalService;
         _journalEntryService = journalEntryService;
+
+        // Memberikan spasi antara 'Rp' dan nominal angka (Rp 1.000.000)
+        _idrCulture = (CultureInfo)CultureInfo.GetCultureInfo("id-ID").Clone();
+        _idrCulture.NumberFormat.CurrencySymbol = "Rp ";
     }
 
     protected override async void OnAppearing()
@@ -29,8 +37,7 @@ public partial class AdjustingJournalPage : ContentPage
 
     private async Task LoadAdjustingEntriesAsync()
     {
-        LoadingIndicator.IsVisible = true;
-        LoadingIndicator.IsRunning = true;
+        SetLoadingState(true);
         AdjustingJournalCollectionView.IsVisible = false;
         EmptyStateContainer.IsVisible = false;
 
@@ -40,6 +47,7 @@ public partial class AdjustingJournalPage : ContentPage
 
             if (response == null || !response.Success)
             {
+                TopHeader.PeriodText = "No Active Period";
                 EmptyStateContainer.IsVisible = true;
                 EmptyStateLabel.Text = errorDetail ?? "Failed to load adjusting journal data.";
                 return;
@@ -47,13 +55,18 @@ public partial class AdjustingJournalPage : ContentPage
 
             if (!response.HasPeriodSelected)
             {
+                TopHeader.PeriodText = "No Active Period";
                 EmptyStateContainer.IsVisible = true;
                 EmptyStateLabel.Text = "No active period selected.";
                 return;
             }
 
-            PeriodNameLabel.Text = response.SelectedPeriodName;
-            ClosedBadge.IsVisible = response.IsPeriodClosed;
+            // Topbar sinkron dengan General Journal — nama periode ditampilkan di sana,
+            // status closed ditempel di belakang nama periode.
+            var periodName = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
+                ? "No Active Period"
+                : response.SelectedPeriodName;
+            TopHeader.PeriodText = response.IsPeriodClosed ? $"{periodName} 🔒" : periodName;
 
             var entries = response.Entries;
 
@@ -73,24 +86,34 @@ public partial class AdjustingJournalPage : ContentPage
                     {
                         AccountName = l.AccountName ?? "-",
                         RefNumber = l.ReferenceNumber.ToString(),
-                        LineDescription = l.LineDescription ?? string.Empty,
+                        LineDescription = l.LineDescription,
                         Debit = l.Debit,
-                        Credit = l.Credit
+                        Credit = l.Credit,
+                        IdrCulture = _idrCulture
                     }).ToList()
                 }).ToList();
 
-                AdjustingJournalCollectionView.ItemsSource = displayList;
+                // Grup per tanggal, sama pola dengan General Journal.
+                var grouped = displayList
+                    .OrderBy(v => v.EntryDate.Date)
+                    .ThenBy(v => v.Id)
+                    .GroupBy(v => v.EntryDate.Date)
+                    .OrderBy(g => g.Key)
+                    .Select(g => new JournalEntryDateGroup(g.Key.ToString("dd MMMM yyyy", _idrCulture), g))
+                    .ToList();
+
+                AdjustingJournalCollectionView.ItemsSource = grouped;
                 AdjustingJournalCollectionView.IsVisible = true;
             }
         }
         catch (Exception ex)
         {
+            Debug.WriteLine($"LoadAdjustingEntriesAsync error: {ex}");
             await this.DisplayAlertAsync("Error", $"Failed to load data: {ex.Message}", "OK");
         }
         finally
         {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
+            SetLoadingState(false);
             AdjustingJournalRefreshView.IsRefreshing = false;
         }
     }
@@ -140,5 +163,11 @@ public partial class AdjustingJournalPage : ContentPage
         {
             await this.DisplayAlertAsync("Delete Failed", message, "OK");
         }
+    }
+
+    private void SetLoadingState(bool isLoading)
+    {
+        LoadingIndicator.IsVisible = isLoading;
+        LoadingIndicator.IsRunning = isLoading;
     }
 }

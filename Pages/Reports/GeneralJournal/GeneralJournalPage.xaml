@@ -172,7 +172,10 @@
                                                         <Label Grid.Column="0" Text="{Binding AccountReferenceNumber}" FontSize="11" TextColor="#64748B" VerticalOptions="Center" />
                                                         
                                                         <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
-                                                            <Label Text="{Binding AccountName}" FontSize="11" FontAttributes="Bold" TextColor="#E2E8F0" LineBreakMode="TailTruncation" />
+                                                            <HorizontalStackLayout Spacing="0">
+                                                                <BoxView WidthRequest="18" Color="Transparent" IsVisible="{Binding IsCredit}" />
+                                                                <Label Text="{Binding AccountName}" FontSize="11" FontAttributes="Bold" TextColor="#E2E8F0" LineBreakMode="TailTruncation" />
+                                                            </HorizontalStackLayout>
                                                             <Label Text="{Binding LineDescriptionDisplay}"
                                                                    FontSize="9"
                                                                    TextColor="#64748B"
