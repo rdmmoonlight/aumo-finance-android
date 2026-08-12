@@ -69,6 +69,21 @@ public class IncomeStatementReportApiResponse
     [JsonPropertyName("totalExpenses")]
     public decimal TotalExpenses { get; set; }
 
+    [JsonPropertyName("operatingIncome")]
+    public decimal OperatingIncome { get; set; }
+
+    [JsonPropertyName("otherIncomeAccounts")]
+    public List<IncomeStatementAccountDto> OtherIncomeAccounts { get; set; } = new();
+
+    [JsonPropertyName("otherExpenseAccounts")]
+    public List<IncomeStatementAccountDto> OtherExpenseAccounts { get; set; } = new();
+
+    [JsonPropertyName("totalOtherIncome")]
+    public decimal TotalOtherIncome { get; set; }
+
+    [JsonPropertyName("totalOtherExpenses")]
+    public decimal TotalOtherExpenses { get; set; }
+
     [JsonPropertyName("netIncome")]
     public decimal NetIncome { get; set; }
 }
