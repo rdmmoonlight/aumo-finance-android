@@ -28,28 +28,6 @@
                     </VerticalStackLayout>
                 </Grid>
 
-                <!-- Indicator Periode Aktif -->
-                <Border x:Name="PeriodCard"
-                        BackgroundColor="#1E293B"
-                        Stroke="#334155"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="12,10">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <Label Text="👁️" FontSize="14" VerticalOptions="Center" />
-                        <Label Text="Menampilkan Periode:"
-                               TextColor="#94A3B8"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                        <Label x:Name="PeriodNameLabel"
-                               Text="-"
-                               TextColor="#F8FAFC"
-                               FontAttributes="Bold"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                </Border>
-
                 <!-- Loading Indicator -->
                 <ActivityIndicator x:Name="LoadingIndicator"
                                    Color="#4ADE80"
@@ -148,7 +126,7 @@
                                                 <Label Text="{Binding ReferenceNumber}" TextColor="#64748B" FontSize="12" FontAttributes="Bold" />
                                                 <Label Text="{Binding AccountName}" TextColor="White" FontSize="13" />
                                             </HorizontalStackLayout>
-                                            <Label Grid.Column="1" Text="{Binding FormattedAmount}" TextColor="White" FontSize="13" HorizontalOptions="End" />
+                                            <Label Grid.Column="1" Text="{Binding FormattedAmount}" TextColor="{Binding AmountColor}" FontSize="13" HorizontalOptions="End" />
                                         </Grid>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
