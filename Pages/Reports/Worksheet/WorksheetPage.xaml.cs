@@ -42,14 +42,22 @@ public partial class WorksheetPage : ContentPage
                 return;
             }
 
+            // Update nama periode aktif di TopHeader segera setelah respons diterima
+            // (sama seperti pada Adjusted Trial Balance/General Journal), agar top bar
+            // selalu sinkron dan tidak perlu ditampilkan ulang di badan halaman.
+            if (TopHeader != null)
+            {
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
+                    ? "No Active Period"
+                    : response.SelectedPeriodName;
+            }
+
             if (!response.HasPeriodSelected)
             {
                 EmptyStateContainer.IsVisible = true;
                 EmptyStateLabel.Text = "No active period selected.";
                 return;
             }
-
-            PeriodNameLabel.Text = response.SelectedPeriodName;
 
             var rows = response.Rows;
 
@@ -98,6 +106,29 @@ public partial class WorksheetPage : ContentPage
             TotIncCr.Text = totals.IsCredit.ToString("N0", culture);
             TotBsDr.Text = totals.BsDebit.ToString("N0", culture);
             TotBsCr.Text = totals.BsCredit.ToString("N0", culture);
+
+            // Baris ke-2 & ke-3 (kaidah worksheet 10-kolom): Laba/Rugi Bersih di-plug dari
+            // kolom Income Statement ke kolom Balance Sheet sampai Total (Setelah Plug)
+            // Debit = Kredit di kedua kolom tersebut. Rumus sama persis dengan WorksheetPage.razor.
+            if (netIncome >= 0)
+            {
+                PlugIncDr.Text = netIncome.ToString("N0", culture);
+                PlugIncCr.Text = "-";
+                PlugBsDr.Text = "-";
+                PlugBsCr.Text = netIncome.ToString("N0", culture);
+            }
+            else
+            {
+                PlugIncDr.Text = "-";
+                PlugIncCr.Text = (-netIncome).ToString("N0", culture);
+                PlugBsDr.Text = (-netIncome).ToString("N0", culture);
+                PlugBsCr.Text = "-";
+            }
+
+            TotAfterIncDr.Text = (totals.IsDebit + (netIncome >= 0 ? netIncome : 0)).ToString("N0", culture);
+            TotAfterIncCr.Text = (totals.IsCredit + (netIncome < 0 ? -netIncome : 0)).ToString("N0", culture);
+            TotAfterBsDr.Text = (totals.BsDebit + (netIncome < 0 ? -netIncome : 0)).ToString("N0", culture);
+            TotAfterBsCr.Text = (totals.BsCredit + (netIncome >= 0 ? netIncome : 0)).ToString("N0", culture);
 
             WorksheetCollectionView.ItemsSource = worksheetRows;
             WorksheetContainer.IsVisible = true;
