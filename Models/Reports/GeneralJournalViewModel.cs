@@ -30,6 +30,9 @@ public class GeneralJournalLineViewModel
     public decimal Credit { get; set; }
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
+    // Baris kredit ditandai supaya nama akunnya bisa di-indent (satu tab) di UI.
+    public bool IsCredit => Credit > 0;
+
     // Rupiah, tanpa desimal/koma — mis. "Rp1.500.000".
     public string FormattedDebit => Debit > 0 ? Debit.ToString("C0", IdrCulture) : "-";
     public string FormattedCredit => Credit > 0 ? Credit.ToString("C0", IdrCulture) : "-";
