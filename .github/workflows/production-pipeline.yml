@@ -5,26 +5,27 @@ on:
     branches:
       - production
 
+concurrency:
+  group: prod-ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   # ==============================================================
-  # JOB 1: CHECK CODE QUALITY, AUTO-FIX & COMMIT
+  # KOTAK 1: CODE QUALITY & AUTO-FIX LINTING
   # ==============================================================
-  lint-csharp:
-    name: Auto-Fix Lint & Verify C# Code
+  lint-and-auto-fix:
+    name: 1. Auto-Fix Format & Lint C#
     runs-on: windows-latest
-
     permissions:
-      contents: write # Izin WAJIB agar bot bisa push commit auto-fix
+      contents: write # Wajib untuk auto-commit
 
     steps:
-      # 1. Checkout Code
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
 
-      # 2. Setup .NET SDK
-      - name: Setup .NET
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
@@ -32,19 +33,15 @@ jobs:
             9.0.x
             10.0.x
 
-      # 3. Install Workload MAUI Android
       - name: Install Workloads
         run: dotnet workload install maui-android
 
-      # 4. Restore Dependencies
       - name: Restore Dependencies
         run: dotnet restore
 
-      # 5. Auto-Fix Format Kode (Perbaiki whitespace dan indentasi otomatis)
       - name: Auto-Fix Code Formatting
         run: dotnet format
 
-      # 6. Commit dan Push Perubahan Format (Jika ada yang berubah)
       - name: Commit and Push Format Changes
         shell: pwsh
         run: |
@@ -61,32 +58,20 @@ jobs:
             Write-Host "Semua kode sudah rapi. Tidak ada perubahan."
           }
 
-      # 7. Static Analysis (Gagal jika ada Warning/Error logika pada kodingan)
       - name: Run Static Code Analysis
         run: dotnet build --no-restore -c Debug /p:TreatWarningsAsErrors=true
 
   # ==============================================================
-  # JOB 2: BUILD APK (Hanya jalan jika Job 1 SUKSES)
+  # KOTAK 2A (PARALEL): GENERATE CALVER VERSION
   # ==============================================================
-  build-android:
-    name: Build Android APK
-    needs: lint-csharp
-    if: github.ref == 'refs/heads/production' || github.base_ref == 'production'
+  generate-version:
+    name: 2a. Generate CalVer Version
+    needs: lint-and-auto-fix
     runs-on: windows-latest
-
-    permissions:
-      contents: write # Izin untuk membuat Tag dan GitHub Release otomatis
-
+    outputs:
+      app_version: ${{ steps.get_version.outputs.app_version }}
     steps:
-      # 1. Checkout repository
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-
-      # 2. Generate Versi 3 Tingkat (YY.M.BUILD)
-      - name: Generate CalVer Version
+      - name: Generate Version Number
         id: get_version
         shell: pwsh
         run: |
@@ -97,37 +82,23 @@ jobs:
           echo "app_version=$fullVersion" >> $env:GITHUB_OUTPUT
           Write-Host "Versi APK Baru: $fullVersion"
 
-      # 3. Setup Java JDK 17
-      - name: Setup Java JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'microsoft'
-          java-version: '17'
+  # ==============================================================
+  # KOTAK 2B (PARALEL): DECODE & PREPARE KEYSTORE
+  # ==============================================================
+  prepare-keystore:
+    name: 2b. Decode Android Keystore
+    needs: lint-and-auto-fix
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      # 4. Setup .NET SDK
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
-            10.0.x
-
-      # 5. Install Workload MAUI Android
-      - name: Install Workloads
-        run: dotnet workload install maui-android
-
-      # 6. Restore Dependencies
-      - name: Restore Dependencies
-        run: dotnet restore
-
-      # 7. Decode Keystore dari GitHub Secrets ke nama file asli
-      - name: Decode Keystore
+      - name: Decode Keystore from Secrets
         shell: pwsh
         run: |
           $b64 = "${{ secrets.ANDROID_KEYSTORE_BASE64 }}".Trim()
           if ([string]::IsNullOrWhiteSpace($b64)) {
-            Write-Error "Secret ANDROID_KEYSTORE_BASE64 kosong atau belum di-set di GitHub repo settings."
+            Write-Error "Secret ANDROID_KEYSTORE_BASE64 kosong atau belum di-set!"
             exit 1
           }
           try {
@@ -136,47 +107,108 @@ jobs:
             Write-Error "ANDROID_KEYSTORE_BASE64 bukan string base64 yang valid."
             exit 1
           }
-          [System.IO.File]::WriteAllBytes("aumo's-release-key.jks", $bytes)
+          
+          mkdir -p keystore-assets
+          [System.IO.File]::WriteAllBytes("keystore-assets/aumos-release-key.jks", $bytes)
 
-      # 8. Build & Sign Android APK
-      - name: Build Android APK
+      - name: Upload Keystore Artifact Temporarily
+        uses: actions/upload-artifact@v4
+        with:
+          name: secure-keystore
+          path: keystore-assets/aumos-release-key.jks
+          retention-days: 1
+
+  # ==============================================================
+  # KOTAK 3: COMPILE & SIGN MAUI APK
+  # ==============================================================
+  build-signed-apk:
+    name: 3. Compile & Sign MAUI APK
+    needs: [lint-and-auto-fix, generate-version, prepare-keystore]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Download Keystore Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: secure-keystore
+          path: .
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Install Workloads
+        run: dotnet workload install maui-android
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build & Sign Android APK
         run: >
           dotnet publish
           -c Release
           -f net10.0-android36.0
           -p:AndroidPackageFormat=apk
           -p:ApplicationVersion=${{ github.run_number }}
-          -p:ApplicationDisplayVersion=${{ steps.get_version.outputs.app_version }}
+          -p:ApplicationDisplayVersion=${{ needs.generate-version.outputs.app_version }}
           -p:AndroidKeyStore=true
-          -p:AndroidSigningKeyStore="aumo's-release-key.jks"
+          -p:AndroidSigningKeyStore="aumos-release-key.jks"
           -p:AndroidSigningKeyAlias="${{ secrets.ANDROID_KEY_ALIAS }}"
           -p:AndroidSigningKeyPass="${{ secrets.ANDROID_KEY_PASSWORD }}"
           -p:AndroidSigningStorePass="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
 
-      # 9. Hapus File Keystore Fisik dari Runner
-      - name: Clean up Keystore
+      - name: Clean up Keystore File
         if: always()
         shell: pwsh
         run: |
-          if (Test-Path "aumo's-release-key.jks") {
-            Remove-Item "aumo's-release-key.jks" -Force
+          if (Test-Path "aumos-release-key.jks") {
+            Remove-Item "aumos-release-key.jks" -Force
           }
 
-      # 10. Upload File -Signed.apk ke GitHub Releases
-      - name: Upload Signed APK to GitHub Releases
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.get_version.outputs.app_version }}
-          name: Aumo Release v${{ steps.get_version.outputs.app_version }}
-          body: "Rilisan otomatis build ke-${{ github.run_number }} (Versi ${{ steps.get_version.outputs.app_version }})"
-          files: "**/bin/Release/net10.0-android36.0/publish/*-Signed.apk"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # 11. Backup Artifact
       - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Aumo-Signed-APK-v${{ steps.get_version.outputs.app_version }}
+          name: Aumo-Signed-APK-v${{ needs.generate-version.outputs.app_version }}
           path: "**/bin/Release/net10.0-android36.0/publish/*-Signed.apk"
           if-no-files-found: error
+
+  # ==============================================================
+  # KOTAK 4: PUBLISH GITHUB RELEASE
+  # ==============================================================
+  publish-release:
+    name: 4. Publish to GitHub Releases
+    needs: [generate-version, build-signed-apk]
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Signed APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Aumo-Signed-APK-v${{ needs.generate-version.outputs.app_version }}
+          path: release-assets
+
+      - name: Upload Signed APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.generate-version.outputs.app_version }}
+          name: Aumo Release v${{ needs.generate-version.outputs.app_version }}
+          body: "Rilisan otomatis build ke-${{ github.run_number }} (Versi ${{ needs.generate-version.outputs.app_version }})"
+          files: "release-assets/*-Signed.apk"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
