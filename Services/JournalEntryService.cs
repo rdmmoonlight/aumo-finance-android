@@ -220,6 +220,12 @@ public class CreateJournalEntryRequest
     [JsonPropertyName("entryDate")]
     public DateTime EntryDate { get; set; } = DateTime.Today;
 
+    // Jam dinding perangkat saat entri dibuat. Diisi sekali di
+    // SaveAsCreateAsync() dengan DateTime.Now (waktu lokal device),
+    // bukan waktu server. Tidak pernah dikirim ulang saat edit.
+    [JsonPropertyName("createdAt")]
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
     [JsonPropertyName("lines")]
     public List<JournalEntryLineRequest> Lines { get; set; } = new();
 }

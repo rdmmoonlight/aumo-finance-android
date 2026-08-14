@@ -163,6 +163,11 @@ public partial class JournalEntryViewModel
         {
             JournalType = SelectedJournalType,
             EntryDate = EntryDate,
+            // Waktu jurnal dicatat wajib mengikuti jam dinding perangkat saat
+            // tombol simpan ditekan, bukan waktu server. Hanya diisi di sini
+            // (SaveAsCreateAsync); SaveAsUpdateAsync tidak pernah mengirim
+            // field ini, jadi CreatedAt tidak berubah saat entri diedit.
+            CreatedAt = DateTime.Now,
             Lines = Lines
                 .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                 .Select(l => new JournalEntryLineRequest
