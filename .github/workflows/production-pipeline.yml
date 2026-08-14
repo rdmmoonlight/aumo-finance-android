@@ -62,10 +62,10 @@ jobs:
         run: dotnet build --no-restore -c Debug /p:TreatWarningsAsErrors=true
 
   # ==============================================================
-  # KOTAK 2A (PARALEL): GENERATE CALVER VERSION
+  # KOTAK 2: GENERATE CALVER VERSION
   # ==============================================================
   generate-version:
-    name: 2a. Generate CalVer Version
+    name: 2. Generate CalVer Version
     needs: lint-and-auto-fix
     runs-on: windows-latest
     outputs:
@@ -83,17 +83,20 @@ jobs:
           Write-Host "Versi APK Baru: $fullVersion"
 
   # ==============================================================
-  # KOTAK 2B (PARALEL): DECODE & PREPARE KEYSTORE
+  # KOTAK 3: COMPILE & SIGN MAUI APK
   # ==============================================================
-  prepare-keystore:
-    name: 2b. Decode Android Keystore
-    needs: lint-and-auto-fix
+  build-signed-apk:
+    name: 3. Compile & Sign MAUI APK
+    needs: [lint-and-auto-fix, generate-version]
     runs-on: windows-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
 
-      - name: Decode Keystore from Secrets
+      - name: Decode Android Keystore Directly
         shell: pwsh
         run: |
           $b64 = "${{ secrets.ANDROID_KEYSTORE_BASE64 }}".Trim()
@@ -107,36 +110,7 @@ jobs:
             Write-Error "ANDROID_KEYSTORE_BASE64 bukan string base64 yang valid."
             exit 1
           }
-          
-          mkdir -p keystore-assets
-          [System.IO.File]::WriteAllBytes("keystore-assets/aumos-release-key.jks", $bytes)
-
-      - name: Upload Keystore Artifact Temporarily
-        uses: actions/upload-artifact@v4
-        with:
-          name: secure-keystore
-          path: keystore-assets/aumos-release-key.jks
-          retention-days: 1
-
-  # ==============================================================
-  # KOTAK 3: COMPILE & SIGN MAUI APK
-  # ==============================================================
-  build-signed-apk:
-    name: 3. Compile & Sign MAUI APK
-    needs: [lint-and-auto-fix, generate-version, prepare-keystore]
-    runs-on: windows-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-
-      - name: Download Keystore Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: secure-keystore
-          path: .
+          [System.IO.File]::WriteAllBytes("aumos-release-key.jks", $bytes)
 
       - name: Setup Java JDK 17
         uses: actions/setup-java@v4
