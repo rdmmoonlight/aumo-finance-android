@@ -176,6 +176,17 @@ jobs:
         with:
           name: Aumo-Signed-APK-v${{ needs.generate-version.outputs.app_version }}
           path: release-assets
+          merge-multiple: true
+
+      - name: Verify APK Exists Before Release
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem -Path "release-assets" -Filter "*-Signed.apk" -Recurse -File
+          if (-not $apk) {
+            Write-Error "Tidak ditemukan file *-Signed.apk di release-assets. Gagal membuat release."
+            exit 1
+          }
+          Write-Host "Ditemukan APK: $($apk.FullName) ($([math]::Round($apk.Length / 1MB, 2)) MB)"
 
       - name: Upload Signed APK to GitHub Releases
         uses: softprops/action-gh-release@v2
@@ -183,6 +194,7 @@ jobs:
           tag_name: v${{ needs.generate-version.outputs.app_version }}
           name: Aumo Release v${{ needs.generate-version.outputs.app_version }}
           body: "Rilisan otomatis build ke-${{ github.run_number }} (Versi ${{ needs.generate-version.outputs.app_version }})"
-          files: "release-assets/*-Signed.apk"
+          files: "release-assets/**/*-Signed.apk"
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
