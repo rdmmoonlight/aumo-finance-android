@@ -76,6 +76,12 @@ public class AdjustingJournalEntryDto
     [JsonPropertyName("entryDate")]
     public DateTime EntryDate { get; set; }
 
+    // Timestamp asli pembuatan entry di server (tidak berubah walau entry
+    // diedit) — dipakai untuk tampilan tanggal+jam input yang sesungguhnya,
+    // karena EntryDate cuma tanggal pilihan user dari DatePicker (jam selalu 00:00:00).
+    [JsonPropertyName("createdAt")]
+    public DateTime CreatedAt { get; set; }
+
     [JsonPropertyName("journalType")]
     public string? JournalType { get; set; }
 

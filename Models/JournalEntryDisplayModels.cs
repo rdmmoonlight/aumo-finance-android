@@ -7,7 +7,14 @@ public class JournalEntryDisplayModel
     public int Id { get; set; }
     public string TransactionNumber { get; set; } = string.Empty;
     public DateTime EntryDate { get; set; }
+
+    // Timestamp asli pembuatan entry di server — dipakai untuk tampilan
+    // tanggal+jam input yang sesungguhnya, karena EntryDate cuma tanggal
+    // pilihan user dari DatePicker (jam selalu 00:00:00).
+    public DateTime CreatedAt { get; set; }
     public List<JournalEntryLineDisplayModel> Lines { get; set; } = new();
+
+    public string FormattedTime => CreatedAt.ToString("dd-MM-yyyy HH:mm:ss");
 }
 
 public class JournalEntryLineDisplayModel

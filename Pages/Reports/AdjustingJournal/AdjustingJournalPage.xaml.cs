@@ -82,6 +82,7 @@ public partial class AdjustingJournalPage : ContentPage
                     Id = e.Id,
                     TransactionNumber = e.TransactionNumber ?? string.Empty,
                     EntryDate = e.EntryDate,
+                    CreatedAt = e.CreatedAt,
                     Lines = e.Lines.Select(l => new JournalEntryLineDisplayModel
                     {
                         AccountName = l.AccountName ?? "-",
@@ -96,6 +97,7 @@ public partial class AdjustingJournalPage : ContentPage
                 // Grup per tanggal, sama pola dengan General Journal.
                 var grouped = displayList
                     .OrderBy(v => v.EntryDate.Date)
+                    .ThenBy(v => v.CreatedAt)
                     .ThenBy(v => v.Id)
                     .GroupBy(v => v.EntryDate.Date)
                     .OrderBy(g => g.Key)
