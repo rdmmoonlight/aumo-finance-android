@@ -12,7 +12,10 @@ public partial class JournalEntryViewModel
     private string _pageTitle = "New Journal Entry";
     private string _submitButtonText = "Save Journal Entry";
     private string _selectedJournalType = "General";
-    private DateTime _entryDate = DateTime.Today;
+    // DateTime.Today ber-Kind=Local — bisa memicu bug yang sama dengan
+    // EntryDate/CreatedAt di SaveAsCreateAsync kalau user save tanpa
+    // menyentuh date picker sama sekali. Pakai Unspecified dari awal.
+    private DateTime _entryDate = DateTime.SpecifyKind(DateTime.Now.Date, DateTimeKind.Unspecified);
     private string _transactionNumber = "Auto-generated";
     private Color _transactionNumberColor = Color.FromArgb("#64748B");
     private string _totalDebitText = "Rp 0";
