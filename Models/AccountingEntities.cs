@@ -22,7 +22,7 @@ public class JournalEntry
     public int Id { get; set; }
     public Guid UserId { get; set; }
     public DateTime EntryDate { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
     public string JournalType { get; set; } = "General";
     public string ReferenceNumber { get; set; } = string.Empty;
     public bool NeedsClassification { get; set; }
