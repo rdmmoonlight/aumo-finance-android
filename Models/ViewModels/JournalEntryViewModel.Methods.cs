@@ -58,7 +58,10 @@ public partial class JournalEntryViewModel
         IsEditingMode = true;
 
         SelectedJournalType = entry.JournalType;
-        EntryDate = entry.EntryDate;
+        // Lucuti Kind dari nilai yang datang dari server juga, supaya kalau
+        // entry ini di-Update tanpa user menyentuh date picker, tidak ikut
+        // membawa Kind=Utc/offset yang berpotensi memicu masalah serupa.
+        EntryDate = DateTime.SpecifyKind(entry.EntryDate.Date, DateTimeKind.Unspecified);
 
         TransactionNumber = entry.TransactionNumber;
         TransactionNumberColor = Colors.White;
@@ -162,8 +165,18 @@ public partial class JournalEntryViewModel
         var requestDto = new CreateJournalEntryRequest
         {
             JournalType = SelectedJournalType,
-            EntryDate = EntryDate,
-            CreatedAt = DateTime.Now,
+            // DateTimeKind dilucuti (Unspecified) sebelum dikirim. Root cause
+            // bug "tanggal mundur sehari": DateTime.Today/DateTime.Now punya
+            // Kind=Local, System.Text.Json men-serialize itu dengan offset
+            // device (mis. +07:00). Saat backend (server jalan di UTC)
+            // mem-parsing string berooffset non-nol ke tipe DateTime, .NET
+            // benar-benar MENGKONVERSI jam-nya ke waktu lokal server (00:00
+            // WIB - 7 jam = 17:00 hari sebelumnya, UTC) — bukan cuma
+            // label Kind yang berubah. Makanya tanggal 15 jadi 14.
+            // Kirim tanpa offset (Unspecified) supaya angka wall-clock-nya
+            // sampai apa adanya, sama seperti perlakuan di web (Blazor).
+            EntryDate = DateTime.SpecifyKind(EntryDate.Date, DateTimeKind.Unspecified),
+            CreatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified),
             Lines = Lines
                 .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                 .Select(l => new JournalEntryLineRequest
@@ -204,7 +217,10 @@ public partial class JournalEntryViewModel
         var updateDto = new UpdateJournalEntryRequest
         {
             JournalType = SelectedJournalType,
-            EntryDate = EntryDate,
+            // Sama seperti SaveAsCreateAsync — lucuti Kind supaya tidak
+            // kena konversi timezone nyata saat backend mem-parsing (lihat
+            // komentar lengkap di SaveAsCreateAsync).
+            EntryDate = DateTime.SpecifyKind(EntryDate.Date, DateTimeKind.Unspecified),
             Lines = Lines
                 .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                 .Select(l => new JournalEntryLineRequest
