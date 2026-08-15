@@ -162,19 +162,8 @@ public partial class JournalEntryViewModel
         var requestDto = new CreateJournalEntryRequest
         {
             JournalType = SelectedJournalType,
-            // Kind dipaksa Unspecified supaya System.Text.Json TIDAK menyisipkan
-            // offset zona waktu device (mis. +07:00) ke JSON. Kalau Kind=Local
-            // dibiarkan, .NET otomatis mengonversi nilai ini ke zona waktu
-            // server sebelum kode kita sempat memprosesnya — itulah penyebab
-            // tanggal mundur sehari dan jam tidak sesuai device. Dengan
-            // Unspecified, angka tanggal/jam yang dikirim persis sama dengan
-            // yang ada di layar device, tanpa konversi oleh siapa pun.
-            EntryDate = DateTime.SpecifyKind(EntryDate, DateTimeKind.Unspecified),
-            // Waktu jurnal dicatat wajib mengikuti jam dinding perangkat saat
-            // tombol simpan ditekan, bukan waktu server. Hanya diisi di sini
-            // (SaveAsCreateAsync); SaveAsUpdateAsync tidak pernah mengirim
-            // field ini, jadi CreatedAt tidak berubah saat entri diedit.
-            CreatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified),
+            EntryDate = EntryDate,
+            CreatedAt = DateTime.Now,
             Lines = Lines
                 .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                 .Select(l => new JournalEntryLineRequest
@@ -215,9 +204,7 @@ public partial class JournalEntryViewModel
         var updateDto = new UpdateJournalEntryRequest
         {
             JournalType = SelectedJournalType,
-            // Sama seperti di SaveAsCreateAsync: paksa Unspecified agar tanggal
-            // tidak ikut digeser oleh konversi offset zona waktu saat transit.
-            EntryDate = DateTime.SpecifyKind(EntryDate, DateTimeKind.Unspecified),
+            EntryDate = EntryDate,
             Lines = Lines
                 .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                 .Select(l => new JournalEntryLineRequest
