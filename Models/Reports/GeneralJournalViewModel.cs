@@ -18,7 +18,7 @@ public class GeneralJournalEntryViewModel
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
     public string FormattedDate => EntryDate.ToString("dd MMM yyyy");
-    public string FormattedTime => CreatedAt.ToString("HH:mm:ss");
+    public string FormattedTime => CreatedAt.ToString("dd-MM-yyyy HH:mm:ss");
 }
 
 public class GeneralJournalLineViewModel

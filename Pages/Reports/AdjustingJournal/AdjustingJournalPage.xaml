@@ -94,15 +94,21 @@
                                         Padding="12">
                                     <VerticalStackLayout Spacing="10">
 
-                                        <!-- Entry Header (Nomor Transaksi + Edit/Delete) -->
+                                        <!-- Entry Header (Waktu Input + Nomor Transaksi + Edit/Delete) -->
                                         <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="6" VerticalOptions="Center">
 
-                                            <Label Grid.Column="0"
-                                                   Text="{Binding TransactionNumber}"
-                                                   FontSize="12"
-                                                   FontAttributes="Bold"
-                                                   TextColor="#94A3B8"
-                                                   VerticalOptions="Center" />
+                                            <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                                                <!-- Badge Tanggal + Jam Input (CreatedAt, otomatis) -->
+                                                <Border BackgroundColor="#0F172A" StrokeShape="RoundRectangle 6" Padding="6,3" VerticalOptions="Center">
+                                                    <Label Text="{Binding FormattedTime}" TextColor="#F59E0B" FontSize="11" FontAttributes="Bold" />
+                                                </Border>
+
+                                                <Label Text="{Binding TransactionNumber}"
+                                                       FontSize="12"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#94A3B8"
+                                                       VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
 
                                             <!-- Edit Entry (pencil) -->
                                             <Button Grid.Column="1"
