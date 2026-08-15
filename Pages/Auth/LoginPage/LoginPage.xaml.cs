@@ -210,7 +210,7 @@ public partial class LoginPage : ContentPage
         ErrorCard.IsVisible = false;
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
-        
+
         LoginButton.IsEnabled = !isLoading;
         LoginButton.IsVisible = !isLoading;
         BiometricButton.IsEnabled = !isLoading;
