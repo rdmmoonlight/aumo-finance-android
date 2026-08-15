@@ -30,10 +30,10 @@
                             WidthRequest="60"
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
-                        <Label Text="&#xE8E8;"
-                               FontFamily="MaterialIcons"
-                               FontSize="28"
-                               TextColor="#818CF8"
+                        <Image Source="appicon.png"
+                               HeightRequest="45"
+                               WidthRequest="45"
+                               Aspect="AspectFit"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
@@ -204,6 +204,14 @@
                                 Clicked="OnBiometricButtonClicked" />
                     </Grid>
                 </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </Border>
+
+    </Grid>
+
+</ContentPage>
+ut>
 
             </VerticalStackLayout>
         </Border>
