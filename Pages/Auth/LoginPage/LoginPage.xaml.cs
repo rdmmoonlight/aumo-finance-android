@@ -30,18 +30,19 @@ public partial class LoginPage : ContentPage
     {
         base.OnAppearing();
 
+        // Menonaktifkan menu samping saat di halaman login
         if (Shell.Current is Shell shell)
         {
             Shell.SetFlyoutBehavior(shell, FlyoutBehavior.Disabled);
         }
 
+        // Cek log crash
         string? lastCrash = CrashLogger.ReadAndClearLastCrash();
         if (!string.IsNullOrWhiteSpace(lastCrash))
         {
             await Navigation.PushModalAsync(new CrashLogPage(lastCrash));
         }
 
-        // Load "Keep Me Signed In" status and saved credentials
         await LoadSavedCredentialsAsync();
     }
 
@@ -50,29 +51,29 @@ public partial class LoginPage : ContentPage
         bool isRemembered = Preferences.Default.Get(KeyRememberMe, false);
         RememberMeCheckBox.IsChecked = isRemembered;
 
-        if (isRemembered)
+        if (!isRemembered)
         {
-            try
-            {
-                string? savedEmail = await SecureStorage.Default.GetAsync(KeySavedEmail);
-                string? savedPassword = await SecureStorage.Default.GetAsync(KeySavedPassword);
+            BiometricButton.IsVisible = false;
+            return;
+        }
 
-                if (!string.IsNullOrEmpty(savedEmail))
-                {
-                    EmailEntry.Text = savedEmail;
-                }
+        try
+        {
+            string? savedEmail = await SecureStorage.Default.GetAsync(KeySavedEmail);
+            string? savedPassword = await SecureStorage.Default.GetAsync(KeySavedPassword);
 
-                if (!string.IsNullOrEmpty(savedPassword))
-                {
-                    PasswordEntry.Text = savedPassword;
-                    // Show biometric button only if saved credentials exist in SecureStorage
-                    BiometricButton.IsVisible = true;
-                }
-            }
-            catch (Exception)
-            {
-                // Handle cases where SecureStorage is unavailable on the device
-            }
+            if (!string.IsNullOrEmpty(savedEmail)) EmailEntry.Text = savedEmail;
+            if (!string.IsNullOrEmpty(savedPassword)) PasswordEntry.Text = savedPassword;
+
+            // Tombol biometrik hanya muncul jika ada data tersimpan & hardware mendukung
+            bool hasValidCredentials = !string.IsNullOrEmpty(savedEmail) && !string.IsNullOrEmpty(savedPassword);
+            bool isBiometricAvailable = await CrossFingerprint.Current.IsAvailableAsync();
+
+            BiometricButton.IsVisible = hasValidCredentials && isBiometricAvailable;
+        }
+        catch
+        {
+            BiometricButton.IsVisible = false;
         }
     }
 
@@ -104,8 +105,9 @@ public partial class LoginPage : ContentPage
     private async void OnBiometricButtonClicked(object? sender, EventArgs e)
     {
         bool isAuthenticated = await AuthenticateWithBiometricsAsync();
+        if (!isAuthenticated) return;
 
-        if (isAuthenticated)
+        try
         {
             string? savedEmail = await SecureStorage.Default.GetAsync(KeySavedEmail);
             string? savedPassword = await SecureStorage.Default.GetAsync(KeySavedPassword);
@@ -116,8 +118,12 @@ public partial class LoginPage : ContentPage
             }
             else
             {
-                ShowError("Saved credentials not found. Please log in manually.");
+                ShowError("Saved credentials not found.");
             }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Error: {ex.Message}");
         }
     }
 
@@ -125,44 +131,23 @@ public partial class LoginPage : ContentPage
     {
         try
         {
-            // 1. Check if biometric hardware/permissions are available on device
-            var isAvailable = await CrossFingerprint.Current.IsAvailableAsync();
-            if (!isAvailable)
+            if (!await CrossFingerprint.Current.IsAvailableAsync())
             {
-                ShowError("Biometric authentication is not available on this device.");
+                ShowError("Biometric not available.");
                 return false;
             }
 
-            // 2. Configure system biometric prompt dialog
-            var request = new AuthenticationRequestConfiguration(
-                "Biometric Authentication",
-                "Scan your fingerprint or face to sign in to AumoFinance")
+            var request = new AuthenticationRequestConfiguration("Biometric Login", "Scan your finger/face")
             {
                 CancelTitle = "Cancel",
                 FallbackTitle = "Use Password"
             };
 
-            // 3. Trigger OS native biometric prompt
             var result = await CrossFingerprint.Current.AuthenticateAsync(request);
-
-            if (result.Authenticated)
-            {
-                return true;
-            }
-            else if (result.Status == FingerprintAuthenticationResultStatus.Canceled)
-            {
-                // User explicitly canceled prompt; do not display error message
-                return false;
-            }
-            else
-            {
-                ShowError("Biometric authentication failed. Please try again.");
-                return false;
-            }
+            return result.Authenticated;
         }
-        catch (Exception ex)
+        catch
         {
-            ShowError($"Biometric error: {ex.Message}");
             return false;
         }
     }
@@ -178,12 +163,8 @@ public partial class LoginPage : ContentPage
             if (success && userId != null)
             {
                 Preferences.Default.Set("current_user_id", userId);
-                if (!string.IsNullOrEmpty(fullName))
-                {
-                    Preferences.Default.Set("current_user_name", fullName);
-                }
+                if (!string.IsNullOrEmpty(fullName)) Preferences.Default.Set("current_user_name", fullName);
 
-                // Save or clear encrypted credentials based on "Keep Me Signed In" checkbox
                 if (RememberMeCheckBox.IsChecked)
                 {
                     Preferences.Default.Set(KeyRememberMe, true);
@@ -205,12 +186,12 @@ public partial class LoginPage : ContentPage
             }
             else
             {
-                ShowError(string.IsNullOrWhiteSpace(message) ? "Invalid email or password." : message);
+                ShowError(message ?? "Login failed.");
             }
         }
         catch (Exception ex)
         {
-            ShowError($"Failed to connect to server: {ex.Message}");
+            ShowError($"Connection error: {ex.Message}");
         }
         finally
         {
@@ -229,6 +210,7 @@ public partial class LoginPage : ContentPage
         ErrorCard.IsVisible = false;
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
+        
         LoginButton.IsEnabled = !isLoading;
         LoginButton.IsVisible = !isLoading;
         BiometricButton.IsEnabled = !isLoading;
