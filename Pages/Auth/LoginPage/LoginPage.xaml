@@ -4,11 +4,11 @@
              x:Class="AumoFinance.Pages.Auth.LoginPage"
              BackgroundColor="#0F172A"
              NavigationPage.HasNavigationBar="False"
-             Title="Login">
+             Title="Log In">
 
     <Grid VerticalOptions="Center" Padding="24">
         
-        <!-- Card Container Login -->
+        <!-- Login Card Container -->
         <Border BackgroundColor="#1E293B"
                 Stroke="#334155"
                 StrokeThickness="1"
@@ -30,10 +30,10 @@
                             WidthRequest="60"
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
-                        <Label Text="&#xE8E8;"
-                               FontFamily="MaterialIcons"
-                               FontSize="28"
-                               TextColor="#818CF8"
+                        <Image Source="appicon.png"
+                               HeightRequest="45"
+                               WidthRequest="45"
+                               Aspect="AspectFit"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
@@ -45,7 +45,7 @@
                            HorizontalTextAlignment="Center"
                            CharacterSpacing="0.5" />
                     
-                    <Label Text="Masuk ke akun Anda untuk melanjutkan"
+                    <Label Text="Log in to your account to continue"
                            FontSize="13"
                            TextColor="#94A3B8"
                            HorizontalTextAlignment="Center" />
@@ -68,7 +68,7 @@
                                VerticalOptions="Center" />
                         <Label x:Name="ErrorText"
                                Grid.Column="1"
-                               Text="Email atau password salah."
+                               Text="Invalid email or password."
                                TextColor="#FCA5A5"
                                FontSize="12"
                                VerticalOptions="Center" />
@@ -78,7 +78,7 @@
                 <!-- Input Form Wrapper -->
                 <VerticalStackLayout Spacing="16">
 
-                    <!-- Input Email -->
+                    <!-- Email Input -->
                     <VerticalStackLayout Spacing="6">
                         <Label Text="Email"
                                TextColor="#CBD5E1"
@@ -91,7 +91,7 @@
                                 StrokeShape="RoundRectangle 12"
                                 Padding="14,2">
                             <Entry x:Name="EmailEntry"
-                                   Placeholder="nama@email.com"
+                                   Placeholder="name@email.com"
                                    PlaceholderColor="#64748B"
                                    TextColor="White"
                                    FontSize="14"
@@ -101,7 +101,7 @@
                         </Border>
                     </VerticalStackLayout>
 
-                    <!-- Input Password -->
+                    <!-- Password Input -->
                     <VerticalStackLayout Spacing="6">
                         <Label Text="Password"
                                TextColor="#CBD5E1"
@@ -144,14 +144,14 @@
                         </Border>
                     </VerticalStackLayout>
 
-                    <!-- Keep Me Signed In / Checkbox -->
+                    <!-- Remember Me Checkbox -->
                     <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8" VerticalOptions="Center">
                         <CheckBox x:Name="RememberMeCheckBox"
                                   Grid.Column="0"
                                   Color="#6366F1"
                                   VerticalOptions="Center" />
                         <Label Grid.Column="1"
-                               Text="Ingat Saya (Keep me signed in)"
+                               Text="Remember me"
                                TextColor="#94A3B8"
                                FontSize="13"
                                VerticalOptions="Center">
@@ -163,7 +163,7 @@
 
                 </VerticalStackLayout>
 
-                <!-- Button Login, Biometrics & Indicator -->
+                <!-- Login Button, Biometrics & Indicator -->
                 <VerticalStackLayout Spacing="12" Margin="0,4,0,0">
                     <ActivityIndicator x:Name="LoadingIndicator"
                                        Color="#6366F1"
@@ -174,7 +174,7 @@
                     <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
                         <Button x:Name="LoginButton"
                                 Grid.Column="0"
-                                Text="Masuk"
+                                Text="Log In"
                                 Clicked="OnLoginButtonClicked"
                                 BackgroundColor="#4F46E5"
                                 TextColor="White"
@@ -187,7 +187,7 @@
                             </Button.Shadow>
                         </Button>
 
-                        <!-- Tombol Login Biometrik -->
+                        <!-- Biometric Login Button -->
                         <Button x:Name="BiometricButton"
                                 Grid.Column="1"
                                 Text="&#xE90D;" 
@@ -204,6 +204,14 @@
                                 Clicked="OnBiometricButtonClicked" />
                     </Grid>
                 </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </Border>
+
+    </Grid>
+
+</ContentPage>
+ut>
 
             </VerticalStackLayout>
         </Border>
