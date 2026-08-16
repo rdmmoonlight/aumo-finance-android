@@ -50,7 +50,14 @@ public partial class PostClosingTrialBalancePage : ContentPage
                 return;
             }
 
-            PeriodNameLabel.Text = response.SelectedPeriodName;
+            // Sync period name to the top bar instead of an in-page period card
+            // (same pattern as Worksheet/Income Statement/Adjusted Trial Balance).
+            if (TopHeader != null)
+            {
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
+                    ? "No Active Period"
+                    : response.SelectedPeriodName;
+            }
             SubtitleLabel.Text = response.ReportTitle;
 
             var rows = new List<PostClosingRowModel>();

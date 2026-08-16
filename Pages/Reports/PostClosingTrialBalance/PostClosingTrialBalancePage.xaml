@@ -28,28 +28,6 @@
                     </VerticalStackLayout>
                 </Grid>
 
-                <!-- Indicator Periode Aktif -->
-                <Border x:Name="PeriodCard"
-                        BackgroundColor="#1E293B"
-                        Stroke="#334155"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="12,10">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <Label Text="👁️" FontSize="14" VerticalOptions="Center" />
-                        <Label Text="Menampilkan Periode:"
-                               TextColor="#94A3B8"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                        <Label x:Name="PeriodNameLabel"
-                               Text="-"
-                               TextColor="#F8FAFC"
-                               FontAttributes="Bold"
-                               FontSize="12"
-                               VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                </Border>
-
                 <!-- Loading Indicator -->
                 <ActivityIndicator x:Name="LoadingIndicator"
                                    Color="#38BDF8"

@@ -24,11 +24,6 @@ public partial class StatementOfCashFlowsPage : ContentPage
         await LoadReportAsync();
     }
 
-    private async void OnRefreshClicked(object? sender, EventArgs e)
-    {
-        await LoadReportAsync();
-    }
-
     private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
     {
         await LoadReportAsync();
@@ -43,6 +38,15 @@ public partial class StatementOfCashFlowsPage : ContentPage
 
         SetLoadingState(false);
 
+        // Sync period name to the top bar instead of an in-page period banner
+        // (same pattern as Worksheet/Income Statement/Adjusted Trial Balance).
+        if (TopHeader != null)
+        {
+            TopHeader.PeriodText = string.IsNullOrWhiteSpace(data?.SelectedPeriodName)
+                ? "No Active Period"
+                : data.SelectedPeriodName;
+        }
+
         if (errorDetail != null)
         {
             await this.DisplayAlertAsync("Error Loading Report", errorDetail, "OK");
@@ -50,16 +54,12 @@ public partial class StatementOfCashFlowsPage : ContentPage
             return;
         }
 
-        if (data == null || !data.Success)
+        if (data == null || !data.Success || !data.HasPeriodSelected)
         {
-            SelectedPeriodHeaderLabel.Text = data?.SelectedPeriodName ?? "No Period Selected";
-            TopHeader.PeriodText = data?.SelectedPeriodName ?? "No Active Period";
             ShowEmptyState(true);
             return;
         }
 
-        SelectedPeriodHeaderLabel.Text = data.SelectedPeriodName ?? "Active Period";
-        TopHeader.PeriodText = data.SelectedPeriodName ?? "Active Period";
         ShowEmptyState(false);
 
         // Render Activity Categories
@@ -69,10 +69,10 @@ public partial class StatementOfCashFlowsPage : ContentPage
 
         // Render Summary Reconciliation
         NetChangeCashLabel.Text = FormatAmount(data.NetChangeInCash);
-        NetChangeCashLabel.TextColor = data.NetChangeInCash >= 0 ? Color.FromArgb("#166534") : Color.FromArgb("#991B1B");
+        NetChangeCashLabel.TextColor = data.NetChangeInCash >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
 
-        BeginningCashLabel.Text = data.BeginningCash.ToString("N0", _culture);
-        EndingCashLabel.Text = data.EndingCash.ToString("N0", _culture);
+        BeginningCashLabel.Text = $"Rp {data.BeginningCash.ToString("N0", _culture)}";
+        EndingCashLabel.Text = $"Rp {data.EndingCash.ToString("N0", _culture)}";
     }
 
     private void RenderActivitySection(
@@ -88,7 +88,7 @@ public partial class StatementOfCashFlowsPage : ContentPage
             container.Children.Add(new Label
             {
                 Text = "No activities recorded",
-                FontSize = 11,
+                FontSize = 13,
                 TextColor = Color.FromArgb("#94A3B8"),
                 FontAttributes = FontAttributes.Italic
             });
@@ -103,23 +103,25 @@ public partial class StatementOfCashFlowsPage : ContentPage
                     {
                         new ColumnDefinition { Width = GridLength.Star },
                         new ColumnDefinition { Width = GridLength.Auto }
-                    }
+                    },
+                    Padding = new Thickness(0, 2)
                 };
 
                 grid.Children.Add(new Label
                 {
                     Text = item.Description,
-                    FontSize = 11,
+                    FontSize = 13,
+                    TextColor = Color.FromArgb("#CBD5E1"),
                     LineBreakMode = LineBreakMode.TailTruncation
                 });
 
                 var amountLabel = new Label
                 {
                     Text = FormatAmount(item.Amount),
-                    FontSize = 11,
+                    FontSize = 13,
                     HorizontalTextAlignment = TextAlignment.End
                 };
-                amountLabel.TextColor = item.Amount >= 0 ? Color.FromArgb("#166534") : Color.FromArgb("#991B1B");
+                amountLabel.TextColor = item.Amount >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
                 Grid.SetColumn(amountLabel, 1);
                 grid.Children.Add(amountLabel);
 
@@ -128,13 +130,13 @@ public partial class StatementOfCashFlowsPage : ContentPage
         }
 
         netLabel.Text = FormatAmount(netAmount);
-        netLabel.TextColor = netAmount >= 0 ? Color.FromArgb("#166534") : Color.FromArgb("#991B1B");
+        netLabel.TextColor = netAmount >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
     }
 
     private string FormatAmount(decimal amount)
     {
-        if (amount == 0) return "-";
-        return amount < 0 ? $"({Math.Abs(amount).ToString("N0", _culture)})" : amount.ToString("N0", _culture);
+        if (amount == 0) return "Rp 0";
+        return amount < 0 ? $"(Rp {Math.Abs(amount).ToString("N0", _culture)})" : $"Rp {amount.ToString("N0", _culture)}";
     }
 
     private void SetLoadingState(bool isLoading)

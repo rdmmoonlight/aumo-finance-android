@@ -40,14 +40,21 @@ public partial class RetainedEarningsPage : ContentPage
                 return;
             }
 
+            // Sync period name to the top bar instead of an in-page period card
+            // (same pattern as Worksheet/Income Statement/Adjusted Trial Balance).
+            if (TopHeader != null)
+            {
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
+                    ? "No Active Period"
+                    : response.SelectedPeriodName;
+            }
+
             if (!response.HasPeriodSelected)
             {
                 EmptyStateContainer.IsVisible = true;
                 EmptyStateLabel.Text = "No active period selected.";
                 return;
             }
-
-            PeriodNameLabel.Text = response.SelectedPeriodName;
 
             decimal beginningBalance = response.BeginningRetainedEarnings;
             decimal netIncome = response.NetIncome;
