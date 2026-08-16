@@ -103,6 +103,18 @@
                                                     <Label Text="{Binding FormattedTime}" TextColor="#F59E0B" FontSize="11" FontAttributes="Bold" />
                                                 </Border>
 
+                                                <!-- Last-edited badge (only shown if the entry has ever been edited) -->
+                                                <Border BackgroundColor="#0F172A" StrokeShape="RoundRectangle 6" Padding="6,3" VerticalOptions="Center" IsVisible="{Binding HasBeenEdited}">
+                                                    <Label FontSize="11" FontAttributes="Bold" TextColor="#38BDF8">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="Edited " FontAttributes="Italic" />
+                                                                <Span Text="{Binding FormattedEditTime}" />
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+                                                </Border>
+
                                                 <Label Text="{Binding TransactionNumber}"
                                                        FontSize="12"
                                                        FontAttributes="Bold"

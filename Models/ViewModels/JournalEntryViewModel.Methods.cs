@@ -221,6 +221,10 @@ public partial class JournalEntryViewModel
             // kena konversi timezone nyata saat backend mem-parsing (lihat
             // komentar lengkap di SaveAsCreateAsync).
             EntryDate = DateTime.SpecifyKind(EntryDate.Date, DateTimeKind.Unspecified),
+            // UpdatedAt = device wall-clock time when this edit is saved
+            // (the 3rd timestamp, separate from CreatedAt which is only
+            // set once when the entry is first created).
+            UpdatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified),
             Lines = Lines
                 .Where(l => l.SelectedAccount != null && (l.Debit > 0 || l.Credit > 0))
                 .Select(l => new JournalEntryLineRequest

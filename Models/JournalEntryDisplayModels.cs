@@ -12,9 +12,14 @@ public class JournalEntryDisplayModel
     // tanggal+jam input yang sesungguhnya, karena EntryDate cuma tanggal
     // pilihan user dari DatePicker (jam selalu 00:00:00).
     public DateTime CreatedAt { get; set; }
+
+    // Last time this entry was edited — null as long as it has never been edited.
+    public DateTime? UpdatedAt { get; set; }
     public List<JournalEntryLineDisplayModel> Lines { get; set; } = new();
 
     public string FormattedTime => CreatedAt.ToString("dd-MM-yyyy HH:mm:ss");
+    public bool HasBeenEdited => UpdatedAt.HasValue;
+    public string FormattedEditTime => UpdatedAt?.ToString("dd-MM-yyyy HH:mm:ss") ?? string.Empty;
 }
 
 public class JournalEntryLineDisplayModel

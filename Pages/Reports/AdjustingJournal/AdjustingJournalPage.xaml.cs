@@ -83,6 +83,7 @@ public partial class AdjustingJournalPage : ContentPage
                     TransactionNumber = e.TransactionNumber ?? string.Empty,
                     EntryDate = e.EntryDate,
                     CreatedAt = e.CreatedAt,
+                    UpdatedAt = e.UpdatedAt,
                     Lines = e.Lines.Select(l => new JournalEntryLineDisplayModel
                     {
                         AccountName = l.AccountName ?? "-",

@@ -61,6 +61,7 @@ public partial class GeneralJournalPage : ContentPage
                     Id = e.Id,
                     EntryDate = e.EntryDate,
                     CreatedAt = e.CreatedAt,
+                    UpdatedAt = e.UpdatedAt,
                     // Tetap diset jika dibutuhkan logic internal, namun tidak ditampilkan lagi di Header XAML
                     JournalType = e.JournalType ?? "General",
                     TransactionNumber = e.TransactionNumber ?? string.Empty,

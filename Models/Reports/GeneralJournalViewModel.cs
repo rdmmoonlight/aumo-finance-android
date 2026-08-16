@@ -12,6 +12,9 @@ public class GeneralJournalEntryViewModel
     // Timestamp pembuatan asli dari server — dipakai untuk urutan & tampilan jam,
     // karena EntryDate (tanggal transaksi pilihan user) tidak punya komponen waktu asli.
     public DateTime CreatedAt { get; set; }
+
+    // Last time this entry was edited — null as long as it has never been edited.
+    public DateTime? UpdatedAt { get; set; }
     public string JournalType { get; set; } = "General";
     public string TransactionNumber { get; set; } = string.Empty;
     public List<GeneralJournalLineViewModel> Lines { get; set; } = new();
@@ -19,6 +22,8 @@ public class GeneralJournalEntryViewModel
 
     public string FormattedDate => EntryDate.ToString("dd MMM yyyy");
     public string FormattedTime => CreatedAt.ToString("dd-MM-yyyy HH:mm:ss");
+    public bool HasBeenEdited => UpdatedAt.HasValue;
+    public string FormattedEditTime => UpdatedAt?.ToString("dd-MM-yyyy HH:mm:ss") ?? string.Empty;
 }
 
 public class GeneralJournalLineViewModel
