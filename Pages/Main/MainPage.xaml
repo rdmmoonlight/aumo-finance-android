@@ -21,7 +21,7 @@
                            TextColor="#94A3B8"
                            FontSize="16" />
                     <Label x:Name="UserNameLabel"
-                           Text="Tri Wahyu Abdul Ghofur"
+                           Text="Pak Ghofur"
                            TextColor="White"
                            FontAttributes="Bold"
                            FontSize="24" />
