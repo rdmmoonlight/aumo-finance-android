@@ -24,11 +24,6 @@ public partial class ClosingJournalPage : ContentPage
         await LoadReportAsync();
     }
 
-    private async void OnRefreshClicked(object? sender, EventArgs e)
-    {
-        await LoadReportAsync();
-    }
-
     private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
     {
         await LoadReportAsync();
@@ -43,6 +38,15 @@ public partial class ClosingJournalPage : ContentPage
 
         SetLoadingState(false);
 
+        // Sync period name to the top bar instead of an in-page period banner
+        // (same pattern as Worksheet/Income Statement/Adjusted Trial Balance).
+        if (TopHeader != null)
+        {
+            TopHeader.PeriodText = string.IsNullOrWhiteSpace(data?.SelectedPeriodName)
+                ? "No Active Period"
+                : data.SelectedPeriodName;
+        }
+
         if (errorDetail != null)
         {
             await this.DisplayAlertAsync("Error Loading Report", errorDetail, "OK");
@@ -52,21 +56,17 @@ public partial class ClosingJournalPage : ContentPage
 
         if (data == null || !data.Success || data.ClosingJournal == null || data.ClosingJournal.Groups.Count == 0)
         {
-            SelectedPeriodHeaderLabel.Text = data?.SelectedPeriodName ?? "No Period Selected";
-            TopHeader.PeriodText = data?.SelectedPeriodName ?? "No Active Period";
             ShowEmptyState(true);
             return;
         }
 
-        SelectedPeriodHeaderLabel.Text = data.SelectedPeriodName ?? "Active Period";
-        TopHeader.PeriodText = data.SelectedPeriodName ?? "Active Period";
         ShowEmptyState(false);
 
         // 1. Set Banner Laba Bersih (Net Income) & Akun Laba Ditahan
         var culture = new CultureInfo("id-ID");
         NetIncomeCard.IsVisible = true;
-        NetIncomeLabel.Text = data.ClosingJournal.NetIncome.ToString("C0", culture);
-        RetainedEarningsAccountLabel.Text = $"Tujuan: {data.ClosingJournal.RetainedEarningsAccountName ?? "Laba Ditahan"}";
+        NetIncomeLabel.Text = $"Rp {data.ClosingJournal.NetIncome.ToString("N0", culture)}";
+        RetainedEarningsAccountLabel.Text = $"Tujuan: {data.ClosingJournal.RetainedEarningsAccountName ?? "Retained Earnings"}";
 
         // 2. Set List Groups (Revenue, Expense, Income Summary)
         var groupViewModels = data.ClosingJournal.Groups
@@ -91,7 +91,7 @@ public partial class ClosingJournalPage : ContentPage
     private void ShowEmptyState(bool show)
     {
         EmptyStateView.IsVisible = show;
-        JournalRefreshView.IsVisible = !show;
+        JournalCollectionView.IsVisible = !show;
     }
 }
 
