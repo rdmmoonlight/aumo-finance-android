@@ -238,6 +238,12 @@ public class UpdateJournalEntryRequest
     [JsonPropertyName("entryDate")]
     public DateTime EntryDate { get; set; } = DateTime.Today;
 
+    // Device wall-clock time when the edit is saved. Set in
+    // SaveAsUpdateAsync() with Kind=Unspecified (see the comment in
+    // SaveAsCreateAsync for why Kind must be stripped before sending).
+    [JsonPropertyName("updatedAt")]
+    public DateTime UpdatedAt { get; set; }
+
     [JsonPropertyName("lines")]
     public List<JournalEntryLineRequest> Lines { get; set; } = new();
 }
@@ -306,6 +312,9 @@ public class JournalEntryDetailDto
 
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
+
+    [JsonPropertyName("updatedAt")]
+    public DateTime? UpdatedAt { get; set; }
 
     [JsonPropertyName("isLocked")]
     public bool IsLocked { get; set; }

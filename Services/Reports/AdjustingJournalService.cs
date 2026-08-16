@@ -82,6 +82,10 @@ public class AdjustingJournalEntryDto
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
 
+    // Last time this entry was edited — null as long as it has never been edited.
+    [JsonPropertyName("updatedAt")]
+    public DateTime? UpdatedAt { get; set; }
+
     [JsonPropertyName("journalType")]
     public string? JournalType { get; set; }
 
