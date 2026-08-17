@@ -133,7 +133,7 @@
                                                 </Border>
 
                                                 <!-- Nomor Transaksi -->
-                                                <Label Text="{Binding TransactionNumber}"
+                                                <Label Text="{Binding FormattedTransactionNumber}"
                                                        FontSize="12"
                                                        FontAttributes="Bold"
                                                        TextColor="#94A3B8"

@@ -146,7 +146,7 @@ public partial class AdjustingJournalPage : ContentPage
 
         var label = string.IsNullOrWhiteSpace(entry.TransactionNumber)
             ? entry.Id.ToString()
-            : entry.TransactionNumber;
+            : entry.FormattedTransactionNumber;
 
         bool confirm = await this.DisplayAlertAsync(
             "Delete Adjusting Entry",

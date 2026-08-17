@@ -24,6 +24,7 @@ public class GeneralJournalEntryViewModel
     public string FormattedTime => CreatedAt.ToString("dd-MM-yyyy HH:mm:ss");
     public bool HasBeenEdited => UpdatedAt.HasValue;
     public string FormattedEditTime => UpdatedAt?.ToString("dd-MM-yyyy HH:mm:ss") ?? string.Empty;
+    public string FormattedTransactionNumber => AumoFinance.Services.TransactionNumberDisplayHelper.Format(TransactionNumber);
 }
 
 public class GeneralJournalLineViewModel
