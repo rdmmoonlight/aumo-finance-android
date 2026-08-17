@@ -1,28 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using AumoFinance.Platforms.Android;
-using Microsoft.Maui.ApplicationModel;
 
 namespace AumoFinance.Services;
-
-/// <summary>
-/// Runtime permission for posting notifications (required from Android 13 / API 33+).
-/// </summary>
-public class PostNotificationsPermission : Permissions.BasePlatformPermission
-{
-    public override (string androidPermission, bool isRuntime)[] RequiredPermissions =>
-        OperatingSystem.IsAndroidVersionAtLeast(33)
-            ? new (string androidPermission, bool isRuntime)[]
-              {
-                  (Android.Manifest.Permission.PostNotifications, true)
-              }
-            : Array.Empty<(string androidPermission, bool isRuntime)>();
-}
 
 /// <summary>
 /// Native Android implementation of the daily reminder notification.
@@ -31,28 +13,21 @@ public class PostNotificationsPermission : Permissions.BasePlatformPermission
 /// Uses AlarmManager + a BroadcastReceiver (see
 /// Platforms/Android/ReminderBroadcastReceiver.cs) so the reminder still fires
 /// even if the app itself isn't running.
-/// Minimum supported OS: Android 9 (API 28).
+/// App locked to Android 9 (API 28) only — no runtime notification
+/// permission needed (that's an API 33+ requirement) and exact alarms are
+/// always permitted (the CanScheduleExactAlarms restriction is API 31+).
 /// </summary>
 public class NotificationService
 {
     public const string ChannelId = "aumo_daily_reminder";
     internal const int ReminderRequestCode = 2001;
 
-    public async Task<bool> RequestPermissionAsync()
+    public Task<bool> RequestPermissionAsync()
     {
-        // POST_NOTIFICATIONS only exists/is enforced from Android 13 (API 33) onward.
-        if (!OperatingSystem.IsAndroidVersionAtLeast(33))
-        {
-            return true;
-        }
-
-        var status = await Permissions.CheckStatusAsync<PostNotificationsPermission>();
-        if (status != PermissionStatus.Granted)
-        {
-            status = await Permissions.RequestAsync<PostNotificationsPermission>();
-        }
-
-        return status == PermissionStatus.Granted;
+        // POST_NOTIFICATIONS is only required from Android 13 (API 33)
+        // onward. This app's maxSdkVersion is 28, so it can never run on
+        // a device where that permission is enforced.
+        return Task.FromResult(true);
     }
 
     public Task ScheduleDailyReminderAsync(int hour = 20, int minute = 0)
@@ -76,16 +51,10 @@ public class NotificationService
         var pendingIntent = BuildReminderPendingIntent(context);
         var alarmManager = (AlarmManager)context.GetSystemService(Context.AlarmService)!;
 
-        if (OperatingSystem.IsAndroidVersionAtLeast(31) && !alarmManager.CanScheduleExactAlarms())
-        {
-            // User hasn't granted exact-alarm access (Settings > Alarms & reminders).
-            // Fall back to an inexact alarm so the reminder still fires close to the chosen time.
-            alarmManager.SetAndAllowWhileIdle(AlarmType.RtcWakeup, trigger.TimeInMillis, pendingIntent);
-        }
-        else
-        {
-            alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, trigger.TimeInMillis, pendingIntent);
-        }
+        // Exact alarms are unrestricted below Android 12 (API 31), and this
+        // app never runs above API 28, so no CanScheduleExactAlarms() check
+        // is needed here.
+        alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, trigger.TimeInMillis, pendingIntent);
 
         return Task.CompletedTask;
     }
@@ -114,11 +83,8 @@ public class NotificationService
 
     internal static void EnsureChannel()
     {
-        if (!OperatingSystem.IsAndroidVersionAtLeast(26))
-        {
-            return;
-        }
-
+        // Notification channels exist since API 26; this app's minSdkVersion
+        // is 28, so they are always available — no version check needed.
         var context = Android.App.Application.Context;
         var channel = new NotificationChannel(
             ChannelId,

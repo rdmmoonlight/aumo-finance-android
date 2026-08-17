@@ -63,7 +63,7 @@ public partial class JournalEntryViewModel
         // membawa Kind=Utc/offset yang berpotensi memicu masalah serupa.
         EntryDate = DateTime.SpecifyKind(entry.EntryDate.Date, DateTimeKind.Unspecified);
 
-        TransactionNumber = entry.TransactionNumber;
+        TransactionNumber = TransactionNumberDisplayHelper.Format(entry.TransactionNumber);
         TransactionNumberColor = Colors.White;
 
         Lines.Clear();
@@ -88,11 +88,14 @@ public partial class JournalEntryViewModel
         TransactionNumber = "Loading...";
         TransactionNumberColor = Color.FromArgb("#64748B");
 
+        // Preview saja, tidak mengonsumsi nomor — server hanya membaca
+        // counter tanpa menaikkannya. Nomor final tetap diambil ulang
+        // secara atomik oleh server saat entry ini benar-benar disimpan.
         var (nextNumber, _) = await _journalEntryService.GetNextTransactionNumberAsync(SelectedJournalType);
 
         if (!string.IsNullOrWhiteSpace(nextNumber))
         {
-            TransactionNumber = nextNumber;
+            TransactionNumber = TransactionNumberDisplayHelper.Format(nextNumber);
             TransactionNumberColor = Colors.White;
         }
         else

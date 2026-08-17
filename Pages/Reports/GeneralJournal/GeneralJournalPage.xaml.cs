@@ -148,7 +148,7 @@ public partial class GeneralJournalPage : ContentPage
 
         bool confirm = await this.DisplayAlertAsync(
             "Delete Journal Entry",
-            $"Delete transaction {entry.TransactionNumber}? This action cannot be undone.",
+            $"Delete transaction {entry.FormattedTransactionNumber}? This action cannot be undone.",
             "Yes, Delete",
             "Cancel");
 

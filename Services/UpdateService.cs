@@ -132,19 +132,9 @@ public class UpdateService
                 var onCompleteReceiver = new DownloadCompleteReceiver(downloadId, fileName);
                 var filter = new Android.Content.IntentFilter(Android.App.DownloadManager.ActionDownloadComplete);
 
-                // Perbaikan CA1416: Pengecekan versi OS dinamis untuk RegisterReceiver Flags
-                if (OperatingSystem.IsAndroidVersionAtLeast(33))
-                {
-                    context.RegisterReceiver(onCompleteReceiver, filter, Android.Content.ReceiverFlags.Exported);
-                }
-                else if (OperatingSystem.IsAndroidVersionAtLeast(26))
-                {
-                    context.RegisterReceiver(onCompleteReceiver, filter);
-                }
-                else
-                {
-                    context.RegisterReceiver(onCompleteReceiver, filter);
-                }
+                // App dikunci ke Android 9 (API 28) — RegisterReceiver flags
+                // untuk API 33+ (RECEIVER_EXPORTED) tidak pernah relevan.
+                context.RegisterReceiver(onCompleteReceiver, filter);
             }
         }
         catch (Exception ex)
@@ -186,18 +176,16 @@ public class DownloadCompleteReceiver : Android.Content.BroadcastReceiver
 
     private void TriggerInstall(Android.Content.Context context, string fileName)
     {
-        // Perbaikan CA1416: Pengecekan versi Android 26 (Oreo) ke atas
-        if (OperatingSystem.IsAndroidVersionAtLeast(26))
+        // App dikunci minimum Android 9 (API 28), yang sudah di atas API 26 —
+        // jadi CanRequestPackageInstalls() selalu tersedia, tidak perlu dicek versi.
+        if (context.PackageManager != null && !context.PackageManager.CanRequestPackageInstalls())
         {
-            if (context.PackageManager != null && !context.PackageManager.CanRequestPackageInstalls())
-            {
-                var settingsIntent = new Android.Content.Intent(Android.Provider.Settings.ActionManageUnknownAppSources)
-                    .SetData(Android.Net.Uri.Parse($"package:{context.PackageName}"))
-                    .AddFlags(Android.Content.ActivityFlags.NewTask);
+            var settingsIntent = new Android.Content.Intent(Android.Provider.Settings.ActionManageUnknownAppSources)
+                .SetData(Android.Net.Uri.Parse($"package:{context.PackageName}"))
+                .AddFlags(Android.Content.ActivityFlags.NewTask);
 
-                context.StartActivity(settingsIntent);
-                return;
-            }
+            context.StartActivity(settingsIntent);
+            return;
         }
 
         var file = new Java.IO.File(context.GetExternalFilesDir(Android.OS.Environment.DirectoryDownloads), fileName);
