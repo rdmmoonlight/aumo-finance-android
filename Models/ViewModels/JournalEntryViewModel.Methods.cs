@@ -197,7 +197,7 @@ public partial class JournalEntryViewModel
         {
             string successMessage = string.IsNullOrWhiteSpace(transactionNumber)
                 ? message
-                : $"Journal Entry {transactionNumber} recorded successfully!";
+                : $"Journal Entry {TransactionNumberDisplayHelper.Format(transactionNumber)} recorded successfully!";
 
             RememberLineDescriptions();
 

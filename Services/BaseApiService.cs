@@ -39,4 +39,33 @@ public abstract class BaseApiService
 
         return request;
     }
+
+    /// <summary>
+    /// Mengekstrak pesan error dari body respons non-sukses tanpa pernah
+    /// melempar JsonException. Server bisa saja mengirim body kosong (mis.
+    /// unhandled exception 500 sebelum ada exception-handler middleware,
+    /// atau timeout proxy) — mem-parse body itu langsung sebagai JSON akan
+    /// crash dengan pesan yang tidak jelas ("ExpectedJsonTokens..."). Selalu
+    /// pakai method ini, jangan Deserialize&lt;BasicApiResponse&gt; langsung.
+    /// </summary>
+    protected static string ExtractErrorMessage(System.Net.HttpStatusCode statusCode, string? content)
+    {
+        if (!string.IsNullOrWhiteSpace(content))
+        {
+            try
+            {
+                var err = JsonSerializer.Deserialize<BasicApiResponse>(content, JsonOptions);
+                if (!string.IsNullOrEmpty(err?.Message))
+                {
+                    return err.Message;
+                }
+            }
+            catch (JsonException)
+            {
+                // Body bukan JSON valid — abaikan, jatuh ke pesan generik di bawah.
+            }
+        }
+
+        return $"HTTP {(int)statusCode}";
+    }
 }
