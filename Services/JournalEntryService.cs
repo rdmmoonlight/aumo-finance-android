@@ -67,8 +67,7 @@ public class JournalEntryService : BaseApiService
                 return (true, result?.Message ?? "Journal entry created successfully.", result?.EntryId ?? 0, result?.TransactionNumber ?? string.Empty);
             }
 
-            var errResult = JsonSerializer.Deserialize<BasicApiResponse>(content, JsonOptions);
-            string message = !string.IsNullOrEmpty(errResult?.Message) ? errResult.Message : $"HTTP {(int)response.StatusCode}";
+            string message = ExtractErrorMessage(response.StatusCode, content);
             return (false, message, 0, string.Empty);
         }
         catch (TaskCanceledException)
@@ -103,8 +102,7 @@ public class JournalEntryService : BaseApiService
                 return (true, result?.Message ?? "Journal entry updated successfully.");
             }
 
-            var errResult = JsonSerializer.Deserialize<BasicApiResponse>(content, JsonOptions);
-            string message = !string.IsNullOrEmpty(errResult?.Message) ? errResult.Message : $"HTTP {(int)response.StatusCode}";
+            string message = ExtractErrorMessage(response.StatusCode, content);
             return (false, message);
         }
         catch (TaskCanceledException)
@@ -136,8 +134,7 @@ public class JournalEntryService : BaseApiService
                 return (true, result?.Message ?? "Journal entry deleted successfully.");
             }
 
-            var errResult = JsonSerializer.Deserialize<BasicApiResponse>(content, JsonOptions);
-            string message = !string.IsNullOrEmpty(errResult?.Message) ? errResult.Message : $"HTTP {(int)response.StatusCode}";
+            string message = ExtractErrorMessage(response.StatusCode, content);
             return (false, message);
         }
         catch (TaskCanceledException)

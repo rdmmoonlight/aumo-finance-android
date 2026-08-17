@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:AumoFinance.Views"
              xmlns:vm="clr-namespace:AumoFinance.ViewModels"
+             xmlns:behaviors="clr-namespace:AumoFinance.Behaviors"
              x:Class="AumoFinance.Pages.JournalEntry.JournalEntryPage"
              x:DataType="vm:JournalEntryViewModel"
              Title="{Binding PageTitle}"
@@ -194,7 +195,11 @@
                                                    Keyboard="Numeric"
                                                    BackgroundColor="#0F172A"
                                                    TextColor="White"
-                                                   PlaceholderColor="#64748B" />
+                                                   PlaceholderColor="#64748B">
+                                                <Entry.Behaviors>
+                                                    <behaviors:CursorToEndBehavior />
+                                                </Entry.Behaviors>
+                                            </Entry>
                                         </VerticalStackLayout>
 
                                         <VerticalStackLayout Grid.Column="1" Spacing="2">
@@ -204,7 +209,11 @@
                                                    Keyboard="Numeric"
                                                    BackgroundColor="#0F172A"
                                                    TextColor="White"
-                                                   PlaceholderColor="#64748B" />
+                                                   PlaceholderColor="#64748B">
+                                                <Entry.Behaviors>
+                                                    <behaviors:CursorToEndBehavior />
+                                                </Entry.Behaviors>
+                                            </Entry>
                                         </VerticalStackLayout>
                                     </Grid>
 
