@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -60,6 +61,9 @@ public partial class DashboardPage : ContentPage
                 NetIncomeLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.NetIncome);
                 RevenueLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalRevenue);
                 ExpenseLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalExpenses);
+
+                RenderCashAndBankBreakdown(data.CashAccounts, CashCard, CashItemsLayout);
+                RenderCashAndBankBreakdown(data.BankAccounts, BankCard, BankItemsLayout);
             }
             else
             {
@@ -78,6 +82,54 @@ public partial class DashboardPage : ContentPage
             LoadingIndicator.IsRunning = false;
             DashboardContent.IsVisible = true;
         }
+    }
+
+    private void RenderCashAndBankBreakdown(List<CashAndBankAccountDto>? accounts, Border card, VerticalStackLayout itemsLayout)
+    {
+        itemsLayout.Children.Clear();
+
+        if (accounts == null || accounts.Count == 0)
+        {
+            card.IsVisible = false;
+            return;
+        }
+
+        foreach (var account in accounts)
+        {
+            var row = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Auto }
+                }
+            };
+
+            row.Children.Add(new Label
+            {
+                Text = account.AccountName,
+                FontSize = 13,
+                TextColor = Color.FromArgb("#E2E8F0"),
+                LineBreakMode = LineBreakMode.TailTruncation,
+                VerticalOptions = LayoutOptions.Center
+            });
+
+            var balanceLabel = new Label
+            {
+                Text = string.Format(_idCulture, "Rp {0:N0}", account.Balance),
+                FontSize = 13,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#38BDF8"),
+                HorizontalTextAlignment = TextAlignment.End,
+                VerticalOptions = LayoutOptions.Center
+            };
+            Grid.SetColumn(balanceLabel, 1);
+            row.Children.Add(balanceLabel);
+
+            itemsLayout.Children.Add(row);
+        }
+
+        card.IsVisible = true;
     }
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
