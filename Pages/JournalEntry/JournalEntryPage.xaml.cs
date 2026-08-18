@@ -64,19 +64,16 @@ public partial class JournalEntryPage : ContentPage
     }
 
     // ==========================================
-    // Pemisah ribuan Debit/Kredit — format + posisi kursor dalam SATU
-    // operasi sinkron per keystroke, dengan guard anti-rekursi.
+    // Pemisah ribuan Debit/Kredit.
     //
-    // Sebelumnya format dilakukan lewat setter di JournalLineViewModel
-    // (View -> ViewModel -> View, dua putaran binding per keystroke), yang
-    // membuat digit baru bisa mendarat di posisi kursor yang salah saat
-    // panjang teks berubah karena titik ribuan ditambahkan (mis. mengetik
-    // "237500" menghasilkan "237.005" atau "237.050", bukan "237.500").
-    // Dengan handler ini, tepat satu Entry.Text + Entry.CursorPosition
-    // di-set per keystroke, jadi tidak ada ruang untuk race/urutan yang
-    // salah. Binding TwoWay yang sudah ada tetap mendorong nilai akhirnya
-    // ke DebitText/CreditText seperti biasa (setter di ViewModel bersifat
-    // idempoten terhadap teks yang sudah terformat).
+    // Percobaan sebelumnya (Behavior terpisah, lalu handler sinkron biasa)
+    // masih salah menempatkan digit (237500 -> 237.005 / 237.050). Root
+    // cause sebenarnya: di Android, Entry.CursorPosition yang di-set pada
+    // tick sinkron YANG SAMA dengan Entry.Text sering diabaikan native
+    // EditText karena buffer teksnya belum selesai diperbarui saat
+    // SetSelection dipanggil. Fix-nya: tetap set CursorPosition langsung
+    // (best effort), TAPI juga tunda satu tick lewat Dispatcher supaya
+    // benar-benar diterapkan setelah native selesai me-render teks baru.
     // ==========================================
 
     private void OnDebitTextChanged(object? sender, TextChangedEventArgs e)
@@ -98,18 +95,33 @@ public partial class JournalEntryPage : ContentPage
             formatted = value.ToString("N0", IdCulture);
         }
 
-        formattingInProgress.Add(entry);
-        try
+        if (entry.Text != formatted)
         {
-            if (entry.Text != formatted)
+            formattingInProgress.Add(entry);
+            try
             {
                 entry.Text = formatted;
             }
-            entry.CursorPosition = formatted.Length;
+            finally
+            {
+                formattingInProgress.Remove(entry);
+            }
         }
-        finally
+
+        // Android tidak selalu menerapkan CursorPosition kalau di-set pada
+        // tick sinkron yang sama dengan Text — EditText native belum
+        // selesai memperbarui buffernya, jadi SetSelection bisa diabaikan
+        // atau dipatok balik ke posisi lama. Set sekali langsung (best
+        // effort untuk device yang tidak kena masalah ini), lalu tunda
+        // satu tick lewat Dispatcher supaya benar-benar diterapkan setelah
+        // native selesai me-render teks barunya.
+        entry.CursorPosition = formatted.Length;
+        entry.Dispatcher.Dispatch(() =>
         {
-            formattingInProgress.Remove(entry);
-        }
+            if (entry.Text == formatted)
+            {
+                entry.CursorPosition = formatted.Length;
+            }
+        });
     }
 }
