@@ -28,6 +28,12 @@ public partial class DashboardPage : ContentPage
         await LoadDashboardDataAsync();
     }
 
+    private async void OnRefreshViewRefreshing(object? sender, EventArgs e)
+    {
+        await LoadDashboardDataAsync();
+        DashboardRefreshView.IsRefreshing = false;
+    }
+
     private async Task LoadDashboardDataAsync()
     {
         LoadingIndicator.IsVisible = true;
@@ -38,12 +44,17 @@ public partial class DashboardPage : ContentPage
         {
             var (data, errorDetail) = await _dashboardService.GetDashboardAsync();
 
+            // Sync period name to the top bar instead of an in-page period banner
+            // (same pattern as the Reports pages).
+            if (TopHeader != null)
+            {
+                TopHeader.PeriodText = string.IsNullOrWhiteSpace(data?.SelectedPeriodName)
+                    ? "No Active Period"
+                    : data.SelectedPeriodName;
+            }
+
             if (data != null && data.Success)
             {
-                PeriodText.Text = string.IsNullOrWhiteSpace(data.SelectedPeriodName)
-                    ? "No Period Selected"
-                    : data.SelectedPeriodName;
-
                 // Format ke Rupiah tanpa desimal (N0) dengan simbol "Rp " di depannya
                 CashLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalAssets);
                 NetIncomeLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.NetIncome);
@@ -67,11 +78,6 @@ public partial class DashboardPage : ContentPage
             LoadingIndicator.IsRunning = false;
             DashboardContent.IsVisible = true;
         }
-    }
-
-    private async void OnRefreshClicked(object? sender, EventArgs e)
-    {
-        await LoadDashboardDataAsync();
     }
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
