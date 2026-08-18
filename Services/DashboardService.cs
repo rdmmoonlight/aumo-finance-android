@@ -78,8 +78,17 @@ public class DashboardApiResponse
     [JsonPropertyName("netIncome")]
     public decimal NetIncome { get; set; }
 
-    [JsonPropertyName("cashAndBankAccounts")]
-    public List<CashAndBankAccountDto> CashAndBankAccounts { get; set; } = new();
+    [JsonPropertyName("cashAccounts")]
+    public List<CashAndBankAccountDto> CashAccounts { get; set; } = new();
+
+    [JsonPropertyName("totalCashOnHand")]
+    public decimal TotalCashOnHand { get; set; }
+
+    [JsonPropertyName("bankAccounts")]
+    public List<CashAndBankAccountDto> BankAccounts { get; set; } = new();
+
+    [JsonPropertyName("totalBankBalance")]
+    public decimal TotalBankBalance { get; set; }
 
     [JsonPropertyName("recentEntries")]
     public List<RecentEntryDto> RecentEntries { get; set; } = new();

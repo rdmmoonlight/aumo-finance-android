@@ -62,7 +62,8 @@ public partial class DashboardPage : ContentPage
                 RevenueLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalRevenue);
                 ExpenseLabel.Text = string.Format(_idCulture, "Rp {0:N0}", data.TotalExpenses);
 
-                RenderCashAndBankBreakdown(data.CashAndBankAccounts);
+                RenderCashAndBankBreakdown(data.CashAccounts, CashCard, CashItemsLayout);
+                RenderCashAndBankBreakdown(data.BankAccounts, BankCard, BankItemsLayout);
             }
             else
             {
@@ -83,13 +84,13 @@ public partial class DashboardPage : ContentPage
         }
     }
 
-    private void RenderCashAndBankBreakdown(List<CashAndBankAccountDto>? accounts)
+    private void RenderCashAndBankBreakdown(List<CashAndBankAccountDto>? accounts, Border card, VerticalStackLayout itemsLayout)
     {
-        CashAndBankItemsLayout.Children.Clear();
+        itemsLayout.Children.Clear();
 
         if (accounts == null || accounts.Count == 0)
         {
-            CashAndBankCard.IsVisible = false;
+            card.IsVisible = false;
             return;
         }
 
@@ -125,10 +126,10 @@ public partial class DashboardPage : ContentPage
             Grid.SetColumn(balanceLabel, 1);
             row.Children.Add(balanceLabel);
 
-            CashAndBankItemsLayout.Children.Add(row);
+            itemsLayout.Children.Add(row);
         }
 
-        CashAndBankCard.IsVisible = true;
+        card.IsVisible = true;
     }
 
     private async void OnPrimaryFabClicked(object? sender, EventArgs e)
