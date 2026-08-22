@@ -1,5 +1,5 @@
 using AumoFinance.Pages.Auth;
-using AumoFinance.Pages.Main;
+using AumoFinance.Pages.Home;
 using AumoFinance.Pages.Coa;
 using AumoFinance.Pages.Dashboard;
 using AumoFinance.Pages.JournalEntry;
@@ -79,7 +79,7 @@ public static class MauiProgram
         // Core & Authentication Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<LogoutPage>();
-        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<HomePage>();
         builder.Services.AddTransient<DashboardPage>();
         builder.Services.AddTransient<JournalEntryPage>();
         builder.Services.AddTransient<JournalEntryViewModel>();
