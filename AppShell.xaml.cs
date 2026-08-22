@@ -4,7 +4,7 @@ using Microsoft.Maui.Graphics;
 
 // Import Namespace Sesuai Subfolder
 using AumoFinance.Pages.Auth;
-using AumoFinance.Pages.Main;
+using AumoFinance.Pages.Home;
 using AumoFinance.Pages.Dashboard;
 using AumoFinance.Pages.Coa;
 using AumoFinance.Pages.Periods;

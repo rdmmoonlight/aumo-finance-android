@@ -46,7 +46,7 @@ public partial class JournalEntryPage : ContentPage
             System.Diagnostics.Debug.WriteLine($"Relative pop failed, falling back to absolute route: {ex}");
             try
             {
-                await Shell.Current.GoToAsync($"//{nameof(Pages.Main.MainPage)}/{nameof(Pages.Reports.GeneralJournal.GeneralJournalPage)}");
+                await Shell.Current.GoToAsync($"//{nameof(Pages.Home.HomePage)}/{nameof(Pages.Reports.GeneralJournal.GeneralJournalPage)}");
             }
             catch (Exception fallbackEx)
             {

@@ -181,7 +181,7 @@ public partial class LoginPage : ContentPage
                 if (Shell.Current is Shell shell)
                 {
                     Shell.SetFlyoutBehavior(shell, FlyoutBehavior.Flyout);
-                    await shell.GoToAsync("//MainPage");
+                    await shell.GoToAsync("//HomePage");
                 }
             }
             else
