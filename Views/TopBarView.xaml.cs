@@ -59,35 +59,39 @@ public partial class TopBarView : ContentView
         });
     }
 
+    private const string IconWifi = "\uEB52";
+    private const string IconWifiOff = "\uECFA";
+    private const string IconRefresh = "\uEB13";
+
     private void UpdateNetworkAndQueueUI()
     {
         bool isConnected = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
 
         if (!isConnected)
         {
-            // Tampilan saat OFFLINE
-            ConnectionStatusDot.Fill = new SolidColorBrush(Color.Parse("#EF4444")); // Red
-            NetworkQueueLabel.Text = _pendingQueueCount > 0
+            // Tampilan saat OFFLINE — hanya ikon, teks "Offline" dihapus
+            ConnectionStatusIcon.Text = IconWifiOff;
+            ConnectionStatusIcon.TextColor = Color.Parse("#B06B6B");
+            string tooltip = _pendingQueueCount > 0
                 ? $"Offline ({_pendingQueueCount} pending)"
                 : "Offline";
-            NetworkQueueLabel.TextColor = Color.Parse("#FCA5A5");
+            ToolTipProperties.SetText(ConnectionStatusIcon, tooltip);
         }
         else
         {
-            // Tampilan saat ONLINE
             if (_pendingQueueCount > 0)
             {
                 // Ada antrean yang sedang/akan di-sync
-                ConnectionStatusDot.Fill = new SolidColorBrush(Color.Parse("#F59E0B")); // Amber / Yellow
-                NetworkQueueLabel.Text = $"Syncing ({_pendingQueueCount})...";
-                NetworkQueueLabel.TextColor = Color.Parse("#FCD34D");
+                ConnectionStatusIcon.Text = IconRefresh;
+                ConnectionStatusIcon.TextColor = Color.Parse("#B98F5E");
+                ToolTipProperties.SetText(ConnectionStatusIcon, $"Syncing ({_pendingQueueCount})...");
             }
             else
             {
-                // Online & semua data tersinkron sempurna
-                ConnectionStatusDot.Fill = new SolidColorBrush(Color.Parse("#10B981")); // Emerald Green
-                NetworkQueueLabel.Text = "Online";
-                NetworkQueueLabel.TextColor = Color.Parse("#CBD5E1");
+                // Online & semua data tersinkron sempurna — hanya ikon, teks "Online" dihapus
+                ConnectionStatusIcon.Text = IconWifi;
+                ConnectionStatusIcon.TextColor = Color.Parse("#6FA37E");
+                ToolTipProperties.SetText(ConnectionStatusIcon, "Online");
             }
         }
     }
