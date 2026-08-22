@@ -71,7 +71,7 @@ public partial class TopBarView : ContentView
         {
             // Tampilan saat OFFLINE — hanya ikon, teks "Offline" dihapus
             ConnectionStatusIcon.Text = IconWifiOff;
-            ConnectionStatusIcon.TextColor = Color.Parse("#B06B6B");
+            ConnectionStatusIcon.TextColor = Color.Parse("#D05A63");
             string tooltip = _pendingQueueCount > 0
                 ? $"Offline ({_pendingQueueCount} pending)"
                 : "Offline";
@@ -83,14 +83,14 @@ public partial class TopBarView : ContentView
             {
                 // Ada antrean yang sedang/akan di-sync
                 ConnectionStatusIcon.Text = IconRefresh;
-                ConnectionStatusIcon.TextColor = Color.Parse("#B98F5E");
+                ConnectionStatusIcon.TextColor = Color.Parse("#9B7BAE");
                 ToolTipProperties.SetText(ConnectionStatusIcon, $"Syncing ({_pendingQueueCount})...");
             }
             else
             {
                 // Online & semua data tersinkron sempurna — hanya ikon, teks "Online" dihapus
                 ConnectionStatusIcon.Text = IconWifi;
-                ConnectionStatusIcon.TextColor = Color.Parse("#6FA37E");
+                ConnectionStatusIcon.TextColor = Color.Parse("#4FA36A");
                 ToolTipProperties.SetText(ConnectionStatusIcon, "Online");
             }
         }
