@@ -27,7 +27,7 @@
                             WidthRequest="60"
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
-                        <Image Source="appicon.png"
+                        <Image Source="applogo.png"
                                HeightRequest="45"
                                WidthRequest="45"
                                Aspect="AspectFit"
