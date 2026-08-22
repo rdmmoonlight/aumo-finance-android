@@ -2,30 +2,27 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Pages.Auth.LoginPage"
-             BackgroundColor="#0F172A"
+             BackgroundColor="#14161C"
              NavigationPage.HasNavigationBar="False"
              Title="Log In">
 
     <Grid VerticalOptions="Center" Padding="24">
-        
+
         <!-- Login Card Container -->
-        <Border BackgroundColor="#1E293B"
-                Stroke="#334155"
+        <Border BackgroundColor="#1B1E27"
+                Stroke="#2B2F3A"
                 StrokeThickness="1"
-                StrokeShape="RoundRectangle 24"
+                StrokeShape="RoundRectangle 20"
                 Padding="28,32">
-            <Border.Shadow>
-                <Shadow Brush="#000000" Offset="0,12" Radius="24" Opacity="0.45" />
-            </Border.Shadow>
 
             <VerticalStackLayout Spacing="20">
 
                 <!-- Header & App Logo/Icon -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Border BackgroundColor="#312E81"
-                            Stroke="#4F46E5"
-                            StrokeThickness="1.5"
-                            StrokeShape="RoundRectangle 20"
+                    <Border BackgroundColor="#262A36"
+                            Stroke="#3A3F4E"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 18"
                             HeightRequest="60"
                             WidthRequest="60"
                             HorizontalOptions="Center"
@@ -37,39 +34,39 @@
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
-                    
+
                     <Label Text="AumoFinance"
                            FontSize="24"
                            FontAttributes="Bold"
-                           TextColor="White"
+                           TextColor="#E7E9EE"
                            HorizontalTextAlignment="Center"
                            CharacterSpacing="0.5" />
-                    
+
                     <Label Text="Log in to your account to continue"
                            FontSize="13"
-                           TextColor="#94A3B8"
+                           TextColor="#8B93A6"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
 
                 <!-- Alert/Error Box -->
                 <Border x:Name="ErrorCard"
                         IsVisible="False"
-                        BackgroundColor="#451A1A"
-                        Stroke="#F87171"
+                        BackgroundColor="#2A1F1F"
+                        Stroke="#5E3D3D"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 12"
                         Padding="12,10">
                     <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10" VerticalOptions="Center">
                         <Label Grid.Column="0"
-                               Text="&#xE000;"
-                               FontFamily="MaterialIcons"
-                               TextColor="#FCA5A5"
+                               Text="&#xea05;"
+                               FontFamily="TablerIcons"
+                               TextColor="#C98F8F"
                                FontSize="16"
                                VerticalOptions="Center" />
                         <Label x:Name="ErrorText"
                                Grid.Column="1"
                                Text="Invalid email or password."
-                               TextColor="#FCA5A5"
+                               TextColor="#C98F8F"
                                FontSize="12"
                                VerticalOptions="Center" />
                     </Grid>
@@ -81,19 +78,19 @@
                     <!-- Email Input -->
                     <VerticalStackLayout Spacing="6">
                         <Label Text="Email"
-                               TextColor="#CBD5E1"
+                               TextColor="#B7BECC"
                                FontSize="12"
                                FontAttributes="Bold" />
-                        
-                        <Border BackgroundColor="#0F172A"
-                                Stroke="#334155"
+
+                        <Border BackgroundColor="#10121A"
+                                Stroke="#2B2F3A"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 12"
                                 Padding="14,2">
                             <Entry x:Name="EmailEntry"
                                    Placeholder="name@email.com"
-                                   PlaceholderColor="#64748B"
-                                   TextColor="White"
+                                   PlaceholderColor="#5B6274"
+                                   TextColor="#E7E9EE"
                                    FontSize="14"
                                    Keyboard="Email"
                                    ReturnType="Next"
@@ -104,12 +101,12 @@
                     <!-- Password Input -->
                     <VerticalStackLayout Spacing="6">
                         <Label Text="Password"
-                               TextColor="#CBD5E1"
+                               TextColor="#B7BECC"
                                FontSize="12"
                                FontAttributes="Bold" />
-                        
-                        <Border BackgroundColor="#0F172A"
-                                Stroke="#334155"
+
+                        <Border BackgroundColor="#10121A"
+                                Stroke="#2B2F3A"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 12"
                                 Padding="14,2">
@@ -117,21 +114,21 @@
                                 <Entry x:Name="PasswordEntry"
                                        Grid.Column="0"
                                        Placeholder="••••••••"
-                                       PlaceholderColor="#64748B"
-                                       TextColor="White"
+                                       PlaceholderColor="#5B6274"
+                                       TextColor="#E7E9EE"
                                        FontSize="14"
                                        IsPassword="True"
                                        ReturnType="Done"
                                        HeightRequest="44"
                                        VerticalOptions="Center"
                                        Completed="OnLoginButtonClicked" />
-                                
+
                                 <Button x:Name="TogglePasswordButton"
                                         Grid.Column="1"
-                                        Text="&#xE8F5;"
-                                        FontFamily="MaterialIcons"
+                                        Text="&#xecf0;"
+                                        FontFamily="TablerIcons"
                                         BackgroundColor="Transparent"
-                                        TextColor="#94A3B8"
+                                        TextColor="#8B93A6"
                                         FontSize="20"
                                         Padding="0"
                                         BorderWidth="0"
@@ -148,11 +145,11 @@
                     <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8" VerticalOptions="Center">
                         <CheckBox x:Name="RememberMeCheckBox"
                                   Grid.Column="0"
-                                  Color="#6366F1"
+                                  Color="#5B6488"
                                   VerticalOptions="Center" />
                         <Label Grid.Column="1"
                                Text="Remember me"
-                               TextColor="#94A3B8"
+                               TextColor="#8B93A6"
                                FontSize="13"
                                VerticalOptions="Center">
                             <Label.GestureRecognizers>
@@ -166,7 +163,7 @@
                 <!-- Login Button, Biometrics & Indicator -->
                 <VerticalStackLayout Spacing="12" Margin="0,4,0,0">
                     <ActivityIndicator x:Name="LoadingIndicator"
-                                       Color="#6366F1"
+                                       Color="#5B6488"
                                        IsRunning="False"
                                        IsVisible="False"
                                        HeightRequest="36" />
@@ -176,26 +173,22 @@
                                 Grid.Column="0"
                                 Text="Log In"
                                 Clicked="OnLoginButtonClicked"
-                                BackgroundColor="#4F46E5"
-                                TextColor="White"
+                                BackgroundColor="#464C63"
+                                TextColor="#E7E9EE"
                                 FontAttributes="Bold"
                                 FontSize="15"
                                 CornerRadius="12"
-                                HeightRequest="48">
-                            <Button.Shadow>
-                                <Shadow Brush="#4F46E5" Offset="0,6" Radius="12" Opacity="0.35" />
-                            </Button.Shadow>
-                        </Button>
+                                HeightRequest="48" />
 
                         <!-- Biometric Login Button -->
                         <Button x:Name="BiometricButton"
                                 Grid.Column="1"
-                                Text="&#xE90D;" 
-                                FontFamily="MaterialIcons"
-                                FontSize="24"
-                                BackgroundColor="#312E81"
-                                TextColor="#818CF8"
-                                BorderColor="#4F46E5"
+                                Text="&#xebd1;"
+                                FontFamily="TablerIcons"
+                                FontSize="22"
+                                BackgroundColor="#262A36"
+                                TextColor="#9AA3C2"
+                                BorderColor="#3A3F4E"
                                 BorderWidth="1"
                                 CornerRadius="12"
                                 HeightRequest="48"

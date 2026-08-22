@@ -11,8 +11,8 @@ namespace AumoFinance.Pages.Auth;
 
 public partial class LoginPage : ContentPage
 {
-    private const string IconEyeVisible = "\uE8F4";
-    private const string IconEyeHidden = "\uE8F5";
+    private const string IconEyeVisible = "\uea9a";
+    private const string IconEyeHidden = "\uecf0";
 
     private const string KeyRememberMe = "remember_me";
     private const string KeySavedEmail = "saved_email";

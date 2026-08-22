@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Views.TopBarView"
-             BackgroundColor="#0F172A">
+             BackgroundColor="#14161C">
 
     <Grid ColumnDefinitions="Auto, *, Auto"
           VerticalOptions="Center"
@@ -13,9 +13,10 @@
             
             <!-- Tombol Menu (Trigger AppShell Drawer) -->
             <Button x:Name="MenuButton"
-                    Text="☰"
+                    Text="&#xeaeb;"
+                    FontFamily="TablerIcons"
                     FontSize="20"
-                    TextColor="#94A3B8"
+                    TextColor="#8B93A6"
                     BackgroundColor="Transparent"
                     VerticalOptions="Center"
                     Padding="0"
@@ -28,36 +29,26 @@
                    Text="-"
                    FontSize="16"
                    FontAttributes="Bold"
-                   TextColor="#94A3B8"
+                   TextColor="#8B93A6"
                    VerticalOptions="Center" />
         </HorizontalStackLayout>
 
         <!-- SISI KANAN: Indikator Connectivity & Queue Data -->
         <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
             
-            <Border BackgroundColor="#1E293B"
-                    Stroke="#334155"
+            <Border BackgroundColor="#1B1E27"
+                    Stroke="#2B2F3A"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 12"
-                    Padding="10,4">
-                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                    
-                    <!-- Bulatan Indikator Status Koneksi -->
-                    <Ellipse x:Name="ConnectionStatusDot"
-                             WidthRequest="8"
-                             HeightRequest="8"
-                             Fill="#10B981"
-                             VerticalOptions="Center" />
-
-                    <!-- Label Status Queue & Online/Offline -->
-                    <Label x:Name="NetworkQueueLabel"
-                           Text="Online"
-                           FontSize="11"
-                           TextColor="#CBD5E1"
-                           FontAttributes="Bold"
-                           VerticalOptions="Center" />
-
-                </HorizontalStackLayout>
+                    Padding="8,6">
+                <!-- Ikon Status Koneksi (menggantikan bulatan + teks Online/Offline) -->
+                <Label x:Name="ConnectionStatusIcon"
+                       Text="&#xeb52;"
+                       FontFamily="TablerIcons"
+                       FontSize="15"
+                       TextColor="#6FA37E"
+                       VerticalOptions="Center"
+                       ToolTipProperties.Text="Online" />
             </Border>
 
         </HorizontalStackLayout>
