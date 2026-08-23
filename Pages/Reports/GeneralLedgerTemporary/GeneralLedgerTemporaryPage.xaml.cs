@@ -70,7 +70,7 @@ public partial class GeneralLedgerTemporaryPage : ContentPage
                 decimal netTotal = ledgers.Sum(l => l.NormalBalanceIsDebit ? -l.EndingBalance : l.EndingBalance);
 
                 NetTotalLabel.Text = netTotal.ToString("C0", _idrCulture);
-                NetTotalLabel.TextColor = netTotal >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+                NetTotalLabel.TextColor = netTotal >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
 
                 var viewModels = ledgers.Select(a => new GeneralLedgerAccountViewModel
                 {

@@ -85,7 +85,7 @@ public partial class IncomeStatementPage : ContentPage
             TotalOpExpenseLabel.Text = $"({totalOpExpense.ToString("N0", culture)})";
 
             OperatingIncomeLabel.Text = operatingIncome.ToString("N0", culture);
-            OperatingIncomeLabel.TextColor = operatingIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+            OperatingIncomeLabel.TextColor = operatingIncome >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
 
             // Seksi Other Income & Expenses hanya tampil jika ada datanya, sama seperti
             // IncomeStatementPage.razor di repo web (vm.OtherIncome.Any() || vm.OtherExpenses.Any()).
@@ -94,7 +94,7 @@ public partial class IncomeStatementPage : ContentPage
             OtherCollectionView.ItemsSource = otherLines;
 
             NetIncomeLabel.Text = netIncome.ToString("N0", culture);
-            NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+            NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
 
             StatementContainer.IsVisible = true;
         }
@@ -124,6 +124,6 @@ public class IncomeStatementLineModel
         : Amount.ToString("N0", Idr);
     public string FormattedAmountBracket => $"({Amount.ToString("N0", Idr)})";
     public Microsoft.Maui.Graphics.Color AmountColor => IsExpense
-        ? Microsoft.Maui.Graphics.Color.FromArgb("#F87171")
+        ? Microsoft.Maui.Graphics.Color.FromArgb("#D7192F")
         : Microsoft.Maui.Graphics.Colors.White;
 }

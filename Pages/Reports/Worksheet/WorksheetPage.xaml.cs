@@ -94,7 +94,7 @@ public partial class WorksheetPage : ContentPage
 
             decimal netIncome = totals.NetIncome;
             NetIncomeLabel.Text = $"Rp {netIncome.ToString("N0", culture)}";
-            NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+            NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
 
             TotUnadjDr.Text = totals.TbDebit.ToString("N0", culture);
             TotUnadjCr.Text = totals.TbCredit.ToString("N0", culture);

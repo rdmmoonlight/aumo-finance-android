@@ -107,11 +107,11 @@ public partial class TrialBalancePage : ContentPage
 
                 // Update Status Keseimbangan (Balanced Alert Card)
                 BalanceStatusCard.IsVisible = true;
-                BalanceStatusCard.BackgroundColor = Color.Parse(isBalanced ? "#064E3B" : "#7F1D1D");
-                BalanceStatusCard.Stroke = Color.Parse(isBalanced ? "#059669" : "#DC2626");
+                BalanceStatusCard.BackgroundColor = Color.Parse(isBalanced ? "#1E121F" : "#1E121F");
+                BalanceStatusCard.Stroke = Color.Parse(isBalanced ? "#4FA36A" : "#D7192F");
 
-                var accentColor = Color.Parse(isBalanced ? "#34D399" : "#FCA5A5");
-                BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
+                var accentColor = Color.Parse(isBalanced ? "#4FA36A" : "#D7192F");
+                BalanceStatusIcon.Text = isBalanced ? "" : "";
                 BalanceStatusIcon.TextColor = accentColor;
                 BalanceStatusText.TextColor = accentColor;
                 

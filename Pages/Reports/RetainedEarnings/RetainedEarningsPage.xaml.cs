@@ -69,7 +69,7 @@ public partial class RetainedEarningsPage : ContentPage
             BeginningBalanceLabel.Text = beginningBalance.ToString("N0", culture);
 
             NetIncomeLabel.Text = netIncome.ToString("N0", culture);
-            NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+            NetIncomeLabel.TextColor = netIncome >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
 
             if (dividends != 0)
             {
@@ -83,7 +83,7 @@ public partial class RetainedEarningsPage : ContentPage
 
             EndingLabel.Text = "Retained earnings, ending";
             EndingBalanceLabel.Text = endingBalance.ToString("N0", culture);
-            EndingBalanceLabel.TextColor = endingBalance >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+            EndingBalanceLabel.TextColor = endingBalance >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
 
             StatementContainer.IsVisible = true;
         }

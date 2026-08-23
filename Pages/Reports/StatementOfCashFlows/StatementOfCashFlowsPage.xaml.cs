@@ -69,7 +69,7 @@ public partial class StatementOfCashFlowsPage : ContentPage
 
         // Render Summary Reconciliation
         NetChangeCashLabel.Text = FormatAmount(data.NetChangeInCash);
-        NetChangeCashLabel.TextColor = data.NetChangeInCash >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+        NetChangeCashLabel.TextColor = data.NetChangeInCash >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
 
         BeginningCashLabel.Text = $"Rp {data.BeginningCash.ToString("N0", _culture)}";
         EndingCashLabel.Text = $"Rp {data.EndingCash.ToString("N0", _culture)}";
@@ -89,7 +89,7 @@ public partial class StatementOfCashFlowsPage : ContentPage
             {
                 Text = "No activities recorded",
                 FontSize = 13,
-                TextColor = Color.FromArgb("#94A3B8"),
+                TextColor = Color.FromArgb("#D8D8D8"),
                 FontAttributes = FontAttributes.Italic
             });
         }
@@ -111,7 +111,7 @@ public partial class StatementOfCashFlowsPage : ContentPage
                 {
                     Text = item.Description,
                     FontSize = 13,
-                    TextColor = Color.FromArgb("#CBD5E1"),
+                    TextColor = Color.FromArgb("#D8D8D8"),
                     LineBreakMode = LineBreakMode.TailTruncation
                 });
 
@@ -121,7 +121,7 @@ public partial class StatementOfCashFlowsPage : ContentPage
                     FontSize = 13,
                     HorizontalTextAlignment = TextAlignment.End
                 };
-                amountLabel.TextColor = item.Amount >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+                amountLabel.TextColor = item.Amount >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
                 Grid.SetColumn(amountLabel, 1);
                 grid.Children.Add(amountLabel);
 
@@ -130,7 +130,7 @@ public partial class StatementOfCashFlowsPage : ContentPage
         }
 
         netLabel.Text = FormatAmount(netAmount);
-        netLabel.TextColor = netAmount >= 0 ? Color.FromArgb("#4ADE80") : Color.FromArgb("#F87171");
+        netLabel.TextColor = netAmount >= 0 ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
     }
 
     private string FormatAmount(decimal amount)

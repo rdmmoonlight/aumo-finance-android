@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Views.TopBarView"
-             BackgroundColor="#141014">
+             BackgroundColor="#0A0A0A">
 
     <Grid ColumnDefinitions="Auto, *, Auto"
           VerticalOptions="Center"
@@ -16,7 +16,7 @@
                     Text="&#xeaeb;"
                     FontFamily="TablerIcons"
                     FontSize="20"
-                    TextColor="#E8E2EA"
+                    TextColor="#D8D8D8"
                     BackgroundColor="Transparent"
                     VerticalOptions="Center"
                     Padding="0"
@@ -29,15 +29,15 @@
                    Text="-"
                    FontSize="16"
                    FontAttributes="Bold"
-                   TextColor="#E8E2EA"
+                   TextColor="#D8D8D8"
                    VerticalOptions="Center" />
         </HorizontalStackLayout>
 
         <!-- SISI KANAN: Indikator Connectivity & Queue Data -->
         <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
             
-            <Border BackgroundColor="#141014"
-                    Stroke="#4A2E59"
+            <Border BackgroundColor="#1E121F"
+                    Stroke="#1E121F"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 12"
                     Padding="8,6">

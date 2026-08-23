@@ -83,7 +83,7 @@ public partial class TopBarView : ContentView
             {
                 // Ada antrean yang sedang/akan di-sync
                 ConnectionStatusIcon.Text = IconRefresh;
-                ConnectionStatusIcon.TextColor = Color.Parse("#9B7BAE");
+                ConnectionStatusIcon.TextColor = Color.Parse("#D8D8D8");
                 ToolTipProperties.SetText(ConnectionStatusIcon, $"Syncing ({_pendingQueueCount})...");
             }
             else

@@ -93,10 +93,10 @@ public partial class PostClosingTrialBalancePage : ContentPage
 
             // Status Alert
             BalanceStatusCard.IsVisible = true;
-            BalanceStatusCard.BackgroundColor = isBalanced ? Color.FromArgb("#064E3B") : Color.FromArgb("#7F1D1D");
-            BalanceStatusCard.Stroke = isBalanced ? Color.FromArgb("#059669") : Color.FromArgb("#DC2626");
-            BalanceStatusIcon.Text = isBalanced ? "✓" : "⚠️";
-            BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#34D399") : Color.FromArgb("#FCA5A5");
+            BalanceStatusCard.BackgroundColor = isBalanced ? Color.FromArgb("#1E121F") : Color.FromArgb("#1E121F");
+            BalanceStatusCard.Stroke = isBalanced ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
+            BalanceStatusIcon.Text = isBalanced ? "" : "";
+            BalanceStatusIcon.TextColor = isBalanced ? Color.FromArgb("#4FA36A") : Color.FromArgb("#D7192F");
             BalanceStatusText.TextColor = BalanceStatusIcon.TextColor;
             BalanceStatusText.Text = isBalanced
                 ? "Post-closing trial balance is balanced; books are ready for the next period."
