@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Home.HomePage"
-             BackgroundColor="#2D1A36">
+             BackgroundColor="#0A0A0A">
 
     <Grid RowDefinitions="Auto, *">
 
@@ -32,7 +32,7 @@
                     <!-- Go To Dashboard Button -->
                     <Button Grid.Column="0"
                             Text="  Dashboard"
-                            BackgroundColor="#42284F"
+                            BackgroundColor="#141014"
                             TextColor="#FFFFFF"
                             FontAttributes="Bold"
                             FontSize="14"

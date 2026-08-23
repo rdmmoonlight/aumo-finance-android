@@ -4,7 +4,7 @@
              xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Dashboard.DashboardPage"
              Title="Dashboard"
-             BackgroundColor="#35203F">
+             BackgroundColor="#141014">
 
     <Grid RowDefinitions="Auto, *">
 
@@ -45,7 +45,7 @@
                                          IsVisible="False">
 
                         <!-- Main Balance Card (Total Cash / Assets) -->
-                        <Border BackgroundColor="#42284F"
+                        <Border BackgroundColor="#141014"
                                 Stroke="#4A2E59"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 16"
@@ -64,7 +64,7 @@
 
                         <!-- Cash on Hand Card -->
                         <Border x:Name="CashCard"
-                                BackgroundColor="#42284F"
+                                BackgroundColor="#141014"
                                 Stroke="#4A2E59"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 16"
@@ -83,7 +83,7 @@
 
                         <!-- Bank Balances Card -->
                         <Border x:Name="BankCard"
-                                BackgroundColor="#42284F"
+                                BackgroundColor="#141014"
                                 Stroke="#4A2E59"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 16"
@@ -109,7 +109,7 @@
                             <!-- Net Income Card -->
                             <Border Grid.Row="0" Grid.Column="0"
                                     Grid.ColumnSpan="2"
-                                    BackgroundColor="#42284F"
+                                    BackgroundColor="#141014"
                                     Stroke="#4A2E59"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 16"
@@ -130,7 +130,7 @@
 
                             <!-- Total Revenue Card -->
                             <Border Grid.Row="1" Grid.Column="0"
-                                    BackgroundColor="#42284F"
+                                    BackgroundColor="#141014"
                                     Stroke="#4A2E59"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 16"
@@ -151,7 +151,7 @@
 
                             <!-- Total Expenses Card -->
                             <Border Grid.Row="1" Grid.Column="1"
-                                    BackgroundColor="#42284F"
+                                    BackgroundColor="#141014"
                                     Stroke="#4A2E59"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 16"
