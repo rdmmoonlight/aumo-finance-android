@@ -17,7 +17,7 @@
 
             <VerticalStackLayout Spacing="20">
 
-                <!-- Header & App Logo/Icon -->
+                <!-- Header & App Logo -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
                     <Border BackgroundColor="#141014"
                             Stroke="#5A3F6B"
@@ -28,8 +28,8 @@
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
                         <Image Source="applogo.png"
-                               HeightRequest="45"
-                               WidthRequest="45"
+                               HeightRequest="85"
+                               WidthRequest="85"
                                Aspect="AspectFit"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
