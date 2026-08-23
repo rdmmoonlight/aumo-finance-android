@@ -6,7 +6,7 @@
              x:Class="AumoFinance.Pages.JournalEntry.JournalEntryPage"
              x:DataType="vm:JournalEntryViewModel"
              Title="{Binding PageTitle}"
-             BackgroundColor="#0F172A">
+             BackgroundColor="#211426">
 
     <Grid RowDefinitions="Auto, *, Auto">
 
@@ -22,28 +22,38 @@
                     <Label Text="{Binding PageTitle}"
                            FontSize="22"
                            FontAttributes="Bold"
-                           TextColor="White" />
+                           TextColor="#FFFFFF" />
                     <Label Text="Record financial transactions with debit and credit lines."
                            FontSize="12"
-                           TextColor="#94A3B8" />
+                           TextColor="#E8E2EA" />
                 </VerticalStackLayout>
 
                 <!-- Locked Period Warning -->
                 <Border IsVisible="{Binding IsLocked}"
-                        BackgroundColor="#7F1D1D"
-                        Stroke="#B91C1C"
+                        BackgroundColor="#402531"
+                        Stroke="#6B3F47"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 10"
                         Padding="12,10">
-                    <Label Text="⚠️ This entry falls in a closed accounting period and cannot be modified."
-                           TextColor="#FCA5A5"
-                           FontSize="12"
-                           FontAttributes="Bold" />
+                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="8" VerticalOptions="Center">
+                        <Label Grid.Column="0"
+                               Text="&#xea06;"
+                               FontFamily="TablerIcons"
+                               TextColor="#D05A63"
+                               FontSize="16"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="This entry falls in a closed accounting period and cannot be modified."
+                               TextColor="#E3949B"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center" />
+                    </Grid>
                 </Border>
 
                 <!-- Journal Details Card -->
-                <Border BackgroundColor="#1E293B"
-                        Stroke="#334155"
+                <Border BackgroundColor="#35203F"
+                        Stroke="#4A2E59"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 12"
                         Padding="16">
@@ -51,12 +61,12 @@
 
                         <!-- Journal Type Selection -->
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="Journal Type" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Label Text="Journal Type" FontSize="12" FontAttributes="Bold" TextColor="#E8E2EA" />
                             <Picker SelectedItem="{Binding SelectedJournalType}"
                                     IsEnabled="{Binding IsEditable}"
-                                    BackgroundColor="#0F172A"
-                                    TextColor="White"
-                                    TitleColor="#64748B">
+                                    BackgroundColor="#2A1930"
+                                    TextColor="#FFFFFF"
+                                    TitleColor="#9C8FA6">
                                 <Picker.ItemsSource>
                                     <x:Array Type="{x:Type x:String}">
                                         <x:String>General</x:String>
@@ -71,19 +81,19 @@
 
                         <!-- Entry Date -->
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="Entry Date" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
+                            <Label Text="Entry Date" FontSize="12" FontAttributes="Bold" TextColor="#E8E2EA" />
                             <DatePicker Date="{Binding EntryDate}"
                                         IsEnabled="{Binding IsEditable}"
                                         Format="dd/MM/yyyy"
-                                        BackgroundColor="#0F172A"
-                                        TextColor="White" />
+                                        BackgroundColor="#2A1930"
+                                        TextColor="#FFFFFF" />
                         </VerticalStackLayout>
 
                         <!-- Transaction Number -->
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="Transaction Number" FontSize="12" FontAttributes="Bold" TextColor="#94A3B8" />
-                            <Border BackgroundColor="#334155"
-                                    Stroke="#475569"
+                            <Label Text="Transaction Number" FontSize="12" FontAttributes="Bold" TextColor="#E8E2EA" />
+                            <Border BackgroundColor="#35203F"
+                                    Stroke="#5A3F6B"
                                     StrokeThickness="1"
                                     StrokeDashArray="4,3"
                                     StrokeShape="RoundRectangle 8"
@@ -102,17 +112,21 @@
 
                 <!-- Journal Lines Section Header -->
                 <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center" Margin="0,8,0,0">
-                    <Label Text="Transaction Lines" FontSize="16" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
-                    <Button Text="➕ Add Line"
+                    <Label Text="Transaction Lines" FontSize="16" FontAttributes="Bold" TextColor="#FFFFFF" VerticalOptions="Center" />
+                    <Button Text="Add Line"
                             Command="{Binding AddLineCommand}"
                             IsEnabled="{Binding IsEditable}"
-                            BackgroundColor="#2563EB"
-                            TextColor="White"
+                            BackgroundColor="#523363"
+                            TextColor="#FFFFFF"
                             FontSize="12"
                             FontAttributes="Bold"
                             CornerRadius="8"
                             HeightRequest="36"
-                            Padding="12,0" />
+                            Padding="12,0">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="TablerIcons" Glyph="&#xeb0b;" Color="#FFFFFF" Size="14" />
+                        </Button.ImageSource>
+                    </Button>
                 </Grid>
 
                 <!-- Dynamic Lines Collection View -->
@@ -121,8 +135,8 @@
                                 SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:JournalLineViewModel">
-                            <Border BackgroundColor="#1E293B"
-                                    Stroke="#334155"
+                            <Border BackgroundColor="#35203F"
+                                    Stroke="#4A2E59"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 12"
                                     Margin="0,0,0,10"
@@ -136,21 +150,25 @@
                                                 ItemsSource="{Binding AvailableAccounts}"
                                                 ItemDisplayBinding="{Binding DisplayName}"
                                                 SelectedItem="{Binding SelectedAccount}"
-                                                BackgroundColor="#0F172A"
-                                                TextColor="White"
-                                                TitleColor="#64748B" />
+                                                BackgroundColor="#2A1930"
+                                                TextColor="#FFFFFF"
+                                                TitleColor="#9C8FA6" />
 
                                         <Button Grid.Column="1"
-                                                Text="🗑️"
+                                                Text=""
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:JournalEntryViewModel}}, Path=RemoveLineCommand}"
                                                 CommandParameter="{Binding .}"
-                                                BackgroundColor="#7F1D1D"
-                                                TextColor="White"
+                                                BackgroundColor="#D05A63"
+                                                TextColor="#FFFFFF"
                                                 FontSize="12"
                                                 CornerRadius="8"
                                                 HeightRequest="40"
                                                 WidthRequest="40"
-                                                Padding="0" />
+                                                Padding="0">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="TablerIcons" Glyph="&#xeb41;" Color="#FFFFFF" Size="16" />
+                                            </Button.ImageSource>
+                                        </Button>
                                     </Grid>
 
                                     <!-- Description dengan auto-fill dari riwayat -->
@@ -158,21 +176,21 @@
                                         <Entry Text="{Binding LineDescription}"
                                                Placeholder="Description"
                                                FontSize="12"
-                                               BackgroundColor="#0F172A"
-                                               TextColor="White"
-                                               PlaceholderColor="#64748B" />
+                                               BackgroundColor="#2A1930"
+                                               TextColor="#FFFFFF"
+                                               PlaceholderColor="#9C8FA6" />
 
                                         <!-- Saran otomatis berdasarkan deskripsi yang pernah diketik -->
                                         <VerticalStackLayout IsVisible="{Binding ShowSuggestions}"
                                                              BindableLayout.ItemsSource="{Binding DescriptionSuggestions}"
-                                                             BackgroundColor="#0B1220"
+                                                             BackgroundColor="#170D1B"
                                                              Margin="0,2,0,0"
                                                              Spacing="1">
                                             <BindableLayout.ItemTemplate>
                                                 <DataTemplate x:DataType="x:String">
                                                     <Label Text="{Binding .}"
                                                            FontSize="11"
-                                                           TextColor="#38BDF8"
+                                                           TextColor="#B79BC7"
                                                            Padding="10,7">
                                                         <Label.GestureRecognizers>
                                                             <TapGestureRecognizer
@@ -188,24 +206,24 @@
                                     <!-- Row: Debit & Credit Entry Inputs -->
                                     <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
                                         <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                            <Label Text="Debit" FontSize="10" TextColor="#94A3B8" />
+                                            <Label Text="Debit" FontSize="10" TextColor="#E8E2EA" />
                                             <Entry Text="{Binding DebitText}"
                                                    Placeholder="0"
                                                    Keyboard="Numeric"
-                                                   BackgroundColor="#0F172A"
-                                                   TextColor="White"
-                                                   PlaceholderColor="#64748B"
+                                                   BackgroundColor="#2A1930"
+                                                   TextColor="#FFFFFF"
+                                                   PlaceholderColor="#9C8FA6"
                                                    TextChanged="OnDebitTextChanged" />
                                         </VerticalStackLayout>
 
                                         <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                            <Label Text="Credit" FontSize="10" TextColor="#94A3B8" />
+                                            <Label Text="Credit" FontSize="10" TextColor="#E8E2EA" />
                                             <Entry Text="{Binding CreditText}"
                                                    Placeholder="0"
                                                    Keyboard="Numeric"
-                                                   BackgroundColor="#0F172A"
-                                                   TextColor="White"
-                                                   PlaceholderColor="#64748B"
+                                                   BackgroundColor="#2A1930"
+                                                   TextColor="#FFFFFF"
+                                                   PlaceholderColor="#9C8FA6"
                                                    TextChanged="OnCreditTextChanged" />
                                         </VerticalStackLayout>
                                     </Grid>
@@ -221,8 +239,8 @@
 
         <!-- Bottom Action Bar & Totals Summary -->
         <Border Grid.Row="2"
-                BackgroundColor="#1E293B"
-                Stroke="#334155"
+                BackgroundColor="#35203F"
+                Stroke="#4A2E59"
                 StrokeThickness="1"
                 StrokeShape="RoundRectangle 16,16,0,0"
                 Padding="16">
@@ -231,13 +249,13 @@
                 <!-- Totals & Balance Status -->
                 <Grid ColumnDefinitions="*, *, Auto">
                     <VerticalStackLayout Grid.Column="0">
-                        <Label Text="Total Debit" FontSize="10" TextColor="#94A3B8" />
-                        <Label Text="{Binding TotalDebitText}" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="Total Debit" FontSize="10" TextColor="#E8E2EA" />
+                        <Label Text="{Binding TotalDebitText}" FontSize="14" FontAttributes="Bold" TextColor="#FFFFFF" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="1">
-                        <Label Text="Total Credit" FontSize="10" TextColor="#94A3B8" />
-                        <Label Text="{Binding TotalCreditText}" FontSize="14" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="Total Credit" FontSize="10" TextColor="#E8E2EA" />
+                        <Label Text="{Binding TotalCreditText}" FontSize="14" FontAttributes="Bold" TextColor="#FFFFFF" />
                     </VerticalStackLayout>
 
                     <Border Grid.Column="2"
@@ -260,8 +278,8 @@
                             Text="Cancel"
                             Command="{Binding CancelCommand}"
                             IsVisible="{Binding IsEditingMode}"
-                            BackgroundColor="#334155"
-                            TextColor="#F8FAFC"
+                            BackgroundColor="#42284F"
+                            TextColor="#E8E2EA"
                             FontAttributes="Bold"
                             FontSize="14"
                             CornerRadius="10"
@@ -272,8 +290,8 @@
                             Text="{Binding SubmitButtonText}"
                             Command="{Binding SaveJournalCommand}"
                             IsVisible="{Binding IsSaveVisible}"
-                            BackgroundColor="#16A34A"
-                            TextColor="White"
+                            BackgroundColor="#4FA36A"
+                            TextColor="#FFFFFF"
                             FontAttributes="Bold"
                             FontSize="14"
                             CornerRadius="10"
