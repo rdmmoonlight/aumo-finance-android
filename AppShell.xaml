@@ -58,14 +58,14 @@
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnCoaMenuItemClicked" />
                         </Grid.GestureRecognizers>
-                        <Label Text="Chart of Accounts (COA)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
+                        <Label Text="Chart of Accounts" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                     </Grid>
 
                     <Grid Style="{StaticResource FlyoutMenuItemStyle}">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnPeriodsMenuItemClicked" />
                         </Grid.GestureRecognizers>
-                        <Label Text="Accounting Periods" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
+                        <Label Text="Periods" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                     </Grid>
 
                     <BoxView HeightRequest="1" Color="#334155" Margin="16,6" />
@@ -85,7 +85,7 @@
                             <TapGestureRecognizer Tapped="OnToggleReportsClicked" />
                         </Grid.GestureRecognizers>
                         <Label x:Name="ReportsToggleLabel"
-                               Text="📊  Reports  ▸"
+                               Text="Reports  ▸"
                                Style="{StaticResource FlyoutMenuItemLabelStyle}"
                                FontAttributes="Bold" />
                     </Grid>
@@ -139,7 +139,7 @@
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnWorksheetMenuItemClicked" />
                             </Grid.GestureRecognizers>
-                            <Label Text="Worksheet (10-Column)" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
+                            <Label Text="Worksheet" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                         </Grid>
 
                         <Grid Padding="32,10" BackgroundColor="Transparent">

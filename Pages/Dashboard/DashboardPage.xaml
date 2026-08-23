@@ -166,7 +166,7 @@
                                            Text="Rp 0"
                                            FontSize="18"
                                            FontAttributes="Bold"
-                                           TextColor="#D05A63" />
+                                           TextColor="#D7192F" />
                                 </VerticalStackLayout>
                             </Border>
 

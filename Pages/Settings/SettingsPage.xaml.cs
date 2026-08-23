@@ -14,12 +14,24 @@ public partial class SettingsPage : ContentPage
     private const string KeyAutoUpdateEnabled = "auto_update_enabled";
 
     private readonly NotificationService _notificationService;
+    private readonly PeriodService _periodService;
 
-    public SettingsPage(NotificationService notificationService)
+    public SettingsPage(NotificationService notificationService, PeriodService periodService)
     {
         InitializeComponent();
         _notificationService = notificationService;
+        _periodService = periodService;
         LoadSavedSettings();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (TopHeader != null)
+        {
+            await SelectedPeriodDisplayHelper.ApplyToTopBarAsync(TopHeader, _periodService);
+        }
     }
 
     private void LoadSavedSettings()
