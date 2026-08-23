@@ -218,10 +218,10 @@ public partial class CoaPage : ContentPage
     private void ShowAlert(string message, bool isError)
     {
         AlertText.Text = message;
-        AlertIcon.Text = isError ? "⚠️" : "✅";
-        AlertCard.BackgroundColor = isError ? Color.FromArgb("#7F1D1D") : Color.FromArgb("#14532D");
-        AlertCard.Stroke = isError ? Color.FromArgb("#EF4444") : Color.FromArgb("#22C55E");
-        AlertText.TextColor = isError ? Color.FromArgb("#FCA5A5") : Color.FromArgb("#86EFAC");
+        AlertIcon.Text = isError ? "\uea06" : "\uea67";
+        AlertCard.BackgroundColor = isError ? Color.FromArgb("#402531") : Color.FromArgb("#1E3A2A");
+        AlertCard.Stroke = isError ? Color.FromArgb("#6B3F47") : Color.FromArgb("#345940");
+        AlertText.TextColor = isError ? Color.FromArgb("#E3949B") : Color.FromArgb("#7BC495");
         AlertCard.IsVisible = true;
     }
 
@@ -249,9 +249,9 @@ public class CoaItemViewModel
 
     public bool HasRole => !string.IsNullOrWhiteSpace(Role);
     public string StatusText => IsActive ? "ACTIVE" : "INACTIVE";
-    public Color StatusBackgroundColor => IsActive ? Color.FromArgb("#14532D") : Color.FromArgb("#7F1D1D");
-    public Color StatusTextColor => IsActive ? Color.FromArgb("#86EFAC") : Color.FromArgb("#FCA5A5");
+    public Color StatusBackgroundColor => IsActive ? Color.FromArgb("#1E3A2A") : Color.FromArgb("#402531");
+    public Color StatusTextColor => IsActive ? Color.FromArgb("#7BC495") : Color.FromArgb("#E3949B");
 
     public string FormattedBalance => "Rp " + Math.Round(CurrentBalance, 0, MidpointRounding.AwayFromZero).ToString("N0", IdrCulture);
-    public Color BalanceColor => CurrentBalance >= 0 ? Color.FromArgb("#38BDF8") : Color.FromArgb("#EF4444");
+    public Color BalanceColor => CurrentBalance >= 0 ? Color.FromArgb("#FFFFFF") : Color.FromArgb("#D05A63");
 }

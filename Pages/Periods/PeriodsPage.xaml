@@ -4,7 +4,7 @@
              xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Periods.PeriodsPage"
              Title="Accounting Periods"
-             BackgroundColor="#0F172A">
+             BackgroundColor="#1E121F">
 
     <Grid RowDefinitions="Auto, *">
 
@@ -15,8 +15,8 @@
 
             <!-- Page Header Card -->
             <Border Grid.Row="0"
-                    BackgroundColor="#1E293B"
-                    Stroke="#334155"
+                    BackgroundColor="#35203F"
+                    Stroke="#4A2E59"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 16"
                     Padding="16,12">
@@ -28,24 +28,28 @@
                         <Label Text="PERIOD MANAGEMENT"
                                FontSize="11"
                                FontAttributes="Bold"
-                               TextColor="#94A3B8"
+                               TextColor="#E8E2EA"
                                CharacterSpacing="0.8" />
                         <Label Text="All Accounting Periods"
                                FontSize="16"
                                FontAttributes="Bold"
-                               TextColor="White" />
+                               TextColor="#FFFFFF" />
                     </VerticalStackLayout>
 
                     <Button Grid.Column="1"
-                            Text="➕ New Period"
+                            Text=" New Period"
                             Clicked="OnAddPeriodClicked"
-                            BackgroundColor="#2563EB"
-                            TextColor="White"
+                            BackgroundColor="#523363"
+                            TextColor="#FFFFFF"
                             FontAttributes="Bold"
                             FontSize="12"
                             CornerRadius="10"
                             Padding="12,0"
-                            HeightRequest="40" />
+                            HeightRequest="40">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="TablerIcons" Glyph="&#xea69;" Color="#FFFFFF" Size="15" />
+                        </Button.ImageSource>
+                    </Button>
                 </Grid>
             </Border>
 
@@ -56,7 +60,7 @@
                                IsVisible="True"
                                HeightRequest="40"
                                WidthRequest="40"
-                               Color="#38BDF8"
+                               Color="#8B6C9C"
                                HorizontalOptions="Center" />
 
             <!-- Empty state + list share the remaining space -->
@@ -68,17 +72,19 @@
                                      Spacing="12"
                                      HorizontalOptions="Center"
                                      Padding="0,40">
-                    <Label Text="📅"
-                           FontSize="48"
+                    <Label Text="&#xee1f;"
+                           FontFamily="TablerIcons"
+                           FontSize="44"
+                           TextColor="#9C8FA6"
                            HorizontalOptions="Center" />
                     <Label Text="No Accounting Periods Found"
                            FontSize="16"
                            FontAttributes="Bold"
-                           TextColor="#CBD5E1"
+                           TextColor="#FFFFFF"
                            HorizontalOptions="Center" />
                     <Label Text="Tap '+ New Period' above to create your first accounting period."
                            FontSize="12"
-                           TextColor="#94A3B8"
+                           TextColor="#E8E2EA"
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
@@ -86,8 +92,8 @@
                 <!-- Periods Collection List: CollectionView provides its own scrolling/virtualization,
                      so it must not be nested inside a ScrollView. -->
                 <RefreshView x:Name="PeriodsRefreshView"
-                             BackgroundColor="#0F172A"
-                             RefreshColor="#38BDF8"
+                             BackgroundColor="#1E121F"
+                             RefreshColor="#8B6C9C"
                              Refreshing="OnRefreshViewRefreshing">
                     <CollectionView x:Name="PeriodsCollectionView"
                                     SelectionMode="None"
@@ -95,11 +101,11 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Border Margin="0,0,0,12"
-                                        BackgroundColor="#1E293B"
+                                        BackgroundColor="#35203F"
                                         Padding="16"
                                         StrokeShape="RoundRectangle 16"
                                         StrokeThickness="1"
-                                        Stroke="#334155">
+                                        Stroke="#4A2E59">
                                     <Border.Shadow>
                                         <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
                                     </Border.Shadow>
@@ -111,12 +117,12 @@
                                             <Label Text="{Binding PeriodName}"
                                                    FontSize="16"
                                                    FontAttributes="Bold"
-                                                   TextColor="White"
+                                                   TextColor="#FFFFFF"
                                                    VerticalOptions="Center" />
 
                                             <!-- Selected Active Badge -->
                                             <Border IsVisible="{Binding IsSelected}"
-                                                    BackgroundColor="#14532D"
+                                                    BackgroundColor="#1E3A2A"
                                                     StrokeShape="RoundRectangle 6"
                                                     StrokeThickness="0"
                                                     Padding="6,2"
@@ -124,12 +130,12 @@
                                                 <Label Text="ACTIVE"
                                                        FontSize="10"
                                                        FontAttributes="Bold"
-                                                       TextColor="#86EFAC" />
+                                                       TextColor="#7BC495" />
                                             </Border>
 
                                             <!-- Closed Badge -->
                                             <Border IsVisible="{Binding IsClosed}"
-                                                    BackgroundColor="#7F1D1D"
+                                                    BackgroundColor="#402531"
                                                     StrokeShape="RoundRectangle 6"
                                                     StrokeThickness="0"
                                                     Padding="6,2"
@@ -137,7 +143,7 @@
                                                 <Label Text="CLOSED"
                                                        FontSize="10"
                                                        FontAttributes="Bold"
-                                                       TextColor="#FCA5A5" />
+                                                       TextColor="#E3949B" />
                                             </Border>
                                         </HorizontalStackLayout>
 
@@ -145,7 +151,7 @@
                                         <Label Grid.Row="1" Grid.Column="0"
                                                Text="{Binding DateRangeDisplay}"
                                                FontSize="12"
-                                               TextColor="#94A3B8" />
+                                               TextColor="#E8E2EA" />
 
                                         <!-- Actions (Select / Close) -->
                                         <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
@@ -159,8 +165,8 @@
                                                     HeightRequest="32"
                                                     CornerRadius="8"
                                                     Padding="12,0"
-                                                    BackgroundColor="#334155"
-                                                    TextColor="#38BDF8"
+                                                    BackgroundColor="#42284F"
+                                                    TextColor="#B79BC7"
                                                     IsVisible="{Binding CanSelect}"
                                                     Clicked="OnSelectPeriodClicked" />
 
@@ -171,8 +177,8 @@
                                                     HeightRequest="32"
                                                     CornerRadius="8"
                                                     Padding="12,0"
-                                                    BackgroundColor="#7F1D1D"
-                                                    TextColor="#FCA5A5"
+                                                    BackgroundColor="#D05A63"
+                                                    TextColor="#FFFFFF"
                                                     IsVisible="{Binding CanClose}"
                                                     Clicked="OnClosePeriodClicked" />
                                         </HorizontalStackLayout>
