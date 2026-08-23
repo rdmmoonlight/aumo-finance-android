@@ -86,7 +86,7 @@ public partial class JournalEntryViewModel
     private async Task RefreshNextTransactionNumberAsync()
     {
         TransactionNumber = "Loading...";
-        TransactionNumberColor = Color.FromArgb("#64748B");
+        TransactionNumberColor = Color.FromArgb("#9C8FA6");
 
         // Preview saja, tidak mengonsumsi nomor — server hanya membaca
         // counter tanpa menaikkannya. Nomor final tetap diambil ulang
@@ -101,7 +101,7 @@ public partial class JournalEntryViewModel
         else
         {
             TransactionNumber = "Auto-generated";
-            TransactionNumberColor = Color.FromArgb("#64748B");
+            TransactionNumberColor = Color.FromArgb("#9C8FA6");
         }
     }
 
@@ -117,15 +117,15 @@ public partial class JournalEntryViewModel
 
         if (IsBalanced)
         {
-            BalanceBadgeBg = Color.FromArgb("#14532D");
+            BalanceBadgeBg = Color.FromArgb("#1E3A2A");
             BalanceStatusText = "BALANCED";
-            BalanceStatusTextColor = Color.FromArgb("#86EFAC");
+            BalanceStatusTextColor = Color.FromArgb("#7BC495");
         }
         else
         {
-            BalanceBadgeBg = Color.FromArgb("#7F1D1D");
+            BalanceBadgeBg = Color.FromArgb("#402531");
             BalanceStatusText = "UNBALANCED";
-            BalanceStatusTextColor = Color.FromArgb("#FCA5A5");
+            BalanceStatusTextColor = Color.FromArgb("#E3949B");
         }
 
         IsSaveVisible = IsBalanced && !IsLocked;

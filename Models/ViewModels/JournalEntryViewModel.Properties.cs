@@ -17,14 +17,14 @@ public partial class JournalEntryViewModel
     // menyentuh date picker sama sekali. Pakai Unspecified dari awal.
     private DateTime _entryDate = DateTime.SpecifyKind(DateTime.Now.Date, DateTimeKind.Unspecified);
     private string _transactionNumber = "Auto-generated";
-    private Color _transactionNumberColor = Color.FromArgb("#64748B");
+    private Color _transactionNumberColor = Color.FromArgb("#9C8FA6");
     private string _totalDebitText = "Rp 0";
     private string _totalCreditText = "Rp 0";
     private bool _isBalanced;
     private bool _isSaveVisible;
-    private Color _balanceBadgeBg = Color.FromArgb("#7F1D1D");
+    private Color _balanceBadgeBg = Color.FromArgb("#402531");
     private string _balanceStatusText = "UNBALANCED";
-    private Color _balanceStatusTextColor = Color.FromArgb("#FCA5A5");
+    private Color _balanceStatusTextColor = Color.FromArgb("#E3949B");
 
     public string PageTitle
     {
