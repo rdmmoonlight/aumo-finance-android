@@ -8,7 +8,7 @@
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <!-- Status bar gelap selaras dengan tema app -->
-        <item name="android:statusBarColor">#0F172A</item>
+        <item name="android:statusBarColor">#0A0A0A</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

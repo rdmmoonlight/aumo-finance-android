@@ -93,7 +93,7 @@ public partial class AppShell : Shell
         ReportsSection.IsVisible = expanded;
 
         ReportsToggleLabel.Text = expanded ? "📊  Reports  ▾" : "📊  Reports  ▸";
-        ReportsToggleRow.BackgroundColor = expanded ? Color.FromArgb("#1E293B") : Colors.Transparent;
+        ReportsToggleRow.BackgroundColor = expanded ? Color.FromArgb("#1E121F") : Colors.Transparent;
     }
 
     private void OnCoaMenuItemClicked(object? sender, EventArgs e)
