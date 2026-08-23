@@ -35,7 +35,7 @@
                                VerticalOptions="Center" />
                     </Border>
 
-                    <Label Text="AumoFinance"
+                    <Label Text="Aumo Finance"
                            FontSize="24"
                            FontAttributes="Bold"
                            TextColor="#FFFFFF"
