@@ -13,19 +13,27 @@ namespace AumoFinance.Pages.Coa;
 public partial class CoaPage : ContentPage
 {
     private readonly CoaService _coaService;
+    private readonly PeriodService _periodService;
     private List<CoaItemViewModel> _allAccounts = new();
     private readonly CultureInfo _idrCulture = new("id-ID");
 
-    public CoaPage(CoaService coaService)
+    public CoaPage(CoaService coaService, PeriodService periodService)
     {
         InitializeComponent();
         _coaService = coaService;
+        _periodService = periodService;
         SetupCategoryPicker();
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        if (TopHeader != null)
+        {
+            await SelectedPeriodDisplayHelper.ApplyToTopBarAsync(TopHeader, _periodService);
+        }
+
         await LoadAccountsAsync();
     }
 
