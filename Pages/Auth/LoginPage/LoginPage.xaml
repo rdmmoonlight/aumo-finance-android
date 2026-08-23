@@ -28,8 +28,8 @@
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
                         <Image Source="applogo.png"
-                               HeightRequest="80"
-                               WidthRequest="80"
+                               HeightRequest="65"
+                               WidthRequest="65"
                                Aspect="AspectFit"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
