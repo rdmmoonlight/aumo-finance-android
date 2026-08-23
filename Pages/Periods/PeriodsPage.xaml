@@ -4,7 +4,7 @@
              xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Periods.PeriodsPage"
              Title="Accounting Periods"
-             BackgroundColor="#1E121F">
+             BackgroundColor="#0A0A0A">
 
     <Grid RowDefinitions="Auto, *">
 
@@ -15,7 +15,7 @@
 
             <!-- Page Header Card -->
             <Border Grid.Row="0"
-                    BackgroundColor="#35203F"
+                    BackgroundColor="#141014"
                     Stroke="#4A2E59"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 16"
@@ -92,7 +92,7 @@
                 <!-- Periods Collection List: CollectionView provides its own scrolling/virtualization,
                      so it must not be nested inside a ScrollView. -->
                 <RefreshView x:Name="PeriodsRefreshView"
-                             BackgroundColor="#1E121F"
+                             BackgroundColor="#0A0A0A"
                              RefreshColor="#8B6C9C"
                              Refreshing="OnRefreshViewRefreshing">
                     <CollectionView x:Name="PeriodsCollectionView"
@@ -101,7 +101,7 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Border Margin="0,0,0,12"
-                                        BackgroundColor="#35203F"
+                                        BackgroundColor="#141014"
                                         Padding="16"
                                         StrokeShape="RoundRectangle 16"
                                         StrokeThickness="1"
@@ -165,7 +165,7 @@
                                                     HeightRequest="32"
                                                     CornerRadius="8"
                                                     Padding="12,0"
-                                                    BackgroundColor="#42284F"
+                                                    BackgroundColor="#141014"
                                                     TextColor="#B79BC7"
                                                     IsVisible="{Binding CanSelect}"
                                                     Clicked="OnSelectPeriodClicked" />

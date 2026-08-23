@@ -2,14 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Pages.Auth.LoginPage"
-             BackgroundColor="#35203F"
+             BackgroundColor="#141014"
              NavigationPage.HasNavigationBar="False"
              Title="Log In">
 
     <Grid VerticalOptions="Center" Padding="24">
 
         <!-- Login Card Container -->
-        <Border BackgroundColor="#42284F"
+        <Border BackgroundColor="#141014"
                 Stroke="#4A2E59"
                 StrokeThickness="1"
                 StrokeShape="RoundRectangle 20"
@@ -19,7 +19,7 @@
 
                 <!-- Header & App Logo/Icon -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Border BackgroundColor="#42284F"
+                    <Border BackgroundColor="#141014"
                             Stroke="#5A3F6B"
                             StrokeThickness="1"
                             StrokeShape="RoundRectangle 18"
@@ -186,7 +186,7 @@
                                 Text="&#xebd1;"
                                 FontFamily="TablerIcons"
                                 FontSize="22"
-                                BackgroundColor="#42284F"
+                                BackgroundColor="#141014"
                                 TextColor="#E8E2EA"
                                 BorderColor="#5A3F6B"
                                 BorderWidth="1"

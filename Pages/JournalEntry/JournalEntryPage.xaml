@@ -6,7 +6,7 @@
              x:Class="AumoFinance.Pages.JournalEntry.JournalEntryPage"
              x:DataType="vm:JournalEntryViewModel"
              Title="{Binding PageTitle}"
-             BackgroundColor="#211426">
+             BackgroundColor="#0A0A0A">
 
     <Grid RowDefinitions="Auto, *, Auto">
 
@@ -52,7 +52,7 @@
                 </Border>
 
                 <!-- Journal Details Card -->
-                <Border BackgroundColor="#35203F"
+                <Border BackgroundColor="#141014"
                         Stroke="#4A2E59"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 12"
@@ -92,7 +92,7 @@
                         <!-- Transaction Number -->
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Transaction Number" FontSize="12" FontAttributes="Bold" TextColor="#E8E2EA" />
-                            <Border BackgroundColor="#35203F"
+                            <Border BackgroundColor="#141014"
                                     Stroke="#5A3F6B"
                                     StrokeThickness="1"
                                     StrokeDashArray="4,3"
@@ -135,7 +135,7 @@
                                 SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:JournalLineViewModel">
-                            <Border BackgroundColor="#35203F"
+                            <Border BackgroundColor="#141014"
                                     Stroke="#4A2E59"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 12"
@@ -239,7 +239,7 @@
 
         <!-- Bottom Action Bar & Totals Summary -->
         <Border Grid.Row="2"
-                BackgroundColor="#35203F"
+                BackgroundColor="#141014"
                 Stroke="#4A2E59"
                 StrokeThickness="1"
                 StrokeShape="RoundRectangle 16,16,0,0"
@@ -278,7 +278,7 @@
                             Text="Cancel"
                             Command="{Binding CancelCommand}"
                             IsVisible="{Binding IsEditingMode}"
-                            BackgroundColor="#42284F"
+                            BackgroundColor="#141014"
                             TextColor="#E8E2EA"
                             FontAttributes="Bold"
                             FontSize="14"

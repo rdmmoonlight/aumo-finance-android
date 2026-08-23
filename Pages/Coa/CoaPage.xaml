@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Coa.CoaPage"
-             BackgroundColor="#1E121F"
+             BackgroundColor="#0A0A0A"
              Title="Chart of Accounts">
 
     <Grid RowDefinitions="Auto, *">
@@ -47,7 +47,7 @@
                     <SearchBar x:Name="SearchField"
                                Placeholder="Search account name or code..."
                                TextChanged="OnSearchTextChanged"
-                               BackgroundColor="#35203F"
+                               BackgroundColor="#141014"
                                TextColor="#FFFFFF"
                                PlaceholderColor="#9C8FA6"
                                CancelButtonColor="#E8E2EA" />
@@ -55,7 +55,7 @@
                     <Picker x:Name="CategoryPicker"
                             Title="All Categories"
                             SelectedIndexChanged="OnCategoryPickerChanged"
-                            BackgroundColor="#35203F"
+                            BackgroundColor="#141014"
                             TextColor="#FFFFFF"
                             TitleColor="#9C8FA6" />
                 </VerticalStackLayout>
@@ -96,7 +96,7 @@
                 <CollectionView x:Name="CoaCollectionView" IsVisible="False" SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Border BackgroundColor="#35203F"
+                            <Border BackgroundColor="#141014"
                                     Stroke="#4A2E59"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 12"
@@ -138,7 +138,7 @@
 
                                     <HorizontalStackLayout Grid.Column="1" Grid.Row="2" Spacing="6">
                                         <Button Text=""
-                                                BackgroundColor="#42284F"
+                                                BackgroundColor="#141014"
                                                 TextColor="#FFFFFF"
                                                 FontSize="12"
                                                 CornerRadius="8"

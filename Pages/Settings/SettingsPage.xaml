@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:AumoFinance.Views"
              x:Class="AumoFinance.Pages.Settings.SettingsPage"
-             BackgroundColor="#110D12"
+             BackgroundColor="#0A0A0A"
              Title="Settings">
 
     <Grid RowDefinitions="Auto, *">
@@ -14,7 +14,7 @@
             <VerticalStackLayout Padding="20" Spacing="20">
 
                 <!-- Section: Daily Reminder Notifications -->
-                <Border BackgroundColor="#1E121F"
+                <Border BackgroundColor="#0A0A0A"
                         Stroke="#4A2E59"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 16"
@@ -28,7 +28,7 @@
                         <!-- Title & Header -->
                         <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12" VerticalOptions="Center">
                             <Border Grid.Column="0"
-                                    BackgroundColor="#35203F"
+                                    BackgroundColor="#141014"
                                     Stroke="#5A3F6B"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10"
@@ -77,7 +77,7 @@
                                    FontAttributes="Bold"
                                    TextColor="#E8E2EA" />
 
-                            <Border BackgroundColor="#110D12"
+                            <Border BackgroundColor="#0A0A0A"
                                     Stroke="#4A2E59"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 12"
@@ -94,7 +94,7 @@
                 </Border>
 
                 <!-- Section: Application Settings & Updates -->
-                <Border BackgroundColor="#1E121F"
+                <Border BackgroundColor="#0A0A0A"
                         Stroke="#4A2E59"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 16"
@@ -128,7 +128,7 @@
                         </Grid>
 
                         <Button Text="Check for Updates"
-                                BackgroundColor="#35203F"
+                                BackgroundColor="#141014"
                                 TextColor="#B79BC7"
                                 FontAttributes="Bold"
                                 FontSize="12"
