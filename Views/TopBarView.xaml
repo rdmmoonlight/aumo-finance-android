@@ -31,6 +31,16 @@
                    FontAttributes="Bold"
                    TextColor="#D8D8D8"
                    VerticalOptions="Center" />
+
+            <!-- Ikon Periode Terkunci (menggantikan emoji 🔒 yang sebelumnya digabung ke teks periode) -->
+            <Label x:Name="PeriodLockIcon"
+                   Text="&#xeae2;"
+                   FontFamily="TablerIcons"
+                   FontSize="14"
+                   TextColor="#D7192F"
+                   IsVisible="False"
+                   VerticalOptions="Center"
+                   ToolTipProperties.Text="Periode ditutup" />
         </HorizontalStackLayout>
 
         <!-- SISI KANAN: Indikator Connectivity & Queue Data -->

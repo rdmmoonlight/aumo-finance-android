@@ -62,11 +62,12 @@ public partial class AdjustingJournalPage : ContentPage
             }
 
             // Topbar sinkron dengan General Journal — nama periode ditampilkan di sana,
-            // status closed ditempel di belakang nama periode.
+            // status closed ditandai lewat ikon gembok terpisah (bukan emoji ditempel ke teks).
             var periodName = string.IsNullOrWhiteSpace(response.SelectedPeriodName)
                 ? "No Active Period"
                 : response.SelectedPeriodName;
-            TopHeader.PeriodText = response.IsPeriodClosed ? $"{periodName} 🔒" : periodName;
+            TopHeader.PeriodText = periodName;
+            TopHeader.IsPeriodLocked = response.IsPeriodClosed;
 
             var entries = response.Entries;
 

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Pages.Log.CrashLogPage"
              Title="Crash Log Report"
-             BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}">
+             BackgroundColor="#0A0A0A">
 
     <Grid RowDefinitions="Auto, *, Auto" Padding="20" RowSpacing="15">
         
@@ -12,22 +12,24 @@
             <Label Text="Aplikasi Mengalami Crash Sebelumnya" 
                    FontSize="18" 
                    FontAttributes="Bold" 
-                   TextColor="#E53935" />
+                   TextColor="#D7192F" />
             <Label Text="Teks di bawah ini dapat diblok dan disalin manual untuk analisa:" 
                    FontSize="13" 
-                   TextColor="Gray" />
+                   TextColor="#D8D8D8" />
         </VerticalStackLayout>
 
         <!-- Container Log (Scrollable & Selectable) -->
         <Border Grid.Row="1" 
+                BackgroundColor="#141014"
                 StrokeShape="RoundRectangle 8" 
-                Stroke="#CCCCCC" 
+                Stroke="#1E121F" 
                 Padding="5">
             <Editor x:Name="LogEditor"
                     IsReadOnly="True"
                     AutoSize="Disabled"
                     FontFamily="OpenSansRegular"
                     FontSize="12"
+                    TextColor="#FFFFFF"
                     BackgroundColor="Transparent" />
         </Border>
 
@@ -36,13 +38,13 @@
             <Button Grid.Column="0" 
                     Text="Copy Log" 
                     Clicked="OnCopyClicked" 
-                    BackgroundColor="#2196F3" 
+                    BackgroundColor="#523363" 
                     TextColor="White" />
             
             <Button Grid.Column="1" 
                     Text="Tutup" 
                     Clicked="OnCloseClicked" 
-                    BackgroundColor="#757575" 
+                    BackgroundColor="#1E121F" 
                     TextColor="White" />
         </Grid>
     </Grid>
