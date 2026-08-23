@@ -60,7 +60,7 @@
                         <Label Grid.Column="0"
                                Text="&#xea05;"
                                FontFamily="TablerIcons"
-                               TextColor="#D05A63"
+                               TextColor="#D7192F"
                                FontSize="16"
                                VerticalOptions="Center" />
                         <Label x:Name="ErrorText"

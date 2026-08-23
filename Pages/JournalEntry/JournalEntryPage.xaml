@@ -39,7 +39,7 @@
                         <Label Grid.Column="0"
                                Text="&#xea06;"
                                FontFamily="TablerIcons"
-                               TextColor="#D05A63"
+                               TextColor="#D7192F"
                                FontSize="16"
                                VerticalOptions="Center" />
                         <Label Grid.Column="1"
@@ -158,7 +158,7 @@
                                                 Text=""
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:JournalEntryViewModel}}, Path=RemoveLineCommand}"
                                                 CommandParameter="{Binding .}"
-                                                BackgroundColor="#D05A63"
+                                                BackgroundColor="#D7192F"
                                                 TextColor="#FFFFFF"
                                                 FontSize="12"
                                                 CornerRadius="8"

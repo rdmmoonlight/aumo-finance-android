@@ -177,7 +177,7 @@
                                                     HeightRequest="32"
                                                     CornerRadius="8"
                                                     Padding="12,0"
-                                                    BackgroundColor="#D05A63"
+                                                    BackgroundColor="#D7192F"
                                                     TextColor="#FFFFFF"
                                                     IsVisible="{Binding CanClose}"
                                                     Clicked="OnClosePeriodClicked" />

@@ -71,7 +71,7 @@ public partial class TopBarView : ContentView
         {
             // Tampilan saat OFFLINE — hanya ikon, teks "Offline" dihapus
             ConnectionStatusIcon.Text = IconWifiOff;
-            ConnectionStatusIcon.TextColor = Color.Parse("#D05A63");
+            ConnectionStatusIcon.TextColor = Color.Parse("#D7192F");
             string tooltip = _pendingQueueCount > 0
                 ? $"Offline ({_pendingQueueCount} pending)"
                 : "Offline";

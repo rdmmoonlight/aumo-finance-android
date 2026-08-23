@@ -261,5 +261,5 @@ public class CoaItemViewModel
     public Color StatusTextColor => IsActive ? Color.FromArgb("#7BC495") : Color.FromArgb("#E3949B");
 
     public string FormattedBalance => "Rp " + Math.Round(CurrentBalance, 0, MidpointRounding.AwayFromZero).ToString("N0", IdrCulture);
-    public Color BalanceColor => CurrentBalance >= 0 ? Color.FromArgb("#FFFFFF") : Color.FromArgb("#D05A63");
+    public Color BalanceColor => CurrentBalance >= 0 ? Color.FromArgb("#FFFFFF") : Color.FromArgb("#D7192F");
 }
