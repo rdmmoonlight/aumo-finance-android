@@ -191,7 +191,7 @@
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnSettingsMenuItemClicked" />
                         </Grid.GestureRecognizers>
-                        <Label Text="App Settings" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
+                        <Label Text="Settings" Style="{StaticResource FlyoutMenuItemLabelStyle}" />
                     </Grid>
 
                     <Grid Style="{StaticResource FlyoutMenuItemStyle}">

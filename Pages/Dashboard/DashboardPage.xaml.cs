@@ -109,7 +109,7 @@ public partial class DashboardPage : ContentPage
             {
                 Text = account.AccountName,
                 FontSize = 13,
-                TextColor = Color.FromArgb("#E2E8F0"),
+                TextColor = Color.FromArgb("#FFFFFF"),
                 LineBreakMode = LineBreakMode.TailTruncation,
                 VerticalOptions = LayoutOptions.Center
             });
@@ -119,7 +119,7 @@ public partial class DashboardPage : ContentPage
                 Text = string.Format(_idCulture, "Rp {0:N0}", account.Balance),
                 FontSize = 13,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#38BDF8"),
+                TextColor = Color.FromArgb("#FFFFFF"),
                 HorizontalTextAlignment = TextAlignment.End,
                 VerticalOptions = LayoutOptions.Center
             };

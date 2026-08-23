@@ -53,7 +53,7 @@ public class LedgerAccountViewModel
     public decimal EndingBalance { get; set; }
     public List<LedgerLineViewModel> Lines { get; set; } = new();
 
-    public string EndingBalanceColor => EndingBalance >= 0 ? "#4ADE80" : "#F87171";
+    public string EndingBalanceColor => EndingBalance >= 0 ? "#4FA36A" : "#D7192F";
     public string FormattedEndingBalance => $"Saldo: Rp {EndingBalance.ToString("N0", Idr)} ({(NormalBalanceIsDebit ? "Dr" : "Cr")})";
 
     private static readonly CultureInfo Idr = new("id-ID");

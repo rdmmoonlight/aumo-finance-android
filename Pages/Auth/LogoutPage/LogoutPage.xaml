@@ -2,15 +2,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AumoFinance.Pages.Auth.LogoutPage"
-             BackgroundColor="#0F172A"
+             BackgroundColor="#0A0A0A"
              NavigationPage.HasNavigationBar="False"
              Title="Logout">
 
     <Grid VerticalOptions="Center" Padding="24">
         
         <!-- Card Container Logout -->
-        <Border BackgroundColor="#1E293B"
-                Stroke="#334155"
+        <Border BackgroundColor="#141014"
+                Stroke="#1E121F"
                 StrokeThickness="1"
                 StrokeShape="RoundRectangle 24"
                 Padding="28,32">
@@ -22,18 +22,18 @@
 
                 <!-- Header & Logout Icon -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Border BackgroundColor="#451A1A"
-                            Stroke="#F87171"
+                    <Border BackgroundColor="#1E121F"
+                            Stroke="#D7192F"
                             StrokeThickness="1.5"
                             StrokeShape="RoundRectangle 20"
                             HeightRequest="60"
                             WidthRequest="60"
                             HorizontalOptions="Center"
                             Margin="0,0,0,8">
-                        <Label Text="&#xE996;"
-                               FontFamily="MaterialIcons"
+                        <Label Text="&#xeba8;"
+                               FontFamily="TablerIcons"
                                FontSize="28"
-                               TextColor="#FCA5A5"
+                               TextColor="#D7192F"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
@@ -46,7 +46,7 @@
                     
                     <Label Text="Apakah Anda yakin ingin keluar dari akun AumoFinance?"
                            FontSize="13"
-                           TextColor="#94A3B8"
+                           TextColor="#D8D8D8"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
 
@@ -54,7 +54,7 @@
                 <VerticalStackLayout Spacing="12" Margin="0,8,0,0">
                     
                     <ActivityIndicator x:Name="LoadingIndicator"
-                                       Color="#EF4444"
+                                       Color="#FFFFFF"
                                        IsRunning="False"
                                        IsVisible="False"
                                        HeightRequest="36" />
@@ -63,14 +63,14 @@
                     <Button x:Name="LogoutButton"
                             Text="Ya, Keluar"
                             Clicked="OnLogoutButtonClicked"
-                            BackgroundColor="#DC2626"
+                            BackgroundColor="#D7192F"
                             TextColor="White"
                             FontAttributes="Bold"
                             FontSize="15"
                             CornerRadius="12"
                             HeightRequest="48">
                         <Button.Shadow>
-                            <Shadow Brush="#DC2626" Offset="0,6" Radius="12" Opacity="0.35" />
+                            <Shadow Brush="#D7192F" Offset="0,6" Radius="12" Opacity="0.35" />
                         </Button.Shadow>
                     </Button>
 
@@ -79,7 +79,7 @@
                             Text="Batal"
                             Clicked="OnCancelButtonClicked"
                             BackgroundColor="Transparent"
-                            TextColor="#94A3B8"
+                            TextColor="#D8D8D8"
                             FontAttributes="Bold"
                             FontSize="14"
                             CornerRadius="12"

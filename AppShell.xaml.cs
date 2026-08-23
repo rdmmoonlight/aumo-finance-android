@@ -92,7 +92,7 @@ public partial class AppShell : Shell
         bool expanded = !ReportsSection.IsVisible;
         ReportsSection.IsVisible = expanded;
 
-        ReportsToggleLabel.Text = expanded ? "📊  Reports  ▾" : "📊  Reports  ▸";
+        ReportsToggleLabel.Text = expanded ? "  Reports  ▾" : "  Reports  ▸";
         ReportsToggleRow.BackgroundColor = expanded ? Color.FromArgb("#1E121F") : Colors.Transparent;
     }
 

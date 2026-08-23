@@ -15,7 +15,7 @@ public class GeneralLedgerAccountViewModel
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
 
     public string FormattedEndingBalance => EndingBalance.ToString("C0", IdrCulture);
-    public string EndingBalanceColor => EndingBalance >= 0 ? "#4ADE80" : "#F87171";
+    public string EndingBalanceColor => EndingBalance >= 0 ? "#4FA36A" : "#D7192F";
 }
 
 public class GeneralLedgerLineViewModel

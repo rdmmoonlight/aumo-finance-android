@@ -128,9 +128,16 @@ public partial class GeneralJournalPage : ContentPage
     private void OnToggleEditModeClicked(object? sender, EventArgs e)
     {
         IsEditMode = !IsEditMode;
-        EditModeButton.Text = IsEditMode ? "✅ Done" : "✏️ Edit";
-        EditModeButton.BackgroundColor = IsEditMode ? Color.FromArgb("#F59E0B") : Color.FromArgb("#334155");
-        EditModeButton.TextColor = IsEditMode ? Color.FromArgb("#0F172A") : Color.FromArgb("#F8FAFC");
+        EditModeButton.Text = IsEditMode ? " Done" : " Edit";
+        EditModeButton.ImageSource = new FontImageSource
+        {
+            FontFamily = "TablerIcons",
+            Glyph = IsEditMode ? "\uea67" : "\uea98",
+            Color = Color.FromArgb("#FFFFFF"),
+            Size = 14
+        };
+        EditModeButton.BackgroundColor = IsEditMode ? Color.FromArgb("#523363") : Color.FromArgb("#1E121F");
+        EditModeButton.TextColor = Color.FromArgb("#FFFFFF");
     }
 
     private async void OnEditEntryClicked(object? sender, EventArgs e)

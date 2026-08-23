@@ -18,7 +18,7 @@
                 <VerticalStackLayout Spacing="4">
                     <Label x:Name="GreetingLabel"
                            Text="Good Morning,"
-                           TextColor="#E8E2EA"
+                           TextColor="#D8D8D8"
                            FontSize="16" />
                     <Label x:Name="UserNameLabel"
                            Text="Pak Ghofur"

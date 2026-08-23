@@ -20,6 +20,17 @@ public partial class TopBarView : ContentView
     }
 
     /// <summary>
+    /// Menampilkan ikon gembok kecil di samping nama periode saat periode tersebut
+    /// sudah ditutup (closed). Menggantikan pendekatan lama yang menempelkan emoji 🔒
+    /// langsung ke dalam teks PeriodText.
+    /// </summary>
+    public bool IsPeriodLocked
+    {
+        get => PeriodLockIcon.IsVisible;
+        set => PeriodLockIcon.IsVisible = value;
+    }
+
+    /// <summary>
     /// Properti untuk meng-update jumlah antrean transaksi lokal yang belum tersinkron.
     /// Panggil properti ini setiap kali ada jurnal baru yang disimpan lokal atau sukses di-upload.
     /// </summary>
@@ -83,7 +94,7 @@ public partial class TopBarView : ContentView
             {
                 // Ada antrean yang sedang/akan di-sync
                 ConnectionStatusIcon.Text = IconRefresh;
-                ConnectionStatusIcon.TextColor = Color.Parse("#9B7BAE");
+                ConnectionStatusIcon.TextColor = Color.Parse("#D8D8D8");
                 ToolTipProperties.SetText(ConnectionStatusIcon, $"Syncing ({_pendingQueueCount})...");
             }
             else

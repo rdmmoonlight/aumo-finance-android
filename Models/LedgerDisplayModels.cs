@@ -14,7 +14,7 @@ public class LedgerAccountDisplayModel
     public decimal EndingBalance { get; set; }
     public List<LedgerLineDisplayModel> Lines { get; set; } = new();
 
-    public string EndingBalanceColor => EndingBalance >= 0 ? "#4ADE80" : "#F87171";
+    public string EndingBalanceColor => EndingBalance >= 0 ? "#4FA36A" : "#D7192F";
 
     public string FormattedEndingBalance
     {
