@@ -93,8 +93,8 @@
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Transaction Number" FontSize="12" FontAttributes="Bold" TextColor="#D8D8D8" />
                             <Border BackgroundColor="#0A0A0A"
-                                    Stroke="#1E121F"
-                                    StrokeThickness="1"
+                                    Stroke="#523363"
+                                    StrokeThickness="1.5"
                                     StrokeDashArray="4,3"
                                     StrokeShape="RoundRectangle 8"
                                     Padding="12,10">
