@@ -16,6 +16,7 @@ public partial class CoaPage : ContentPage
     private readonly PeriodService _periodService;
     private List<CoaItemViewModel> _allAccounts = new();
     private readonly CultureInfo _idrCulture = new("id-ID");
+    private bool _isEditMode = false;
 
     public CoaPage(CoaService coaService, PeriodService periodService)
     {
@@ -74,7 +75,8 @@ public partial class CoaPage : ContentPage
                 Role = a.Role,
                 IsActive = a.IsActive,
                 CurrentBalance = a.CurrentBalance,
-                IdrCulture = _idrCulture
+                IdrCulture = _idrCulture,
+                IsEditMode = _isEditMode
             }).ToList();
 
             ApplyFilterAndSearch();
@@ -119,6 +121,23 @@ public partial class CoaPage : ContentPage
 
     private void OnCategoryPickerChanged(object? sender, EventArgs e)
     {
+        ApplyFilterAndSearch();
+    }
+
+    private void OnToggleEditModeClicked(object? sender, EventArgs e)
+    {
+        _isEditMode = !_isEditMode;
+
+        EditModeButton.Text = _isEditMode ? " Done" : " Edit";
+        EditModeButton.BackgroundColor = _isEditMode
+            ? Color.FromArgb("#523363")
+            : Color.FromArgb("#1E121F");
+
+        foreach (var account in _allAccounts)
+        {
+            account.IsEditMode = _isEditMode;
+        }
+
         ApplyFilterAndSearch();
     }
 
@@ -254,6 +273,7 @@ public class CoaItemViewModel
     public bool IsActive { get; set; }
     public decimal CurrentBalance { get; set; }
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
+    public bool IsEditMode { get; set; }
 
     public bool HasRole => !string.IsNullOrWhiteSpace(Role);
     public string StatusText => IsActive ? "ACTIVE" : "INACTIVE";
