@@ -1,20 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<!-- Bypass Workload Validation untuk Restore/Dependabot -->
+		<MauiEnableWorkloadValidation>false</MauiEnableWorkloadValidation>
+		<WorkloadManifestIgnoreUninstalledTargets>true</WorkloadManifestIgnoreUninstalledTargets>
+		<SkipImportWorkloadManifests>true</SkipImportWorkloadManifests>
+
 		<!-- Target Framework mengikuti workload SDK yang dipakai CI (net10.0-android36.0) -->
 		<TargetFramework>net10.0-android36.0</TargetFramework>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>AumoFinance</RootNamespace>
-		<UseMaui>true</UseMaui>
+		
+		<!-- Matikan UseMaui khusus pada sesi dotnet restore (Dependabot runner) -->
+		<UseMaui Condition="'$(MSBuildRestoreSessionId)' == ''">true</UseMaui>
+
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-
-		<!-- Konfigurasi bypass agar Dependabot dapat restore paket tanpa error workload NETSDK1147 -->
-		<MauiEnableWorkloadValidation>false</MauiEnableWorkloadValidation>
-		<WorkloadManifestIgnoreUninstalledTargets>true</WorkloadManifestIgnoreUninstalledTargets>
-		<SkipImportWorkloadManifests>true</SkipImportWorkloadManifests>
 
 		<!-- Abaikan warning CS0649 & CS0169 agar TreatWarningsAsErrors tidak membatalkan build -->
 		<!-- XC0022/XC0025: saran optimisasi compiled-binding (x:DataType), bukan error logika,
