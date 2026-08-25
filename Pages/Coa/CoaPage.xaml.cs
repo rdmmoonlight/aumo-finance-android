@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -137,8 +138,6 @@ public partial class CoaPage : ContentPage
         {
             account.IsEditMode = _isEditMode;
         }
-
-        ApplyFilterAndSearch();
     }
 
     private async void OnOpenAddModalClicked(object? sender, EventArgs e)
@@ -263,7 +262,7 @@ public partial class CoaPage : ContentPage
 // ==========================================
 // VIEW MODEL ITEM CHART OF ACCOUNTS
 // ==========================================
-public class CoaItemViewModel
+public class CoaItemViewModel : INotifyPropertyChanged
 {
     public int Id { get; set; }
     public int ReferenceNumber { get; set; }
@@ -273,7 +272,20 @@ public class CoaItemViewModel
     public bool IsActive { get; set; }
     public decimal CurrentBalance { get; set; }
     public CultureInfo IdrCulture { get; set; } = new("id-ID");
-    public bool IsEditMode { get; set; }
+
+    private bool _isEditMode;
+    public bool IsEditMode
+    {
+        get => _isEditMode;
+        set
+        {
+            if (_isEditMode == value) return;
+            _isEditMode = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEditMode)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public bool HasRole => !string.IsNullOrWhiteSpace(Role);
     public string StatusText => IsActive ? "ACTIVE" : "INACTIVE";
