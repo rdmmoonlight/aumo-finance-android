@@ -32,8 +32,9 @@ jobs:
         run: dotnet restore ./AumoFinance.csproj
 
       - name: Create Pull Request for Updated Packages
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
+          token: ${{ secrets.PAT_TOKEN }}
           commit-message: "chore(deps): update nuget packages in AumoFinance.csproj"
           title: "chore(deps): Auto-update NuGet Dependencies"
           body: "Workflow otomatis telah memperbarui paket NuGet pada `AumoFinance.csproj` ke versi terbaru."
