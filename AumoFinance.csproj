@@ -11,8 +11,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<!-- Matikan validasi workload saat restore agar Dependabot tidak error NETSDK1147 -->
+		<!-- Konfigurasi bypass agar Dependabot dapat restore paket tanpa error workload NETSDK1147 -->
 		<MauiEnableWorkloadValidation>false</MauiEnableWorkloadValidation>
+		<WorkloadManifestIgnoreUninstalledTargets>true</WorkloadManifestIgnoreUninstalledTargets>
+		<SkipImportWorkloadManifests>true</SkipImportWorkloadManifests>
 
 		<!-- Abaikan warning CS0649 & CS0169 agar TreatWarningsAsErrors tidak membatalkan build -->
 		<!-- XC0022/XC0025: saran optimisasi compiled-binding (x:DataType), bukan error logika,
