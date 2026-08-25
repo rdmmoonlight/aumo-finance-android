@@ -1,4 +1,4 @@
-name: NuGet Dependency Check
+name: NuGet Dependency Check & Update
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  restore-check:
+  update-deps:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -17,10 +17,25 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install .NET MAUI & Android Workloads
+      - name: Install .NET MAUI Workloads
         run: |
           dotnet workload update
           dotnet workload install maui-android
 
-      - name: Restore Project Successfully
+      - name: Install dotnet-outdated tool
+        run: dotnet tool install -g dotnet-outdated-tool
+
+      - name: Update NuGet Packages in csproj
+        run: dotnet-outdated ./AumoFinance.csproj -u
+
+      - name: Restore & Verify Build
         run: dotnet restore ./AumoFinance.csproj
+
+      - name: Create Pull Request for Updated Packages
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(deps): update nuget packages in AumoFinance.csproj"
+          title: "chore(deps): Auto-update NuGet Dependencies"
+          body: "Workflow otomatis telah memperbarui paket NuGet pada `AumoFinance.csproj` ke versi terbaru."
+          branch: "auto-update-nuget"
+          delete-branch: true
