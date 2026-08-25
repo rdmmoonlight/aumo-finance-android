@@ -1,8 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <!-- Matikan impor & validasi workload MAUI untuk pemindaian/restore Dependabot -->
-    <MauiEnableWorkloadValidation>false</MauiEnableWorkloadValidation>
-    <WorkloadManifestIgnoreUninstalledTargets>true</WorkloadManifestIgnoreUninstalledTargets>
-    <SkipImportWorkloadManifests>true</SkipImportWorkloadManifests>
-  </PropertyGroup>
-</Project>
