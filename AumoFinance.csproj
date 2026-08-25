@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<!-- Bypass Workload Validation untuk Restore/Dependabot -->
 		<MauiEnableWorkloadValidation>false</MauiEnableWorkloadValidation>
-		<WorkloadManifestIgnoreUninstalledTargets>true</WorkloadManifestIgnoreUninstalledTargets>
 		<SkipImportWorkloadManifests>true</SkipImportWorkloadManifests>
 
 		<!-- Target Framework mengikuti workload SDK yang dipakai CI (net10.0-android36.0) -->
