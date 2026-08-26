@@ -17,17 +17,6 @@
         <ScrollView Grid.Row="1" Padding="16">
             <VerticalStackLayout Spacing="16">
 
-                <!-- Page Header Title -->
-                <VerticalStackLayout Spacing="2">
-                    <Label Text="{Binding PageTitle}"
-                           FontSize="22"
-                           FontAttributes="Bold"
-                           TextColor="#FFFFFF" />
-                    <Label Text="Record financial transactions with debit and credit lines."
-                           FontSize="12"
-                           TextColor="#D8D8D8" />
-                </VerticalStackLayout>
-
                 <!-- Locked Period Warning -->
                 <Border IsVisible="{Binding IsLocked}"
                         BackgroundColor="#141014"
@@ -71,9 +60,6 @@
                                     <x:Array Type="{x:Type x:String}">
                                         <x:String>General</x:String>
                                         <x:String>Adjusting</x:String>
-                                        <!-- Closing sengaja tidak disediakan di sini — closing journal
-                                             dibuat otomatis oleh sistem periode-tutup, bukan input manual -->
-
                                     </x:Array>
                                 </Picker.ItemsSource>
                             </Picker>
@@ -171,7 +157,7 @@
                                         </Button>
                                     </Grid>
 
-                                    <!-- Description dengan auto-fill dari riwayat -->
+                                    <!-- Description -->
                                     <VerticalStackLayout Spacing="0">
                                         <Entry Text="{Binding LineDescription}"
                                                Placeholder="Description"
@@ -180,7 +166,7 @@
                                                TextColor="#FFFFFF"
                                                PlaceholderColor="#D8D8D8" />
 
-                                        <!-- Saran otomatis berdasarkan deskripsi yang pernah diketik -->
+                                        <!-- Saran otomatis -->
                                         <VerticalStackLayout IsVisible="{Binding ShowSuggestions}"
                                                              BindableLayout.ItemsSource="{Binding DescriptionSuggestions}"
                                                              BackgroundColor="#0A0A0A"
@@ -203,7 +189,7 @@
                                         </VerticalStackLayout>
                                     </VerticalStackLayout>
 
-                                    <!-- Row: Debit & Credit Entry Inputs -->
+                                    <!-- Row: Debit & Credit Inputs -->
                                     <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
                                         <VerticalStackLayout Grid.Column="0" Spacing="2">
                                             <Label Text="Debit" FontSize="10" TextColor="#D8D8D8" />
@@ -273,7 +259,6 @@
                 <!-- Cancel & Submit Buttons -->
                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
 
-                    <!-- Cancel — hanya muncul saat mode Edit, kembali tanpa menyimpan -->
                     <Button Grid.Column="0"
                             Text="Cancel"
                             Command="{Binding CancelCommand}"

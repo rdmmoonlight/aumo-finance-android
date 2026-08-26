@@ -14,17 +14,8 @@
 
         <Grid Grid.Row="1" RowDefinitions="Auto, Auto, *" Padding="16,10,16,0" RowSpacing="16">
 
-            <!-- Page Header, New Entry & Refresh Buttons -->
+            <!-- New Entry & Edit Buttons -->
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8" VerticalOptions="Center">
-                <VerticalStackLayout Grid.Column="0" Spacing="2">
-                    <Label Text="General Journal"
-                           FontSize="22"
-                           FontAttributes="Bold"
-                           TextColor="White" />
-                    <Label Text="Chronological record of all transactions."
-                           FontSize="12"
-                           TextColor="#D8D8D8" />
-                </VerticalStackLayout>
 
                 <Button Grid.Column="1"
                         Text=" New Entry"
@@ -123,12 +114,12 @@
                                         <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="6" VerticalOptions="Center">
                                             
                                             <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
-                                                <!-- Badge Jam (tanggal sudah jadi header grup) -->
+                                                <!-- Badge Jam -->
                                                 <Border BackgroundColor="#0A0A0A" StrokeShape="RoundRectangle 6" Padding="6,3" VerticalOptions="Center">
                                                     <Label Text="{Binding FormattedTime}" TextColor="#FFFFFF" FontSize="11" FontAttributes="Bold" />
                                                 </Border>
 
-                                                <!-- Last-edited badge (only shown if the entry has ever been edited) -->
+                                                <!-- Last-edited badge -->
                                                 <Border BackgroundColor="#0A0A0A" StrokeShape="RoundRectangle 6" Padding="6,3" VerticalOptions="Center" IsVisible="{Binding HasBeenEdited}">
                                                     <Label FontSize="11" FontAttributes="Bold" TextColor="#FFFFFF">
                                                         <Label.FormattedText>
@@ -148,7 +139,7 @@
                                                        VerticalOptions="Center" />
                                             </HorizontalStackLayout>
 
-                                            <!-- Edit Entry (pencil) — hanya muncul saat mode Edit aktif -->
+                                            <!-- Edit Entry (pencil) -->
                                             <Button Grid.Column="1"
                                                     Text="&#xea98;"
                                                     FontFamily="TablerIcons"
@@ -162,7 +153,7 @@
                                                     IsVisible="{Binding Source={RelativeSource AncestorType={x:Type local:GeneralJournalPage}}, Path=IsEditMode}"
                                                     Clicked="OnEditEntryClicked" />
 
-                                            <!-- Delete Entry (trash) — hanya muncul saat mode Edit aktif -->
+                                            <!-- Delete Entry (trash) -->
                                             <Button Grid.Column="2"
                                                     Text="&#xeb41;"
                                                     FontFamily="TablerIcons"
