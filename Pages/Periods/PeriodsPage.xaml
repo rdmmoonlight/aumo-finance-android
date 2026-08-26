@@ -8,7 +8,7 @@
 
     <Grid RowDefinitions="Auto, *">
 
-        <!-- Top Navigation Bar (Disamakan dengan halaman lain) -->
+        <!-- Top Navigation Bar -->
         <views:TopBarView x:Name="TopHeader" Grid.Row="0" />
 
         <Grid Grid.Row="1" RowDefinitions="Auto, Auto, *" Padding="20,20,20,0" RowSpacing="20">
@@ -23,34 +23,21 @@
                 <Border.Shadow>
                     <Shadow Brush="#000000" Offset="0,4" Radius="10" Opacity="0.2" />
                 </Border.Shadow>
-                <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                    <VerticalStackLayout Grid.Column="0" Spacing="2">
-                        <Label Text="PERIOD MANAGEMENT"
-                               FontSize="11"
-                               FontAttributes="Bold"
-                               TextColor="#D8D8D8"
-                               CharacterSpacing="0.8" />
-                        <Label Text="All Accounting Periods"
-                               FontSize="16"
-                               FontAttributes="Bold"
-                               TextColor="#FFFFFF" />
-                    </VerticalStackLayout>
 
-                    <Button Grid.Column="1"
-                            Text=" New Period"
-                            Clicked="OnAddPeriodClicked"
-                            BackgroundColor="#523363"
-                            TextColor="#FFFFFF"
-                            FontAttributes="Bold"
-                            FontSize="12"
-                            CornerRadius="10"
-                            Padding="12,0"
-                            HeightRequest="40">
-                        <Button.ImageSource>
-                            <FontImageSource FontFamily="TablerIcons" Glyph="&#xea69;" Color="#FFFFFF" Size="15" />
-                        </Button.ImageSource>
-                    </Button>
-                </Grid>
+                <Button Text=" New Period"
+                        Clicked="OnAddPeriodClicked"
+                        BackgroundColor="#523363"
+                        TextColor="#FFFFFF"
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        CornerRadius="10"
+                        Padding="12,0"
+                        HeightRequest="40"
+                        HorizontalOptions="End">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="TablerIcons" Glyph="&#xea69;" Color="#FFFFFF" Size="15" />
+                    </Button.ImageSource>
+                </Button>
             </Border>
 
             <!-- Loading Indicator Overlay -->
@@ -89,8 +76,7 @@
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
 
-                <!-- Periods Collection List: CollectionView provides its own scrolling/virtualization,
-                     so it must not be nested inside a ScrollView. -->
+                <!-- Periods Collection List -->
                 <RefreshView x:Name="PeriodsRefreshView"
                              BackgroundColor="#0A0A0A"
                              RefreshColor="#FFFFFF"
