@@ -14,18 +14,8 @@
         <ScrollView Grid.Row="1" Padding="16,10,16,20">
             <VerticalStackLayout Spacing="16">
 
-                <!-- Header Halaman & Tombol Navigasi -->
+                <!-- Tombol Navigasi (Header Teks Dihapus) -->
                 <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                    <VerticalStackLayout Grid.Column="0" Spacing="2">
-                        <Label Text="General Ledger"
-                               FontSize="22"
-                               FontAttributes="Bold"
-                               TextColor="White" />
-                        <Label Text="Akun Permanen (Ril) — Aset, Liabilitas, Ekuitas"
-                               FontSize="12"
-                               TextColor="#D8D8D8" />
-                    </VerticalStackLayout>
-
                     <Button Grid.Column="1"
                             Text="  Jurnal Umum"
                             Clicked="OnGeneralJournalClicked"
