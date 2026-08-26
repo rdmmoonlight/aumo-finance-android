@@ -2,7 +2,7 @@ name: NuGet Dependency Check & Update
 
 on:
   schedule:
-    - cron: '0 2 * * 1' # Berjalan setiap hari Senin jam 02:00
+    - cron: '0 2 * * 1' # Berjalan setiap hari Senin jam 02:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,9 @@ jobs:
           dotnet workload install maui-android
 
       - name: Install dotnet-outdated tool
-        run: dotnet tool install -g dotnet-outdated-tool
+        run: |
+          dotnet tool install -g dotnet-outdated-tool
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Update NuGet Packages in csproj
         run: dotnet-outdated ./AumoFinance.csproj -u
