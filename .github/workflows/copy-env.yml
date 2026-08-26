@@ -11,9 +11,7 @@ jobs:
         uses: jaredfrayer/copy-secrets-action@v1.0.0
         with:
           target_repo: 'rdmmoonlight/aumo-mobile'
-          github_token: ${{ secrets.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
-
- }}
+          github_token: ${{ secrets.TARGET_REPO_PAT }}
           secrets: |
             ANDROID_KEYSTORE_BASE64
             ANDROID_KEYSTORE_PASSWORD
