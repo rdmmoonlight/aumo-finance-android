@@ -3,6 +3,9 @@ name: Copy Secrets to Target Repo
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   copy-secrets:
     runs-on: ubuntu-latest
@@ -12,17 +15,21 @@ jobs:
 
       - name: Copy Secrets via GitHub CLI
         env:
-          GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
           TARGET_REPO: 'rdmmoonlight/aumo-mobile'
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
+          # Verify GH_TOKEN is set
+          if [ -z "$GH_TOKEN" ]; then
+            echo "Error: GH_TOKEN is not set"
+            exit 1
+          fi
+          
+          # Set secrets in target repository
           gh secret set ANDROID_KEYSTORE_BASE64 --repo "$TARGET_REPO" --body "$ANDROID_KEYSTORE_BASE64"
           gh secret set ANDROID_KEYSTORE_PASSWORD --repo "$TARGET_REPO" --body "$ANDROID_KEYSTORE_PASSWORD"
           gh secret set ANDROID_KEY_ALIAS --repo "$TARGET_REPO" --body "$ANDROID_KEY_ALIAS"
           gh secret set ANDROID_KEY_PASSWORD --repo "$TARGET_REPO" --body "$ANDROID_KEY_PASSWORD"
-          gh secret set PAT_TOKEN --repo "$TARGET_REPO" --body "$PAT_TOKEN"
-          
