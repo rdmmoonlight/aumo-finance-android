@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  # Memaksa semua step Action yang pakai Node 20 untuk berjalan di Node 24
+  # Memaksa seluruh JavaScript Actions menggunakan runtime Node 24
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
