@@ -13,6 +13,7 @@ jobs:
           target_repo: 'rdmmoonlight/aumo-mobile'
           github_token: ${{ secrets.PAT_TOKEN_REPO_TUJUAN }}
           secrets: |
-            API_KEY
-            DATABASE_URL
-            SECRET_TOKEN
+            ANDROID_KEYSTORE_BASE64
+            ANDROID_KEYSTORE_PASSWORD
+            ANDROID_KEY_ALIAS
+            ANDROID_KEY_PASSWORD
