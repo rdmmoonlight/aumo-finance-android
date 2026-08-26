@@ -1,7 +1,7 @@
 name: Copy Secrets to Target Repo
 
 on:
-  workflow_dispatch: # Dijalankan manual dari tab Actions
+  workflow_dispatch:
 
 jobs:
   copy-secrets:
@@ -18,3 +18,4 @@ jobs:
             ANDROID_KEY_ALIAS
             ANDROID_KEY_PASSWORD
             PAT_TOKEN
+            
