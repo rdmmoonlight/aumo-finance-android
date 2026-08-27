@@ -7,7 +7,7 @@ Urutan fase dari yang termudah, beban kerja dibagi rata per fase (target ±sama 
 | Fase | Cakupan | Kompleksitas | Status |
 |---|---|---|---|
 | **1. Fondasi & Struktur** | Branch, folder `/frontend` + `/backend`, skeleton Gradle (Kotlin) & ASP.NET Core project, arsip kode MAUI lama, palet warna & tema dasar | Termudah | ✅ Selesai (commit ini) |
-| **2. Auth & Layout Dasar** | LoginActivity, MainActivity/Navigation dasar (Kotlin); AuthController + JWT nyata (C#) | Mudah | Belum |
+| **2. Auth & Layout Dasar** | LoginActivity, MainActivity/Navigation dasar (Kotlin); AuthController + JWT nyata (C#) | Mudah | ✅ Selesai |
 | **3. Halaman Inti** | Home, Dashboard, Periods, Chart of Accounts, Journal Entry (Kotlin Activities/Fragments + ViewModel); controller terkait di backend | Sedang | Belum |
 | **4. Laporan Jurnal & Ledger** | General/Adjusting Journal report, General Ledger (Permanent & Temporary) | Sedang | Belum |
 | **5. Trial Balance & Worksheet** | Trial Balance, Adjusted Trial Balance, Worksheet | Sedang-Tinggi | Belum |

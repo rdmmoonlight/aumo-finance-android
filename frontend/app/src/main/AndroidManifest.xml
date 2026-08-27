@@ -7,6 +7,18 @@
         android:label="Aumo Finance"
         android:supportsRtl="true"
         android:theme="@style/Theme.AumoFinance">
+        <activity
+            android:name=".auth.LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AumoFinance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".core.MainActivity"
+            android:exported="false" />
         <!-- Activities added incrementally per phase (Login, Home, Dashboard, etc.) -->
     </application>
 </manifest>
