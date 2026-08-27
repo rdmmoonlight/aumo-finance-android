@@ -19,6 +19,21 @@
         <activity
             android:name=".core.MainActivity"
             android:exported="false" />
+        <activity
+            android:name=".home.HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".dashboard.DashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".periods.PeriodsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".coa.CoaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".journal.JournalEntryActivity"
+            android:exported="false" />
         <!-- Activities added incrementally per phase (Login, Home, Dashboard, etc.) -->
     </application>
 </manifest>
