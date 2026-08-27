@@ -34,6 +34,18 @@
         <activity
             android:name=".journal.JournalEntryActivity"
             android:exported="false" />
+        <activity
+            android:name=".reports.journal.GeneralJournalReportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.journal.AdjustingJournalReportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.ledger.GeneralLedgerPermanentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.ledger.GeneralLedgerTemporaryActivity"
+            android:exported="false" />
         <!-- Activities added incrementally per phase (Login, Home, Dashboard, etc.) -->
     </application>
 </manifest>

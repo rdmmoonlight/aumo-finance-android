@@ -60,4 +60,23 @@ public class GeneralJournalController : ControllerBase
         _entries.Remove(entry);
         return NoContent();
     }
+
+    // Laporan untuk halaman General Journal / Adjusting Journal.
+    // Hanya menampilkan entri sesuai "type" yang diminta (General atau Adjusting) —
+    // Closing tidak pernah muncul di sini karena bersifat system-generated.
+    // TODO fase berikutnya: filter juga berdasarkan rentang tanggal periode (periodId)
+    // begitu Period tersimpan lewat EF Core, bukan lagi in-memory.
+    [HttpGet("report")]
+    public IActionResult GetReport([FromQuery] int periodId, [FromQuery] JournalType type)
+    {
+        if (type == JournalType.Closing)
+            return BadRequest(new { message = "Laporan Closing tidak tersedia di halaman ini." });
+
+        var result = _entries
+            .Where(e => e.Type == type)
+            .OrderBy(e => e.EntryDate)
+            .ToList();
+
+        return Ok(result);
+    }
 }
