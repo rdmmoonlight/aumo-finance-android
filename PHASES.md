@@ -19,7 +19,6 @@ Urutan fase dari yang termudah, beban kerja dibagi rata per fase (target ±sama 
 - **`gradlew` (Gradle wrapper) belum digenerate** di `/frontend` — CI Android untuk sementara memakai `gradle/actions/setup-gradle` (menginstal Gradle langsung di runner) sebagai solusi sementara; setelah wrapper digenerate dan dicommit (lihat README), ganti kembali ke `./gradlew` di `frontend-android-ci.yml`.
 - **Validasi login masih stub** (belum cek ke tabel Users sungguhan dengan password hashing).
 - **Sinkronisasi offline** (`SyncManager`) masih no-op — aplikasi bersifat online-only untuk saat ini.
-- **Keystore signing lama** (`Docs/aumo's-release-key.jks`, `keystore-base64.txt`) masih ada di git history di bawah `frontend/legacy-maui-reference/Docs/` — sudah ditambahkan ke `.gitignore` untuk mencegah file baru, tapi versi lama di history perlu dibersihkan lewat `git filter-repo`/BFG dan dipindah ke GitHub Secrets.
 - **`production-pipeline.yml`** (di `.github/workflows/`) masih membangun & menandatangani APK MAUI lama (`net10.0-android36.0`) dan hanya berjalan saat push ke branch `production`. Belum disentuh di sini karena menyangkut proses rilis/signing produksi — perlu keputusan eksplisit kapan pipeline ini diganti agar sesuai proyek Kotlin native yang baru.
 
 Setiap fase = satu commit + push ke branch `feature/kotlin-native-frontend`, tidak digabung ke `main`/`production` tanpa instruksi eksplisit.
