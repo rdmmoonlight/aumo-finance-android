@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
     // TODO fase berikutnya: pindahkan ke BuildConfig / config per environment
-    private const val BASE_URL = "https://aumo-preview.up.railway.app/"
+    private const val BASE_URL = "https://aumo.onrender.com/"
 
     val retrofit: Retrofit by lazy {
         val logging = HttpLoggingInterceptor().apply {
