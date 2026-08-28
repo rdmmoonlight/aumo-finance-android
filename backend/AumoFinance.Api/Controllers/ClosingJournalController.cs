@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AumoFinance.Api.Controllers.Api;
+namespace AumoFinance.Api.Controllers;
 
 public record ClosingJournalLineDto(string AccountName, decimal Debit, decimal Credit);
 public record ClosingJournalReportDto(List<ClosingJournalLineDto> Entries);

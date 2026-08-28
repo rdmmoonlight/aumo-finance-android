@@ -2,7 +2,7 @@ using AumoFinance.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AumoFinance.Api.Controllers.Api;
+namespace AumoFinance.Api.Controllers;
 
 public record TrialBalanceRowDto(int AccountId, string AccountName, decimal Debit, decimal Credit);
 public record TrialBalanceReportDto(List<TrialBalanceRowDto> Rows, decimal TotalDebit, decimal TotalCredit);

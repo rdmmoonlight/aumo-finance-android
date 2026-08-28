@@ -2,7 +2,7 @@ using AumoFinance.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AumoFinance.Api.Controllers.Api;
+namespace AumoFinance.Api.Controllers;
 
 public record LedgerLineDto(DateTime Date, string Description, decimal Debit, decimal Credit, decimal Balance);
 public record LedgerAccountDto(int AccountId, string AccountName, List<LedgerLineDto> Lines, decimal EndingBalance);

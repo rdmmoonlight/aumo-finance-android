@@ -19,12 +19,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
-
-      - name: Install .NET MAUI Workloads
-        run: |
-          dotnet workload update
-          dotnet workload install maui-android
+          dotnet-version: '9.0.x'
 
       - name: Install dotnet-outdated tool
         run: |
@@ -32,17 +27,17 @@ jobs:
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Update NuGet Packages in csproj
-        run: dotnet-outdated ./AumoFinance.csproj -u
+        run: dotnet-outdated ./backend/AumoFinance.Api/AumoFinance.Api.csproj -u
 
       - name: Restore & Verify Build
-        run: dotnet restore ./AumoFinance.csproj
+        run: dotnet restore ./backend/AumoFinance.Api/AumoFinance.Api.csproj
 
       - name: Create Pull Request for Updated Packages
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}
-          commit-message: "chore(deps): update nuget packages in AumoFinance.csproj"
+          commit-message: "chore(deps): update nuget packages in backend/AumoFinance.Api.csproj"
           title: "chore(deps): Auto-update NuGet Dependencies"
-          body: "Workflow otomatis telah memperbarui paket NuGet pada `AumoFinance.csproj` ke versi terbaru."
+          body: "Workflow otomatis telah memperbarui paket NuGet pada `backend/AumoFinance.Api/AumoFinance.Api.csproj` ke versi terbaru."
           branch: "auto-update-nuget"
           delete-branch: true

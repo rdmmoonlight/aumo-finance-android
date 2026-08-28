@@ -2,7 +2,7 @@ using AumoFinance.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AumoFinance.Api.Controllers.Api;
+namespace AumoFinance.Api.Controllers;
 
 public record AccountRequest(string Code, string Name, AccountType Type);
 

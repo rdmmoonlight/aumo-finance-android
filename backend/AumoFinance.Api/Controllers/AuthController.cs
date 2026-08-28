@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AumoFinance.Api.Controllers.Api;
+namespace AumoFinance.Api.Controllers;
 
 public record LoginRequest(string Username, string Password);
 public record LoginResponse(string Token, DateTime ExpiresAt);
@@ -38,7 +38,13 @@ public class AuthController : ControllerBase
 
     private string GenerateToken(string username, DateTime expiresAt)
     {
-        var keyString = _config["Jwt:Key"] ?? "dev-only-placeholder-key-change-me-in-appsettings";
+        // IsNullOrWhiteSpace, bukan "??" — lihat catatan di Program.cs soal
+        // Jwt:Key kosong (bukan hilang) di appsettings.json produksi.
+        var keyString = _config["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(keyString))
+        {
+            keyString = "dev-only-placeholder-key-change-me-in-appsettings";
+        }
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

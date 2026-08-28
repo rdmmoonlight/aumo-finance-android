@@ -1,5 +1,7 @@
 using System.Text;
+using AumoFinance.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +10,20 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "dev-only-placeholder-key-change-me-in-appsettings";
+// TODO: begitu controller dipindah dari List statis in-memory ke EF Core,
+// ganti isi ConnectionStrings:DefaultConnection di appsettings.Development.json
+// dan (lewat env var/secret) di production, lalu jalankan migrasi awal.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Catatan: pakai IsNullOrWhiteSpace, bukan "??" — appsettings.json produksi sengaja
+// mengisi Jwt:Key dengan string kosong (bukan menghapus key-nya), jadi "??" saja
+// tidak akan pernah jatuh ke fallback dev.
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    jwtKey = "dev-only-placeholder-key-change-me-in-appsettings";
+}
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

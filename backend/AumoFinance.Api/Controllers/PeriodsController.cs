@@ -2,7 +2,7 @@ using AumoFinance.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AumoFinance.Api.Controllers.Api;
+namespace AumoFinance.Api.Controllers;
 
 public record OpenPeriodRequest(string Name, DateTime StartDate, DateTime EndDate, decimal? OpeningCashBalance);
 

@@ -480,3 +480,21 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+##
+## Android / Gradle (frontend)
+##
+frontend/**/build/
+frontend/.gradle/
+frontend/local.properties
+frontend/captures/
+frontend/.cxx/
+frontend/**/.externalNativeBuild/
+*.apk
+*.aab
+*.ap_
+*.dex
+# Keystore signing files must never be committed — store via GitHub Secrets instead.
+*.jks
+*.keystore
+keystore-base64.txt
