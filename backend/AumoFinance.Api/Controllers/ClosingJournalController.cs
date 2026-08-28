@@ -1,5 +1,8 @@
+using AumoFinance.Api.Data;
+using AumoFinance.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AumoFinance.Api.Controllers;
 
@@ -11,13 +14,27 @@ public record ClosingJournalReportDto(List<ClosingJournalLineDto> Entries);
 [Authorize]
 public class ClosingJournalController : ControllerBase
 {
+    private readonly AppDbContext _db;
+
+    public ClosingJournalController(AppDbContext db)
+    {
+        _db = db;
+    }
+
     // Read-only. Entri Closing dibuat sistem saat periode ditutup (menutup akun
     // Temporary ke Retained Earnings) — TIDAK ADA endpoint POST/PUT/DELETE manual
-    // untuk tipe ini, sesuai aturan bisnis yang sudah ditetapkan di GeneralJournalController.
-    // TODO fase berikutnya: generate entri closing nyata saat PeriodsController.Close dipanggil.
+    // untuk tipe ini (lihat larangan eksplisit di GeneralJournalController.Create).
+    // TODO: PeriodsController.Close saat ini belum benar-benar men-generate entri
+    // Closing ini secara otomatis — itu pekerjaan lanjutan berikutnya. Untuk saat
+    // ini endpoint ini hanya membaca entri Closing yang SUDAH ada (jika ada).
     [HttpGet]
-    public IActionResult GetClosingJournal([FromQuery] int periodId)
+    public async Task<IActionResult> GetClosingJournal([FromQuery] int periodId)
     {
-        return Ok(new ClosingJournalReportDto(new List<ClosingJournalLineDto>()));
+        var lines = await _db.JournalLines
+            .Where(l => l.JournalEntry.PeriodId == periodId && l.JournalEntry.Type == JournalType.Closing)
+            .Select(l => new ClosingJournalLineDto(l.Account.Name, l.Debit, l.Credit))
+            .ToListAsync();
+
+        return Ok(new ClosingJournalReportDto(lines));
     }
 }

@@ -13,6 +13,7 @@ data class Account(
     val code: String,
     val name: String,
     val type: String, // Permanent / Temporary
+    val category: String, // Asset / Liability / Equity / Revenue / Expense
     val isActive: Boolean,
     val balance: Double
 )
@@ -20,7 +21,8 @@ data class Account(
 data class AccountRequest(
     val code: String,
     val name: String,
-    val type: String
+    val type: String,
+    val category: String
 )
 
 interface CoaApi {

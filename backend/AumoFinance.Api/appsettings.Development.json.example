@@ -6,7 +6,7 @@
     }
   },
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=AumoFinanceDev;Trusted_Connection=True;TrustServerCertificate=True;"
+    "DefaultConnection": "Server=<host>;Port=5432;Database=<db>;User Id=<user>;Password=<password>;SslMode=Require;Trust Server Certificate=true;"
   },
   "Jwt": {
     "Key": "dev-only-placeholder-key-change-me-in-appsettings"

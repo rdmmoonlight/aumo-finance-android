@@ -1,6 +1,8 @@
+using AumoFinance.Api.Data;
 using AumoFinance.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AumoFinance.Api.Controllers;
 
@@ -11,27 +13,37 @@ public record OpenPeriodRequest(string Name, DateTime StartDate, DateTime EndDat
 [Authorize]
 public class PeriodsController : ControllerBase
 {
-    // TODO fase berikutnya: ganti in-memory list ini dengan EF Core + DbContext nyata.
-    private static readonly List<Period> _periods = new();
-    private static int _nextId = 1;
+    private readonly AppDbContext _db;
+
+    public PeriodsController(AppDbContext db)
+    {
+        _db = db;
+    }
 
     [HttpGet]
-    public IActionResult List() => Ok(_periods);
+    public async Task<IActionResult> List()
+    {
+        var periods = await _db.Periods.OrderBy(p => p.StartDate).ToListAsync();
+        return Ok(periods);
+    }
 
     [HttpPost]
-    public IActionResult Open([FromBody] OpenPeriodRequest request)
+    public async Task<IActionResult> Open([FromBody] OpenPeriodRequest request)
     {
         var period = new Period
         {
-            Id = _nextId++,
             Name = request.Name,
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             IsClosed = false,
             IsSelected = true
         };
-        foreach (var p in _periods) p.IsSelected = false;
-        _periods.Add(period);
+
+        var others = await _db.Periods.ToListAsync();
+        foreach (var p in others) p.IsSelected = false;
+
+        _db.Periods.Add(period);
+        await _db.SaveChangesAsync();
 
         // TODO: jika OpeningCashBalance diisi dan tidak ada akun permanen sebelumnya,
         // posting jurnal umum pembukaan (Debit Kas/Bank, Kredit Modal Awal) tanggal awal periode.
@@ -40,11 +52,12 @@ public class PeriodsController : ControllerBase
     }
 
     [HttpPut("{id}/close")]
-    public IActionResult Close(int id)
+    public async Task<IActionResult> Close(int id)
     {
-        var period = _periods.FirstOrDefault(p => p.Id == id);
+        var period = await _db.Periods.FirstOrDefaultAsync(p => p.Id == id);
         if (period == null) return NotFound();
         period.IsClosed = true;
+        await _db.SaveChangesAsync();
         return NoContent();
     }
 }

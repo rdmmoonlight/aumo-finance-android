@@ -14,8 +14,11 @@ class JournalEntryViewModel : ViewModel() {
     private val _entries = MutableLiveData<List<JournalEntry>>(emptyList())
     val entries: LiveData<List<JournalEntry>> = _entries
 
-    fun load() {
-        api.list().enqueue(object : Callback<List<JournalEntry>> {
+    private var lastPeriodId: Int? = null
+
+    fun load(periodId: Int) {
+        lastPeriodId = periodId
+        api.list(periodId).enqueue(object : Callback<List<JournalEntry>> {
             override fun onResponse(call: Call<List<JournalEntry>>, response: Response<List<JournalEntry>>) {
                 _entries.value = response.body() ?: emptyList()
             }
@@ -25,17 +28,21 @@ class JournalEntryViewModel : ViewModel() {
         })
     }
 
+    private fun reload() {
+        lastPeriodId?.let { load(it) }
+    }
+
     fun save(id: Int?, request: JournalEntryRequest) {
         val call = if (id == null) api.create(request) else api.update(id, request)
         call.enqueue(object : Callback<JournalEntry> {
-            override fun onResponse(call: Call<JournalEntry>, response: Response<JournalEntry>) = load()
+            override fun onResponse(call: Call<JournalEntry>, response: Response<JournalEntry>) = reload()
             override fun onFailure(call: Call<JournalEntry>, t: Throwable) = Unit
         })
     }
 
     fun delete(id: Int) {
         api.delete(id).enqueue(object : Callback<Unit> {
-            override fun onResponse(call: Call<Unit>, response: Response<Unit>) = load()
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) = reload()
             override fun onFailure(call: Call<Unit>, t: Throwable) = Unit
         })
     }

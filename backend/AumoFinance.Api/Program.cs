@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using AumoFinance.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -6,15 +7,24 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+// PENTING: System.Text.Json (default ASP.NET Core) menyerialisasi enum sebagai
+// ANGKA (0,1,2,...) kalau tidak dikonfigurasi. Semua field enum (JournalType,
+// AccountType, AccountCategory) di response API ini dikonsumsi Kotlin sebagai
+// String ("General", "Asset", dst.) — tanpa converter ini semua DTO yang
+// mengandung enum akan salah/rusak di sisi Android.
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// TODO: begitu controller dipindah dari List statis in-memory ke EF Core,
-// ganti isi ConnectionStrings:DefaultConnection di appsettings.Development.json
-// dan (lewat env var/secret) di production, lalu jalankan migrasi awal.
+// TODO: begitu migrasi awal dijalankan, hapus komentar ini. Connection string
+// produksi diisi lewat env var Render (ConnectionStrings__DefaultConnection),
+// BUKAN dari appsettings.json yang di-commit.
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Catatan: pakai IsNullOrWhiteSpace, bukan "??" — appsettings.json produksi sengaja
 // mengisi Jwt:Key dengan string kosong (bukan menghapus key-nya), jadi "??" saja

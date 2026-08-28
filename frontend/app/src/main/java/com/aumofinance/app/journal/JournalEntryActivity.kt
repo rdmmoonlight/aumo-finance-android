@@ -18,6 +18,6 @@ class JournalEntryActivity : AppCompatActivity() {
         // TODO: form baris debit/kredit dinamis, badge Balanced/Unbalanced,
         // input Rupiah dengan pemisah ribuan (bukan type=number)
         viewModel.entries.observe(this) { /* bind ke RecyclerView, dikelompokkan per tanggal */ }
-        viewModel.load()
+        viewModel.load(periodId = 0) // TODO: ambil periodId aktif dari PeriodService/shared prefs
     }
 }

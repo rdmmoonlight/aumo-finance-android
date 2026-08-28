@@ -14,8 +14,16 @@ Urutan fase dari yang termudah, beban kerja dibagi rata per fase (target ±sama 
 | **6. Laporan Keuangan & Penyelesaian** | Income Statement, Statement of Financial Position, Retained Earnings, Cash Flow, Closing Journal; Settings, Crash Log, sync, CI Android + CI backend | Tertinggi | ✅ Selesai |
 
 ## Utang teknis yang belum tuntas (di luar 6 fase, perlu tindak lanjut)
-- **Penyimpanan backend masih in-memory** (List statis di semua controller) — `Data/AppDbContext.cs` sudah disiapkan (DbSet Accounts/Periods/JournalEntries, terdaftar di Program.cs lewat `UseSqlServer`), tapi controller belum dipindah untuk memakainya; isi `ConnectionStrings:DefaultConnection` dulu sebelum dipakai.
-- **Semua laporan (Trial Balance, Worksheet, Income Statement, dst.) masih placeholder kosong** — logika perhitungan nyata menyusul setelah controller dipindah ke `AppDbContext`.
+- **EF Core migration belum digenerate** — sandbox saya tidak punya .NET SDK. Setelah pull branch ini, jalankan sekali:
+  ```
+  cd backend/AumoFinance.Api
+  dotnet tool install --global dotnet-ef   # kalau belum ada
+  dotnet ef migrations add InitialCreate
+  dotnet ef database update
+  ```
+  lalu commit folder `Migrations/` yang muncul.
+- **Cash Flow, Retained Earnings (Prive)**: belum ada field klasifikasi eksplisit (Operating/Investing/Financing untuk Cash Flow; flag "akun Prive" untuk Retained Earnings) — untuk sementara dicocokkan lewat nama akun ("Kas"/"Bank"/"Cash", "Prive"/"Drawing"). Perlu field eksplisit di `Account` kalau mau lepas dari ketergantungan penamaan.
+- **`PeriodsController.Close` belum benar-benar men-generate entri Closing** (menutup Revenue/Expense ke Retained Earnings secara otomatis) — saat ini cuma menandai `IsClosed = true`. `ClosingJournalController` hanya membaca entri Closing yang sudah ada.
 - **`gradlew` (Gradle wrapper) belum digenerate** di `/frontend` — CI Android untuk sementara memakai `gradle/actions/setup-gradle` (menginstal Gradle langsung di runner) sebagai solusi sementara; setelah wrapper digenerate dan dicommit (lihat README), ganti kembali ke `./gradlew` di `frontend-android-ci.yml`.
 - **Validasi login masih stub** (belum cek ke tabel Users sungguhan dengan password hashing).
 - **Sinkronisasi offline** (`SyncManager`) masih no-op — aplikasi bersifat online-only untuk saat ini.

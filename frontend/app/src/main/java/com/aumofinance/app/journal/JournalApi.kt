@@ -7,6 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 data class JournalLine(
     val accountId: Int,
@@ -17,6 +18,7 @@ data class JournalLine(
 
 data class JournalEntry(
     val id: Int,
+    val periodId: Int,
     val transactionNo: String,
     val entryDate: String,   // tanggal manual dari date picker
     val createdAt: String,   // waktu lokal perangkat saat input
@@ -26,6 +28,7 @@ data class JournalEntry(
 )
 
 data class JournalEntryRequest(
+    val periodId: Int,
     val entryDate: String,
     val createdAt: String,
     val type: String,
@@ -34,7 +37,7 @@ data class JournalEntryRequest(
 
 interface JournalApi {
     @GET("api/generaljournal")
-    fun list(): Call<List<JournalEntry>>
+    fun list(@Query("periodId") periodId: Int): Call<List<JournalEntry>>
 
     @POST("api/generaljournal")
     fun create(@Body request: JournalEntryRequest): Call<JournalEntry>
