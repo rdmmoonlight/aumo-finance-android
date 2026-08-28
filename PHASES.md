@@ -11,7 +11,15 @@ Urutan fase dari yang termudah, beban kerja dibagi rata per fase (target ±sama 
 | **3. Halaman Inti** | Home, Dashboard, Periods, Chart of Accounts, Journal Entry (Kotlin Activities/Fragments + ViewModel); controller terkait di backend | Sedang | ✅ Selesai |
 | **4. Laporan Jurnal & Ledger** | General/Adjusting Journal report, General Ledger (Permanent & Temporary) | Sedang | ✅ Selesai |
 | **5. Trial Balance & Worksheet** | Trial Balance, Adjusted Trial Balance, Worksheet | Sedang-Tinggi | ✅ Selesai |
-| **6. Laporan Keuangan & Penyelesaian** | Income Statement, Statement of Financial Position, Retained Earnings, Cash Flow, Closing Journal; Settings, Crash Log, sync, CI Android + CI backend | Tertinggi | Belum |
+| **6. Laporan Keuangan & Penyelesaian** | Income Statement, Statement of Financial Position, Retained Earnings, Cash Flow, Closing Journal; Settings, Crash Log, sync, CI Android + CI backend | Tertinggi | ✅ Selesai |
+
+## Utang teknis yang belum tuntas (di luar 6 fase, perlu tindak lanjut)
+- **Penyimpanan backend masih in-memory** (List statis di semua controller) — perlu EF Core + DbContext + migrasi database nyata sebelum dipakai produksi; data hilang setiap restart server.
+- **Semua laporan (Trial Balance, Worksheet, Income Statement, dst.) masih placeholder kosong** — logika perhitungan nyata menyusul setelah EF Core terpasang.
+- **`gradlew` (Gradle wrapper) belum digenerate** di `/frontend` — jalankan `gradle wrapper` sekali dari mesin ber-Gradle sebelum workflow `frontend-android-ci.yml` bisa berjalan.
+- **Validasi login masih stub** (belum cek ke tabel Users sungguhan dengan password hashing).
+- **Sinkronisasi offline** (`SyncManager`) masih no-op — aplikasi bersifat online-only untuk saat ini.
+- **Keystore signing lama** (`Docs/aumo's-release-key.jks`, `keystore-base64.txt`) masih ada di git history — sebaiknya dibersihkan dan dipindah ke GitHub Secrets.
 
 Setiap fase = satu commit + push ke branch `feature/kotlin-native-frontend`, tidak digabung ke `main`/`production` tanpa instruksi eksplisit.
 

@@ -55,6 +55,30 @@
         <activity
             android:name=".reports.worksheet.WorksheetActivity"
             android:exported="false" />
+        <activity
+            android:name=".reports.financials.IncomeStatementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.RetainedEarningsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.FinancialPositionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.CashFlowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.ClosingJournalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".settings.LogoutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".crashlog.CrashLogActivity"
+            android:exported="false" />
         <!-- Activities added incrementally per phase (Login, Home, Dashboard, etc.) -->
     </application>
 </manifest>
