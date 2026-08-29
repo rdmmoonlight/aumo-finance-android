@@ -52,12 +52,12 @@ asli di `aumo-finance-web`.
 | 8.2 | Chart of Accounts (list + form tambah/edit) | ✅ Selesai |
 | 8.3 | Journal Entry (form baris debit/kredit dinamis) | ✅ Selesai |
 | 8.4 | General/Adjusting Journal report (RecyclerView berkelompok per tanggal) | ✅ Selesai |
-| 8.5 | General Ledger, Trial Balance, Worksheet (tabel) | Belum |
+| 8.5 | General Ledger, Trial Balance, Worksheet (tabel) | ✅ Selesai (+ tambah Post-Closing Trial Balance yang baru ditemukan di kontrak asli) |
 | 8.6 | Income Statement, Retained Earnings, Financial Position, Cash Flow, Closing Journal | Belum |
 
 ## Utang teknis yang masih terbuka
 
-- **UI sisa (8.5–8.6) belum dibangun** — lihat tabel Fase 8 di atas.
+- **UI sisa (8.6) belum dibangun** — lihat tabel Fase 8 di atas.
 - **`gradlew` (Gradle wrapper) belum digenerate** — CI Android sementara
   memakai `gradle/actions/setup-gradle`. Setelah wrapper digenerate dan
   dicommit (lihat README), ganti kembali ke `./gradlew` di

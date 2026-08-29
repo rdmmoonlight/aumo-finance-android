@@ -53,6 +53,9 @@
             android:name=".reports.trialbalance.AdjustedTrialBalanceActivity"
             android:exported="false" />
         <activity
+            android:name=".reports.trialbalance.PostClosingTrialBalanceActivity"
+            android:exported="false" />
+        <activity
             android:name=".reports.worksheet.WorksheetActivity"
             android:exported="false" />
         <activity
