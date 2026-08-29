@@ -31,7 +31,7 @@ asli di `aumo-finance-web`.
 
 ## Status per lapisan Kotlin
 
-| Lapisan | Status |
+| Lapisan API (Kotlin) | Status |
 |---|---|
 | Auth (login email+password, JWT Bearer via `AuthInterceptor`+`SessionManager`) | ✅ Ditulis ulang |
 | Periods (list/create/select/close) | ✅ Ditulis ulang |
@@ -44,11 +44,20 @@ asli di `aumo-finance-web`.
 | Income Statement, Retained Earnings, Statement of Financial Position, Cash Flow, Closing Journal | ✅ Ditulis ulang |
 | Dashboard | ✅ Ditulis ulang |
 
+## Fase 8 — UI (layout + adapter + binding data)
+
+| Langkah | Layar | Status |
+|---|---|---|
+| 8.1 | Dashboard (bind angka + RecyclerView Kas/Bank), Periods (list + select/close + dialog buka periode baru) | ✅ Selesai |
+| 8.2 | Chart of Accounts (list + form tambah/edit) | Belum |
+| 8.3 | Journal Entry (form baris debit/kredit dinamis) | Belum |
+| 8.4 | General/Adjusting Journal report (RecyclerView berkelompok per tanggal) | Belum |
+| 8.5 | General Ledger, Trial Balance, Worksheet (tabel) | Belum |
+| 8.6 | Income Statement, Retained Earnings, Financial Position, Cash Flow, Closing Journal | Belum |
+
 ## Utang teknis yang masih terbuka
 
-- **UI form/RecyclerView belum dibangun** — semua Activity di atas baru
-  memanggil API dan menyediakan `observe { /* TODO bind ke UI */ }`; tampilan
-  visual (layout, adapter, binding data ke View) belum dikerjakan.
+- **UI sisa (8.2–8.6) belum dibangun** — lihat tabel Fase 8 di atas.
 - **`gradlew` (Gradle wrapper) belum digenerate** — CI Android sementara
   memakai `gradle/actions/setup-gradle`. Setelah wrapper digenerate dan
   dicommit (lihat README), ganti kembali ke `./gradlew` di
