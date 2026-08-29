@@ -58,11 +58,11 @@ asli di `aumo-finance-web`.
 **Fase 8 tuntas — seluruh 20 layar sekarang punya UI fungsional (bukan `FrameLayout` kosong lagi).**
 
 ## Utang teknis yang masih terbuka
-
 - **Statement of Financial Position belum punya Activity untuk varian
   `isPostClosing=true`** — endpoint sudah ada dan bisa dipanggil
   (`loadFinancialPosition(isPostClosing = true)`), tapi belum ada layar
   terpisah yang memakainya, mirip Post-Closing Trial Balance di Fase 8.5.
+
 ## Fase 9 — Build via GitHub Actions (tanpa Android Studio)
 
 - **Gradle Wrapper asli sudah ada** (`gradlew`, `gradlew.bat`,
@@ -88,12 +88,25 @@ asli di `aumo-finance-web`.
     secret `ANDROID_KEYSTORE_BASE64` belum di-set — tidak dipaksakan jalan
     dengan kredensial yang belum tentu ada.
 
-## Utang teknis yang masih terbuka
+### Fase 9.1 — Perbaikan build pertama: `gradle.properties` hilang
 
-- **Statement of Financial Position belum punya Activity untuk varian
-  `isPostClosing=true`** — endpoint sudah ada dan bisa dipanggil
-  (`loadFinancialPosition(isPostClosing = true)`), tapi belum ada layar
-  terpisah yang memakainya, mirip Post-Closing Trial Balance di Fase 8.5.
+Build pertama lewat `android-build.yml` gagal di task
+`:app:checkDebugAarMetadata` dengan pesan:
+```
+Configuration `:app:debugRuntimeClasspath` contains AndroidX dependencies,
+but the `android.useAndroidX` property is not enabled
+```
+Penyebab: `frontend/gradle.properties` tidak pernah dibuat sejak Fase 1,
+padahal project ini pakai AndroidX di semua tempat (`androidx.core`,
+`androidx.appcompat`, `com.google.android.material`, dst.). Ditambahkan
+`android.useAndroidX=true` + `android.nonTransitiveRClass=true`.
+
+Ini baru gagal di tahap metadata check, SEBELUM kompilasi Kotlin
+sesungguhnya berjalan — jadi masih mungkin ada error lain menyusul begitu
+tahap ini lolos dan compiler Kotlin benar-benar jalan untuk pertama kalinya.
+
+## Utang teknis lain yang masih terbuka
+
 - **Sesi login belum persisten** — `SessionManager` menyimpan token di
   memori saja, hilang begitu proses aplikasi mati. Perlu
   EncryptedSharedPreferences.
