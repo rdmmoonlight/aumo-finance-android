@@ -53,11 +53,16 @@ asli di `aumo-finance-web`.
 | 8.3 | Journal Entry (form baris debit/kredit dinamis) | ✅ Selesai |
 | 8.4 | General/Adjusting Journal report (RecyclerView berkelompok per tanggal) | ✅ Selesai |
 | 8.5 | General Ledger, Trial Balance, Worksheet (tabel) | ✅ Selesai (+ tambah Post-Closing Trial Balance yang baru ditemukan di kontrak asli) |
-| 8.6 | Income Statement, Retained Earnings, Financial Position, Cash Flow, Closing Journal | Belum |
+| 8.6 | Income Statement, Retained Earnings, Financial Position, Cash Flow, Closing Journal | ✅ Selesai |
+
+**Fase 8 tuntas — seluruh 20 layar sekarang punya UI fungsional (bukan `FrameLayout` kosong lagi).**
 
 ## Utang teknis yang masih terbuka
 
-- **UI sisa (8.6) belum dibangun** — lihat tabel Fase 8 di atas.
+- **Statement of Financial Position belum punya Activity untuk varian
+  `isPostClosing=true`** — endpoint sudah ada dan bisa dipanggil
+  (`loadFinancialPosition(isPostClosing = true)`), tapi belum ada layar
+  terpisah yang memakainya, mirip Post-Closing Trial Balance di Fase 8.5.
 - **`gradlew` (Gradle wrapper) belum digenerate** — CI Android sementara
   memakai `gradle/actions/setup-gradle`. Setelah wrapper digenerate dan
   dicommit (lihat README), ganti kembali ke `./gradlew` di
