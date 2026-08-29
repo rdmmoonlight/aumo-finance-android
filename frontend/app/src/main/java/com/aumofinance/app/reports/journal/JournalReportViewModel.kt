@@ -14,14 +14,25 @@ class JournalReportViewModel : ViewModel() {
     private val _entries = MutableLiveData<List<JournalReportEntry>>(emptyList())
     val entries: LiveData<List<JournalReportEntry>> = _entries
 
-    fun load(periodId: Int, type: String) {
-        api.getReport(periodId, type).enqueue(object : Callback<List<JournalReportEntry>> {
-            override fun onResponse(call: Call<List<JournalReportEntry>>, response: Response<List<JournalReportEntry>>) {
-                _entries.value = response.body() ?: emptyList()
-            }
-            override fun onFailure(call: Call<List<JournalReportEntry>>, t: Throwable) {
-                _entries.value = emptyList()
-            }
-        })
+    private val _selectedPeriodName = MutableLiveData<String?>(null)
+    val selectedPeriodName: LiveData<String?> = _selectedPeriodName
+
+    fun loadGeneral() {
+        api.getGeneralJournal().enqueue(handler())
+    }
+
+    fun loadAdjusting() {
+        api.getAdjustingJournal().enqueue(handler())
+    }
+
+    private fun handler() = object : Callback<JournalReportResponse> {
+        override fun onResponse(call: Call<JournalReportResponse>, response: Response<JournalReportResponse>) {
+            val body = response.body()
+            _entries.value = body?.entries ?: emptyList()
+            _selectedPeriodName.value = body?.selectedPeriodName
+        }
+        override fun onFailure(call: Call<JournalReportResponse>, t: Throwable) {
+            _entries.value = emptyList()
+        }
     }
 }

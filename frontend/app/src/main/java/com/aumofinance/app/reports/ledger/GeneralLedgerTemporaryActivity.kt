@@ -5,7 +5,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.aumofinance.app.R
 
-// Akun Temporary (Laba Rugi): Pendapatan, Beban.
+// Akun Temporary (Laba Rugi): OperatingIncome, OperatingExpenses, OtherIncome,
+// OtherExpenses. isTemporary=true.
 class GeneralLedgerTemporaryActivity : AppCompatActivity() {
     private val viewModel: LedgerViewModel by viewModels()
 
@@ -13,7 +14,7 @@ class GeneralLedgerTemporaryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_general_ledger)
 
-        viewModel.accounts.observe(this) { /* bind ke RecyclerView per akun, T-account style */ }
-        viewModel.load(periodId = 0, accountType = "Temporary")
+        viewModel.report.observe(this) { /* bind ke RecyclerView per akun, T-account style */ }
+        viewModel.load(isTemporary = true)
     }
 }

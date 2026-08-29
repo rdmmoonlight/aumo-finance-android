@@ -13,6 +13,6 @@ class CashFlowActivity : AppCompatActivity() {
         setContentView(R.layout.activity_cash_flow)
 
         viewModel.cashFlow.observe(this) { /* bind Operasi/Investasi/Pendanaan + saldo kas akhir */ }
-        viewModel.loadCashFlow(periodId = 0)
+        viewModel.loadCashFlow()
     }
 }

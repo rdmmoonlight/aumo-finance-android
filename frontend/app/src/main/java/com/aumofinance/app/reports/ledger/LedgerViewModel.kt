@@ -11,16 +11,16 @@ import retrofit2.Response
 class LedgerViewModel : ViewModel() {
     private val api = ApiClient.retrofit.create(LedgerApi::class.java)
 
-    private val _accounts = MutableLiveData<List<LedgerAccount>>(emptyList())
-    val accounts: LiveData<List<LedgerAccount>> = _accounts
+    private val _report = MutableLiveData<LedgerResponse?>()
+    val report: LiveData<LedgerResponse?> = _report
 
-    fun load(periodId: Int, accountType: String) {
-        api.getLedger(periodId, accountType).enqueue(object : Callback<List<LedgerAccount>> {
-            override fun onResponse(call: Call<List<LedgerAccount>>, response: Response<List<LedgerAccount>>) {
-                _accounts.value = response.body() ?: emptyList()
+    fun load(isTemporary: Boolean) {
+        api.getLedger(isTemporary).enqueue(object : Callback<LedgerResponse> {
+            override fun onResponse(call: Call<LedgerResponse>, response: Response<LedgerResponse>) {
+                _report.value = response.body()
             }
-            override fun onFailure(call: Call<List<LedgerAccount>>, t: Throwable) {
-                _accounts.value = emptyList()
+            override fun onFailure(call: Call<LedgerResponse>, t: Throwable) {
+                _report.value = null
             }
         })
     }

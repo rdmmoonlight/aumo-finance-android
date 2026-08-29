@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aumofinance.app.network.ApiClient
+import com.aumofinance.app.network.SessionManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -11,7 +12,7 @@ import retrofit2.Response
 sealed class LoginState {
     object Idle : LoginState()
     object Loading : LoginState()
-    data class Success(val token: String) : LoginState()
+    data class Success(val fullName: String) : LoginState()
     data class Error(val message: String) : LoginState()
 }
 
@@ -21,15 +22,18 @@ class LoginViewModel : ViewModel() {
     private val _state = MutableLiveData<LoginState>(LoginState.Idle)
     val state: LiveData<LoginState> = _state
 
-    fun login(username: String, password: String) {
+    fun login(email: String, password: String) {
         _state.value = LoginState.Loading
-        api.login(LoginRequest(username, password)).enqueue(object : Callback<LoginResponse> {
+        api.login(LoginRequest(email, password)).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 val body = response.body()
-                _state.value = if (response.isSuccessful && body != null) {
-                    LoginState.Success(body.token)
+                if (response.isSuccessful && body?.success == true) {
+                    SessionManager.token = body.token
+                    SessionManager.userId = body.userId
+                    SessionManager.fullName = body.fullName
+                    _state.value = LoginState.Success(body.fullName)
                 } else {
-                    LoginState.Error("Login gagal (${response.code()})")
+                    _state.value = LoginState.Error(body?.message ?: "Login gagal (${response.code()})")
                 }
             }
 

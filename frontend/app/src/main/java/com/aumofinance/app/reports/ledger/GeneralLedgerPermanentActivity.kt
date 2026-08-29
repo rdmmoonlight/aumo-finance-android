@@ -5,7 +5,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.aumofinance.app.R
 
-// Akun Permanent (Neraca): Aset, Liabilitas, Ekuitas.
+// Akun Permanent (Neraca): Assets, Liabilities, Equity. isTemporary=false.
 class GeneralLedgerPermanentActivity : AppCompatActivity() {
     private val viewModel: LedgerViewModel by viewModels()
 
@@ -13,7 +13,7 @@ class GeneralLedgerPermanentActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_general_ledger)
 
-        viewModel.accounts.observe(this) { /* bind ke RecyclerView per akun, T-account style */ }
-        viewModel.load(periodId = 0, accountType = "Permanent")
+        viewModel.report.observe(this) { /* bind ke RecyclerView per akun, T-account style */ }
+        viewModel.load(isTemporary = false)
     }
 }

@@ -4,9 +4,13 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-data class AccountAmount(val accountName: String, val amount: Double)
+data class AccountAmount(val referenceNumber: Int, val accountName: String, val amount: Double)
 
 data class IncomeStatementReport(
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
+    val asOfDate: String?,
     val revenueAccounts: List<AccountAmount>,
     val totalRevenue: Double,
     val expenseAccounts: List<AccountAmount>,
@@ -14,52 +18,84 @@ data class IncomeStatementReport(
     val operatingIncome: Double,
     val otherIncomeAccounts: List<AccountAmount>,
     val otherExpenseAccounts: List<AccountAmount>,
+    val totalOtherIncome: Double,
+    val totalOtherExpenses: Double,
     val netIncome: Double
 )
 
 data class RetainedEarningsReport(
-    val beginningBalance: Double,
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
+    val beginningRetainedEarnings: Double,
     val netIncome: Double,
-    val drawings: Double,
-    val endingBalance: Double
+    val dividendsOrDraws: Double,
+    val endingRetainedEarnings: Double
 )
+
+// accountId di sini SELALU 0 (backend belum mengirim id akun sungguhan untuk
+// baris Neraca, hanya referenceNumber+accountName+amount) — jangan dipakai
+// sebagai kunci navigasi/edit.
+data class FinancialPositionLine(val accountId: Int, val referenceNumber: Int, val accountName: String, val amount: Double)
 
 data class FinancialPositionReport(
-    val assetAccounts: List<AccountAmount>,
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
+    val assetAccounts: List<FinancialPositionLine>,
     val totalAssets: Double,
-    val liabilityAccounts: List<AccountAmount>,
+    val liabilityAccounts: List<FinancialPositionLine>,
     val totalLiabilities: Double,
-    val equityAccounts: List<AccountAmount>,
-    val totalEquity: Double
+    val equityAccounts: List<FinancialPositionLine>, // sudah termasuk baris "Retained Earnings" di akhir
+    val totalEquity: Double,
+    val totalLiabilitiesAndEquity: Double,
+    val isBalanced: Boolean
 )
+
+data class CashFlowLine(val description: String, val amount: Double)
 
 data class CashFlowReport(
-    val operatingActivities: List<AccountAmount>,
-    val netOperating: Double,
-    val investingActivities: List<AccountAmount>,
-    val netInvesting: Double,
-    val financingActivities: List<AccountAmount>,
-    val netFinancing: Double,
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
+    val operatingActivities: List<CashFlowLine>,
+    val netCashFromOperating: Double,
+    val investingActivities: List<CashFlowLine>,
+    val netCashFromInvesting: Double,
+    val financingActivities: List<CashFlowLine>,
+    val netCashFromFinancing: Double,
     val netChangeInCash: Double,
-    val endingCashBalance: Double
+    val beginningCash: Double,
+    val endingCash: Double
 )
 
-data class ClosingJournalLine(val accountName: String, val debit: Double, val credit: Double)
-data class ClosingJournalReport(val entries: List<ClosingJournalLine>)
+data class ClosingJournalLine(val referenceNumber: Int, val accountName: String, val debit: Double, val credit: Double)
+data class ClosingJournalGroup(val description: String, val lines: List<ClosingJournalLine>, val totalDebit: Double, val totalCredit: Double)
+data class ClosingJournalData(val netIncome: Double, val retainedEarningsAccountName: String, val groups: List<ClosingJournalGroup>)
+data class ClosingJournalReport(
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
+    val closingJournal: ClosingJournalData?
+)
 
 interface FinancialsApi {
-    @GET("api/incomestatement")
-    fun getIncomeStatement(@Query("periodId") periodId: Int): Call<IncomeStatementReport>
+    @GET("api/mobile/reports/income-statement")
+    fun getIncomeStatement(): Call<IncomeStatementReport>
 
-    @GET("api/retainedearnings")
-    fun getRetainedEarnings(@Query("periodId") periodId: Int): Call<RetainedEarningsReport>
+    @GET("api/mobile/reports/retained-earnings")
+    fun getRetainedEarnings(): Call<RetainedEarningsReport>
 
-    @GET("api/financialposition")
-    fun getFinancialPosition(@Query("periodId") periodId: Int): Call<FinancialPositionReport>
+    // isPostClosing: laporan Neraca versi post-closing (akun Temporary sudah
+    // ditutup) — dipisahkan sebagai query, bukan endpoint terpisah.
+    @GET("api/mobile/reports/statement-of-financial-position")
+    fun getFinancialPosition(@Query("isPostClosing") isPostClosing: Boolean = false): Call<FinancialPositionReport>
 
-    @GET("api/cashflow")
-    fun getCashFlow(@Query("periodId") periodId: Int): Call<CashFlowReport>
+    @GET("api/mobile/reports/cash-flow")
+    fun getCashFlow(): Call<CashFlowReport>
 
-    @GET("api/closingjournal")
-    fun getClosingJournal(@Query("periodId") periodId: Int): Call<ClosingJournalReport>
+    // Read-only, murni dihitung dari Trial Balance — TIDAK ADA entri Closing
+    // yang benar-benar tersimpan di database.
+    @GET("api/mobile/reports/closing-journal")
+    fun getClosingJournal(): Call<ClosingJournalReport>
 }

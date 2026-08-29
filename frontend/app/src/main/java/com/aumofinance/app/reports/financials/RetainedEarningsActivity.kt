@@ -13,6 +13,6 @@ class RetainedEarningsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_retained_earnings)
 
         viewModel.retainedEarnings.observe(this) { /* bind Saldo Awal + Laba Bersih - Prive = Saldo Akhir */ }
-        viewModel.loadRetainedEarnings(periodId = 0)
+        viewModel.loadRetainedEarnings()
     }
 }

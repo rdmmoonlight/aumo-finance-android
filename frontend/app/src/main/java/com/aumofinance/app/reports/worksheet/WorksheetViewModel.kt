@@ -14,8 +14,8 @@ class WorksheetViewModel : ViewModel() {
     private val _report = MutableLiveData<WorksheetReport?>()
     val report: LiveData<WorksheetReport?> = _report
 
-    fun load(periodId: Int) {
-        api.getWorksheet(periodId).enqueue(object : Callback<WorksheetReport> {
+    fun load() {
+        api.getWorksheet().enqueue(object : Callback<WorksheetReport> {
             override fun onResponse(call: Call<WorksheetReport>, response: Response<WorksheetReport>) {
                 _report.value = response.body()
             }

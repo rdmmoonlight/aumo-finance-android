@@ -1,37 +1,65 @@
-# AumoFinance — Peta Fase Migrasi (Kotlin Native + C# Backend)
+# AumoFinance — Peta Migrasi ke Kotlin Native
 
-Struktur repo: `/frontend` (Android Kotlin native, tanpa MAUI) dan `/backend` (ASP.NET Core Web API, C# full). Kode MAUI lama diarsipkan di `frontend/legacy-maui-reference/` sebagai referensi logika bisnis, bukan untuk dipakai langsung.
+**Koreksi arah penting:** ini migrasi FRONTEND SAJA. Backend tidak dibuat baru
+— aplikasi ini konsumen dari `api/mobile/*` yang sudah lengkap & stabil di
+`aumo-finance-web` (https://aumo.onrender.com). Fase 1–7.2 sebelumnya sempat
+membangun `/backend` baru dengan skema karangan sendiri (Account/Period/
+JournalEntry versi sendiri) — **itu sudah dihapus total**. Semua lapisan API
+Kotlin (folder `network/`, `auth/`, `periods/`, `coa/`, `journal/`,
+`reports/`) sudah ditulis ulang untuk cocok persis dengan Models/Controllers
+asli di `aumo-finance-web`.
 
-Urutan fase dari yang termudah, beban kerja dibagi rata per fase (target ±sama banyak file/effort):
+## Perbedaan kunci dari skema karangan sebelumnya
 
-| Fase | Cakupan | Kompleksitas | Status |
-|---|---|---|---|
-| **1. Fondasi & Struktur** | Branch, folder `/frontend` + `/backend`, skeleton Gradle (Kotlin) & ASP.NET Core project, arsip kode MAUI lama, palet warna & tema dasar | Termudah | ✅ Selesai (commit ini) |
-| **2. Auth & Layout Dasar** | LoginActivity, MainActivity/Navigation dasar (Kotlin); AuthController + JWT nyata (C#) | Mudah | ✅ Selesai |
-| **3. Halaman Inti** | Home, Dashboard, Periods, Chart of Accounts, Journal Entry (Kotlin Activities/Fragments + ViewModel); controller terkait di backend | Sedang | ✅ Selesai |
-| **4. Laporan Jurnal & Ledger** | General/Adjusting Journal report, General Ledger (Permanent & Temporary) | Sedang | ✅ Selesai |
-| **5. Trial Balance & Worksheet** | Trial Balance, Adjusted Trial Balance, Worksheet | Sedang-Tinggi | ✅ Selesai |
-| **6. Laporan Keuangan & Penyelesaian** | Income Statement, Statement of Financial Position, Retained Earnings, Cash Flow, Closing Journal; Settings, Crash Log, sync, CI Android + CI backend | Tertinggi | ✅ Selesai |
+- **Tidak ada `PeriodId` FK** — backend menentukan periode dari rentang
+  tanggal `EntryDate` dibanding `Period.StartDate/EndDate`, bukan foreign key.
+- **Tidak ada endpoint yang menerima parameter `periodId`** — semua laporan
+  otomatis mengikuti periode yang sedang *selected* per user
+  (`SelectedPeriodHelper` di backend). Yang dikirim client hanya `select/{id}`
+  dan `close/{id}` untuk mengubah periode mana yang aktif.
+- **Closing journal tidak pernah disimpan** — dihitung on-the-fly dari Trial
+  Balance setiap kali diminta (`GET api/mobile/reports/closing-journal`).
+- **Akun punya 7 kategori** (`Assets`, `Liabilities`, `Equity`,
+  `OperatingIncome`, `OperatingExpenses`, `OtherIncome`, `OtherExpenses`),
+  masing-masing terikat rentang nomor referensi (100-199, 200-299, dst.) —
+  bukan `Category` 5-way yang saya karang sebelumnya.
+- **Multi-tenant per `UserId`** — sesuatu yang skema karangan sebelumnya sama
+  sekali tidak punya.
+- Enum-enum backend (JournalType, Type akun) adalah **string biasa**, bukan
+  C# enum — jadi tidak ada isu serialisasi enum-sebagai-angka yang perlu
+  ditangani di sisi Kotlin.
 
-## Utang teknis yang belum tuntas (di luar 6 fase, perlu tindak lanjut)
-- **EF Core migration belum digenerate** — sandbox saya tidak punya .NET SDK. Setelah pull branch ini, jalankan sekali:
-  ```
-  cd backend/AumoFinance.Api
-  dotnet tool install --global dotnet-ef   # kalau belum ada
-  dotnet ef migrations add InitialCreate
-  dotnet ef database update
-  ```
-  lalu commit folder `Migrations/` yang muncul.
-- **Cash Flow, Retained Earnings (Prive)**: belum ada field klasifikasi eksplisit (Operating/Investing/Financing untuk Cash Flow; flag "akun Prive" untuk Retained Earnings) — untuk sementara dicocokkan lewat nama akun ("Kas"/"Bank"/"Cash", "Prive"/"Drawing"). Perlu field eksplisit di `Account` kalau mau lepas dari ketergantungan penamaan.
-- **`PeriodsController.Close` belum benar-benar men-generate entri Closing** (menutup Revenue/Expense ke Retained Earnings secara otomatis) — saat ini cuma menandai `IsClosed = true`. `ClosingJournalController` hanya membaca entri Closing yang sudah ada.
-- **`gradlew` (Gradle wrapper) belum digenerate** di `/frontend` — CI Android untuk sementara memakai `gradle/actions/setup-gradle` (menginstal Gradle langsung di runner) sebagai solusi sementara; setelah wrapper digenerate dan dicommit (lihat README), ganti kembali ke `./gradlew` di `frontend-android-ci.yml`.
-- **Validasi login masih stub** (belum cek ke tabel Users sungguhan dengan password hashing).
-- **Sinkronisasi offline** (`SyncManager`) masih no-op — aplikasi bersifat online-only untuk saat ini.
-- **`production-pipeline.yml`** (di `.github/workflows/`) masih membangun & menandatangani APK MAUI lama (`net10.0-android36.0`) dan hanya berjalan saat push ke branch `production`. Belum disentuh di sini karena menyangkut proses rilis/signing produksi — perlu keputusan eksplisit kapan pipeline ini diganti agar sesuai proyek Kotlin native yang baru.
+## Status per lapisan Kotlin
 
-Setiap fase = satu commit + push ke branch `feature/kotlin-native-frontend`, tidak digabung ke `main`/`production` tanpa instruksi eksplisit.
+| Lapisan | Status |
+|---|---|
+| Auth (login email+password, JWT Bearer via `AuthInterceptor`+`SessionManager`) | ✅ Ditulis ulang |
+| Periods (list/create/select/close) | ✅ Ditulis ulang |
+| Chart of Accounts (ReferenceNumber/Type/Role) | ✅ Ditulis ulang |
+| Journal Entry (form create/edit/delete satu entri) | ✅ Ditulis ulang |
+| General Journal / Adjusting Journal (laporan daftar entri) | ✅ Ditulis ulang |
+| General Ledger (satu endpoint, query `isTemporary`) | ✅ Ditulis ulang |
+| Trial Balance / Adjusted / Post-Closing (satu endpoint, query `type`) | ✅ Ditulis ulang |
+| Worksheet | ✅ Ditulis ulang |
+| Income Statement, Retained Earnings, Statement of Financial Position, Cash Flow, Closing Journal | ✅ Ditulis ulang |
+| Dashboard | ✅ Ditulis ulang |
 
-Batasan yang tetap berlaku:
-- `minSdk` Android dikunci di API 28 (Android 9), tidak boleh naik.
-- Platform target: Android saja.
-- Ikon: Tabler Icons di seluruh frontend.
+## Utang teknis yang masih terbuka
+
+- **UI form/RecyclerView belum dibangun** — semua Activity di atas baru
+  memanggil API dan menyediakan `observe { /* TODO bind ke UI */ }`; tampilan
+  visual (layout, adapter, binding data ke View) belum dikerjakan.
+- **`gradlew` (Gradle wrapper) belum digenerate** — CI Android sementara
+  memakai `gradle/actions/setup-gradle`. Setelah wrapper digenerate dan
+  dicommit (lihat README), ganti kembali ke `./gradlew` di
+  `frontend-android-ci.yml`.
+- **Sesi login belum persisten** — `SessionManager` menyimpan token di
+  memori saja, hilang begitu proses aplikasi mati. Perlu
+  EncryptedSharedPreferences.
+- **Sinkronisasi offline** (`SyncManager`) masih no-op.
+- **`production-pipeline.yml`** masih membangun & menandatangani APK MAUI
+  lama — belum disentuh, menyangkut proses rilis produksi, perlu keputusan
+  eksplisit kapan diganti.
+- **Keystore signing lama** sudah dihapus dari working tree; versi lama di
+  git history masih perlu dibersihkan lewat `git filter-repo`/BFG kalau mau
+  benar-benar hilang.

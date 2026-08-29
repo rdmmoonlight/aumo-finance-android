@@ -14,8 +14,8 @@ class DashboardViewModel : ViewModel() {
     private val _summary = MutableLiveData<DashboardSummary?>()
     val summary: LiveData<DashboardSummary?> = _summary
 
-    fun load(periodId: Int) {
-        api.getSummary(periodId).enqueue(object : Callback<DashboardSummary> {
+    fun load() {
+        api.getSummary().enqueue(object : Callback<DashboardSummary> {
             override fun onResponse(call: Call<DashboardSummary>, response: Response<DashboardSummary>) {
                 _summary.value = response.body()
             }

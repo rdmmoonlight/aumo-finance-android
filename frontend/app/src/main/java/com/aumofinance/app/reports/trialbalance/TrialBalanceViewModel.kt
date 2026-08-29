@@ -14,8 +14,8 @@ class TrialBalanceViewModel : ViewModel() {
     private val _report = MutableLiveData<TrialBalanceReport?>()
     val report: LiveData<TrialBalanceReport?> = _report
 
-    fun load(periodId: Int, adjusted: Boolean) {
-        api.getTrialBalance(periodId, adjusted).enqueue(object : Callback<TrialBalanceReport> {
+    fun load(type: String) {
+        api.getTrialBalance(type).enqueue(object : Callback<TrialBalanceReport> {
             override fun onResponse(call: Call<TrialBalanceReport>, response: Response<TrialBalanceReport>) {
                 _report.value = response.body()
             }

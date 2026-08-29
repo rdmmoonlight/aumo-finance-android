@@ -19,6 +19,6 @@ class WorksheetActivity : AppCompatActivity() {
         // TODO: sinkronkan TopHeader.PeriodText (bukan kartu periode terpisah di halaman),
         // font dan padding mengikuti rhythm Income Statement (12px label, 13px data)
         viewModel.report.observe(this) { /* bind tabel 5 pasang kolom + 3 baris footer */ }
-        viewModel.load(periodId = 0)
+        viewModel.load()
     }
 }

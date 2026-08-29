@@ -1,27 +1,28 @@
-# AumoFinance
+# AumoFinance — Android (Kotlin native)
 
-Aplikasi akuntansi Android. Branch `feature/kotlin-native-frontend` sedang
-memigrasikan aplikasi dari .NET MAUI ke arsitektur baru:
+Ini adalah **migrasi frontend saja**: dari .NET MAUI ke Android native (Kotlin).
+Backend TIDAK dibuat baru — aplikasi ini murni konsumen dari REST API mobile
+yang sudah lengkap dan stabil di **`aumo-finance-web`**
+(https://github.com/rdmmoonlight/aumo-finance-web), di-deploy di
+`https://aumo.onrender.com`.
 
 ```
 /frontend   -> Android native, Kotlin (menggantikan MAUI)
-/backend    -> ASP.NET Core Web API, C#
 ```
 
 Kode MAUI lama diarsipkan di `frontend/legacy-maui-reference/` sebagai referensi
 logika bisnis lama, bukan untuk dijalankan langsung.
 
-## Menjalankan backend
+## Backend
 
-```
-cd backend/AumoFinance.Api
-dotnet restore
-dotnet run
-```
+Semua endpoint yang dipakai app ini ada di bawah `api/mobile/*` pada
+`aumo-finance-web` — lihat repo tersebut untuk skema database (PostgreSQL/Neon),
+Models, dan Controllers yang sesungguhnya. Jangan buat backend/skema baru di
+repo ini; kalau ada penyesuaian API yang diperlukan, perubahannya masuk ke
+`aumo-finance-web`, bukan di sini.
 
-Swagger UI tersedia di `/swagger` saat berjalan di mode Development.
-Isi `Jwt:Key` dan `ConnectionStrings:DefaultConnection` di
-`appsettings.Development.json` sebelum menjalankan secara lokal.
+Autentikasi: `POST api/mobile/auth/login` (email+password) mengembalikan JWT,
+dikirim di setiap request berikutnya sebagai header `Authorization: Bearer <token>`.
 
 ## Menjalankan frontend
 
@@ -42,7 +43,7 @@ instruksi eksplisit.
 ## Peta pengerjaan
 
 Lihat [`PHASES.md`](./PHASES.md) untuk status tiap fase migrasi dan daftar
-utang teknis yang masih terbuka (penyimpanan backend, gradlew, dst).
+utang teknis yang masih terbuka.
 
 ## Batasan platform
 

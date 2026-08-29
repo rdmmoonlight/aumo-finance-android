@@ -6,21 +6,32 @@ import retrofit2.http.Query
 
 data class TrialBalanceRow(
     val accountId: Int,
+    val referenceNumber: Int,
     val accountName: String,
+    val type: String,
+    val role: String,
+    val normalBalanceIsDebit: Boolean,
+    val netBalance: Double,
     val debit: Double,
     val credit: Double
 )
 
 data class TrialBalanceReport(
-    val rows: List<TrialBalanceRow>,
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
+    val reportTitle: String,
+    val type: String,
     val totalDebit: Double,
-    val totalCredit: Double
+    val totalCredit: Double,
+    val isBalanced: Boolean,
+    val rows: List<TrialBalanceRow>
 )
 
 interface TrialBalanceApi {
-    // adjusted=false -> hanya jurnal General.
-    // adjusted=true  -> jurnal General + Adjusting.
-    // Closing TIDAK PERNAH dihitung di kedua varian ini.
-    @GET("api/trialbalance")
-    fun getTrialBalance(@Query("periodId") periodId: Int, @Query("adjusted") adjusted: Boolean): Call<TrialBalanceReport>
+    // type: "unadjusted" (hanya General), "adjusted" (General+Adjusting),
+    // atau "post-closing" (Retained Earnings sudah termasuk efek Closing,
+    // walau baris Closing itu sendiri tidak pernah tersimpan sebagai entri).
+    @GET("api/mobile/reports/trial-balance")
+    fun getTrialBalance(@Query("type") type: String): Call<TrialBalanceReport>
 }

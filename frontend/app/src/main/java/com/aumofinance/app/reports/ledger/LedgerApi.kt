@@ -5,24 +5,36 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 data class LedgerLine(
-    val date: String,
-    val description: String,
+    val journalEntryId: Int,
+    val entryDate: String,
+    val description: String?,
     val debit: Double,
     val credit: Double,
-    val balance: Double
+    val runningBalance: Double
 )
 
 data class LedgerAccount(
     val accountId: Int,
+    val referenceNumber: Int,
     val accountName: String,
-    val lines: List<LedgerLine>,
-    val endingBalance: Double
+    val type: String,
+    val normalBalanceIsDebit: Boolean,
+    val endingBalance: Double,
+    val lines: List<LedgerLine>
+)
+
+data class LedgerResponse(
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
+    val isTemporary: Boolean,
+    val netIncomeBeforeClosing: Double,
+    val ledgers: List<LedgerAccount>
 )
 
 interface LedgerApi {
-    // accountType: "Permanent" atau "Temporary".
-    // Backend memfilter transaksi ketat pada rentang periode yang dipilih saja
-    // (tidak ada carry-over lintas periode di sini, itu berlaku hanya untuk saldo Neraca).
-    @GET("api/generalledger")
-    fun getLedger(@Query("periodId") periodId: Int, @Query("accountType") accountType: String): Call<List<LedgerAccount>>
+    // Satu endpoint, dibedakan lewat query isTemporary — BUKAN dua endpoint
+    // terpisah seperti dugaan awal saya.
+    @GET("api/mobile/reports/general-ledger")
+    fun getLedger(@Query("isTemporary") isTemporary: Boolean): Call<LedgerResponse>
 }

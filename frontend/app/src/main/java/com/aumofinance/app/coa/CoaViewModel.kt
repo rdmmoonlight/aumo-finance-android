@@ -14,29 +14,35 @@ class CoaViewModel : ViewModel() {
     private val _accounts = MutableLiveData<List<Account>>(emptyList())
     val accounts: LiveData<List<Account>> = _accounts
 
-    fun load() {
-        api.list().enqueue(object : Callback<List<Account>> {
-            override fun onResponse(call: Call<List<Account>>, response: Response<List<Account>>) {
-                _accounts.value = response.body() ?: emptyList()
+    fun load(search: String? = null, category: String? = null) {
+        api.list(search, category).enqueue(object : Callback<AccountsResponse> {
+            override fun onResponse(call: Call<AccountsResponse>, response: Response<AccountsResponse>) {
+                _accounts.value = response.body()?.accounts ?: emptyList()
             }
-            override fun onFailure(call: Call<List<Account>>, t: Throwable) {
+            override fun onFailure(call: Call<AccountsResponse>, t: Throwable) {
                 _accounts.value = emptyList()
             }
         })
     }
 
-    fun save(id: Int?, request: AccountRequest) {
-        val call = if (id == null) api.create(request) else api.update(id, request)
-        call.enqueue(object : Callback<Account> {
-            override fun onResponse(call: Call<Account>, response: Response<Account>) = load()
-            override fun onFailure(call: Call<Account>, t: Throwable) = Unit
+    fun create(request: AccountRequest) {
+        api.create(request).enqueue(object : Callback<SimpleApiResponse> {
+            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) = load()
+            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) = Unit
+        })
+    }
+
+    fun update(id: Int, request: UpdateAccountRequest) {
+        api.update(id, request).enqueue(object : Callback<SimpleApiResponse> {
+            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) = load()
+            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) = Unit
         })
     }
 
     fun delete(id: Int) {
-        api.delete(id).enqueue(object : Callback<Unit> {
-            override fun onResponse(call: Call<Unit>, response: Response<Unit>) = load()
-            override fun onFailure(call: Call<Unit>, t: Throwable) = Unit
+        api.delete(id).enqueue(object : Callback<SimpleApiResponse> {
+            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) = load()
+            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) = Unit
         })
     }
 }

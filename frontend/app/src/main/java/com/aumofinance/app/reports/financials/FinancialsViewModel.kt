@@ -17,24 +17,24 @@ class FinancialsViewModel : ViewModel() {
     val cashFlow = MutableLiveData<CashFlowReport?>()
     val closingJournal = MutableLiveData<ClosingJournalReport?>()
 
-    fun loadIncomeStatement(periodId: Int) {
-        api.getIncomeStatement(periodId).enqueue(simple(incomeStatement))
+    fun loadIncomeStatement() {
+        api.getIncomeStatement().enqueue(simple(incomeStatement))
     }
 
-    fun loadRetainedEarnings(periodId: Int) {
-        api.getRetainedEarnings(periodId).enqueue(simple(retainedEarnings))
+    fun loadRetainedEarnings() {
+        api.getRetainedEarnings().enqueue(simple(retainedEarnings))
     }
 
-    fun loadFinancialPosition(periodId: Int) {
-        api.getFinancialPosition(periodId).enqueue(simple(financialPosition))
+    fun loadFinancialPosition(isPostClosing: Boolean = false) {
+        api.getFinancialPosition(isPostClosing).enqueue(simple(financialPosition))
     }
 
-    fun loadCashFlow(periodId: Int) {
-        api.getCashFlow(periodId).enqueue(simple(cashFlow))
+    fun loadCashFlow() {
+        api.getCashFlow().enqueue(simple(cashFlow))
     }
 
-    fun loadClosingJournal(periodId: Int) {
-        api.getClosingJournal(periodId).enqueue(simple(closingJournal))
+    fun loadClosingJournal() {
+        api.getClosingJournal().enqueue(simple(closingJournal))
     }
 
     private fun <T> simple(target: MutableLiveData<T?>) = object : Callback<T> {

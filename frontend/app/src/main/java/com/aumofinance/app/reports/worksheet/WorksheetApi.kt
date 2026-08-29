@@ -2,9 +2,10 @@ package com.aumofinance.app.reports.worksheet
 
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Query
 
 data class WorksheetRow(
+    val accountId: Int,
+    val referenceNumber: Int,
     val accountName: String,
     val tbDebit: Double,
     val tbCredit: Double,
@@ -28,11 +29,14 @@ data class WorksheetTotals(
 )
 
 data class WorksheetReport(
+    val success: Boolean,
+    val hasPeriodSelected: Boolean,
+    val selectedPeriodName: String?,
     val rows: List<WorksheetRow>,
-    val totals: WorksheetTotals
+    val totals: WorksheetTotals?
 )
 
 interface WorksheetApi {
-    @GET("api/worksheet")
-    fun getWorksheet(@Query("periodId") periodId: Int): Call<WorksheetReport>
+    @GET("api/mobile/reports/worksheet")
+    fun getWorksheet(): Call<WorksheetReport>
 }

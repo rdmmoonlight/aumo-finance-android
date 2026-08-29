@@ -8,42 +8,72 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+// Menangani satu form Journal Entry (create/edit/delete satu entri).
+// Daftar entri (halaman General Journal / Adjusting Journal) ada di
+// reports.journal.JournalReportViewModel, bukan di sini — mengikuti pemisahan
+// endpoint yang sama di aumo-finance-web (journal-entry vs journal-entries).
 class JournalEntryViewModel : ViewModel() {
     private val api = ApiClient.retrofit.create(JournalApi::class.java)
 
-    private val _entries = MutableLiveData<List<JournalEntry>>(emptyList())
-    val entries: LiveData<List<JournalEntry>> = _entries
+    private val _entry = MutableLiveData<JournalEntryDetail?>()
+    val entry: LiveData<JournalEntryDetail?> = _entry
 
-    private var lastPeriodId: Int? = null
+    private val _saveResult = MutableLiveData<CreateJournalEntryResponse?>()
+    val saveResult: LiveData<CreateJournalEntryResponse?> = _saveResult
 
-    fun load(periodId: Int) {
-        lastPeriodId = periodId
-        api.list(periodId).enqueue(object : Callback<List<JournalEntry>> {
-            override fun onResponse(call: Call<List<JournalEntry>>, response: Response<List<JournalEntry>>) {
-                _entries.value = response.body() ?: emptyList()
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    fun loadById(id: Int) {
+        api.getById(id).enqueue(object : Callback<JournalEntryDetailResponse> {
+            override fun onResponse(call: Call<JournalEntryDetailResponse>, response: Response<JournalEntryDetailResponse>) {
+                _entry.value = response.body()?.entry
             }
-            override fun onFailure(call: Call<List<JournalEntry>>, t: Throwable) {
-                _entries.value = emptyList()
+            override fun onFailure(call: Call<JournalEntryDetailResponse>, t: Throwable) {
+                _entry.value = null
             }
         })
     }
 
-    private fun reload() {
-        lastPeriodId?.let { load(it) }
-    }
-
-    fun save(id: Int?, request: JournalEntryRequest) {
-        val call = if (id == null) api.create(request) else api.update(id, request)
-        call.enqueue(object : Callback<JournalEntry> {
-            override fun onResponse(call: Call<JournalEntry>, response: Response<JournalEntry>) = reload()
-            override fun onFailure(call: Call<JournalEntry>, t: Throwable) = Unit
+    fun create(request: CreateJournalEntryRequest) {
+        api.create(request).enqueue(object : Callback<CreateJournalEntryResponse> {
+            override fun onResponse(call: Call<CreateJournalEntryResponse>, response: Response<CreateJournalEntryResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    _saveResult.value = response.body()
+                } else {
+                    _errorMessage.value = response.body()?.message ?: "Gagal menyimpan entri (${response.code()})"
+                }
+            }
+            override fun onFailure(call: Call<CreateJournalEntryResponse>, t: Throwable) {
+                _errorMessage.value = t.message ?: "Koneksi gagal"
+            }
         })
     }
 
-    fun delete(id: Int) {
-        api.delete(id).enqueue(object : Callback<Unit> {
-            override fun onResponse(call: Call<Unit>, response: Response<Unit>) = reload()
-            override fun onFailure(call: Call<Unit>, t: Throwable) = Unit
+    fun update(id: Int, request: UpdateJournalEntryRequest) {
+        api.update(id, request).enqueue(object : Callback<SimpleApiResponse> {
+            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    loadById(id)
+                } else {
+                    _errorMessage.value = response.body()?.message ?: "Gagal memperbarui entri (${response.code()})"
+                }
+            }
+            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+                _errorMessage.value = t.message ?: "Koneksi gagal"
+            }
+        })
+    }
+
+    fun delete(id: Int, onDeleted: () -> Unit) {
+        api.delete(id).enqueue(object : Callback<SimpleApiResponse> {
+            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) onDeleted()
+                else _errorMessage.value = response.body()?.message ?: "Gagal menghapus entri (${response.code()})"
+            }
+            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+                _errorMessage.value = t.message ?: "Koneksi gagal"
+            }
         })
     }
 }

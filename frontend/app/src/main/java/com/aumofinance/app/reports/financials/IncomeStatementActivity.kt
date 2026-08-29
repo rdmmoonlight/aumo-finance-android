@@ -16,6 +16,6 @@ class IncomeStatementActivity : AppCompatActivity() {
         setContentView(R.layout.activity_income_statement)
 
         viewModel.incomeStatement.observe(this) { /* bind Revenue/Expenses/Operating Income/Other/Net Income */ }
-        viewModel.loadIncomeStatement(periodId = 0)
+        viewModel.loadIncomeStatement()
     }
 }

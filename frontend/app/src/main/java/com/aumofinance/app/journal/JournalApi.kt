@@ -11,40 +11,71 @@ import retrofit2.http.Query
 
 data class JournalLine(
     val accountId: Int,
-    val accountName: String,
+    val lineDescription: String?,
     val debit: Double,
-    val credit: Double
+    val credit: Double,
+    val lineOrder: Int = 0
 )
 
-data class JournalEntry(
-    val id: Int,
-    val periodId: Int,
-    val transactionNo: String,
-    val entryDate: String,   // tanggal manual dari date picker
-    val createdAt: String,   // waktu lokal perangkat saat input
-    val type: String,        // General / Adjusting
-    val lines: List<JournalLine>,
-    val isBalanced: Boolean
-)
-
-data class JournalEntryRequest(
-    val periodId: Int,
+// JournalType di backend hanya "General" atau "Adjusting" (string bebas,
+// bukan enum) — Closing TIDAK PERNAH ada di sini, itu murni dihitung on-the-fly
+// oleh ClosingJournalApi dari Trial Balance, tidak pernah disimpan sebagai entry.
+data class CreateJournalEntryRequest(
+    val journalType: String,
     val entryDate: String,
-    val createdAt: String,
-    val type: String,
+    val createdAt: String, // waktu lokal perangkat saat input, wajib Kind Unspecified
     val lines: List<JournalLine>
 )
 
+data class UpdateJournalEntryRequest(
+    val journalType: String,
+    val entryDate: String,
+    val updatedAt: String, // waktu lokal perangkat saat edit disimpan
+    val lines: List<JournalLine>
+)
+
+data class JournalEntryDetail(
+    val id: Int,
+    val transactionNumber: String,
+    val journalType: String,
+    val entryDate: String,
+    val createdAt: String,
+    val updatedAt: String?,
+    val isLocked: Boolean,
+    val lines: List<JournalEntryDetailLine>
+)
+
+data class JournalEntryDetailLine(
+    val id: Int,
+    val accountId: Int,
+    val lineDescription: String?,
+    val debit: Double,
+    val credit: Double,
+    val lineOrder: Int
+)
+
+data class JournalEntryDetailResponse(val success: Boolean, val entry: JournalEntryDetail?)
+data class CreateJournalEntryResponse(val success: Boolean, val message: String, val entryId: Int?, val transactionNumber: String?)
+data class SimpleApiResponse(val success: Boolean, val message: String)
+data class NextTransactionNumberResponse(val success: Boolean, val transactionNumber: String)
+
 interface JournalApi {
-    @GET("api/generaljournal")
-    fun list(@Query("periodId") periodId: Int): Call<List<JournalEntry>>
+    // Dipakai oleh halaman Journal Entry (form input/edit satu entri).
+    @GET("api/mobile/journal-entry/{id}")
+    fun getById(@Path("id") id: Int): Call<JournalEntryDetailResponse>
 
-    @POST("api/generaljournal")
-    fun create(@Body request: JournalEntryRequest): Call<JournalEntry>
+    @POST("api/mobile/journal-entry/create")
+    fun create(@Body request: CreateJournalEntryRequest): Call<CreateJournalEntryResponse>
 
-    @PUT("api/generaljournal/{id}")
-    fun update(@Path("id") id: Int, @Body request: JournalEntryRequest): Call<JournalEntry>
+    @PUT("api/mobile/journal-entry/edit/{id}")
+    fun update(@Path("id") id: Int, @Body request: UpdateJournalEntryRequest): Call<SimpleApiResponse>
 
-    @DELETE("api/generaljournal/{id}")
-    fun delete(@Path("id") id: Int): Call<Unit>
+    @DELETE("api/mobile/journal-entry/delete/{id}")
+    fun delete(@Path("id") id: Int): Call<SimpleApiResponse>
+
+    @GET("api/mobile/journal-entry/search-descriptions")
+    fun searchDescriptions(@Query("q") query: String): Call<List<String>>
+
+    @GET("api/mobile/journal-entry/next-transaction-number")
+    fun nextTransactionNumber(@Query("journalType") journalType: String, @Query("entryDate") entryDate: String? = null): Call<NextTransactionNumberResponse>
 }

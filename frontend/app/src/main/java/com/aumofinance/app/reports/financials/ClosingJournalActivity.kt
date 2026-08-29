@@ -14,6 +14,6 @@ class ClosingJournalActivity : AppCompatActivity() {
         setContentView(R.layout.activity_closing_journal)
 
         viewModel.closingJournal.observe(this) { /* bind daftar entri debit/kredit read-only */ }
-        viewModel.loadClosingJournal(periodId = 0)
+        viewModel.loadClosingJournal()
     }
 }

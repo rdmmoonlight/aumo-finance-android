@@ -14,6 +14,6 @@ class FinancialPositionActivity : AppCompatActivity() {
         setContentView(R.layout.activity_financial_position)
 
         viewModel.financialPosition.observe(this) { /* bind Aset / Liabilitas / Ekuitas + validasi balance */ }
-        viewModel.loadFinancialPosition(periodId = 0)
+        viewModel.loadFinancialPosition()
     }
 }
