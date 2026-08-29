@@ -63,17 +63,51 @@ asli di `aumo-finance-web`.
   `isPostClosing=true`** — endpoint sudah ada dan bisa dipanggil
   (`loadFinancialPosition(isPostClosing = true)`), tapi belum ada layar
   terpisah yang memakainya, mirip Post-Closing Trial Balance di Fase 8.5.
-- **`gradlew` (Gradle wrapper) belum digenerate** — CI Android sementara
-  memakai `gradle/actions/setup-gradle`. Setelah wrapper digenerate dan
-  dicommit (lihat README), ganti kembali ke `./gradlew` di
-  `frontend-android-ci.yml`.
+## Fase 9 — Build via GitHub Actions (tanpa Android Studio)
+
+- **Gradle Wrapper asli sudah ada** (`gradlew`, `gradlew.bat`,
+  `gradle/wrapper/gradle-wrapper.jar` + `.properties`, Gradle 8.7) — diambil
+  dari repo resmi `gradle/gradle` tag `v8.7.0` via `raw.githubusercontent.com`
+  (bukan ditulis manual), karena sandbox saya tidak punya akses ke server
+  distribusi Gradle resmi. `frontend-android-ci.yml` sekarang pakai
+  `./gradlew` sungguhan, bukan lagi workaround `gradle/actions/setup-gradle`
+  tanpa wrapper.
+- **`applicationId` diperbaiki** dari `com.aumofinance.app` (karangan Fase 1)
+  menjadi `com.bnrc.aumofinance` — itu applicationId asli app MAUI lama
+  (lihat `frontend/legacy-maui-reference/AumoFinance.csproj`). Kalau tidak
+  disamakan, rilis Kotlin ini akan dianggap aplikasi BARU oleh Play Store,
+  bukan update dari app existing. `namespace` (struktur package Kotlin) tetap
+  `com.aumofinance.app` — aman berbeda dari `applicationId` sejak AGP 7+.
+- **`production-pipeline.yml` (MAUI) DIHAPUS**, diganti
+  `.github/workflows/android-build.yml`:
+  - Job `build`: jalan di setiap push ke `feature/kotlin-native-frontend`,
+    hasilkan APK debug + release (unsigned) sebagai artifact — ini yang
+    dipakai untuk build tanpa Android Studio.
+  - Job `sign-and-release`: hanya jalan lewat trigger manual
+    (`workflow_dispatch`), dan otomatis di-skip dengan pesan jelas kalau
+    secret `ANDROID_KEYSTORE_BASE64` belum di-set — tidak dipaksakan jalan
+    dengan kredensial yang belum tentu ada.
+
+## Utang teknis yang masih terbuka
+
+- **Statement of Financial Position belum punya Activity untuk varian
+  `isPostClosing=true`** — endpoint sudah ada dan bisa dipanggil
+  (`loadFinancialPosition(isPostClosing = true)`), tapi belum ada layar
+  terpisah yang memakainya, mirip Post-Closing Trial Balance di Fase 8.5.
 - **Sesi login belum persisten** — `SessionManager` menyimpan token di
   memori saja, hilang begitu proses aplikasi mati. Perlu
   EncryptedSharedPreferences.
 - **Sinkronisasi offline** (`SyncManager`) masih no-op.
-- **`production-pipeline.yml`** masih membangun & menandatangani APK MAUI
-  lama — belum disentuh, menyangkut proses rilis produksi, perlu keputusan
-  eksplisit kapan diganti.
+- **Signing release APK belum aktif** — job `sign-and-release` sudah siap,
+  tapi perlu secret `ANDROID_KEYSTORE_BASE64`/`ANDROID_KEY_ALIAS`/
+  `ANDROID_KEY_PASSWORD`/`ANDROID_KEYSTORE_PASSWORD` di-set dulu di
+  pengaturan repo (Settings → Secrets and variables → Actions). Kalau
+  keystore lama (`.jks` yang sempat ada di `Docs/`) masih dipakai, pastikan
+  itu didaftarkan sebagai secret, bukan file — jangan commit `.jks` lagi.
 - **Keystore signing lama** sudah dihapus dari working tree; versi lama di
   git history masih perlu dibersihkan lewat `git filter-repo`/BFG kalau mau
   benar-benar hilang.
+- **`android-build.yml` belum menyasar branch `production`** — sengaja
+  di-scope ke `feature/kotlin-native-frontend` dulu sesuai instruksi "sampai
+  bisa build di branch ini saja"; perluas trigger-nya setelah migrasi ini
+  siap dirilis.

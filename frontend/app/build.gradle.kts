@@ -4,11 +4,18 @@ plugins {
 }
 
 android {
+    // namespace = paket Kotlin (R class, dst.) — BEBAS beda dari applicationId
+    // sejak AGP 7+ memisahkan keduanya, jadi tidak perlu rename seluruh
+    // struktur package Kotlin yang sudah ditulis.
     namespace = "com.aumofinance.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.aumofinance.app"
+        // HARUS "com.bnrc.aumofinance" — ini applicationId asli app MAUI lama
+        // (lihat frontend/legacy-maui-reference/AumoFinance.csproj). Kalau beda,
+        // Play Store akan menganggap ini aplikasi baru yang terpisah, bukan
+        // update dari app existing, dan user lama kehilangan kontinuitas rilis.
+        applicationId = "com.bnrc.aumofinance"
         // Locked per project requirement: minSdk must stay at Android 9 (API 28) or below
         minSdk = 28
         targetSdk = 34

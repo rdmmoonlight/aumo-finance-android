@@ -21,21 +21,20 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # Repo ini belum menyertakan Gradle Wrapper (gradle-wrapper.jar) karena file
-      # biner tersebut perlu digenerate dari mesin ber-Gradle (`gradle wrapper`).
-      # Sebagai gantinya, action ini yang menyediakan Gradle langsung di runner,
-      # jadi build tetap berjalan tanpa wrapper. Setelah gradlew digenerate dan
-      # dicommit, langkah "Setup Gradle" + panggilan "gradle" di bawah bisa
-      # diganti kembali ke "./gradlew".
+      # gradle/actions/setup-gradle: caching bawaan untuk dependency & wrapper
+      # distribution supaya build berikutnya lebih cepat, tetap memakai
+      # ./gradlew yang sudah di-commit (bukan menggantikannya).
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: frontend
 
       - name: Build debug APK
-        run: gradle assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
         working-directory: frontend
 
       - name: Run unit tests
-        run: gradle testDebugUnitTest
+        run: ./gradlew testDebugUnitTest --stacktrace
         working-directory: frontend

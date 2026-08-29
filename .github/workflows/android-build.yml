@@ -1,0 +1,146 @@
+name: Android Build (Kotlin native)
+
+# Menggantikan production-pipeline.yml lama (build+sign APK .NET MAUI).
+# Untuk saat ini di-scope ke branch feature/kotlin-native-frontend saja —
+# belum ke 'production', sampai migrasi ini benar-benar siap dirilis.
+on:
+  push:
+    branches: [feature/kotlin-native-frontend]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/android-build.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build APK (debug + release unsigned)
+    runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.version.outputs.app_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        working-directory: frontend
+
+      # Format CalVer sederhana (YY.M.<nomor build>), diambil dari nomor
+      # jalan workflow — tidak butuh commit balik ke repo seperti CalVer
+      # di pipeline MAUI lama.
+      - name: Generate CalVer version
+        id: version
+        run: |
+          YEAR_MONTH=$(date +'%y.%-m')
+          echo "app_version=${YEAR_MONTH}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+        working-directory: frontend
+
+      - name: Build unsigned release APK
+        run: ./gradlew assembleRelease --stacktrace
+        working-directory: frontend
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --stacktrace
+        working-directory: frontend
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: aumo-debug-v${{ steps.version.outputs.app_version }}
+          path: frontend/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload unsigned release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: aumo-release-unsigned-v${{ steps.version.outputs.app_version }}
+          path: frontend/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+  sign-and-release:
+    name: Sign & Publish Release (opsional — hanya jika keystore secret sudah di-set)
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+    steps:
+      - name: Cek apakah secret keystore sudah dikonfigurasi
+        id: check_secret
+        run: |
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Lewati signing (secret belum di-set)
+        if: steps.check_secret.outputs.configured == 'false'
+        run: |
+          echo "Secret ANDROID_KEYSTORE_BASE64 belum di-set di repo ini."
+          echo "APK debug & release unsigned tetap tersedia di artifact job 'build' di atas."
+          echo "Untuk mengaktifkan signing otomatis, set secret: ANDROID_KEYSTORE_BASE64,"
+          echo "ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, ANDROID_KEYSTORE_PASSWORD."
+
+      - name: Download unsigned release APK
+        if: steps.check_secret.outputs.configured == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: aumo-release-unsigned-v${{ needs.build.outputs.app_version }}
+          path: release-assets
+
+      - name: Decode keystore
+        if: steps.check_secret.outputs.configured == 'true'
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
+
+      - name: Zipalign & sign APK
+        if: steps.check_secret.outputs.configured == 'true'
+        run: |
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          UNSIGNED_APK=$(find release-assets -name '*.apk' | head -1)
+          "$BUILD_TOOLS/zipalign" -p 4 "$UNSIGNED_APK" aligned-release.apk
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks release-key.jks \
+            --ks-key-alias "${{ secrets.ANDROID_KEY_ALIAS }}" \
+            --ks-pass "pass:${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            --key-pass "pass:${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            --out aumo-release-signed.apk \
+            aligned-release.apk
+
+      - name: Bersihkan file keystore
+        if: always()
+        run: rm -f release-key.jks
+
+      - name: Upload signed APK
+        if: steps.check_secret.outputs.configured == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: aumo-release-signed-v${{ needs.build.outputs.app_version }}
+          path: aumo-release-signed.apk
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: steps.check_secret.outputs.configured == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.app_version }}
+          name: Aumo Release v${{ needs.build.outputs.app_version }}
+          body: "Rilisan otomatis build ke-${{ github.run_number }} dari feature/kotlin-native-frontend."
+          files: aumo-release-signed.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
