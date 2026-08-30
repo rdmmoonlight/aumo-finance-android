@@ -37,21 +37,58 @@ jobs:
         run: chmod +x gradlew
         working-directory: frontend
 
-      # Format CalVer sederhana (YY.M.<nomor build>), diambil dari nomor
-      # jalan workflow — tidak butuh commit balik ke repo seperti CalVer
-      # di pipeline MAUI lama.
-      - name: Generate CalVer version
+      # PENTING: github.run_number itu PER-WORKFLOW, bukan global per-repo.
+      # Workflow lama (production-pipeline.yml, MAUI) sudah jalan 200+ kali
+      # dan APK terakhirnya (versionName "26.8.210" per histori run) sudah
+      # terpasang di HP pengguna. Kalau versi di sini dihitung dari
+      # github.run_number workflow INI SAJA (baru mulai dari 1), hasilnya akan
+      # lebih RENDAH dari yang sudah terpasang, dan auto-updater (yang
+      # membandingkan tag rilis GitHub terhadap AppInfo.Current.VersionString
+      # di app lama — lihat Services/UpdateService.cs branch production) tidak
+      # akan pernah menganggap ini versi baru.
+      #
+      # Solusi robust: baca tag rilis GitHub TERAKHIR yang benar-benar sudah
+      # dipublikasikan (dari workflow manapun), lalu naikkan build number-nya
+      # kalau masih di bulan yang sama, atau mulai dari 1 kalau sudah beda
+      # bulan (format CalVer yy.M.N tetap lebih besar begitu M naik).
+      - name: Generate CalVer version (lanjutan dari rilis GitHub terakhir)
         id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           YEAR_MONTH=$(date +'%y.%-m')
-          echo "app_version=${YEAR_MONTH}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          LATEST_TAG=$(gh release view --repo "${{ github.repository }}" --json tagName -q .tagName 2>/dev/null || echo "")
+          LATEST_VERSION="${LATEST_TAG#v}"
+
+          if [ -n "$LATEST_VERSION" ]; then
+            LATEST_YEAR_MONTH=$(echo "$LATEST_VERSION" | cut -d. -f1-2)
+            LATEST_BUILD=$(echo "$LATEST_VERSION" | cut -d. -f3)
+          else
+            LATEST_YEAR_MONTH=""
+            LATEST_BUILD="0"
+          fi
+
+          if [ "$YEAR_MONTH" = "$LATEST_YEAR_MONTH" ]; then
+            NEW_BUILD=$((LATEST_BUILD + 1))
+          else
+            NEW_BUILD=1
+          fi
+
+          APP_VERSION="${YEAR_MONTH}.${NEW_BUILD}"
+          echo "Rilis terakhir: ${LATEST_TAG:-<tidak ada>} -> versi baru: v${APP_VERSION}"
+          echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
+
+          # versionCode Android: integer, harus tetap naik walau lintas bulan/
+          # tahun — dipakai jam saat build (yy+mm+dd+HH) supaya monoton tanpa
+          # bergantung pada riwayat run_number workflow tertentu.
+          echo "version_code=$(date +'%y%m%d%H')" >> "$GITHUB_OUTPUT"
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace -PappVersionName=${{ steps.version.outputs.app_version }} -PappVersionCode=${{ steps.version.outputs.version_code }}
         working-directory: frontend
 
       - name: Build unsigned release APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleRelease --stacktrace -PappVersionName=${{ steps.version.outputs.app_version }} -PappVersionCode=${{ steps.version.outputs.version_code }}
         working-directory: frontend
 
       - name: Run unit tests

@@ -19,8 +19,13 @@ android {
         // Locked per project requirement: minSdk must stay at Android 9 (API 28) or below
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        // Bisa dioverride dari CI lewat -PappVersionCode=... -PappVersionName=...
+        // (lihat android-build.yml) supaya APK punya versi internal yang
+        // konsisten dengan tag GitHub Release yang dipublikasikan — bukan
+        // cuma "1.0" statis selamanya. Default di bawah dipakai untuk build
+        // lokal (Android Studio/gradlew tanpa CI).
+        versionCode = (project.findProperty("appVersionCode") as String?)?.toIntOrNull() ?: 1
+        versionName = project.findProperty("appVersionName") as String? ?: "1.0-local"
     }
 
     buildTypes {
