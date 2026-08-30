@@ -105,6 +105,13 @@ Ini baru gagal di tahap metadata check, SEBELUM kompilasi Kotlin
 sesungguhnya berjalan — jadi masih mungkin ada error lain menyusul begitu
 tahap ini lolos dan compiler Kotlin benar-benar jalan untuk pertama kalinya.
 
+**Update:** setelah fix ini di-push, build ke-2 sukses penuh (kompilasi
+Kotlin lolos tanpa error lain) — lihat run
+https://github.com/rdmmoonlight/aumo-finance-android/actions/runs/33268437916.
+Kedua workflow (`android-build.yml` dan `frontend-android-ci.yml`) hijau.
+Project ini sekarang **bisa dibangun murni lewat GitHub Actions, tanpa
+Android Studio**, sesuai permintaan.
+
 ## Utang teknis lain yang masih terbuka
 
 - **Sesi login belum persisten** — `SessionManager` menyimpan token di
