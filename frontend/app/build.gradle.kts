@@ -29,6 +29,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Signature debug (auto-generated Android debug keystore) TIDAK
+            // PERNAH sama dengan keystore signing release — kalau applicationId
+            // debug sama persis dengan release, install APK debug di HP yang
+            // sudah ada app release akan ditolak Android ("package conflicts
+            // with an existing package"). applicationIdSuffix membuat debug
+            // punya package ID sendiri (com.bnrc.aumofinance.debug) supaya
+            // keduanya bisa terpasang berdampingan tanpa bentrok.
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
             isMinifyEnabled = false
         }

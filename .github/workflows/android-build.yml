@@ -81,7 +81,13 @@ jobs:
           # versionCode Android: integer, harus tetap naik walau lintas bulan/
           # tahun — dipakai jam saat build (yy+mm+dd+HH) supaya monoton tanpa
           # bergantung pada riwayat run_number workflow tertentu.
-          echo "version_code=$(date +'%y%m%d%H')" >> "$GITHUB_OUTPUT"
+          # versionCode Android: integer, harus tetap naik walau lintas bulan/
+          # tahun. Skema "yymmddHH" (8 digit, presisi jam) berisiko bentrok
+          # kalau build lebih dari sekali dalam jam yang sama — diganti jumlah
+          # menit sejak epoch tetap 2026-01-01 UTC: selalu naik monoton per
+          # menit, dan jauh di bawah batas maksimum Android (2.100.000.000).
+          EPOCH_MINUTES=$(( ( $(date -u +%s) - $(date -u -d '2026-01-01T00:00:00Z' +%s) ) / 60 ))
+          echo "version_code=$EPOCH_MINUTES" >> "$GITHUB_OUTPUT"
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace -PappVersionName=${{ steps.version.outputs.app_version }} -PappVersionCode=${{ steps.version.outputs.version_code }}
@@ -110,10 +116,12 @@ jobs:
           if-no-files-found: error
 
   sign-and-release:
-    name: Sign & Publish Release (opsional — hanya jika keystore secret sudah di-set)
+    name: Sign & Publish Release
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
+    # 4 secret keystore sudah dikonfirmasi ada — jalan otomatis di setiap push,
+    # bukan cuma manual lagi. Guard "configured" di bawah tetap dipertahankan
+    # sebagai jaring pengaman kalau suatu saat secret ini kosong/berubah.
     permissions:
       contents: write
     steps:
