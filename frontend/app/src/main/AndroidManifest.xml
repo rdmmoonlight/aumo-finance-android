@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".core.AumoApplication"
         android:allowBackup="true"
         android:label="Aumo Finance"
         android:supportsRtl="true"
@@ -16,9 +17,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".core.MainActivity"
-            android:exported="false" />
         <activity
             android:name=".home.HomeActivity"
             android:exported="false" />

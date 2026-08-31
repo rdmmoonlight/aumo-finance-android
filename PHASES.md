@@ -57,6 +57,35 @@ asli di `aumo-finance-web`.
 
 **Fase 8 tuntas — seluruh 20 layar sekarang punya UI fungsional (bukan `FrameLayout` kosong lagi).**
 
+## Fase 10 — Merge ke `main` + perbaikan navigasi kritis
+
+Branch `feature/kotlin-native-frontend` di-merge ke `main` (commit `a291a77`)
+atas instruksi eksplisit pemilik repo, SEBELUM navigasi Home selesai —
+disengaja, supaya `main` langsung mencerminkan arah Kotlin native, dengan
+sisa pekerjaan dilanjutkan langsung di `main` setelahnya.
+
+**Bug kritis yang ditemukan tepat sebelum merge:** `LoginActivity` mengarah
+ke `MainActivity` (shell placeholder kosong dari Fase 1), BUKAN ke
+`HomeActivity` (landing page yang sudah didesain sejak Fase 3 untuk jadi
+hub navigasi). Akibatnya app benar-benar buntu setelah login — layar kosong
+tanpa tombol apapun, walau 20 layar lain di baliknya semua sudah berfungsi.
+
+Diperbaiki di `main`:
+- `HomeActivity` sekarang berisi 2 RecyclerView menu (Menu Utama: Dashboard/
+  Periode/COA/Tambah Journal Entry; Laporan: seluruh 13 layar laporan) +
+  tombol Settings di pojok kanan atas.
+- `LoginActivity` diarahkan ke `HomeActivity`, bukan lagi `MainActivity`.
+- `MainActivity` (placeholder kosong, sudah tidak dipakai) dihapus total
+  beserta layout dan entry manifest-nya.
+- `SettingsActivity` disambungkan: toggle notifikasi (disimpan lokal lewat
+  SharedPreferences), tombol ke `CrashLogActivity`, tombol Logout ke
+  `LogoutActivity`.
+- `CrashLogActivity` dibuat benar-benar membaca `crash_log.txt`.
+- Ditemukan `CrashLogHandler` tidak pernah didaftarkan sebagai default
+  uncaught exception handler sejak dibuat (dead code) — dibuat
+  `AumoApplication` (custom `Application` class) yang mendaftarkannya di
+  `onCreate()`, didaftarkan di manifest lewat `android:name`.
+
 ## Utang teknis yang masih terbuka
 - **Statement of Financial Position belum punya Activity untuk varian
   `isPostClosing=true`** — endpoint sudah ada dan bisa dipanggil

@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
-import com.aumofinance.app.core.MainActivity
+import com.aumofinance.app.home.HomeActivity
 import com.aumofinance.app.R
 
 class LoginActivity : AppCompatActivity() {
@@ -31,7 +31,7 @@ class LoginActivity : AppCompatActivity() {
         viewModel.state.observe(this) { state ->
             when (state) {
                 is LoginState.Success -> {
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, HomeActivity::class.java))
                     finish()
                 }
                 is LoginState.Error -> {
