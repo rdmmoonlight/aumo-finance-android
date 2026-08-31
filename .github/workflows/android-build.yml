@@ -155,7 +155,27 @@ jobs:
         if: steps.check_secret.outputs.configured == 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: printf '%s' "$KEYSTORE_BASE64" | base64 -d > release-key.jks
+        run: |
+          # PENTING: production-pipeline.yml (MAUI) lama memanggil .Trim() di
+          # PowerShell sebelum FromBase64String() — bash saya sebelumnya TIDAK
+          # membuang whitespace/newline dari secret sebelum decode. Kalau
+          # secret ini punya newline nyangkut (umum terjadi saat copy-paste
+          # base64 ke GitHub Secrets), hasil decode jadi sedikit korup —
+          # PKCS12 (.jks) adalah blob biner terenkripsi, korupsi sedikit saja
+          # persis menghasilkan "keystore password was incorrect" /
+          # BadPaddingException walau password sebenarnya benar. tr -d
+          # menghapus SEMUA whitespace (aman, alfabet base64 valid tidak
+          # pernah mengandung whitespace).
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > release-key.jks
+          echo "Ukuran file keystore hasil decode: $(wc -c < release-key.jks) bytes"
+
+      - name: Verifikasi keystore & alias bisa dibuka (isolasi masalah dari apksigner)
+        if: steps.check_secret.outputs.configured == 'true'
+        env:
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          keytool -list -v -keystore release-key.jks -alias "$KEY_ALIAS" -storepass "$KEYSTORE_PASSWORD" | head -5
 
       - name: Zipalign & sign APK
         if: steps.check_secret.outputs.configured == 'true'
