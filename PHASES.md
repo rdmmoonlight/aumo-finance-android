@@ -57,6 +57,32 @@ asli di `aumo-finance-web`.
 
 **Fase 8 tuntas — seluruh 20 layar sekarang punya UI fungsional (bukan `FrameLayout` kosong lagi).**
 
+## Fase 11 — App icon & splash screen
+
+Sebelumnya app TIDAK PERNAH punya `android:icon` di manifest sejak Fase 1
+(pakai icon default generik Android) dan tidak punya splash screen sama
+sekali. Ditambahkan dari 2 aset yang diberikan (`appicon.png` 1024x1024,
+`splash.png` 941x1672):
+
+- **App icon**: adaptive icon (`mipmap-anydpi-v26/ic_launcher.xml` +
+  `ic_launcher_round.xml`) dengan background putih solid
+  (`@color/ic_launcher_background`) + foreground logo "A" emas. Konten asli
+  diperkecil ke 76% dan ditaruh center di kanvas 1024x1024 baru supaya
+  padding merata di semua sisi (source asli agak tidak simetris — padding
+  bawah cuma ~8.7%, berisiko konten terpotong mask lingkaran/squircle
+  launcher tertentu). Juga digenerate versi legacy flat (komposit di atas
+  putih) per density untuk fallback pre-adaptive-icon & kompatibilitas
+  launcher yang tidak dukung adaptive icon.
+- **Splash screen**: `SplashActivity` custom (BUKAN API splash minimalis
+  Android 12+) karena desainnya penuh — logo + teks atribusi
+  "by rdmmoonlight" — bukan cuma ikon kecil di kotak seperti yang dipaksakan
+  API splash bawaan. Jadi LAUNCHER activity baru (menggantikan
+  `LoginActivity` langsung), tampil 1.2 detik lalu pindah ke Login. Gambar
+  splash dikompres dari 610KB ke 393KB (PNG palette-based) tanpa kehilangan
+  kualitas visual yang terlihat, ditaruh di `drawable-nodpi` supaya tidak
+  ikut sistem scaling otomatis per-density Android (gambar sudah didesain
+  utuh, bukan aset density-aware).
+
 ## Fase 10 — Merge ke `main` + perbaikan navigasi kritis
 
 Branch `feature/kotlin-native-frontend` di-merge ke `main` (commit `a291a77`)

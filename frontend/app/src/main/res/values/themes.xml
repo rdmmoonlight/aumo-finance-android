@@ -7,6 +7,10 @@
     <color name="colorGood">#4FA36A</color>
     <color name="colorBad">#D7192F</color>
 
+    <!-- Background adaptive icon — putih, mengikuti desain appicon.png yang
+         dibuat dengan latar putih (logo "A" emas). -->
+    <color name="ic_launcher_background">#FFFFFF</color>
+
     <style name="Theme.AumoFinance" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:windowBackground">@color/colorBackground</item>
