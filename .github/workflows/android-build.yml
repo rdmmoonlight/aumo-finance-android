@@ -180,28 +180,29 @@ jobs:
       - name: Zipalign & sign APK
         if: steps.check_secret.outputs.configured == 'true'
         env:
-          # PENTING: secret TIDAK BOLEH diinterpolasi langsung ke dalam teks
-          # skrip bash (mis. "pass:${{ secrets.X }}") — GitHub Actions
-          # mensubstitusi nilainya sebagai teks MENTAH sebelum bash membaca
-          # baris itu, jadi kalau password mengandung karakter spesial bash
-          # ($, `, ", dst.) bisa salah tafsir dan efeknya identik dengan
-          # "password salah" walau aslinya benar. Riwayat bug nyata: kredensial
-          # yang sama terbukti benar (dipakai production-pipeline.yml lama di
-          # PowerShell tanpa masalah) tapi gagal di sini karena lewat bash.
-          # Fix: taruh di env: lalu rujuk sebagai "$VAR" — env var tidak
-          # di-parse ulang sebagai sintaks shell.
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           UNSIGNED_APK=$(find release-assets -name '*.apk' | head -1)
           "$BUILD_TOOLS/zipalign" -p 4 "$UNSIGNED_APK" aligned-release.apk
+
+          # PENTING: file ini format PKCS12 (dikonfirmasi dari stack trace
+          # PKCS12KeyStore.engineLoad di error sebelumnya). PKCS12 TIDAK
+          # mendukung key-password yang beda dari store-password seperti
+          # format JKS lama — satu-satunya password yang benar-benar berlaku
+          # adalah store password. "keytool -list" di step sebelumnya lolos
+          # pakai storepass saja (tidak butuh keypass terpisah), tapi
+          # apksigner --key-pass mencoba unlock entry key dengan
+          # ANDROID_KEY_PASSWORD yang mungkin beda dari
+          # ANDROID_KEYSTORE_PASSWORD -> gagal decrypt (BadPaddingException)
+          # persis seperti yang terjadi. Fix: pakai KEYSTORE_PASSWORD untuk
+          # keduanya, --ks-pass MAUPUN --key-pass, sesuai konstrain PKCS12.
           "$BUILD_TOOLS/apksigner" sign \
             --ks release-key.jks \
             --ks-key-alias "$KEY_ALIAS" \
             --ks-pass "pass:$KEYSTORE_PASSWORD" \
-            --key-pass "pass:$KEY_PASSWORD" \
+            --key-pass "pass:$KEYSTORE_PASSWORD" \
             --out aumo-release-signed.apk \
             aligned-release.apk
 
