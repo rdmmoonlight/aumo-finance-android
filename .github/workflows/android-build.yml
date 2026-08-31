@@ -142,7 +142,7 @@ jobs:
           echo "Secret ANDROID_KEYSTORE_BASE64 belum di-set di repo ini."
           echo "APK debug & release unsigned tetap tersedia di artifact job 'build' di atas."
           echo "Untuk mengaktifkan signing otomatis, set secret: ANDROID_KEYSTORE_BASE64,"
-          echo "ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD, ANDROID_KEYSTORE_PASSWORD."
+          echo "ANDROID_KEY_ALIAS, ANDROID_KEYSTORE_PASSWORD."
 
       - name: Download unsigned release APK
         if: steps.check_secret.outputs.configured == 'true'
@@ -192,12 +192,9 @@ jobs:
           # mendukung key-password yang beda dari store-password seperti
           # format JKS lama — satu-satunya password yang benar-benar berlaku
           # adalah store password. "keytool -list" di step sebelumnya lolos
-          # pakai storepass saja (tidak butuh keypass terpisah), tapi
-          # apksigner --key-pass mencoba unlock entry key dengan
-          # ANDROID_KEY_PASSWORD yang mungkin beda dari
-          # ANDROID_KEYSTORE_PASSWORD -> gagal decrypt (BadPaddingException)
-          # persis seperti yang terjadi. Fix: pakai KEYSTORE_PASSWORD untuk
-          # keduanya, --ks-pass MAUPUN --key-pass, sesuai konstrain PKCS12.
+          # pakai storepass saja (tidak butuh keypass terpisah). Fix: pakai
+          # KEYSTORE_PASSWORD untuk keduanya (--ks-pass MAUPUN --key-pass),
+          # sesuai konstrain PKCS12.
           "$BUILD_TOOLS/apksigner" sign \
             --ks release-key.jks \
             --ks-key-alias "$KEY_ALIAS" \
@@ -228,3 +225,4 @@ jobs:
           files: aumo-release-signed.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
