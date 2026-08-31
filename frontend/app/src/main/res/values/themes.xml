@@ -1,0 +1,14 @@
+<resources>
+    <!-- Ningrat Purple / Matte Black palette, carried over from the MAUI app -->
+    <color name="colorPrimary">#523363</color>
+    <color name="colorBackground">#0A0A0A</color>
+    <color name="colorSurface">#141014</color>
+    <color name="colorSurfaceElevated">#1E121F</color>
+    <color name="colorGood">#4FA36A</color>
+    <color name="colorBad">#D7192F</color>
+
+    <style name="Theme.AumoFinance" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+    </style>
+</resources>

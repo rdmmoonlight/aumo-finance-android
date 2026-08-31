@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:label="Aumo Finance"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AumoFinance">
+        <activity
+            android:name=".auth.LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AumoFinance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".core.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".home.HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".dashboard.DashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".periods.PeriodsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".coa.CoaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".journal.JournalEntryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.journal.GeneralJournalReportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.journal.AdjustingJournalReportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.ledger.GeneralLedgerPermanentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.ledger.GeneralLedgerTemporaryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.trialbalance.TrialBalanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.trialbalance.AdjustedTrialBalanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.trialbalance.PostClosingTrialBalanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.worksheet.WorksheetActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.IncomeStatementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.RetainedEarningsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.FinancialPositionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.CashFlowActivity"
+            android:exported="false" />
+        <activity
+            android:name=".reports.financials.ClosingJournalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".settings.LogoutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".crashlog.CrashLogActivity"
+            android:exported="false" />
+        <!-- Activities added incrementally per phase (Login, Home, Dashboard, etc.) -->
+    </application>
+</manifest>
