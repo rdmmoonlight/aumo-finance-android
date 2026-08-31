@@ -2,7 +2,7 @@ name: Frontend Android CI
 
 on:
   push:
-    branches: [feature/kotlin-native-frontend]
+    branches: [main, feature/kotlin-native-frontend]
     paths:
       - 'frontend/**'
   pull_request:

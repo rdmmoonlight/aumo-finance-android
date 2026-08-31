@@ -1,11 +1,11 @@
 name: Android Build (Kotlin native)
 
 # Menggantikan production-pipeline.yml lama (build+sign APK .NET MAUI).
-# Untuk saat ini di-scope ke branch feature/kotlin-native-frontend saja —
-# belum ke 'production', sampai migrasi ini benar-benar siap dirilis.
+# Jalan di push ke main (branch aktif sejak merge Fase 10) dan
+# feature/kotlin-native-frontend (untuk branch kerja yang masih berjalan).
 on:
   push:
-    branches: [feature/kotlin-native-frontend]
+    branches: [main, feature/kotlin-native-frontend]
     paths:
       - 'frontend/**'
       - '.github/workflows/android-build.yml'
