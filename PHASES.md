@@ -57,6 +57,38 @@ asli di `aumo-finance-web`.
 
 **Fase 8 tuntas — seluruh 20 layar sekarang punya UI fungsional (bukan `FrameLayout` kosong lagi).**
 
+## Fase 12 — "Ingat saya", login biometrik, desain ulang halaman Login
+
+- **`SessionStore`** (baru): sesi (token/userId/fullName) disimpan terenkripsi
+  (AES256-GCM via Android Keystore, lewat `EncryptedSharedPreferences`) —
+  sebelumnya `SessionManager` cuma di memori, hilang tiap app di-restart
+  (dicatat sebagai utang teknis sejak Fase 7). Dipulihkan otomatis di
+  `SplashActivity` kalau "Ingat saya" dicentang saat login.
+- **Login biometrik**: `BiometricHelper` (wrapper `BiometricPrompt`,
+  `BIOMETRIC_WEAK`). Centang "Aktifkan biometrik" otomatis ikut mencentang
+  "Ingat saya" (biometrik cuma jadi gerbang untuk MEMBUKA sesi yang sudah
+  tersimpan, bukan pengganti password sepenuhnya).
+  **Catatan jujur soal batas keamanannya**: ini BUKAN cryptographic binding
+  penuh (token tidak dienkripsi pakai key yang terikat ke sensor biometrik
+  lewat `CryptoObject`) — cukup untuk mencegah orang lain yang pegang HP
+  tak terkunci langsung masuk tanpa sidik jari/wajah pemilik, tapi bukan
+  proteksi kriptografis penuh terhadap ekstraksi token di perangkat yang
+  di-root. Peningkatan ke `CryptoObject`-based binding masih utang teknis.
+- **`SplashActivity`** sekarang mengecek sesi tersimpan: ada sesi + biometrik
+  aktif → minta biometrik dulu (batal/gagal tetap ke Login, bukan dipaksa
+  keluar app, sesi tersimpan tidak dihapus); ada sesi tanpa biometrik →
+  langsung ke Home; tidak ada sesi → ke Login seperti biasa.
+- **`LogoutActivity`** diperbaiki: sebelumnya cuma `SessionManager.clear()`
+  (in-memory) — kalau user logout tapi sesi terenkripsi tidak ikut dihapus,
+  `SplashActivity` akan otomatis login lagi pakai sesi lama di buka
+  berikutnya. Ditambah `SessionStore.clear()`.
+- **Desain ulang halaman Login**: logo app (`drawable/app_logo.png`, dari
+  `appicon.png`, terpisah dari launcher icon supaya tidak kena masking
+  adaptive icon) + nama "AumoFinance" + tagline, kartu form dengan sudut
+  membulat (`bg_login_card.xml`, `bg_login_input.xml`), pesan error inline
+  (bukan cuma `TODO` seperti sebelumnya — ini juga baru pertama kali
+  benar-benar ditampilkan ke user, sebelumnya cuma silent `TODO`).
+
 ## Fase 11 — App icon & splash screen
 
 Sebelumnya app TIDAK PERNAH punya `android:icon` di manifest sejak Fase 1

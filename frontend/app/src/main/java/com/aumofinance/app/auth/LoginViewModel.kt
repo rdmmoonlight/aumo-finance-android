@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aumofinance.app.network.ApiClient
 import com.aumofinance.app.network.SessionManager
+import com.aumofinance.app.network.SessionStore
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,7 +23,7 @@ class LoginViewModel : ViewModel() {
     private val _state = MutableLiveData<LoginState>(LoginState.Idle)
     val state: LiveData<LoginState> = _state
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, keepSignedIn: Boolean, enableBiometric: Boolean) {
         _state.value = LoginState.Loading
         api.login(LoginRequest(email, password)).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
@@ -31,6 +32,12 @@ class LoginViewModel : ViewModel() {
                     SessionManager.token = body.token
                     SessionManager.userId = body.userId
                     SessionManager.fullName = body.fullName
+                    // Biometrik cuma masuk akal kalau sesi memang disimpan —
+                    // kalau user centang biometrik tapi tidak centang "Ingat
+                    // saya", anggap keduanya diminta (tidak ada yang bisa
+                    // dibuka biometrik kalau tidak ada sesi tersimpan).
+                    val shouldKeepSignedIn = keepSignedIn || enableBiometric
+                    SessionStore.save(body.token, body.userId, body.fullName, shouldKeepSignedIn, enableBiometric)
                     _state.value = LoginState.Success(body.fullName)
                 } else {
                     _state.value = LoginState.Error(body?.message ?: "Login gagal (${response.code()})")
