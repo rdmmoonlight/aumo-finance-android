@@ -9,6 +9,7 @@ import com.aumofinance.app.auth.BiometricHelper
 import com.aumofinance.app.auth.LoginActivity
 import com.aumofinance.app.home.HomeActivity
 import com.aumofinance.app.network.SessionStore
+import com.aumofinance.app.update.AppUpdateService
 import com.aumofinance.app.R
 
 // Splash screen custom (bukan API splash minimalis Android 12+) karena
@@ -32,6 +33,12 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
+        // Cek update di background, silent, setiap app dibuka — porting
+        // persis perilaku App.xaml.cs di versi MAUI lama (dulu TIDAK ADA
+        // SAMA SEKALI di app Kotlin ini, itu sebabnya auto-update tidak
+        // pernah terdeteksi sejak migrasi).
+        AppUpdateService.checkForUpdateSilently(applicationContext)
 
         Handler(Looper.getMainLooper()).postDelayed({ proceedAfterSplash() }, SPLASH_DURATION_MS)
     }

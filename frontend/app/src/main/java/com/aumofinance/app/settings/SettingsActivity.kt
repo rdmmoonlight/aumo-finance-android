@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 import com.aumofinance.app.crashlog.CrashLogActivity
+import com.aumofinance.app.update.AppUpdateService
 import com.aumofinance.app.R
 
 // Halaman Settings: preferensi notifikasi (disimpan lokal lewat
@@ -32,6 +33,13 @@ class SettingsActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.buttonCrashLog).setOnClickListener {
             startActivity(Intent(this, CrashLogActivity::class.java))
+        }
+
+        val updatePrefs = getSharedPreferences(AppUpdateService.PREFS_NAME, Context.MODE_PRIVATE)
+        val switchAutoUpdate = findViewById<Switch>(R.id.switchAutoUpdate)
+        switchAutoUpdate.isChecked = updatePrefs.getBoolean(AppUpdateService.KEY_AUTO_UPDATE_ENABLED, true)
+        switchAutoUpdate.setOnCheckedChangeListener { _, isChecked ->
+            updatePrefs.edit().putBoolean(AppUpdateService.KEY_AUTO_UPDATE_ENABLED, isChecked).apply()
         }
 
         findViewById<Button>(R.id.buttonLogout).setOnClickListener {

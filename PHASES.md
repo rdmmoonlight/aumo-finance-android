@@ -57,6 +57,39 @@ asli di `aumo-finance-web`.
 
 **Fase 8 tuntas — seluruh 20 layar sekarang punya UI fungsional (bukan `FrameLayout` kosong lagi).**
 
+## Fase 13 — Auto-update (ditemukan tidak pernah ada sejak migrasi)
+
+**Temuan:** app Kotlin ini TIDAK PERNAH punya fitur cek-update sama sekali
+sejak Fase 1 — `UpdateService.cs` (app MAUI lama, cek `releases/latest`
+GitHub setiap start, auto-download+install kalau ada versi lebih baru)
+tidak pernah di-porting. Itu sebabnya auto-update berhenti bekerja begitu
+user pindah dari app MAUI ke app Kotlin ini.
+
+Porting persis ke `AppUpdateService.kt`, dipanggil dari `SplashActivity`
+setiap app start (silent, background thread):
+- `GET api.github.com/repos/rdmmoonlight/aumo-finance-android/releases/latest`
+- Bandingkan `tag_name` (tanpa prefix "v") vs `BuildConfig.VERSION_NAME`
+  pakai perbandingan dotted-numeric sederhana (setara `System.Version.CompareTo()`)
+- Unduh asset `.apk` pertama lewat Android `DownloadManager`, install lewat
+  `FileProvider` + `Intent.ACTION_VIEW` setelah unduhan selesai
+- Sakelar "Perbarui Otomatis" di Settings (default aktif), disimpan
+  `SharedPreferences` — nama key disamakan gaya dengan
+  `Preferences.Default.Get("AutoUpdateEnabled", true)` di app lama
+- **Dilewati kalau `BuildConfig.DEBUG`** — build debug punya
+  `versionNameSuffix "-debug"` (mis. `"26.9.1-debug"`) yang tidak bisa
+  dibandingkan apel-ke-apel dengan tag rilis GitHub
+
+Perubahan pendukung:
+- `buildFeatures { buildConfig = true }` diaktifkan (wajib eksplisit di
+  AGP 8+, sebelumnya belum ada — `BuildConfig.VERSION_NAME` tidak bisa
+  diakses tanpa ini)
+- Manifest: permission `REQUEST_INSTALL_PACKAGES` + deklarasi
+  `<provider>` FileProvider (authorities `${applicationId}.fileprovider`)
+  + `res/xml/file_paths.xml` (path `Download/`, cocok dengan
+  `setDestinationInExternalFilesDir(..., DIRECTORY_DOWNLOADS, ...)`)
+- Dependency baru: `com.squareup.okhttp3:okhttp:4.12.0` eksplisit (sebelumnya
+  cuma transitif lewat Retrofit/logging-interceptor)
+
 ## Fase 12 — "Ingat saya", login biometrik, desain ulang halaman Login
 
 - **`SessionStore`** (baru): sesi (token/userId/fullName) disimpan terenkripsi

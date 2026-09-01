@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Dipakai AppUpdateService untuk memasang APK hasil auto-update. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:name=".core.AumoApplication"
@@ -88,5 +90,17 @@
             android:name=".crashlog.CrashLogActivity"
             android:exported="false" />
         <!-- Activities added incrementally per phase (Login, Home, Dashboard, etc.) -->
+        <!-- FileProvider untuk memberi akses APK hasil unduhan update ke
+             installer sistem — authorities harus persis "{applicationId}.fileprovider"
+             (dipakai apa adanya di AppUpdateService.kt). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

@@ -53,6 +53,13 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    // AGP 8+ mewajibkan opt-in eksplisit ini untuk generate kelas BuildConfig
+    // (dipakai AppUpdateService untuk baca BuildConfig.VERSION_NAME saat
+    // membandingkan versi rilis GitHub terbaru).
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
@@ -65,6 +72,7 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.1")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     // Persistensi sesi terenkripsi (EncryptedSharedPreferences) untuk
     // "Ingat saya", dan BiometricPrompt untuk login sidik jari/wajah.
