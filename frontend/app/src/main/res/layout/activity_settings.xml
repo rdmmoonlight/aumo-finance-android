@@ -8,60 +8,111 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingVertical="14dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:text="Notifikasi"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
+            android:orientation="horizontal"
+            android:paddingVertical="14dp">
 
-        <Switch
-            android:id="@+id/switchNotifications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:text="Notifikasi"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <Switch
+                android:id="@+id/switchNotifications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="14dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:text="Perbarui Otomatis"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <Switch
+                android:id="@+id/switchAutoUpdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonCrashLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/colorSurface"
+            android:text="Lihat Crash Log" />
+
+        <Button
+            android:id="@+id/buttonLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/colorBad"
+            android:text="Logout" />
+
     </LinearLayout>
 
+    <!-- Footer: info user yang sedang login + versi app + copyright -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingVertical="14dp">
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="16dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="16dp"
+            android:background="#2A2A2A" />
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:text="Perbarui Otomatis"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
-
-        <Switch
-            android:id="@+id/switchAutoUpdate"
+            android:id="@+id/textLoggedInAs"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="Masuk sebagai —"
+            android:textColor="#9C8FA6"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/textAppVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Versi —"
+            android:textColor="#6E6672"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/textCopyright"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="8dp"
+            android:text="© 2026 rdmmoonlight Professional"
+            android:textColor="#6E6672"
+            android:textSize="11sp" />
+
     </LinearLayout>
-
-    <Button
-        android:id="@+id/buttonCrashLog"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="@color/colorSurface"
-        android:text="Lihat Crash Log" />
-
-    <Button
-        android:id="@+id/buttonLogout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@color/colorBad"
-        android:text="Logout" />
 
 </LinearLayout>

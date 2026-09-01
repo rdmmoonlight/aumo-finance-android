@@ -1,8 +1,8 @@
 name: Android Build (Kotlin native)
 
 # Menggantikan production-pipeline.yml lama (build+sign APK .NET MAUI).
-# Jalan di push ke main (branch aktif sejak merge Fase 10) dan
-# feature/kotlin-native-frontend (untuk branch kerja yang masih berjalan).
+# Hasil akhirnya SATU APK: release, signed, siap install/rilis — bukan
+# beberapa artifact (debug/unsigned/signed) seperti versi sebelumnya.
 on:
   push:
     branches: [main, feature/kotlin-native-frontend]
@@ -16,11 +16,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build APK (debug + release unsigned)
+  build-sign-release:
+    name: Build, Sign & Publish Release APK
     runs-on: ubuntu-latest
-    outputs:
-      app_version: ${{ steps.version.outputs.app_version }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -38,19 +38,11 @@ jobs:
         working-directory: frontend
 
       # PENTING: github.run_number itu PER-WORKFLOW, bukan global per-repo.
-      # Workflow lama (production-pipeline.yml, MAUI) sudah jalan 200+ kali
-      # dan APK terakhirnya (versionName "26.8.210" per histori run) sudah
-      # terpasang di HP pengguna. Kalau versi di sini dihitung dari
-      # github.run_number workflow INI SAJA (baru mulai dari 1), hasilnya akan
-      # lebih RENDAH dari yang sudah terpasang, dan auto-updater (yang
-      # membandingkan tag rilis GitHub terhadap AppInfo.Current.VersionString
-      # di app lama — lihat Services/UpdateService.cs branch production) tidak
-      # akan pernah menganggap ini versi baru.
-      #
-      # Solusi robust: baca tag rilis GitHub TERAKHIR yang benar-benar sudah
-      # dipublikasikan (dari workflow manapun), lalu naikkan build number-nya
-      # kalau masih di bulan yang sama, atau mulai dari 1 kalau sudah beda
-      # bulan (format CalVer yy.M.N tetap lebih besar begitu M naik).
+      # Baca tag rilis GitHub TERAKHIR yang benar-benar sudah dipublikasikan
+      # (dari workflow manapun), lalu naikkan build number-nya kalau masih
+      # di bulan yang sama, atau mulai dari 1 kalau sudah beda bulan (format
+      # CalVer yy.M.N tetap lebih besar begitu M naik) — supaya auto-updater
+      # (Services/UpdateService.cs) selalu menganggap ini versi lebih baru.
       - name: Generate CalVer version (lanjutan dari rilis GitHub terakhir)
         id: version
         env:
@@ -79,122 +71,38 @@ jobs:
           echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
 
           # versionCode Android: integer, harus tetap naik walau lintas bulan/
-          # tahun — dipakai jam saat build (yy+mm+dd+HH) supaya monoton tanpa
-          # bergantung pada riwayat run_number workflow tertentu.
-          # versionCode Android: integer, harus tetap naik walau lintas bulan/
-          # tahun. Skema "yymmddHH" (8 digit, presisi jam) berisiko bentrok
-          # kalau build lebih dari sekali dalam jam yang sama — diganti jumlah
-          # menit sejak epoch tetap 2026-01-01 UTC: selalu naik monoton per
-          # menit, dan jauh di bawah batas maksimum Android (2.100.000.000).
+          # tahun. Dipakai jumlah menit sejak epoch tetap 2026-01-01 UTC:
+          # selalu naik monoton per menit, jauh di bawah batas maksimum
+          # Android (2.100.000.000).
           EPOCH_MINUTES=$(( ( $(date -u +%s) - $(date -u -d '2026-01-01T00:00:00Z' +%s) ) / 60 ))
           echo "version_code=$EPOCH_MINUTES" >> "$GITHUB_OUTPUT"
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace -PappVersionName=${{ steps.version.outputs.app_version }} -PappVersionCode=${{ steps.version.outputs.version_code }}
-        working-directory: frontend
-
-      - name: Build unsigned release APK
+      - name: Build release APK (unsigned)
         run: ./gradlew assembleRelease --stacktrace -PappVersionName=${{ steps.version.outputs.app_version }} -PappVersionCode=${{ steps.version.outputs.version_code }}
         working-directory: frontend
 
-      - name: Run unit tests
-        run: ./gradlew testDebugUnitTest --stacktrace
-        working-directory: frontend
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: aumo-debug-v${{ steps.version.outputs.app_version }}
-          path: frontend/app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-
-      - name: Upload unsigned release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: aumo-release-unsigned-v${{ steps.version.outputs.app_version }}
-          path: frontend/app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
-
-  sign-and-release:
-    name: Sign & Publish Release
-    needs: build
-    runs-on: ubuntu-latest
-    # 4 secret keystore sudah dikonfirmasi ada — jalan otomatis di setiap push,
-    # bukan cuma manual lagi. Guard "configured" di bawah tetap dipertahankan
-    # sebagai jaring pengaman kalau suatu saat secret ini kosong/berubah.
-    permissions:
-      contents: write
-    steps:
-      - name: Cek apakah secret keystore sudah dikonfigurasi
-        id: check_secret
-        env:
-          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "configured=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Lewati signing (secret belum di-set)
-        if: steps.check_secret.outputs.configured == 'false'
-        run: |
-          echo "Secret ANDROID_KEYSTORE_BASE64 belum di-set di repo ini."
-          echo "APK debug & release unsigned tetap tersedia di artifact job 'build' di atas."
-          echo "Untuk mengaktifkan signing otomatis, set secret: ANDROID_KEYSTORE_BASE64,"
-          echo "ANDROID_KEY_ALIAS, ANDROID_KEYSTORE_PASSWORD."
-
-      - name: Download unsigned release APK
-        if: steps.check_secret.outputs.configured == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: aumo-release-unsigned-v${{ needs.build.outputs.app_version }}
-          path: release-assets
-
       - name: Decode keystore
-        if: steps.check_secret.outputs.configured == 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          # PENTING: production-pipeline.yml (MAUI) lama memanggil .Trim() di
-          # PowerShell sebelum FromBase64String() — bash saya sebelumnya TIDAK
-          # membuang whitespace/newline dari secret sebelum decode. Kalau
-          # secret ini punya newline nyangkut (umum terjadi saat copy-paste
-          # base64 ke GitHub Secrets), hasil decode jadi sedikit korup —
-          # PKCS12 (.jks) adalah blob biner terenkripsi, korupsi sedikit saja
-          # persis menghasilkan "keystore password was incorrect" /
-          # BadPaddingException walau password sebenarnya benar. tr -d
-          # menghapus SEMUA whitespace (aman, alfabet base64 valid tidak
-          # pernah mengandung whitespace).
+          # printf + tr -d '[:space:]' membuang whitespace/newline yang bisa
+          # nyangkut di secret base64 sebelum decode — PKCS12 (.jks) adalah
+          # blob biner terenkripsi, korupsi sedikit saja bisa menghasilkan
+          # "keystore password was incorrect" walau password sebenarnya benar.
           printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > release-key.jks
-          echo "Ukuran file keystore hasil decode: $(wc -c < release-key.jks) bytes"
-
-      - name: Verifikasi keystore & alias bisa dibuka (isolasi masalah dari apksigner)
-        if: steps.check_secret.outputs.configured == 'true'
-        env:
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        run: |
-          keytool -list -v -keystore release-key.jks -alias "$KEY_ALIAS" -storepass "$KEYSTORE_PASSWORD" | head -5
 
       - name: Zipalign & sign APK
-        if: steps.check_secret.outputs.configured == 'true'
         env:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
-          UNSIGNED_APK=$(find release-assets -name '*.apk' | head -1)
+          UNSIGNED_APK=$(find frontend/app/build/outputs/apk/release -name '*.apk' | head -1)
           "$BUILD_TOOLS/zipalign" -p 4 "$UNSIGNED_APK" aligned-release.apk
 
-          # PENTING: file ini format PKCS12 (dikonfirmasi dari stack trace
-          # PKCS12KeyStore.engineLoad di error sebelumnya). PKCS12 TIDAK
-          # mendukung key-password yang beda dari store-password seperti
-          # format JKS lama — satu-satunya password yang benar-benar berlaku
-          # adalah store password. "keytool -list" di step sebelumnya lolos
-          # pakai storepass saja (tidak butuh keypass terpisah). Fix: pakai
-          # KEYSTORE_PASSWORD untuk keduanya (--ks-pass MAUPUN --key-pass),
-          # sesuai konstrain PKCS12.
+          # PENTING: file ini format PKCS12 — tidak mendukung key-password
+          # beda dari store-password seperti format JKS lama. Pakai
+          # KEYSTORE_PASSWORD untuk --ks-pass MAUPUN --key-pass.
           "$BUILD_TOOLS/apksigner" sign \
             --ks release-key.jks \
             --ks-key-alias "$KEY_ALIAS" \
@@ -207,22 +115,19 @@ jobs:
         if: always()
         run: rm -f release-key.jks
 
-      - name: Upload signed APK
-        if: steps.check_secret.outputs.configured == 'true'
+      - name: Upload APK signed (satu-satunya artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: aumo-release-signed-v${{ needs.build.outputs.app_version }}
+          name: aumo-release-signed-v${{ steps.version.outputs.app_version }}
           path: aumo-release-signed.apk
           if-no-files-found: error
 
       - name: Publish GitHub Release
-        if: steps.check_secret.outputs.configured == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.build.outputs.app_version }}
-          name: Aumo Release v${{ needs.build.outputs.app_version }}
-          body: "Rilisan otomatis build ke-${{ github.run_number }} dari feature/kotlin-native-frontend."
+          tag_name: v${{ steps.version.outputs.app_version }}
+          name: Aumo Release v${{ steps.version.outputs.app_version }}
+          body: "Rilisan otomatis build ke-${{ github.run_number }}."
           files: aumo-release-signed.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          

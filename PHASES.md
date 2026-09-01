@@ -57,6 +57,23 @@ asli di `aumo-finance-web`.
 
 **Fase 8 tuntas — seluruh 20 layar sekarang punya UI fungsional (bukan `FrameLayout` kosong lagi).**
 
+## Fase 14 — Sederhanakan workflow jadi 1 APK + footer Settings
+
+- **`android-build.yml`** disederhanakan dari 2 job (build debug+unsigned,
+  lalu sign terpisah) jadi 1 job linear: build release → sign → upload
+  **satu** artifact (`aumo-release-signed-vX.Y.Z`) → publish GitHub Release.
+  APK debug & APK release-unsigned tidak lagi di-build/di-upload di sini —
+  build+test untuk validasi CI tetap ada di `frontend-android-ci.yml`
+  terpisah (assembleDebug + testDebugUnitTest), jadi cakupan tes tidak
+  hilang, cuma tidak lagi duplikasi artifact yang membingungkan.
+- Guard "cek secret dikonfigurasi" dihapus (sebelumnya skip diam-diam kalau
+  secret kosong) — sekarang gagal jelas kalau ada yang salah, karena 4
+  secret keystore sudah dikonfirmasi stabil sejak Fase 9.6.
+- **Footer halaman Settings**: info user yang sedang login
+  (`SessionManager.fullName`), versi app (`BuildConfig.VERSION_NAME` +
+  `VERSION_CODE`), dan teks copyright statis "© 2026 rdmmoonlight
+  Professional".
+
 ## Fase 13 — Auto-update (ditemukan tidak pernah ada sejak migrasi)
 
 **Temuan:** app Kotlin ini TIDAK PERNAH punya fitur cek-update sama sekali

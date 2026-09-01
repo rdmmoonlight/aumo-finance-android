@@ -5,8 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.aumofinance.app.BuildConfig
 import com.aumofinance.app.crashlog.CrashLogActivity
+import com.aumofinance.app.network.SessionManager
 import com.aumofinance.app.update.AppUpdateService
 import com.aumofinance.app.R
 
@@ -45,5 +48,10 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.buttonLogout).setOnClickListener {
             startActivity(Intent(this, LogoutActivity::class.java))
         }
+
+        findViewById<TextView>(R.id.textLoggedInAs).text =
+            "Masuk sebagai ${SessionManager.fullName ?: "-"}"
+        findViewById<TextView>(R.id.textAppVersion).text =
+            "Versi ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
     }
 }
