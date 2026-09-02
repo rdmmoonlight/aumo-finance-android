@@ -5,6 +5,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
@@ -48,19 +49,25 @@ class JournalLineAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val line = lines[position]
         val accountLabels = accounts.map { "${it.referenceNumber} - ${it.accountName}" }
-        holder.spinnerAccount.adapter = ArrayAdapter(
-            holder.itemView.context, android.R.layout.simple_spinner_dropdown_item, accountLabels
+
+        // Menggunakan layout custom R.layout.item_spinner_account agar teks berwarna putih
+        val adapter = ArrayAdapter(
+            holder.itemView.context,
+            R.layout.item_spinner_account,
+            accountLabels
         )
+        adapter.setDropDownViewResource(R.layout.item_spinner_account)
+        holder.spinnerAccount.adapter = adapter
 
         val selectedIndex = accounts.indexOfFirst { it.id == line.accountId }
         if (selectedIndex >= 0) holder.spinnerAccount.setSelection(selectedIndex)
 
-        holder.spinnerAccount.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, pos: Int, id: Long) {
+        holder.spinnerAccount.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
                 line.accountId = accounts.getOrNull(pos)?.id
             }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
-        })
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+        }
 
         holder.inputDescription.removeTextChangedListenerSafely()
         holder.inputDescription.setText(line.description)
