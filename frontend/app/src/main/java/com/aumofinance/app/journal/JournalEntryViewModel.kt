@@ -21,6 +21,14 @@ class JournalEntryViewModel : ViewModel() {
     private val _saveResult = MutableLiveData<CreateJournalEntryResponse?>()
     val saveResult: LiveData<CreateJournalEntryResponse?> = _saveResult
 
+    // Sinyal sukses khusus untuk update (edit). Terpisah dari saveResult
+    // (yang hanya diisi oleh create) karena PUT tidak mengembalikan
+    // CreateJournalEntryResponse — sebelumnya update() sukses tidak pernah
+    // memberi tahu Activity, sehingga form terlihat "tidak tersimpan"
+    // walaupun request ke server sebenarnya berhasil.
+    private val _updateResult = MutableLiveData<Boolean?>()
+    val updateResult: LiveData<Boolean?> = _updateResult
+
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
@@ -54,7 +62,7 @@ class JournalEntryViewModel : ViewModel() {
         api.update(id, request).enqueue(object : Callback<SimpleApiResponse> {
             override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
                 if (response.isSuccessful && response.body()?.success == true) {
-                    loadById(id)
+                    _updateResult.value = true
                 } else {
                     _errorMessage.value = response.body()?.message ?: "Gagal memperbarui entri (${response.code()})"
                 }

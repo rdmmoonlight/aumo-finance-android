@@ -92,6 +92,12 @@ class JournalEntryActivity : AppCompatActivity() {
             Toast.makeText(this, "Entri tersimpan", Toast.LENGTH_SHORT).show()
             finish()
         }
+        viewModel.updateResult.observe(this) { success ->
+            if (success == true) {
+                Toast.makeText(this, "Entri diperbarui", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
 
         loadActiveAccounts()
         entryId?.let { viewModel.loadById(it) }
