@@ -45,6 +45,9 @@
             android:name=".reports.journal.GeneralJournalReportActivity"
             android:exported="false" />
         <activity
+            android:name=".reports.menu.ReportsMenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".reports.journal.AdjustingJournalReportActivity"
             android:exported="false" />
         <activity
