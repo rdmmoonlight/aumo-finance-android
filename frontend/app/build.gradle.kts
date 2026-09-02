@@ -54,11 +54,16 @@ android {
         jvmTarget = "17"
     }
 
-    // AGP 8+ mewajibkan opt-in eksplisit ini untuk generate kelas BuildConfig
-    // (dipakai AppUpdateService untuk baca BuildConfig.VERSION_NAME saat
-    // membandingkan versi rilis GitHub terbaru).
+    // AGP 8+ mewajibkan opt-in eksplisit ini untuk generate kelas BuildConfig.
+    // Ditambahkan juga dukungan Compose agar bisa digunakan bersama XML secara bertahap.
     buildFeatures {
         buildConfig = true
+        compose = true
+    }
+
+    // Disesuaikan dengan versi Kotlin 1.9.24
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 
@@ -78,4 +83,17 @@ dependencies {
     // "Ingat saya", dan BiometricPrompt untuk login sidik jari/wajah.
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.biometric:biometric:1.1.0")
+
+    // --- INTEGRASI JETPACK COMPOSE (MIGRASI BERTAHAP) ---
+    val composeBom = platform("androidx.compose:compose-bom:2024.05.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+    debugImplementation("androidx.compose.ui:ui-tooling")
 }
