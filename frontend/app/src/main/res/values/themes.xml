@@ -9,7 +9,7 @@
 
     <!-- Background adaptive icon — putih, mengikuti desain appicon.png yang
          dibuat dengan latar putih (logo "A" emas). -->
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="ic_launcher_background">#0A0A0A</color>
 
     <style name="Theme.AumoFinance" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
