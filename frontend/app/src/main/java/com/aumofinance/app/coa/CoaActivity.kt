@@ -20,7 +20,7 @@ class CoaActivity : AppCompatActivity() {
     private val viewModel: CoaViewModel by viewModels()
     private lateinit var adapter: CoaAdapter
 
-    // Sesuai rentang nomor referensi AccountClassification.cs di aumo-finance-web.
+    // According to the reference number ranges in AccountClassification.cs in aumo-finance-web.
     private val accountTypes = listOf(
         "Assets", "Liabilities", "Equity",
         "OperatingIncome", "OperatingExpenses", "OtherIncome", "OtherExpenses"
@@ -59,9 +59,9 @@ class CoaActivity : AppCompatActivity() {
         val (container, refInput, nameInput, typeSpinner) = buildForm(null)
 
         AlertDialog.Builder(this)
-            .setTitle("Tambah Akun")
+            .setTitle("Add Account")
             .setView(container)
-            .setPositiveButton("Simpan") { _, _ ->
+            .setPositiveButton("Save") { _, _ ->
                 val refNumber = refInput.text.toString().toIntOrNull() ?: return@setPositiveButton
                 viewModel.create(
                     AccountRequest(
@@ -71,22 +71,22 @@ class CoaActivity : AppCompatActivity() {
                     )
                 )
             }
-            .setNegativeButton("Batal", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
     private fun showEditDialog(account: Account) {
         val (container, refInput, nameInput, typeSpinner) = buildForm(account)
         val activeSwitch = Switch(this).apply {
-            text = "Aktif"
+            text = "Active"
             isChecked = account.isActive
         }
         container.addView(activeSwitch)
 
         AlertDialog.Builder(this)
-            .setTitle("Ubah Akun")
+            .setTitle("Edit Account")
             .setView(container)
-            .setPositiveButton("Simpan") { _, _ ->
+            .setPositiveButton("Save") { _, _ ->
                 val refNumber = refInput.text.toString().toIntOrNull() ?: return@setPositiveButton
                 viewModel.update(
                     account.id,
@@ -98,11 +98,11 @@ class CoaActivity : AppCompatActivity() {
                     )
                 )
             }
-            // Backend akan menolak (400) kalau akun sudah punya baris jurnal —
-            // pesannya (menyuruh set Inactive lewat toggle di atas) otomatis
-            // muncul lewat viewModel.errorMessage.
-            .setNeutralButton("Hapus") { _, _ -> viewModel.delete(account.id) }
-            .setNegativeButton("Batal", null)
+            // Backend will reject (400) if the account already has journal entries —
+            // the message (prompting to set to Inactive via the toggle above)
+            // will automatically appear via viewModel.errorMessage.
+            .setNeutralButton("Delete") { _, _ -> viewModel.delete(account.id) }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -114,12 +114,12 @@ class CoaActivity : AppCompatActivity() {
             setPadding(48, 24, 48, 0)
         }
         val refInput = EditText(this).apply {
-            hint = "Nomor Referensi (mis. 101)"
+            hint = "Reference Number (e.g., 101)"
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
             existing?.let { setText(it.referenceNumber.toString()) }
         }
         val nameInput = EditText(this).apply {
-            hint = "Nama Akun"
+            hint = "Account Name"
             existing?.let { setText(it.accountName) }
         }
         val typeSpinner = Spinner(this).apply {
