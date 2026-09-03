@@ -72,7 +72,7 @@
 
     </LinearLayout>
 
-    <!-- Footer: info user yang sedang login + versi app + copyright -->
+    <!-- Footer: versi app + copyright -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -87,18 +87,9 @@
             android:background="#2A2A2A" />
 
         <TextView
-            android:id="@+id/textLoggedInAs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Masuk sebagai —"
-            android:textColor="#9C8FA6"
-            android:textSize="12sp" />
-
-        <TextView
             android:id="@+id/textAppVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:text="Versi —"
             android:textColor="#6E6672"
             android:textSize="11sp" />
@@ -116,3 +107,4 @@
     </LinearLayout>
 
 </LinearLayout>
+                
