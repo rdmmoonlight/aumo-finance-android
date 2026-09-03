@@ -1,4 +1,4 @@
-name: Android Build (Kotlin native)
+name: Android Build (Kotlin & Jetpack Compose)
 
 # Menggantikan production-pipeline.yml lama (build+sign APK .NET MAUI).
 # Hasil akhirnya SATU APK: release, signed, siap install/rilis — bukan
