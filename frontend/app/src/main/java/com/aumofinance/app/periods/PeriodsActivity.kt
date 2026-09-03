@@ -51,10 +51,10 @@ class PeriodsActivity : AppCompatActivity() {
 
     private fun confirmClose(period: Period) {
         AlertDialog.Builder(this)
-            .setTitle("Tutup Periode?")
-            .setMessage("Periode \"${period.periodName}\" akan ditutup dan tidak bisa menerima entri baru lagi. Lanjutkan?")
-            .setPositiveButton("Tutup") { _, _ -> viewModel.close(period.id) }
-            .setNegativeButton("Batal", null)
+            .setTitle("Close Period?")
+            .setMessage("Period \"${period.periodName}\" will be closed and cannot accept new entries anymore. Continue?")
+            .setPositiveButton("Close") { _, _ -> viewModel.close(period.id) }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -63,19 +63,19 @@ class PeriodsActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding(48, 24, 48, 0)
         }
-        val inputName = EditText(this).apply { hint = "Nama Periode (mis. Januari 2026)" }
-        val inputStart = EditText(this).apply { hint = "Tanggal Mulai (yyyy-MM-dd)" }
-        val inputEnd = EditText(this).apply { hint = "Tanggal Selesai (yyyy-MM-dd)" }
-        // TODO: ganti 3 EditText tanggal/nama ini dengan DatePickerDialog + validasi format,
-        // ini masih input manual sekadar supaya alur buka periode berfungsi.
+        val inputName = EditText(this).apply { hint = "Period Name (e.g., January 2026)" }
+        val inputStart = EditText(this).apply { hint = "Start Date (yyyy-MM-dd)" }
+        val inputEnd = EditText(this).apply { hint = "End Date (yyyy-MM-dd)" }
+        // TODO: replace these 3 date/name EditTexts with DatePickerDialog + format validation;
+        // this is still manual input just to get the open period flow working.
         container.addView(inputName)
         container.addView(inputStart)
         container.addView(inputEnd)
 
         AlertDialog.Builder(this)
-            .setTitle("Buka Periode Baru")
+            .setTitle("Open New Period")
             .setView(container)
-            .setPositiveButton("Buka") { _, _ ->
+            .setPositiveButton("Open") { _, _ ->
                 viewModel.open(
                     CreatePeriodRequest(
                         periodName = inputName.text.toString(),
@@ -84,7 +84,7 @@ class PeriodsActivity : AppCompatActivity() {
                     )
                 )
             }
-            .setNegativeButton("Batal", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 }
