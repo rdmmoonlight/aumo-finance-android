@@ -1,4 +1,4 @@
-AumoFinance — Android (Kotlin native)
+AumoFinance — Android (Kotlin & Jetpack Comppose)
 
 Ini adalah **migrasi frontend saja**: dari .NET MAUI ke Android native (Kotlin).
 Backend TIDAK dibuat baru — aplikasi ini murni konsumen dari REST API mobile
