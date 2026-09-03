@@ -16,4 +16,13 @@ object CurrencyFormatter {
         val prefix = if (rounded < 0) "-Rp " else "Rp "
         return prefix + formatter.format(Math.abs(rounded))
     }
+
+    // Dipakai di kotak input Debit/Kredit: menampilkan pemisah ribuan titik
+    // sambil user mengetik, TANPA prefix "Rp". Input berupa string digit
+    // mentah (hasil filter non-digit), output mis. "150000" -> "150.000".
+    fun formatDigitsGrouped(rawDigits: String): String {
+        if (rawDigits.isEmpty()) return ""
+        val value = rawDigits.toLongOrNull() ?: return rawDigits
+        return formatter.format(value)
+    }
 }
