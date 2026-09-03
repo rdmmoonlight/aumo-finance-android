@@ -287,10 +287,10 @@ private fun getDynamicGreeting(): String {
 
 /** Default Tabler icons for each Home card — separated to keep HomeActivity concise. */
 object HomeIcons {
-    val Dashboard = LayoutDashboard
-    val JournalEntry = FilePlus
-    val GeneralJournal = Book
-    val Periods = Calendar
-    val Coa = GitFork
-    val Reports = ReportAnalytics
+    val Dashboard = TablerIcons.LayoutDashboard
+    val JournalEntry = TablerIcons.FilePlus
+    val GeneralJournal = TablerIcons.Book
+    val Periods = TablerIcons.Calendar
+    val Coa = TablerIcons.GitFork
+    val Reports = TablerIcons.ReportAnalytics
 }
