@@ -35,8 +35,12 @@ class JournalEntryViewModel : ViewModel() {
     // --- State form (dibaca langsung oleh JournalEntryScreen) ---
     var entryId: Int? = null
         private set
-    var journalType: String by mutableStateOf(JOURNAL_TYPES.first())
-    var entryDate: Calendar by mutableStateOf(Calendar.getInstance())
+    private var _journalType: String by mutableStateOf(JOURNAL_TYPES.first())
+    val journalType: String get() = _journalType
+    
+    private var _entryDate: Calendar by mutableStateOf(Calendar.getInstance())
+    val entryDate: Calendar get() = _entryDate
+    
     var transactionNumber: String by mutableStateOf("")
         private set
     var isLocked: Boolean by mutableStateOf(false)
@@ -74,12 +78,12 @@ class JournalEntryViewModel : ViewModel() {
     }
 
     fun setJournalType(type: String) {
-        journalType = type
+        _journalType = type
         if (entryId == null) refreshNextTransactionNumber()
     }
 
     fun setEntryDate(date: Calendar) {
-        entryDate = date
+        _entryDate = date
         if (entryId == null) refreshNextTransactionNumber()
     }
 
@@ -105,8 +109,8 @@ class JournalEntryViewModel : ViewModel() {
     }
 
     private fun refreshNextTransactionNumber() {
-        val entryDateIso = DATE_ONLY_ISO.format(entryDate.time)
-        api.nextTransactionNumber(journalType, entryDateIso).enqueue(object : Callback<NextTransactionNumberResponse> {
+        val entryDateIso = DATE_ONLY_ISO.format(_entryDate.time)
+        api.nextTransactionNumber(_journalType, entryDateIso).enqueue(object : Callback<NextTransactionNumberResponse> {
             override fun onResponse(call: Call<NextTransactionNumberResponse>, response: Response<NextTransactionNumberResponse>) {
                 response.body()?.let { transactionNumber = it.transactionNumber }
             }
@@ -124,12 +128,12 @@ class JournalEntryViewModel : ViewModel() {
     }
 
     private fun bindExistingEntry(detail: JournalEntryDetail) {
-        journalType = JOURNAL_TYPES.firstOrNull { it == detail.journalType } ?: JOURNAL_TYPES.first()
+        _journalType = JOURNAL_TYPES.firstOrNull { it == detail.journalType } ?: JOURNAL_TYPES.first()
         transactionNumber = detail.transactionNumber
         isLocked = detail.isLocked
         runCatching {
             val parsed = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).parse(detail.entryDate)
-            parsed?.let { entryDate = Calendar.getInstance().apply { time = it } }
+            parsed?.let { _entryDate = Calendar.getInstance().apply { time = it } }
         }
         lines.clear()
         detail.lines.forEach { l ->
@@ -153,7 +157,7 @@ class JournalEntryViewModel : ViewModel() {
             return
         }
 
-        val entryDateIso = DATE_ONLY_ISO.format(entryDate.time)
+        val entryDateIso = DATE_ONLY_ISO.format(_entryDate.time)
         val now = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).format(Calendar.getInstance().time)
         val apiLines = lines.mapIndexed { index, l ->
             JournalLine(l.accountId!!, l.description.ifBlank { null }, l.debitAmount(), l.creditAmount(), index)
@@ -161,9 +165,9 @@ class JournalEntryViewModel : ViewModel() {
 
         val id = entryId
         if (id == null) {
-            create(CreateJournalEntryRequest(journalType, entryDateIso, now, apiLines))
+            create(CreateJournalEntryRequest(_journalType, entryDateIso, now, apiLines))
         } else {
-            update(id, UpdateJournalEntryRequest(journalType, entryDateIso, now, apiLines))
+            update(id, UpdateJournalEntryRequest(_journalType, entryDateIso, now, apiLines))
         }
     }
 
