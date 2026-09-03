@@ -18,8 +18,8 @@ import com.aumofinance.app.reports.trialbalance.TrialBalanceActivity
 import com.aumofinance.app.reports.worksheet.WorksheetActivity
 import com.aumofinance.app.ui.theme.AumoTheme
 
-// Isi dari kotak "Reports" di Home. General Journal TIDAK dimasukkan di
-// sini karena sudah punya kotak sendiri di Home (lihat HomeActivity).
+// Contents of the "Reports" box on Home. General Journal is NOT included
+// here because it has its own dedicated box on Home (see HomeActivity).
 class ReportsMenuActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,15 +37,7 @@ class ReportsMenuActivity : ComponentActivity() {
 
     private fun buildSections(): List<ReportMenuSection> = listOf(
         ReportMenuSection(
-            title = "Jurnal",
-            items = listOf(
-                ReportMenuItem("Adjusting Journal", ReportMenuIcons.AdjustingJournal) {
-                    open(AdjustingJournalReportActivity::class.java)
-                }
-            )
-        ),
-        ReportMenuSection(
-            title = "Buku Besar",
+            title = "General Ledger",
             items = listOf(
                 ReportMenuItem("General Ledger — Permanent", ReportMenuIcons.LedgerPermanent) {
                     open(GeneralLedgerPermanentActivity::class.java)
@@ -56,44 +48,52 @@ class ReportsMenuActivity : ComponentActivity() {
             )
         ),
         ReportMenuSection(
-            title = "Neraca Saldo",
+            title = "Trial Balance & Adjustments",
             items = listOf(
                 ReportMenuItem("Trial Balance", ReportMenuIcons.TrialBalance) {
                     open(TrialBalanceActivity::class.java)
                 },
+                ReportMenuItem("Adjusting Journal", ReportMenuIcons.AdjustingJournal) {
+                    open(AdjustingJournalReportActivity::class.java)
+                },
                 ReportMenuItem("Adjusted Trial Balance", ReportMenuIcons.TrialBalance) {
                     open(AdjustedTrialBalanceActivity::class.java)
-                },
-                ReportMenuItem("Post-Closing Trial Balance", ReportMenuIcons.TrialBalance) {
-                    open(PostClosingTrialBalanceActivity::class.java)
                 }
             )
         ),
         ReportMenuSection(
-            title = "Worksheet & Penutupan",
+            title = "Worksheet",
             items = listOf(
                 ReportMenuItem("Worksheet", ReportMenuIcons.Worksheet) {
                     open(WorksheetActivity::class.java)
-                },
-                ReportMenuItem("Closing Journal", ReportMenuIcons.ClosingJournal) {
-                    open(ClosingJournalActivity::class.java)
                 }
             )
         ),
         ReportMenuSection(
-            title = "Laporan Keuangan",
+            title = "Financial Statements",
             items = listOf(
                 ReportMenuItem("Income Statement", ReportMenuIcons.IncomeStatement) {
                     open(IncomeStatementActivity::class.java)
                 },
-                ReportMenuItem("Retained Earnings", ReportMenuIcons.RetainedEarnings) {
+                ReportMenuItem("Retained Earnings Statement", ReportMenuIcons.RetainedEarnings) {
                     open(RetainedEarningsActivity::class.java)
                 },
                 ReportMenuItem("Statement of Financial Position", ReportMenuIcons.FinancialPosition) {
                     open(FinancialPositionActivity::class.java)
                 },
-                ReportMenuItem("Cash Flow", ReportMenuIcons.CashFlow) {
+                ReportMenuItem("Statement of Cash Flows", ReportMenuIcons.CashFlow) {
                     open(CashFlowActivity::class.java)
+                }
+            )
+        ),
+        ReportMenuSection(
+            title = "Closing",
+            items = listOf(
+                ReportMenuItem("Closing Journal", ReportMenuIcons.ClosingJournal) {
+                    open(ClosingJournalActivity::class.java)
+                },
+                ReportMenuItem("Post-Closing Trial Balance", ReportMenuIcons.TrialBalance) {
+                    open(PostClosingTrialBalanceActivity::class.java)
                 }
             )
         )
