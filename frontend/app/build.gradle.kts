@@ -99,4 +99,7 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.9.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+    // Tabler Icons for Compose — provides TablerIcons used in HomeScreen
+    implementation("br.com.devsrsouza.compose.icons:tabler:0.2.0")
 }
