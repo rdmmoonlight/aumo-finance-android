@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,26 +25,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.aumofinance.app.ui.icons.TablerIcon
+import com.aumofinance.app.ui.icons.TablerIcons
 import com.aumofinance.app.ui.theme.AumoColors
-import compose.icons.TablerIcons
-import compose.icons.tablericons.Book
-import compose.icons.tablericons.Calendar
-import compose.icons.tablericons.ChevronRight
-import compose.icons.tablericons.FilePlus
-import compose.icons.tablericons.GitFork
-import compose.icons.tablericons.LayoutDashboard
-import compose.icons.tablericons.ReportAnalytics
-import compose.icons.tablericons.Settings
 import java.util.Calendar as JavaCalendar
+
+// Ikon di Home dulu sempat memakai library eksternal
+// `br.com.devsrsouza.compose.icons:tabler` (ImageVector) — dihapus karena
+// artifact ID/versi yang dipakai salah (seharusnya `tabler-icons:1.1.1`,
+// bukan `tabler:0.2.0`) dan menambah jcenter() untuk "memperbaikinya" tidak
+// pernah bisa berhasil karena JCenter sudah mati total sejak Feb 2022.
+// Sekarang HomeScreen memakai TablerIcon (font glyph, lihat
+// ui/icons/TablerIcons.kt) — sistem yang SAMA dengan yang dipakai di
+// Journal Entry, supaya cuma ada SATU sumber Tabler Icons di seluruh app.
 
 /** One menu item card on the Home screen. */
 data class HomeMenuItem(
     val title: String,
     val subtitle: String,
-    val icon: ImageVector,
+    val icon: String,
     val onClick: () -> Unit
 )
 
@@ -176,9 +176,8 @@ private fun HomeTopBar(onSettingsClick: () -> Unit) {
                 .clickable(onClick = onSettingsClick),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = TablerIcons.Settings,
-                contentDescription = "Settings",
+            TablerIcon(
+                glyph = TablerIcons.Settings,
                 tint = AumoColors.TextPrimary
             )
         }
@@ -204,11 +203,10 @@ private fun FeaturedMenuCard(item: HomeMenuItem) {
                 .background(AumoColors.SurfaceElevated),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = null,
+            TablerIcon(
+                glyph = item.icon,
                 tint = AumoColors.TextPrimary,
-                modifier = Modifier.size(26.dp)
+                size = 26.dp
             )
         }
         Spacer(modifier = Modifier.width(14.dp))
@@ -226,9 +224,8 @@ private fun FeaturedMenuCard(item: HomeMenuItem) {
                 fontSize = MaterialTheme.typography.bodySmall.fontSize
             )
         }
-        Icon(
-            imageVector = TablerIcons.ChevronRight,
-            contentDescription = null,
+        TablerIcon(
+            glyph = TablerIcons.ChevronRight,
             tint = AumoColors.TextPrimary.copy(alpha = 0.75f)
         )
     }
@@ -251,11 +248,10 @@ private fun GridMenuCard(item: HomeMenuItem, modifier: Modifier = Modifier) {
                 .background(AumoColors.SurfaceElevated),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = null,
+            TablerIcon(
+                glyph = item.icon,
                 tint = AumoColors.Primary,
-                modifier = Modifier.size(22.dp)
+                size = 22.dp
             )
         }
         Spacer(modifier = Modifier.height(12.dp))

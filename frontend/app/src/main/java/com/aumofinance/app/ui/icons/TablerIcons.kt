@@ -19,13 +19,24 @@ import com.aumofinance.app.R
 // Sumber: paket npm @tabler/icons-webfont, dist/fonts/tabler-icons.ttf.
 private val TablerIconFont = FontFamily(Font(R.font.tabler_icons))
 
-/** Kumpulan glyph Tabler Icons yang dipakai di halaman Journal Entry. */
+/** Kumpulan glyph Tabler Icons yang dipakai di seluruh app (Journal Entry
+ * & Home). Satu-satunya sumber ikon Tabler — TIDAK memakai library
+ * `br.com.devsrsouza.compose.icons` (sempat ditambahkan lalu memutus build
+ * karena salah artifact ID/versi dan jcenter() sudah mati total sejak 2022)
+ * supaya tidak ada dua sistem Tabler Icons yang saling tumpang tindih. */
 object TablerIcons {
     const val Calendar = "\uea53"
     const val AlertTriangle = "\uea06"
     const val Plus = "\ueb0b"
     const val Selector = "\ueb1d"
     const val Trash = "\ueb41"
+    const val Book = "\uea39"
+    const val ChevronRight = "\uea61"
+    const val FilePlus = "\ueaa0"
+    const val GitFork = "\ueb8f"
+    const val LayoutDashboard = "\uf02c"
+    const val ReportAnalytics = "\ueecb"
+    const val Settings = "\ueb20"
 }
 
 /** Menampilkan satu glyph Tabler Icons sebagai teks berikon. */
