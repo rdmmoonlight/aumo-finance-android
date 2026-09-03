@@ -7,26 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 
-// Font teks aplikasi: "Aptos". Aptos adalah font berlisensi Microsoft
-// (BUKAN open-source) — tidak tersedia di registry publik manapun yang
-// diizinkan (npm/pypi/github), jadi file .ttf-nya TIDAK dibundel di commit
-// ini untuk menghindari pelanggaran lisensi. Sebagai gantinya dipakai
-// fallback font sistem (sans-serif) supaya app tetap bisa dibangun.
-//
-// CARA MENGAKTIFKAN APTOS SESUNGGUHNYA (dilakukan manual oleh dev, memakai
-// file Aptos yang Anda miliki secara sah — biasanya ada di instalasi
-// Windows 11 / Microsoft Office):
-//   1. Salin Aptos.ttf -> res/font/aptos_regular.ttf
-//      Salin Aptos-Bold.ttf -> res/font/aptos_bold.ttf
-//   2. Ganti baris AptosFontFamily di bawah ini menjadi:
-//        val AptosFontFamily = FontFamily(
-//            androidx.compose.ui.text.font.Font(R.font.aptos_regular, FontWeight.Normal),
-//            androidx.compose.ui.text.font.Font(R.font.aptos_bold, FontWeight.Bold)
-//        )
-val AptosFontFamily: FontFamily = FontFamily.SansSerif
+val AptosFontFamily = FontFamily(
+            androidx.compose.ui.text.font.Font(R.font.aptos_regular, FontWeight.Normal),
+            androidx.compose.ui.text.font.Font(R.font.aptos_bold, FontWeight.Bold)
 
-// Ikon TETAP pakai Tabler Icons (lihat ui/icons/TablerIcons.kt) — hanya
-// font TEKS yang diarahkan ke Aptos di sini.
 private val AumoTypography: Typography = Typography().run {
     copy(
         displayLarge = displayLarge.copy(fontFamily = AptosFontFamily),
