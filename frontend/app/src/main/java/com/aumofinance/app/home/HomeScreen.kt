@@ -17,20 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountTree
-import androidx.compose.material.icons.outlined.Assessment
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.MenuBook
-import androidx.compose.material.icons.outlined.NoteAdd
-import androidx.compose.material.icons.outlined.SpaceDashboard
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +30,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.aumofinance.app.ui.theme.AumoColors
+import compose.icons.TablerIcons
+import compose.icons.tablericons.Book
+import compose.icons.tablericons.Calendar
+import compose.icons.tablericons.ChevronRight
+import compose.icons.tablericons.FilePlus
+import compose.icons.tablericons.GitFork
+import compose.icons.tablericons.LayoutDashboard
+import compose.icons.tablericons.ReportAnalytics
+import compose.icons.tablericons.Settings
+import java.util.Calendar as JavaCalendar
 
-/** Satu kotak menu di Home. */
+/** One menu item card on the Home screen. */
 data class HomeMenuItem(
     val title: String,
     val subtitle: String,
@@ -48,13 +50,13 @@ data class HomeMenuItem(
 )
 
 /**
- * Data yang dibutuhkan Home page: kartu unggulan (Dashboard di atas, Reports
- * di bawah) dan 4 kotak menu inti (Journal Entry, General Journal, Periode,
- * COA) yang ditampilkan sebagai grid 2 kolom di antara keduanya.
+ * Data required by the Home page: featured cards (Dashboard at the top, Reports
+ * at the bottom) and 4 core menu items (Journal Entry, General Journal, Periods,
+ * COA) displayed as a 2-column grid in between.
  *
- * Sengaja HANYA 6 kotak sesuai instruksi — 13 halaman laporan lain tidak
- * ditampilkan satu-satu di Home, melainkan disatukan di balik satu kotak
- * "Reports" (lihat ReportsMenuActivity).
+ * Intentionally ONLY 6 cards per instruction — the 13 other report pages are not
+ * displayed individually on the Home screen, but unified under a single "Reports"
+ * card (see ReportsMenuActivity).
  */
 @Composable
 fun HomeScreen(
@@ -66,6 +68,8 @@ fun HomeScreen(
     reports: HomeMenuItem,
     onSettingsClick: () -> Unit
 ) {
+    val greetingMessage = remember { getDynamicGreeting() }
+
     Scaffold(
         containerColor = AumoColors.Background,
         topBar = { HomeTopBar(onSettingsClick = onSettingsClick) }
@@ -79,32 +83,32 @@ fun HomeScreen(
         ) {
             item {
                 Text(
-                    text = "Selamat datang kembali",
+                    text = "Assalamu'alaikum wr. wb.",
                     color = AumoColors.TextMuted,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Mau mulai dari mana?",
+                    text = greetingMessage,
                     color = AumoColors.TextPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.headlineSmall.fontSize
                 )
             }
 
-            // Kartu unggulan #1 — Dashboard: ringkasan, jadi yang paling atas.
+            // Featured card #1 — Dashboard: summary view placed at the top.
             item { FeaturedMenuCard(item = dashboard) }
 
             item {
                 Text(
-                    text = "MENU UTAMA",
+                    text = "MAIN MENU",
                     color = AumoColors.TextMuted,
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.labelMedium.fontSize
                 )
             }
 
-            // Grid 2 kolom untuk 4 kotak inti: input & data master.
+            // 2-column grid for the 4 core items: inputs & master data.
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(
@@ -126,15 +130,15 @@ fun HomeScreen(
 
             item {
                 Text(
-                    text = "LAPORAN",
+                    text = "REPORTS",
                     color = AumoColors.TextMuted,
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.labelMedium.fontSize
                 )
             }
 
-            // Kartu unggulan #2 — Reports: pintu masuk ke seluruh 13 halaman
-            // laporan (dikelompokkan di dalam ReportsMenuActivity).
+            // Featured card #2 — Reports: entry point to all 13 report pages
+            // (grouped inside ReportsMenuActivity).
             item { FeaturedMenuCard(item = reports) }
 
             item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -159,7 +163,7 @@ private fun HomeTopBar(onSettingsClick: () -> Unit) {
                 fontSize = MaterialTheme.typography.titleLarge.fontSize
             )
             Text(
-                text = "Pembukuan sederhana, rapi, dan akurat",
+                text = "Simple, neat, and accurate bookkeeping",
                 color = AumoColors.TextMuted,
                 fontSize = MaterialTheme.typography.bodySmall.fontSize
             )
@@ -173,15 +177,15 @@ private fun HomeTopBar(onSettingsClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Outlined.Settings,
-                contentDescription = "Pengaturan",
+                imageVector = TablerIcons.Settings,
+                contentDescription = "Settings",
                 tint = AumoColors.TextPrimary
             )
         }
     }
 }
 
-/** Kartu besar full-width — dipakai untuk Dashboard & Reports. */
+/** Large full-width card — used for Dashboard & Reports. */
 @Composable
 private fun FeaturedMenuCard(item: HomeMenuItem) {
     Row(
@@ -223,14 +227,14 @@ private fun FeaturedMenuCard(item: HomeMenuItem) {
             )
         }
         Icon(
-            imageVector = Icons.Outlined.ChevronRight,
+            imageVector = TablerIcons.ChevronRight,
             contentDescription = null,
             tint = AumoColors.TextPrimary.copy(alpha = 0.75f)
         )
     }
 }
 
-/** Kartu kecil untuk grid 2 kolom — dipakai untuk 4 kotak inti. */
+/** Small card for the 2-column grid — used for the 4 core items. */
 @Composable
 private fun GridMenuCard(item: HomeMenuItem, modifier: Modifier = Modifier) {
     Column(
@@ -270,12 +274,23 @@ private fun GridMenuCard(item: HomeMenuItem, modifier: Modifier = Modifier) {
     }
 }
 
-/** Ikon bawaan untuk tiap kotak Home — dipisah agar HomeActivity ringkas. */
+/** Determines time-based greeting message. */
+private fun getDynamicGreeting(): String {
+    val hour = JavaCalendar.getInstance().get(JavaCalendar.HOUR_OF_DAY)
+    return when (hour) {
+        in 4..11 -> "Good morning"
+        in 12..16 -> "Good afternoon"
+        in 17..20 -> "Good evening"
+        else -> "Good night"
+    }
+}
+
+/** Default Tabler icons for each Home card — separated to keep HomeActivity concise. */
 object HomeIcons {
-    val Dashboard = Icons.Outlined.SpaceDashboard
-    val JournalEntry = Icons.Outlined.NoteAdd
-    val GeneralJournal = Icons.Outlined.MenuBook
-    val Periods = Icons.Outlined.CalendarMonth
-    val Coa = Icons.Outlined.AccountTree
-    val Reports = Icons.Outlined.Assessment
+    val Dashboard = TablerIcons.LayoutDashboard
+    val JournalEntry = TablerIcons.FilePlus
+    val GeneralJournal = TablerIcons.Book
+    val Periods = TablerIcons.Calendar
+    val Coa = TablerIcons.GitFork
+    val Reports = TablerIcons.ReportAnalytics
 }
