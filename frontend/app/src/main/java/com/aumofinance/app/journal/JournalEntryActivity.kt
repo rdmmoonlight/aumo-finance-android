@@ -11,20 +11,6 @@ import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.ui.theme.AumoTheme
 import java.util.Calendar
 
-// Form input satu Journal Entry (create atau edit, tergantung apakah
-// EXTRA_ENTRY_ID diberikan). EntryDate (tanggal manual) dan CreatedAt/UpdatedAt
-// (waktu lokal perangkat) diformat TANPA info zona waktu (mis.
-// "2026-08-28T14:30:00", bukan dengan sufiks "Z" atau offset) — backend
-// hanya me-relabel nilai itu sebagai UTC apa adanya (DateTime.SpecifyKind),
-// bukan mengonversi, jadi nilai jam dinding perangkat harus sampai persis
-// sama tanpa digeser (riwayat bug lama: tanggal mundur 1 hari).
-// Tidak ada field periodId — backend hanya menolak entri yang EntryDate-nya
-// jatuh di periode yang sudah Closed (lihat PeriodLock.IsDateLocked).
-//
-// Ditulis ulang dengan Jetpack Compose (sebelumnya RecyclerView + XML) —
-// Activity ini sekarang cuma host tipis: seluruh state form (journal type,
-// tanggal, nomor transaksi, baris) hidup di JournalEntryViewModel, seluruh
-// tampilan ada di JournalEntryScreen.
 class JournalEntryActivity : ComponentActivity() {
 
     companion object {
@@ -44,10 +30,10 @@ class JournalEntryActivity : ComponentActivity() {
             val saveResult = viewModel.saveResult
             val updateResult = viewModel.updateResult
 
-            // LaunchedEffect (bukan pemanggilan langsung di body composable)
-            // supaya Toast/finish() hanya jalan SEKALI saat sinyal berubah,
-            // bukan berulang tiap recomposition (mis. tiap keystroke di
-            // baris lain akan me-recompose seluruh layar ini).
+            // LaunchedEffect (rather than calling directly in the composable body)
+            // so that Toast/finish() only runs ONCE when the signal changes,
+            // instead of repeating on every recomposition (e.g. every keystroke on
+            // another line will recompose this entire screen).
             LaunchedEffect(errorMessage) {
                 errorMessage?.let { message ->
                     Toast.makeText(this@JournalEntryActivity, message, Toast.LENGTH_LONG).show()
@@ -56,13 +42,13 @@ class JournalEntryActivity : ComponentActivity() {
             }
             LaunchedEffect(saveResult) {
                 if (saveResult != null) {
-                    Toast.makeText(this@JournalEntryActivity, "Entri tersimpan", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@JournalEntryActivity, "Entry saved", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
             LaunchedEffect(updateResult) {
                 if (updateResult == true) {
-                    Toast.makeText(this@JournalEntryActivity, "Entri diperbarui", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@JournalEntryActivity, "Entry updated", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
@@ -87,7 +73,7 @@ class JournalEntryActivity : ComponentActivity() {
                     totalCreditText = CurrencyFormatter.format(viewModel.totalCredit()),
                     isBalanced = viewModel.isBalanced(),
                     isEditingMode = entryId != null,
-                    submitButtonText = if (entryId == null) "Simpan" else "Perbarui",
+                    submitButtonText = if (entryId == null) "Save" else "Update",
                     onCancel = { finish() },
                     onSubmit = { viewModel.save() }
                 )
