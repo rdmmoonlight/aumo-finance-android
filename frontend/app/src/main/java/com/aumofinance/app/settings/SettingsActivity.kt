@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.aumofinance.app.BuildConfig
 import com.aumofinance.app.crashlog.CrashLogActivity
-import com.aumofinance.app.network.SessionManager
 import com.aumofinance.app.update.AppUpdateService
 import com.aumofinance.app.R
 
@@ -49,8 +48,6 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, LogoutActivity::class.java))
         }
 
-        findViewById<TextView>(R.id.textLoggedInAs).text =
-            "Masuk sebagai ${SessionManager.fullName ?: "-"}"
         findViewById<TextView>(R.id.textAppVersion).text =
             "Versi ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
     }
