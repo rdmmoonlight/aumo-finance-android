@@ -482,14 +482,14 @@ $RECYCLE.BIN/
 *.swp
 
 ##
-## Android / Gradle (frontend)
+## Android / Gradle
 ##
-frontend/**/build/
-frontend/.gradle/
-frontend/local.properties
-frontend/captures/
-frontend/.cxx/
-frontend/**/.externalNativeBuild/
+**/build/
+.gradle/
+local.properties
+captures/
+.cxx/
+**/.externalNativeBuild/
 *.apk
 *.aab
 *.ap_

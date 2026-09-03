@@ -6,12 +6,10 @@ yang sudah lengkap dan stabil di **`aumo-finance-web`**
 (https://github.com/rdmmoonlight/aumo-finance-web), di-deploy di
 `https://aumo.onrender.com`.
 
-```
-/frontend   -> Android native, Kotlin (menggantikan MAUI)
-```
-
-Kode MAUI lama diarsipkan di `frontend/legacy-maui-reference/` sebagai referensi
-logika bisnis lama, bukan untuk dijalankan langsung.
+Proyek Android native (Kotlin) ini ada langsung di root repo (menggantikan
+struktur `/frontend` sebelumnya). Kode MAUI lama diarsipkan di
+`legacy-maui-reference/` sebagai referensi logika bisnis lama, bukan untuk
+dijalankan langsung.
 
 ## Backend
 
@@ -30,7 +28,6 @@ Ada Gradle Wrapper asli (`gradlew`/`gradlew.bat`/`gradle/wrapper/`), jadi bisa
 dibangun tanpa Android Studio:
 
 ```
-cd frontend
 ./gradlew assembleDebug
 ```
 

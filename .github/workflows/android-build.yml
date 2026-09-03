@@ -30,7 +30,6 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-        working-directory: frontend
 
       # PENTING: github.run_number itu PER-WORKFLOW, bukan global per-repo.
       # Baca tag rilis GitHub TERAKHIR yang benar-benar sudah dipublikasikan
@@ -74,7 +73,6 @@ jobs:
 
       - name: Build release APK (unsigned)
         run: ./gradlew assembleRelease --stacktrace -PappVersionName=${{ steps.version.outputs.app_version }} -PappVersionCode=${{ steps.version.outputs.version_code }}
-        working-directory: frontend
 
       - name: Decode keystore
         env:
@@ -92,7 +90,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
-          UNSIGNED_APK=$(find frontend/app/build/outputs/apk/release -name '*.apk' | head -1)
+          UNSIGNED_APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
           "$BUILD_TOOLS/zipalign" -p 4 "$UNSIGNED_APK" aligned-release.apk
 
           # PENTING: file ini format PKCS12 — tidak mendukung key-password

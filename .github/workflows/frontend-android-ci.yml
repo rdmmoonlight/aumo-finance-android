@@ -4,10 +4,20 @@ on:
   push:
     branches: [main, feature/kotlin-native-frontend]
     paths:
-      - 'frontend/**'
+      - 'app/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew'
   pull_request:
     paths:
-      - 'frontend/**'
+      - 'app/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew'
 
 jobs:
   build:
@@ -29,12 +39,9 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-        working-directory: frontend
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
-        working-directory: frontend
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
-        working-directory: frontend
