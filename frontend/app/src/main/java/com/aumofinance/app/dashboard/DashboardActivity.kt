@@ -51,7 +51,7 @@ class DashboardActivity : AppCompatActivity() {
 
         viewModel.summary.observe(this) { summary ->
             if (summary == null || !summary.hasPeriodSelected) {
-                textPeriodName.text = "Belum ada periode dipilih"
+                textPeriodName.text = "No period selected"
                 textPeriodClosedBadge.visibility = View.GONE
                 return@observe
             }
@@ -63,13 +63,13 @@ class DashboardActivity : AppCompatActivity() {
             textTotalLiabilities.text = CurrencyFormatter.format(summary.totalLiabilities)
             textTotalEquity.text = CurrencyFormatter.format(summary.totalEquity)
             textNetIncome.text = CurrencyFormatter.format(summary.netIncome)
-            textRevenueExpense.text = "Pendapatan ${CurrencyFormatter.format(summary.totalRevenue)}  •  " +
-                "Beban ${CurrencyFormatter.format(summary.totalExpenses)}"
+            textRevenueExpense.text = "Revenue ${CurrencyFormatter.format(summary.totalRevenue)}  •  " +
+                "Expenses ${CurrencyFormatter.format(summary.totalExpenses)}"
 
             cashAdapter.submitList(summary.cashAccounts)
             bankAdapter.submitList(summary.bankAccounts)
-            textTotalCash.text = "Total Kas: ${CurrencyFormatter.format(summary.totalCashOnHand)}"
-            textTotalBank.text = "Total Bank: ${CurrencyFormatter.format(summary.totalBankBalance)}"
+            textTotalCash.text = "Cash On Hand: ${CurrencyFormatter.format(summary.totalCashOnHand)}"
+            textTotalBank.text = "Bank Balance: ${CurrencyFormatter.format(summary.totalBankBalance)}"
         }
 
         viewModel.load()
@@ -77,8 +77,8 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Refresh setiap kembali ke Dashboard — periode aktif bisa berubah
-        // dari halaman Periods tanpa Activity ini di-recreate.
+        // Refresh every time returning to Dashboard — active period might change
+        // from the Periods page without this Activity being recreated.
         viewModel.load()
     }
 }
