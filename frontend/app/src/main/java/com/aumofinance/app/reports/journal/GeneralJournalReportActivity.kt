@@ -19,10 +19,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-// Menampilkan seluruh entri (General + Adjusting) periode terpilih,
-// dikelompokkan per tanggal. Tombol edit/delete disembunyikan secara default
-// (baru muncul saat toggle "Edit" dinyalakan) — berbeda dari Adjusting
-// Journal yang selalu menampilkannya.
 class GeneralJournalReportActivity : AppCompatActivity() {
     private val viewModel: JournalReportViewModel by viewModels()
     private lateinit var adapter: JournalReportAdapter
@@ -47,7 +43,7 @@ class GeneralJournalReportActivity : AppCompatActivity() {
 
         viewModel.entries.observe(this) { adapter.submitEntries(it) }
         viewModel.selectedPeriodName.observe(this) { name ->
-            findViewById<TextView>(R.id.textPeriodName).text = name ?: "Belum ada periode dipilih"
+            findViewById<TextView>(R.id.textPeriodName).text = name ?: "No period selected"
         }
         viewModel.loadGeneral()
     }
@@ -65,10 +61,10 @@ class GeneralJournalReportActivity : AppCompatActivity() {
 
     private fun confirmDelete(entry: JournalReportEntry) {
         AlertDialog.Builder(this)
-            .setTitle("Hapus Entri?")
-            .setMessage("Entri \"${entry.transactionNumber}\" akan dihapus permanen. Lanjutkan?")
-            .setPositiveButton("Hapus") { _, _ -> deleteEntry(entry.id) }
-            .setNegativeButton("Batal", null)
+            .setTitle("Delete Entry?")
+            .setMessage("Entry \"${entry.transactionNumber}\" will be permanently deleted. Continue?")
+            .setPositiveButton("Delete") { _, _ -> deleteEntry(entry.id) }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -79,11 +75,11 @@ class GeneralJournalReportActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body()?.success == true) {
                     viewModel.loadGeneral()
                 } else {
-                    Toast.makeText(this@GeneralJournalReportActivity, response.body()?.message ?: "Gagal menghapus entri", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@GeneralJournalReportActivity, response.body()?.message ?: "Failed to delete entry", Toast.LENGTH_LONG).show()
                 }
             }
             override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
-                Toast.makeText(this@GeneralJournalReportActivity, t.message ?: "Koneksi gagal", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@GeneralJournalReportActivity, t.message ?: "Connection failed", Toast.LENGTH_LONG).show()
             }
         })
     }
