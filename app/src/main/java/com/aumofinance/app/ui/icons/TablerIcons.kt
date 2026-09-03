@@ -37,6 +37,11 @@ object TablerIcons {
     const val LayoutDashboard = "\uf02c"
     const val ReportAnalytics = "\ueecb"
     const val Settings = "\ueb20"
+    const val CirclePlus = "\uea69"
+    const val Eye = "\uea9a"
+    const val Lock = "\ueae2"
+    const val CalendarOff = "\uee1f"
+    const val CircleCheck = "\uea67"
 }
 
 /** Menampilkan satu glyph Tabler Icons sebagai teks berikon. */
