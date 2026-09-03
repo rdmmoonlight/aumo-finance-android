@@ -7,8 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.ui.theme.AumoTheme
 import java.util.Calendar
@@ -42,9 +40,9 @@ class JournalEntryActivity : ComponentActivity() {
         viewModel.initFor(entryId)
 
         setContent {
-            val errorMessage by viewModel.errorMessage.observeAsState()
-            val saveResult by viewModel.saveResult.observeAsState()
-            val updateResult by viewModel.updateResult.observeAsState()
+            val errorMessage = viewModel.errorMessage
+            val saveResult = viewModel.saveResult
+            val updateResult = viewModel.updateResult
 
             // LaunchedEffect (bukan pemanggilan langsung di body composable)
             // supaya Toast/finish() hanya jalan SEKALI saat sinyal berubah,

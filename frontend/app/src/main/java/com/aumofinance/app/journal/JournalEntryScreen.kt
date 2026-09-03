@@ -23,7 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -230,7 +230,10 @@ private fun JournalDetailsCard(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth().menuAnchor()
                 )
-                ExposedDropdownMenuDefaults.DropdownMenu(
+                // DropdownMenu biasa (bukan ExposedDropdownMenuDefaults.DropdownMenu
+                // — API itu baru ada di Material3 1.3.0+, project ini masih di 1.2.1
+                // lewat compose-bom 2024.05.00).
+                DropdownMenu(
                     expanded = expanded && isEditable,
                     onDismissRequest = { expanded = false },
                     modifier = Modifier.background(AumoColors.SurfaceElevated)
@@ -347,7 +350,7 @@ private fun JournalLineCard(
                     // Popup di-background eksplisit + teks putih terang —
                     // sebelumnya daftar akun ini TIDAK TERLIHAT karena popup
                     // memakai warna default (gelap di atas gelap).
-                    ExposedDropdownMenuDefaults.DropdownMenu(
+                    DropdownMenu(
                         expanded = expanded && isEditable,
                         onDismissRequest = { expanded = false },
                         modifier = Modifier.background(AumoColors.SurfaceElevated)

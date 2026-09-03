@@ -4,8 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aumofinance.app.coa.Account
 import com.aumofinance.app.coa.AccountsResponse
@@ -47,22 +45,23 @@ class JournalEntryViewModel : ViewModel() {
     var accounts: List<Account> by mutableStateOf(emptyList())
         private set
 
-    // --- Sinyal hasil operasi (diobservasi Activity untuk toast/navigasi) ---
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> = _errorMessage
-
-    private val _saveResult = MutableLiveData<CreateJournalEntryResponse?>()
-    val saveResult: LiveData<CreateJournalEntryResponse?> = _saveResult
-
-    private val _updateResult = MutableLiveData<Boolean?>()
-    val updateResult: LiveData<Boolean?> = _updateResult
+    // --- Sinyal hasil operasi (dibaca langsung oleh JournalEntryScreen,
+    // sama seperti field state form lain di atas — tidak pakai LiveData
+    // supaya tidak perlu dependency androidx.compose.runtime:runtime-livedata
+    // yang belum ada di build.gradle.kts) ---
+    var errorMessage: String? by mutableStateOf(null)
+        private set
+    var saveResult: CreateJournalEntryResponse? by mutableStateOf(null)
+        private set
+    var updateResult: Boolean? by mutableStateOf(null)
+        private set
 
     // Dipanggil oleh Activity setelah menampilkan Toast/navigasi, supaya
     // sinyal ini tidak "nyangkut" dan terpicu ulang tiap recomposition
     // Compose (mis. tiap kali user mengetik di baris lain).
-    fun clearError() { _errorMessage.value = null }
-    fun clearSaveResult() { _saveResult.value = null }
-    fun clearUpdateResult() { _updateResult.value = null }
+    fun clearError() { errorMessage = null }
+    fun clearSaveResult() { saveResult = null }
+    fun clearUpdateResult() { updateResult = null }
 
     fun initFor(entryId: Int?) {
         this.entryId = entryId
@@ -146,11 +145,11 @@ class JournalEntryViewModel : ViewModel() {
 
     fun save() {
         if (!isBalanced()) {
-            _errorMessage.value = "Entri belum balance — total debit harus sama dengan total kredit."
+            errorMessage = "Entri belum balance — total debit harus sama dengan total kredit."
             return
         }
         if (lines.any { it.accountId == null }) {
-            _errorMessage.value = "Setiap baris harus memilih akun."
+            errorMessage = "Setiap baris harus memilih akun."
             return
         }
 
@@ -172,13 +171,13 @@ class JournalEntryViewModel : ViewModel() {
         api.create(request).enqueue(object : Callback<CreateJournalEntryResponse> {
             override fun onResponse(call: Call<CreateJournalEntryResponse>, response: Response<CreateJournalEntryResponse>) {
                 if (response.isSuccessful && response.body()?.success == true) {
-                    _saveResult.value = response.body()
+                    saveResult = response.body()
                 } else {
-                    _errorMessage.value = response.body()?.message ?: "Gagal menyimpan entri (${response.code()})"
+                    errorMessage = response.body()?.message ?: "Gagal menyimpan entri (${response.code()})"
                 }
             }
             override fun onFailure(call: Call<CreateJournalEntryResponse>, t: Throwable) {
-                _errorMessage.value = t.message ?: "Koneksi gagal"
+                errorMessage = t.message ?: "Koneksi gagal"
             }
         })
     }
@@ -187,13 +186,13 @@ class JournalEntryViewModel : ViewModel() {
         api.update(id, request).enqueue(object : Callback<SimpleApiResponse> {
             override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
                 if (response.isSuccessful && response.body()?.success == true) {
-                    _updateResult.value = true
+                    updateResult = true
                 } else {
-                    _errorMessage.value = response.body()?.message ?: "Gagal memperbarui entri (${response.code()})"
+                    errorMessage = response.body()?.message ?: "Gagal memperbarui entri (${response.code()})"
                 }
             }
             override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
-                _errorMessage.value = t.message ?: "Koneksi gagal"
+                errorMessage = t.message ?: "Koneksi gagal"
             }
         })
     }
