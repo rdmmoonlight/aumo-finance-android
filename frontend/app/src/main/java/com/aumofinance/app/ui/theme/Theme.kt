@@ -5,11 +5,15 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import com.aumofinance.app.R
 
 val AptosFontFamily = FontFamily(
-            androidx.compose.ui.text.font.Font(R.font.aptos_regular, FontWeight.Normal),
-            androidx.compose.ui.text.font.Font(R.font.aptos_bold, FontWeight.Bold)
+    Font(R.font.aptos_regular, FontWeight.Normal),
+    Font(R.font.aptos_bold, FontWeight.Bold)
+)
 
 private val AumoTypography: Typography = Typography().run {
     copy(
