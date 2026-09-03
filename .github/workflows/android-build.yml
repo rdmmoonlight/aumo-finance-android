@@ -4,11 +4,6 @@ name: Android Build (Kotlin native)
 # Hasil akhirnya SATU APK: release, signed, siap install/rilis — bukan
 # beberapa artifact (debug/unsigned/signed) seperti versi sebelumnya.
 on:
-  push:
-    branches: [main, feature/kotlin-native-frontend]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/android-build.yml'
   workflow_dispatch: {}
 
 concurrency:
@@ -131,3 +126,4 @@ jobs:
           files: aumo-release-signed.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
