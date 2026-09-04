@@ -87,8 +87,17 @@ class PeriodsViewModel : ViewModel() {
     // periode mana yang IsSelected=true, bukan menerima periodId sebagai parameter.
     fun select(id: Int) {
         api.select(id).enqueue(object : Callback<SimpleApiResponse> {
-            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) = load()
-            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) = Unit
+            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    load()
+                } else {
+                    toastMessage = response.body()?.message
+                        ?: "Failed to switch period (HTTP ${response.code()})."
+                }
+            }
+            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+                toastMessage = t.message ?: "Network error."
+            }
         })
     }
 
