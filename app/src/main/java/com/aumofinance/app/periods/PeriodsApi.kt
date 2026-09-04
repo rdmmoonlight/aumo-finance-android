@@ -20,35 +20,34 @@ data class PeriodsResponse(
     val periods: List<Period>
 )
 
-// Akun ringkas untuk dropdown pemilihan Cash/Bank/Retained Earnings saat
-// melanjutkan akun permanen dari periode sebelumnya.
-data class AccountOption(
+// Akun permanen (Assets/Liabilities/Equity) beserta saldo carry-forward-nya
+// dari periode sebelumnya — ditampilkan apa adanya (read-only), tidak perlu
+// dipilih manual lagi. balance sudah dalam representasi sisi normal akun
+// itu (positif = sisi normal, mis. Debit utk Assets, Credit utk Equity).
+data class CarryForwardAccount(
     val id: Int,
     val referenceNumber: Int,
     val accountName: String,
-    val displayLabel: String
+    val type: String,
+    val balance: Double
 )
 
 // Respons GET /api/mobile/periods/open-info. hasExistingPermanentAccounts
 // menentukan kondisi mana yang harus ditampilkan ke user:
-// - false = belum ada periode yang pernah ditutup -> wajib daftar akun baru.
-// - true  = sudah ada periode yang pernah ditutup -> tinggal lanjutkan akun lama.
+// - false = belum ada periode sama sekali -> wajib daftar akun baru.
+// - true  = sudah ada periode sebelumnya -> tampilkan carryForwardAccounts,
+//           saldo & jurnal Opening Balance otomatis dari server.
 data class OpenPeriodInfoResponse(
     val success: Boolean,
     val hasExistingPermanentAccounts: Boolean,
-    val availableCashAndBankAccounts: List<AccountOption>,
-    val availableRetainedEarningsAccounts: List<AccountOption>
+    val carryForwardAccounts: List<CarryForwardAccount>
 )
 
 data class CreatePeriodRequest(
     val month: Int,
     val year: Int,
     val setupMode: String,
-    // --- Mode LoadExisting (sudah ada periode yang pernah ditutup) ---
-    val cashAccountId: Int? = null,
-    val bankAccountId: Int? = null,
-    val retainedEarningsAccountId: Int? = null,
-    // --- Mode CreateNew (belum ada periode yang pernah ditutup) ---
+    // --- Mode CreateNew (belum ada periode sama sekali) ---
     val cashAccountCode: String? = null,
     val cashAccountName: String? = null,
     val cashBalance: Double? = null,

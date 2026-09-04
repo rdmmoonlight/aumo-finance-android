@@ -26,10 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -38,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -192,9 +188,10 @@ private fun ActionChip(icon: String, label: String, tint: Color, onClick: () -> 
  * Dialog "Open New Period" dengan dua kondisi:
  * - hasExistingPermanentAccounts == false: belum pernah ada periode yang
  *   ditutup -> form daftar akun Cash/Bank/Retained Earnings baru + saldo awal.
- * - hasExistingPermanentAccounts == true: sudah ada periode yang pernah
- *   ditutup -> dropdown pilih akun permanen yang sudah ada, saldo nyambung
- *   otomatis dari ledger.
+ * - hasExistingPermanentAccounts == true: sudah ada periode sebelumnya ->
+ *   tampilkan langsung akun-akun permanen & saldo carry-forward-nya
+ *   (read-only, tanpa dropdown) — akan otomatis diposting sebagai jurnal
+ *   "Opening Balance" oleh server saat "Open" ditekan.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -208,10 +205,6 @@ fun OpenPeriodDialog(
     var year by remember { mutableStateOf(now.get(Calendar.YEAR).toString()) }
 
     val hasExisting = info.hasExistingPermanentAccounts
-
-    var cashIndex by remember { mutableIntStateOf(-1) }
-    var bankIndex by remember { mutableIntStateOf(-1) }
-    var retainedIndex by remember { mutableIntStateOf(-1) }
 
     var cashCode by remember { mutableStateOf("") }
     var cashName by remember { mutableStateOf("") }
@@ -259,13 +252,13 @@ fun OpenPeriodDialog(
 
                 if (hasExisting) {
                     Text(
-                        text = "A closed period already exists. Select which accounts to carry forward:",
+                        text = "Permanent accounts carried forward from the previous period. Opening Balance will be posted automatically to the General Journal:",
                         color = AumoColors.TextSecondary,
                         fontSize = MaterialTheme.typography.bodySmall.fontSize
                     )
-                    AccountDropdown("Cash Account", info.availableCashAndBankAccounts, cashIndex) { cashIndex = it }
-                    AccountDropdown("Bank Account", info.availableCashAndBankAccounts, bankIndex) { bankIndex = it }
-                    AccountDropdown("Retained Earnings Account", info.availableRetainedEarningsAccounts, retainedIndex) { retainedIndex = it }
+                    info.carryForwardAccounts.forEach { account ->
+                        CarryForwardAccountRow(account)
+                    }
                 } else {
                     Text(
                         text = "No period has been closed yet. Register your permanent accounts and opening balances:",
@@ -284,16 +277,10 @@ fun OpenPeriodDialog(
                 val yearInt = year.toIntOrNull() ?: return@TextButton
 
                 val request = if (hasExisting) {
-                    val cash = info.availableCashAndBankAccounts.getOrNull(cashIndex) ?: return@TextButton
-                    val bank = info.availableCashAndBankAccounts.getOrNull(bankIndex) ?: return@TextButton
-                    val retained = info.availableRetainedEarningsAccounts.getOrNull(retainedIndex) ?: return@TextButton
                     CreatePeriodRequest(
                         month = monthInt,
                         year = yearInt,
-                        setupMode = CreatePeriodRequest.MODE_LOAD_EXISTING,
-                        cashAccountId = cash.id,
-                        bankAccountId = bank.id,
-                        retainedEarningsAccountId = retained.id
+                        setupMode = CreatePeriodRequest.MODE_LOAD_EXISTING
                     )
                 } else {
                     CreatePeriodRequest(
@@ -323,45 +310,42 @@ fun OpenPeriodDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AccountDropdown(label: String, options: List<AccountOption>, selectedIndex: Int, onSelect: (Int) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    Column {
-        Text(label, color = AumoColors.TextSecondary, fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OutlinedTextField(
-                value = options.getOrNull(selectedIndex)?.let { "${it.referenceNumber} - ${it.accountName}" } ?: "",
-                onValueChange = {},
-                readOnly = true,
-                placeholder = { Text("Select account", color = AumoColors.TextSecondary) },
-                trailingIcon = { TablerIcon(TablerIcons.Selector, tint = AumoColors.TextSecondary) },
-                colors = dialogFieldColors(),
-                shape = RoundedCornerShape(8.dp),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().menuAnchor()
+private fun CarryForwardAccountRow(account: CarryForwardAccount) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AumoColors.Background, RoundedCornerShape(8.dp))
+            .padding(12.dp, 10.dp)
+    ) {
+        Column {
+            Text(
+                text = "${account.referenceNumber} - ${account.accountName}",
+                color = AumoColors.TextPrimary,
+                fontWeight = FontWeight.Bold,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize
             )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.background(AumoColors.SurfaceElevated)
-            ) {
-                options.forEachIndexed { index, option ->
-                    DropdownMenuItem(
-                        text = { Text("${option.referenceNumber} - ${option.accountName}", color = AumoColors.TextPrimary) },
-                        onClick = {
-                            onSelect(index)
-                            expanded = false
-                        }
-                    )
-                }
-            }
+            Text(
+                text = account.type,
+                color = AumoColors.TextSecondary,
+                fontSize = MaterialTheme.typography.labelSmall.fontSize
+            )
         }
+        Text(
+            text = formatRupiah(account.balance),
+            color = if (account.balance < 0) AumoColors.Bad else AumoColors.TextPrimary,
+            fontWeight = FontWeight.Bold,
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize
+        )
     }
+}
+
+private fun formatRupiah(amount: Double): String {
+    val rounded = kotlin.math.abs(amount).toLong()
+    val formatted = "%,d".format(rounded).replace(",", ".")
+    return if (amount < 0) "-Rp$formatted" else "Rp$formatted"
 }
 
 @Composable
