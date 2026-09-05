@@ -83,7 +83,7 @@ fun HomeScreen(
         ) {
             item {
                 Text(
-                    text = "Assalamu'alaikum wr. wb.",
+                    text = "Assalaamu'alaikum wa rahmatullahi wa barakaatuh",
                     color = AumoColors.TextMuted,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
                 )
@@ -157,7 +157,7 @@ private fun HomeTopBar(onSettingsClick: () -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "AumoFinance",
+                text = "Aumo Finance",
                 color = AumoColors.TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize
