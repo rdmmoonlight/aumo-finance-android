@@ -299,7 +299,7 @@ fun OpenPeriodDialog(
                 }
                 onSubmit(request)
             }) {
-                Text("Open", color = AumoColors.Primary, fontWeight = FontWeight.Bold)
+                Text("Open", color = AumoColors.Good, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {

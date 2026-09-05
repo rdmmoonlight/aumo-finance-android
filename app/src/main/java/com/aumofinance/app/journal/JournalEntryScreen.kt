@@ -3,6 +3,7 @@ package com.aumofinance.app.journal
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -251,36 +252,43 @@ private fun JournalDetailsCard(
             }
 
             // --- Entry Date ---
+            // OutlinedTextField dengan readOnly=true tetap "menelan" event
+            // klik-nya sendiri (buat fokus/kursor) sebelum sampai ke
+            // Modifier.clickable di atasnya — makanya sebelumnya tidak bisa
+            // di-klik. Solusinya: taruh Box transparan tanpa ripple di ATAS
+            // field itu untuk menangkap klik-nya.
             FieldLabel("Entry Date")
-            OutlinedTextField(
-                value = DATE_DISPLAY.format(entryDate.time),
-                onValueChange = {},
-                readOnly = true,
-                enabled = isEditable,
-                trailingIcon = { TablerIcon(TablerIcons.Calendar, tint = AumoColors.TextSecondary) },
-                colors = journalFieldColors(),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(enabled = isEditable, onClick = onEntryDateClick)
-            )
-
-            // --- Transaction Number: kotak garis putus-putus, read-only,
-            // rata kiri sejajar 2 kotak di atasnya (fillMaxWidth yang sama) ---
-            FieldLabel("Transaction Number")
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.5.dp, AumoColors.Border, RoundedCornerShape(8.dp))
-                    .background(AumoColors.Background, RoundedCornerShape(8.dp))
-                    .padding(12.dp, 10.dp)
-            ) {
-                Text(
-                    text = transactionNumber.ifBlank { "…" },
-                    color = AumoColors.TextSecondary,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = DATE_DISPLAY.format(entryDate.time),
+                    onValueChange = {},
+                    readOnly = true,
+                    enabled = isEditable,
+                    trailingIcon = { TablerIcon(TablerIcons.Calendar, tint = AumoColors.TextSecondary) },
+                    colors = journalFieldColors(),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
                 )
+                if (isEditable) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = onEntryDateClick
+                            )
+                    )
+                }
             }
+
+            // --- Transaction Number: teks polos, tanpa kotak/border ---
+            FieldLabel("Transaction Number")
+            Text(
+                text = transactionNumber.ifBlank { "…" },
+                color = AumoColors.TextSecondary,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            )
         }
     }
 }
