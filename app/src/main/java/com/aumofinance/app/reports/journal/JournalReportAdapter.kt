@@ -18,11 +18,11 @@ private data class EntryRow(val entry: JournalReportEntry) : ReportRow()
 
 // Menampilkan entri dikelompokkan per tanggal. Setiap entri dirender sebagai
 // satu blok berisi header (nomor transaksi + timestamp dibuat/diubah + tombol
-// edit/delete) dan baris per JournalReportLine di dalamnya. Setiap baris satu
-// TextView mengalir (nama akun + tab + nominal), sama seperti gaya penulisan
-// nama akun — bukan kolom kanan yang dipaksa simetris; baris kredit
-// diindentasi satu tab (spasi) dari debit. Nominal tanpa prefix "Rp" karena
-// mata uangnya sudah dinyatakan sekali di header halaman.
+// edit/delete) dan baris per JournalReportLine di dalamnya — dua kolom teks:
+// nama akun + deskripsi (pemisah " - ") rata kiri, nominal rata kanan mepet
+// tepi (sama posisi untuk debit & kredit); baris kredit diberi indentasi
+// spasi di depan nama akun. Nominal tanpa prefix "Rp" karena mata uangnya
+// sudah dinyatakan sekali di header halaman.
 class JournalReportAdapter(
     private var showActions: Boolean,
     private val onEdit: (JournalReportEntry) -> Unit,
@@ -126,17 +126,25 @@ class JournalReportAdapter(
             val inflater = LayoutInflater.from(containerLines.context)
             entry.lines.sortedBy { it.lineOrder }.forEach { line ->
                 val lineView = inflater.inflate(R.layout.item_journal_report_line, containerLines, false)
-                val textView = lineView.findViewById<TextView>(R.id.textLine)
+                val nameView = lineView.findViewById<TextView>(R.id.textAccountName)
+                val amountView = lineView.findViewById<TextView>(R.id.textAmount)
 
-                // Nominal ditulis mengalir satu baris dengan nama akun (tab
-                // pemisah), sama seperti gaya penulisan nama akun — bukan
-                // kolom kanan yang dipaksa simetris. Tanpa prefix "Rp":
-                // mata uang sudah dinyatakan sekali di header halaman.
-                textView.text = if (line.debit > 0) {
-                    "${line.referenceNumber} - ${line.accountName}\t${CurrencyFormatter.formatBare(line.debit)}"
+                // Nama akun + deskripsi (pemisah " - "); nominal tanpa "Rp"
+                // (mata uang sudah dinyatakan sekali di header halaman),
+                // rata kanan mepet tepi — sama posisi untuk debit & kredit.
+                val label = buildString {
+                    append(line.referenceNumber).append(" - ").append(line.accountName)
+                    if (!line.lineDescription.isNullOrBlank()) {
+                        append(" - ").append(line.lineDescription)
+                    }
+                }
+                if (line.debit > 0) {
+                    nameView.text = label
+                    amountView.text = CurrencyFormatter.formatBare(line.debit)
                 } else {
                     // Kredit: indentasi satu tab (spasi) dari debit.
-                    "        ${line.referenceNumber} - ${line.accountName}\t${CurrencyFormatter.formatBare(line.credit)}"
+                    nameView.text = "        $label"
+                    amountView.text = CurrencyFormatter.formatBare(line.credit)
                 }
                 containerLines.addView(lineView)
             }
