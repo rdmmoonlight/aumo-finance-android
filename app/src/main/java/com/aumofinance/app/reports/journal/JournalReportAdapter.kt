@@ -18,11 +18,12 @@ private data class EntryRow(val entry: JournalReportEntry) : ReportRow()
 
 // Menampilkan entri dikelompokkan per tanggal. Setiap entri dirender sebagai
 // satu blok berisi header (nomor transaksi + timestamp dibuat/diubah + tombol
-// edit/delete) dan baris per JournalReportLine di dalamnya — dua kolom teks:
-// nama akun + deskripsi (pemisah " - ") rata kiri, nominal rata kanan mepet
-// tepi (sama posisi untuk debit & kredit); baris kredit diberi indentasi
-// spasi di depan nama akun. Nominal tanpa prefix "Rp" karena mata uangnya
-// sudah dinyatakan sekali di header halaman.
+// edit/delete) dan baris per JournalReportLine di dalamnya — nama akun +
+// deskripsi (pemisah " - "). Baris debit: dua kolom, nominal di kolom kanan
+// mepet tepi. Baris kredit: indentasi spasi, nominal menyatu rata kiri di
+// akhir teks (kolom kanan disembunyikan) — sengaja TIDAK sejajar dengan
+// posisi nominal debit. Tanpa prefix "Rp" karena mata uangnya sudah
+// dinyatakan sekali di header halaman.
 class JournalReportAdapter(
     private var showActions: Boolean,
     private val onEdit: (JournalReportEntry) -> Unit,
@@ -130,8 +131,11 @@ class JournalReportAdapter(
                 val amountView = lineView.findViewById<TextView>(R.id.textAmount)
 
                 // Nama akun + deskripsi (pemisah " - "); nominal tanpa "Rp"
-                // (mata uang sudah dinyatakan sekali di header halaman),
-                // rata kanan mepet tepi — sama posisi untuk debit & kredit.
+                // (mata uang sudah dinyatakan sekali di header halaman).
+                // Debit: dua kolom — nama rata kiri, nominal kolom kanan
+                // mepet tepi. Kredit: satu baris mengalir rata kiri, nominal
+                // menyatu langsung di teks (bukan kolom kanan) — sehingga
+                // posisi nominal debit & kredit sengaja TIDAK sejajar.
                 val label = buildString {
                     append(line.referenceNumber).append(" - ").append(line.accountName)
                     if (!line.lineDescription.isNullOrBlank()) {
@@ -141,10 +145,14 @@ class JournalReportAdapter(
                 if (line.debit > 0) {
                     nameView.text = label
                     amountView.text = CurrencyFormatter.formatBare(line.debit)
+                    amountView.visibility = View.VISIBLE
                 } else {
-                    // Kredit: indentasi satu tab (spasi) dari debit.
-                    nameView.text = "        $label"
-                    amountView.text = CurrencyFormatter.formatBare(line.credit)
+                    // Kredit: indentasi satu tab (spasi) dari debit, nominal
+                    // langsung menyatu rata kiri di akhir teks nama (kolom
+                    // kanan disembunyikan, jadi tidak sejajar dengan debit).
+                    nameView.text = "        $label - ${CurrencyFormatter.formatBare(line.credit)}"
+                    amountView.text = ""
+                    amountView.visibility = View.GONE
                 }
                 containerLines.addView(lineView)
             }
