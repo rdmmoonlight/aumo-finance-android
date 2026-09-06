@@ -19,16 +19,24 @@ private data class EntryRow(val entry: JournalReportEntry) : ReportRow()
 // Menampilkan entri dikelompokkan per tanggal. Setiap entri dirender sebagai
 // satu blok berisi header (nomor transaksi + timestamp dibuat/diubah + tombol
 // edit/delete) dan baris per JournalReportLine di dalamnya — nama akun +
-// deskripsi (pemisah " - "). Baris debit: dua kolom, nominal di kolom kanan
-// mepet tepi. Baris kredit: indentasi spasi, nominal menyatu rata kiri di
-// akhir teks (kolom kanan disembunyikan) — sengaja TIDAK sejajar dengan
-// posisi nominal debit. Tanpa prefix "Rp" karena mata uangnya sudah
-// dinyatakan sekali di header halaman.
+// deskripsi (pemisah " - "), keduanya (debit & kredit) pakai kolom kanan
+// rata kanan. Kredit mepet penuh ke tepi; nominal debit sengaja digeser
+// mundur (backspace) sejauh lebar indentasi/tab nomor referensi baris
+// kredit (CREDIT_INDENT), jadi tidak sejajar dengan kredit. Baris kredit
+// diberi indentasi spasi yang sama di depan nama. Tanpa prefix "Rp" karena
+// mata uangnya sudah dinyatakan sekali di header halaman.
 class JournalReportAdapter(
     private var showActions: Boolean,
     private val onEdit: (JournalReportEntry) -> Unit,
     private val onDelete: (JournalReportEntry) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    companion object {
+        // Lebar indentasi/tab nomor referensi baris kredit — dipakai juga
+        // untuk menggeser mundur (backspace) nominal debit sejauh jarak yang
+        // sama, supaya nominal debit & kredit sengaja tidak sejajar.
+        private const val CREDIT_INDENT = "        "
+    }
 
     private var rows: List<ReportRow> = emptyList()
 
@@ -132,10 +140,11 @@ class JournalReportAdapter(
 
                 // Nama akun + deskripsi (pemisah " - "); nominal tanpa "Rp"
                 // (mata uang sudah dinyatakan sekali di header halaman).
-                // Debit: dua kolom — nama rata kiri, nominal kolom kanan
-                // mepet tepi. Kredit: satu baris mengalir rata kiri, nominal
-                // menyatu langsung di teks (bukan kolom kanan) — sehingga
-                // posisi nominal debit & kredit sengaja TIDAK sejajar.
+                // Debit & kredit sama-sama pakai kolom kanan rata kanan.
+                // Kredit tetap mepet penuh ke tepi. Nominal debit digeser
+                // mundur (backspace) sejauh lebar indentasi/tab yang dipakai
+                // di depan nomor referensi baris kredit (CREDIT_INDENT) —
+                // dicapai dengan spasi kosong di akhir teks nominal debit.
                 val label = buildString {
                     append(line.referenceNumber).append(" - ").append(line.accountName)
                     if (!line.lineDescription.isNullOrBlank()) {
@@ -144,15 +153,14 @@ class JournalReportAdapter(
                 }
                 if (line.debit > 0) {
                     nameView.text = label
-                    amountView.text = CurrencyFormatter.formatBare(line.debit)
+                    amountView.text = CurrencyFormatter.formatBare(line.debit) + CREDIT_INDENT
                     amountView.visibility = View.VISIBLE
                 } else {
                     // Kredit: indentasi satu tab (spasi) dari debit, nominal
-                    // langsung menyatu rata kiri di akhir teks nama (kolom
-                    // kanan disembunyikan, jadi tidak sejajar dengan debit).
-                    nameView.text = "        $label - ${CurrencyFormatter.formatBare(line.credit)}"
-                    amountView.text = ""
-                    amountView.visibility = View.GONE
+                    // di kolom kanan mepet penuh ke tepi.
+                    nameView.text = "$CREDIT_INDENT$label"
+                    amountView.text = CurrencyFormatter.formatBare(line.credit)
+                    amountView.visibility = View.VISIBLE
                 }
                 containerLines.addView(lineView)
             }
