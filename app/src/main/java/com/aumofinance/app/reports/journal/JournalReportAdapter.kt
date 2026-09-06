@@ -17,10 +17,12 @@ private data class DateHeaderRow(val label: String) : ReportRow()
 private data class EntryRow(val entry: JournalReportEntry) : ReportRow()
 
 // Menampilkan entri dikelompokkan per tanggal. Setiap entri dirender sebagai
-// satu blok berisi header (nomor transaksi + tombol edit/delete) dan baris
-// per JournalReportLine di dalamnya — baris kredit diindentasi satu tab dari
-// debit (dua kolom teks: nama akun rata kiri, nominal rata kanan; baris
-// kredit diberi indentasi spasi di depan nama akun).
+// satu blok berisi header (nomor transaksi + timestamp dibuat/diubah + tombol
+// edit/delete) dan baris per JournalReportLine di dalamnya. Setiap baris satu
+// TextView mengalir (nama akun + tab + nominal), sama seperti gaya penulisan
+// nama akun — bukan kolom kanan yang dipaksa simetris; baris kredit
+// diindentasi satu tab (spasi) dari debit. Nominal tanpa prefix "Rp" karena
+// mata uangnya sudah dinyatakan sekali di header halaman.
 class JournalReportAdapter(
     private var showActions: Boolean,
     private val onEdit: (JournalReportEntry) -> Unit,
@@ -31,6 +33,8 @@ class JournalReportAdapter(
 
     private val inputDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
     private val displayDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("in", "ID"))
+    private val inputTimestampFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+    private val displayTimestampFormat = SimpleDateFormat("dd/MM HH:mm", Locale("in", "ID"))
 
     fun submitEntries(entries: List<JournalReportEntry>) {
         val grouped = entries.groupBy { it.entryDate.substringBefore("T") }
@@ -52,6 +56,26 @@ class JournalReportAdapter(
         displayDateFormat.format(inputDateFormat.parse("${dateKey}T00:00:00")!!)
     } catch (e: Exception) {
         dateKey
+    }
+
+    // Timestamp created/edited, ditaruh compact di sebelah kanan baris nomor
+    // transaksi (tepat di bawah tanggal entri). Hanya tampilkan "Diubah" jika
+    // entry pernah diedit (updatedAt beda dari createdAt).
+    private fun formatTimestampLabel(entry: JournalReportEntry): String {
+        val createdLabel = formatTimestamp(entry.createdAt)
+        val updated = entry.updatedAt
+        return if (updated != null && updated != entry.createdAt) {
+            "Dibuat $createdLabel · Diubah ${formatTimestamp(updated)}"
+        } else {
+            "Dibuat $createdLabel"
+        }
+    }
+
+    private fun formatTimestamp(raw: String): String = try {
+        val normalized = raw.substringBefore(".").let { if (it.length == 10) "${it}T00:00:00" else it }
+        displayTimestampFormat.format(inputTimestampFormat.parse(normalized)!!)
+    } catch (e: Exception) {
+        raw
     }
 
     override fun getItemViewType(position: Int): Int = when (rows[position]) {
@@ -84,12 +108,14 @@ class JournalReportAdapter(
 
     private inner class EntryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val transactionNumber: TextView = view.findViewById(R.id.textTransactionNumber)
+        private val timestamp: TextView = view.findViewById(R.id.textTimestamp)
         private val buttonEdit: ImageButton = view.findViewById(R.id.buttonEdit)
         private val buttonDelete: ImageButton = view.findViewById(R.id.buttonDelete)
         private val containerLines: LinearLayout = view.findViewById(R.id.containerLines)
 
         fun bind(entry: JournalReportEntry) {
             transactionNumber.text = entry.transactionNumber
+            timestamp.text = formatTimestampLabel(entry)
             val actionsVisibility = if (showActions) View.VISIBLE else View.GONE
             buttonEdit.visibility = actionsVisibility
             buttonDelete.visibility = actionsVisibility
@@ -100,16 +126,17 @@ class JournalReportAdapter(
             val inflater = LayoutInflater.from(containerLines.context)
             entry.lines.sortedBy { it.lineOrder }.forEach { line ->
                 val lineView = inflater.inflate(R.layout.item_journal_report_line, containerLines, false)
-                val nameView = lineView.findViewById<TextView>(R.id.textAccountName)
-                val amountView = lineView.findViewById<TextView>(R.id.textAmount)
+                val textView = lineView.findViewById<TextView>(R.id.textLine)
 
-                if (line.debit > 0) {
-                    nameView.text = "${line.referenceNumber} - ${line.accountName}"
-                    amountView.text = CurrencyFormatter.format(line.debit)
+                // Nominal ditulis mengalir satu baris dengan nama akun (tab
+                // pemisah), sama seperti gaya penulisan nama akun — bukan
+                // kolom kanan yang dipaksa simetris. Tanpa prefix "Rp":
+                // mata uang sudah dinyatakan sekali di header halaman.
+                textView.text = if (line.debit > 0) {
+                    "${line.referenceNumber} - ${line.accountName}\t${CurrencyFormatter.formatBare(line.debit)}"
                 } else {
                     // Kredit: indentasi satu tab (spasi) dari debit.
-                    nameView.text = "        ${line.referenceNumber} - ${line.accountName}"
-                    amountView.text = CurrencyFormatter.format(line.credit)
+                    "        ${line.referenceNumber} - ${line.accountName}\t${CurrencyFormatter.formatBare(line.credit)}"
                 }
                 containerLines.addView(lineView)
             }

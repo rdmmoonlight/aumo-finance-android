@@ -17,6 +17,14 @@ object CurrencyFormatter {
         return prefix + formatter.format(Math.abs(rounded))
     }
 
+    // Dipakai di baris General/Adjusting Journal: nominal murni tanpa "Rp"
+    // (mata uang sudah dinyatakan sekali di header halaman, standar profesional).
+    fun formatBare(amount: Double): String {
+        val rounded = Math.round(amount)
+        val prefix = if (rounded < 0) "-" else ""
+        return prefix + formatter.format(Math.abs(rounded))
+    }
+
     // Dipakai di kotak input Debit/Kredit: menampilkan pemisah ribuan titik
     // sambil user mengetik, TANPA prefix "Rp". Input berupa string digit
     // mentah (hasil filter non-digit), output mis. "150000" -> "150.000".

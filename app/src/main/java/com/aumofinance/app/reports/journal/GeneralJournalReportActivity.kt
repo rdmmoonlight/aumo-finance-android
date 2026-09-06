@@ -43,7 +43,8 @@ class GeneralJournalReportActivity : AppCompatActivity() {
 
         viewModel.entries.observe(this) { adapter.submitEntries(it) }
         viewModel.selectedPeriodName.observe(this) { name ->
-            findViewById<TextView>(R.id.textPeriodName).text = name ?: "No period selected"
+            val periodLabel = name ?: "No period selected"
+            findViewById<TextView>(R.id.textPeriodName).text = "$periodLabel · Nominal dalam Rupiah"
         }
         viewModel.loadGeneral()
     }

@@ -1,24 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Satu baris teks mengalir (nama akun + nominal), sama seperti gaya
+     penulisan nama akun: memakai tab, tidak dipaksa jadi kolom simetris. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textLine"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingVertical="2dp">
-
-    <TextView
-        android:id="@+id/textAccountName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="  Nama Akun"
-        android:textColor="#FFFFFF"
-        android:textSize="13sp" />
-
-    <TextView
-        android:id="@+id/textAmount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Rp 0"
-        android:textColor="#FFFFFF"
-        android:textSize="13sp" />
-</LinearLayout>
+    android:paddingVertical="2dp"
+    android:fontFamily="monospace"
+    android:text="  Nama Akun\t0"
+    android:textColor="#FFFFFF"
+    android:textSize="13sp" />

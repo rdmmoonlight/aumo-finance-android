@@ -41,7 +41,8 @@ class AdjustingJournalReportActivity : AppCompatActivity() {
 
         viewModel.entries.observe(this) { adapter.submitEntries(it) }
         viewModel.selectedPeriodName.observe(this) { name ->
-            findViewById<TextView>(R.id.textPeriodName).text = name ?: "Belum ada periode dipilih"
+            val periodLabel = name ?: "Belum ada periode dipilih"
+            findViewById<TextView>(R.id.textPeriodName).text = "$periodLabel · Nominal dalam Rupiah"
         }
         viewModel.loadAdjusting()
     }
