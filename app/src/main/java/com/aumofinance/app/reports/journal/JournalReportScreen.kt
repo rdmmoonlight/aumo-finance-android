@@ -116,7 +116,7 @@ fun JournalReportScreen(
                             text = formatDateLabel(dateKey),
                             color = AumoColors.TextMuted,
                             fontWeight = FontWeight.Bold,
-                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
                             modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                         )
                     }
@@ -152,8 +152,7 @@ private fun EntryCard(
             Text(
                 text = entry.transactionNumber,
                 color = AumoColors.TextPrimary,
-                fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
                 modifier = Modifier.weight(1f)
             )
             Text(
