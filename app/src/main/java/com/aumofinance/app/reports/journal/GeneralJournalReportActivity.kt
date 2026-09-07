@@ -3,50 +3,56 @@ package com.aumofinance.app.reports.journal
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
-import android.widget.ToggleButton
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.aumofinance.app.journal.JournalApi
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.aumofinance.app.journal.JournalEntryActivity
-import com.aumofinance.app.journal.SimpleApiResponse
-import com.aumofinance.app.network.ApiClient
-import com.aumofinance.app.R
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.aumofinance.app.ui.theme.AumoTheme
 
-class GeneralJournalReportActivity : AppCompatActivity() {
+// Host Compose tipis — semua tampilan ada di JournalReportScreen.kt, state
+// ada di JournalReportViewModel. Sebelumnya berbasis RecyclerView + View/XML
+// biasa (activity_general_journal_report.xml + JournalReportAdapter, sudah
+// dihapus); dipindah ke Jetpack Compose menyusul Journal Entry, Home, dan
+// Periods.
+class GeneralJournalReportActivity : ComponentActivity() {
     private val viewModel: JournalReportViewModel by viewModels()
-    private lateinit var adapter: JournalReportAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_general_journal_report)
-
-        adapter = JournalReportAdapter(
-            showActions = false,
-            onEdit = { entry -> openEdit(entry.id) },
-            onDelete = { entry -> confirmDelete(entry) }
-        )
-        findViewById<RecyclerView>(R.id.recyclerEntries).apply {
-            layoutManager = LinearLayoutManager(this@GeneralJournalReportActivity)
-            adapter = this@GeneralJournalReportActivity.adapter
-        }
-
-        findViewById<ToggleButton>(R.id.toggleEditMode).setOnCheckedChangeListener { _, isChecked ->
-            adapter.setShowActions(isChecked)
-        }
-
-        viewModel.entries.observe(this) { adapter.submitEntries(it) }
-        viewModel.selectedPeriodName.observe(this) { name ->
-            val periodLabel = name ?: "No period selected"
-            findViewById<TextView>(R.id.textPeriodName).text = "$periodLabel · Nominal dalam Rupiah"
-        }
         viewModel.loadGeneral()
+
+        setContent {
+            var showActions by remember { mutableStateOf(false) }
+            val toastMessage = viewModel.toastMessage
+
+            // LaunchedEffect supaya Toast hanya muncul SEKALI saat pesan berubah,
+            // bukan berulang setiap recomposition.
+            LaunchedEffect(toastMessage) {
+                toastMessage?.let { message ->
+                    Toast.makeText(this@GeneralJournalReportActivity, message, Toast.LENGTH_LONG).show()
+                    viewModel.clearToast()
+                }
+            }
+
+            AumoTheme {
+                JournalReportScreen(
+                    entries = viewModel.entries,
+                    selectedPeriodName = viewModel.selectedPeriodName,
+                    defaultPeriodLabel = "No period selected",
+                    showToggle = true,
+                    showActions = showActions,
+                    onToggleShowActions = { showActions = it },
+                    onEdit = { entry -> openEdit(entry.id) },
+                    onDeleteRequest = { entry -> confirmDelete(entry) }
+                )
+            }
+        }
     }
 
     override fun onResume() {
@@ -60,28 +66,15 @@ class GeneralJournalReportActivity : AppCompatActivity() {
         })
     }
 
+    // Dialog konfirmasi native (bukan Compose) sudah cukup untuk aksi
+    // sekali-tap sederhana seperti ini — tidak perlu jadi bagian dari
+    // JournalReportScreen composable.
     private fun confirmDelete(entry: JournalReportEntry) {
         AlertDialog.Builder(this)
             .setTitle("Delete Entry?")
             .setMessage("Entry \"${entry.transactionNumber}\" will be permanently deleted. Continue?")
-            .setPositiveButton("Delete") { _, _ -> deleteEntry(entry.id) }
+            .setPositiveButton("Delete") { _, _ -> viewModel.delete(entry) }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun deleteEntry(id: Int) {
-        val api = ApiClient.retrofit.create(JournalApi::class.java)
-        api.delete(id).enqueue(object : Callback<SimpleApiResponse> {
-            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
-                if (response.isSuccessful && response.body()?.success == true) {
-                    viewModel.loadGeneral()
-                } else {
-                    Toast.makeText(this@GeneralJournalReportActivity, response.body()?.message ?: "Failed to delete entry", Toast.LENGTH_LONG).show()
-                }
-            }
-            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
-                Toast.makeText(this@GeneralJournalReportActivity, t.message ?: "Connection failed", Toast.LENGTH_LONG).show()
-            }
-        })
     }
 }

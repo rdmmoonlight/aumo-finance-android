@@ -15,7 +15,8 @@ import com.aumofinance.app.R
 
 // Font ikon Tabler Icons (versi 3.46.0, family "outline"/reguler — sama
 // dengan yang dipakai di legacy-maui-reference, lihat glyph hex yang sama
-// persis: &#xeb0b; = plus, &#xeb41; = trash, &#xea53; = calendar).
+// persis: &#xeb0b; = plus, &#xeb41; = trash, &#xea53; = calendar,
+// &#xea98; = edit/pencil).
 // Sumber: paket npm @tabler/icons-webfont, dist/fonts/tabler-icons.ttf.
 private val TablerIconFont = FontFamily(Font(R.font.tabler_icons))
 
@@ -30,6 +31,7 @@ object TablerIcons {
     const val Plus = "\ueb0b"
     const val Selector = "\ueb1d"
     const val Trash = "\ueb41"
+    const val Edit = "\uea98"
     const val Book = "\uea39"
     const val ChevronRight = "\uea61"
     const val FilePlus = "\ueaa0"
