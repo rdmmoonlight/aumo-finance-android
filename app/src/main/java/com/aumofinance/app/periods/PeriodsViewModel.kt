@@ -4,15 +4,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.aumofinance.app.network.ApiClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.lifecycle.viewModelScope
+import io.ktor.client.call.body
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.launch
 
 // State Compose (bukan LiveData lagi) — mengikuti pola JournalEntryViewModel
 // sejak halaman ini dipindah dari Activity/View ke Jetpack Compose.
 class PeriodsViewModel : ViewModel() {
-    private val api = ApiClient.retrofit.create(PeriodsApi::class.java)
+    private val api = PeriodsApi()
 
     var periods: List<Period> by mutableStateOf(emptyList())
         private set
@@ -32,31 +32,28 @@ class PeriodsViewModel : ViewModel() {
         private set
 
     fun load() {
-        api.list().enqueue(object : Callback<PeriodsResponse> {
-            override fun onResponse(call: Call<PeriodsResponse>, response: Response<PeriodsResponse>) {
-                val body = response.body()
-                periods = body?.periods ?: emptyList()
-                selectedPeriodId = body?.selectedPeriodId
-            }
-            override fun onFailure(call: Call<PeriodsResponse>, t: Throwable) {
+        viewModelScope.launch {
+            try {
+                val body = api.list().body<PeriodsResponse>()
+                periods = body.periods
+                selectedPeriodId = body.selectedPeriodId
+            } catch (t: Throwable) {
                 periods = emptyList()
             }
-        })
+        }
     }
 
     // Dipanggil sebelum menampilkan dialog Open New Period, supaya dialog
     // tahu harus menampilkan form "daftar akun baru" atau "lanjutkan akun
     // lama" — sesuai kondisi belum/sudah pernah ada periode yang ditutup.
     fun openNewPeriodDialog() {
-        api.openInfo().enqueue(object : Callback<OpenPeriodInfoResponse> {
-            override fun onResponse(call: Call<OpenPeriodInfoResponse>, response: Response<OpenPeriodInfoResponse>) {
-                openPeriodInfo = response.body()
-                if (response.body() == null) toastMessage = "Failed to load account info."
-            }
-            override fun onFailure(call: Call<OpenPeriodInfoResponse>, t: Throwable) {
+        viewModelScope.launch {
+            try {
+                openPeriodInfo = api.openInfo().body<OpenPeriodInfoResponse>()
+            } catch (t: Throwable) {
                 toastMessage = t.message ?: "Network error."
             }
-        })
+        }
     }
 
     fun dismissOpenPeriodDialog() {
@@ -64,53 +61,54 @@ class PeriodsViewModel : ViewModel() {
     }
 
     fun open(request: CreatePeriodRequest) {
-        api.open(request).enqueue(object : Callback<SimpleApiResponse> {
-            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
-                val body = response.body() ?: SimpleApiResponse(
-                    success = false,
-                    message = "Failed to open period (HTTP ${response.code()})."
-                )
+        viewModelScope.launch {
+            try {
+                val response = api.open(request)
+                val body = try {
+                    response.body<SimpleApiResponse>()
+                } catch (parseError: Throwable) {
+                    SimpleApiResponse(success = false, message = "Failed to open period (HTTP ${response.status.value}).")
+                }
                 toastMessage = body.message
                 if (body.success) {
                     openPeriodInfo = null
                     load()
                 }
-            }
-            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+            } catch (t: Throwable) {
                 toastMessage = t.message ?: "Network error."
             }
-        })
+        }
     }
 
     // Menandai periode ini sebagai yang sedang di-VIEW (ikon mata di halaman
     // Periods) — semua halaman lain (Dashboard, Journal, Laporan) mengikuti
     // periode mana yang IsSelected=true, bukan menerima periodId sebagai parameter.
     fun select(id: Int) {
-        api.select(id).enqueue(object : Callback<SimpleApiResponse> {
-            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
-                if (response.isSuccessful && response.body()?.success == true) {
+        viewModelScope.launch {
+            try {
+                val response = api.select(id)
+                val body = response.body<SimpleApiResponse>()
+                if (response.status.isSuccess() && body.success) {
                     load()
                 } else {
-                    toastMessage = response.body()?.message
-                        ?: "Failed to switch period (HTTP ${response.code()})."
+                    toastMessage = body.message.ifBlank { "Failed to switch period (HTTP ${response.status.value})." }
                 }
-            }
-            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+            } catch (t: Throwable) {
                 toastMessage = t.message ?: "Network error."
             }
-        })
+        }
     }
 
     fun close(id: Int) {
-        api.close(id).enqueue(object : Callback<SimpleApiResponse> {
-            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
-                toastMessage = response.body()?.message
+        viewModelScope.launch {
+            try {
+                val response = api.close(id)
+                toastMessage = response.body<SimpleApiResponse>().message
                 load()
-            }
-            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+            } catch (t: Throwable) {
                 toastMessage = t.message ?: "Network error."
             }
-        })
+        }
     }
 
     fun clearToast() {

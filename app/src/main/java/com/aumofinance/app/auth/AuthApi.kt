@@ -1,9 +1,13 @@
 package com.aumofinance.app.auth
 
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 data class LoginRequest(val email: String, val password: String)
 data class LoginResponse(
@@ -14,13 +18,14 @@ data class LoginResponse(
     val fullName: String
 )
 
-interface AuthApi {
-    @POST("auth/login")
-    fun login(@Body request: LoginRequest): Call<LoginResponse>
+class AuthApi(private val client: HttpClient = ApiClient.client) {
+    suspend fun login(request: LoginRequest): HttpResponse =
+        client.post("/api/v1/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
 
-    @GET("auth/me")
-    fun me(): Call<Map<String, Any?>>
+    suspend fun me(): HttpResponse = client.get("/api/v1/auth/me")
 
-    @POST("auth/logout")
-    fun logout(): Call<Map<String, Any?>>
+    suspend fun logout(): HttpResponse = client.post("/api/v1/auth/logout")
 }

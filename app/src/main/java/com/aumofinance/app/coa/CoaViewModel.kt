@@ -3,14 +3,14 @@ package com.aumofinance.app.coa
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.aumofinance.app.network.ApiClient
-import com.google.gson.Gson
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.lifecycle.viewModelScope
+import io.ktor.client.call.body
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.launch
 
 class CoaViewModel : ViewModel() {
-    private val api = ApiClient.retrofit.create(CoaApi::class.java)
+    private val api = CoaApi()
 
     private val _accounts = MutableLiveData<List<Account>>(emptyList())
     val accounts: LiveData<List<Account>> = _accounts
@@ -19,51 +19,40 @@ class CoaViewModel : ViewModel() {
     val errorMessage: LiveData<String?> = _errorMessage
 
     fun load(search: String? = null, category: String? = null) {
-        api.list(search, category).enqueue(object : Callback<AccountsResponse> {
-            override fun onResponse(call: Call<AccountsResponse>, response: Response<AccountsResponse>) {
-                _accounts.value = response.body()?.accounts ?: emptyList()
+        viewModelScope.launch {
+            _accounts.value = try {
+                api.list(search, category).body<AccountsResponse>().accounts
+            } catch (t: Throwable) {
+                emptyList()
             }
-            override fun onFailure(call: Call<AccountsResponse>, t: Throwable) {
-                _accounts.value = emptyList()
-            }
-        })
+        }
     }
 
     fun create(request: AccountRequest) {
-        api.create(request).enqueue(resultHandler { load() })
+        viewModelScope.launch { handleResult(api.create(request)) }
     }
 
     fun update(id: Int, request: UpdateAccountRequest) {
-        api.update(id, request).enqueue(resultHandler { load() })
+        viewModelScope.launch { handleResult(api.update(id, request)) }
     }
 
     // Backend MENOLAK delete kalau akun sudah punya baris jurnal (400, dengan
     // pesan yang menyuruh set Inactive lewat Update, bukan auto-nonaktifkan
     // sendiri) — pesan itu diteruskan apa adanya ke errorMessage.
     fun delete(id: Int) {
-        api.delete(id).enqueue(resultHandler { load() })
+        viewModelScope.launch { handleResult(api.delete(id)) }
     }
 
-    private fun resultHandler(onSuccess: () -> Unit) = object : Callback<SimpleApiResponse> {
-        override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
-            if (response.isSuccessful && response.body()?.success == true) {
-                onSuccess()
+    private suspend fun handleResult(response: HttpResponse) {
+        try {
+            val body = response.body<SimpleApiResponse>()
+            if (response.status.isSuccess() && body.success) {
+                load()
             } else {
-                val message = parseErrorMessage(response) ?: response.body()?.message ?: "Gagal memproses permintaan (${response.code()})"
-                _errorMessage.value = message
+                _errorMessage.value = body.message.ifBlank { "Gagal memproses permintaan (${response.status.value})" }
             }
-        }
-        override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+        } catch (t: Throwable) {
             _errorMessage.value = t.message ?: "Koneksi gagal"
-        }
-    }
-
-    private fun parseErrorMessage(response: Response<SimpleApiResponse>): String? {
-        return try {
-            val errorJson = response.errorBody()?.string() ?: return null
-            Gson().fromJson(errorJson, SimpleApiResponse::class.java)?.message
-        } catch (e: Exception) {
-            null
         }
     }
 }

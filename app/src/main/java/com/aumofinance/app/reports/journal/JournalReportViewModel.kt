@@ -4,12 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.aumofinance.app.journal.JournalApi
 import com.aumofinance.app.journal.SimpleApiResponse
-import com.aumofinance.app.network.ApiClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.ktor.client.call.body
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.launch
 
 // State Compose (bukan LiveData lagi) — mengikuti pola PeriodsViewModel/
 // JournalEntryViewModel sejak halaman ini dipindah dari Activity/View ke
@@ -17,8 +17,8 @@ import retrofit2.Response
 // baik oleh General maupun Adjusting Journal — loadGeneral()/loadAdjusting()
 // beda endpoint, delete() otomatis reload endpoint yang terakhir dipakai.
 class JournalReportViewModel : ViewModel() {
-    private val reportApi = ApiClient.retrofit.create(JournalReportApi::class.java)
-    private val journalApi = ApiClient.retrofit.create(JournalApi::class.java)
+    private val reportApi = JournalReportApi()
+    private val journalApi = JournalApi()
 
     var entries: List<JournalReportEntry> by mutableStateOf(emptyList())
         private set
@@ -31,42 +31,44 @@ class JournalReportViewModel : ViewModel() {
 
     fun loadGeneral() {
         isAdjusting = false
-        reportApi.getGeneralJournal().enqueue(handler())
+        fetch { reportApi.getGeneralJournal() }
     }
 
     fun loadAdjusting() {
         isAdjusting = true
-        reportApi.getAdjustingJournal().enqueue(handler())
+        fetch { reportApi.getAdjustingJournal() }
     }
 
     private fun reload() {
         if (isAdjusting) loadAdjusting() else loadGeneral()
     }
 
-    private fun handler() = object : Callback<JournalReportResponse> {
-        override fun onResponse(call: Call<JournalReportResponse>, response: Response<JournalReportResponse>) {
-            val body = response.body()
-            entries = body?.entries ?: emptyList()
-            selectedPeriodName = body?.selectedPeriodName
-        }
-        override fun onFailure(call: Call<JournalReportResponse>, t: Throwable) {
-            entries = emptyList()
+    private fun fetch(call: suspend () -> io.ktor.client.statement.HttpResponse) {
+        viewModelScope.launch {
+            try {
+                val body = call().body<JournalReportResponse>()
+                entries = body.entries
+                selectedPeriodName = body.selectedPeriodName
+            } catch (t: Throwable) {
+                entries = emptyList()
+            }
         }
     }
 
     fun delete(entry: JournalReportEntry) {
-        journalApi.delete(entry.id).enqueue(object : Callback<SimpleApiResponse> {
-            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
-                if (response.isSuccessful && response.body()?.success == true) {
+        viewModelScope.launch {
+            try {
+                val response = journalApi.delete(entry.id)
+                val body = response.body<SimpleApiResponse>()
+                if (response.status.isSuccess() && body.success) {
                     reload()
                 } else {
-                    toastMessage = response.body()?.message ?: "Failed to delete entry."
+                    toastMessage = body.message.ifBlank { "Failed to delete entry." }
                 }
-            }
-            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+            } catch (t: Throwable) {
                 toastMessage = t.message ?: "Connection failed."
             }
-        })
+        }
     }
 
     fun clearToast() {

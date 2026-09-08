@@ -1,7 +1,9 @@
 package com.aumofinance.app.reports.worksheet
 
-import retrofit2.Call
-import retrofit2.http.GET
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 
 data class WorksheetRow(
     val accountId: Int,
@@ -36,7 +38,6 @@ data class WorksheetReport(
     val totals: WorksheetTotals?
 )
 
-interface WorksheetApi {
-    @GET("reports/worksheet")
-    fun getWorksheet(): Call<WorksheetReport>
+class WorksheetApi(private val client: HttpClient = ApiClient.client) {
+    suspend fun getWorksheet(): HttpResponse = client.get("/api/v1/reports/worksheet")
 }

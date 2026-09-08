@@ -1,10 +1,13 @@
 package com.aumofinance.app.periods
 
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 data class Period(
     val id: Int,
@@ -65,22 +68,23 @@ data class CreatePeriodRequest(
 
 data class SimpleApiResponse(val success: Boolean, val message: String)
 
-interface PeriodsApi {
-    @GET("periods")
-    fun list(): Call<PeriodsResponse>
+class PeriodsApi(private val client: HttpClient = ApiClient.client) {
+    suspend fun list(): HttpResponse = client.get("/api/v1/periods")
 
-    @GET("periods/open-info")
-    fun openInfo(): Call<OpenPeriodInfoResponse>
+    suspend fun openInfo(): HttpResponse = client.get("/api/v1/periods/open-info")
 
-    @POST("periods")
-    fun open(@Body request: CreatePeriodRequest): Call<SimpleApiResponse>
+    suspend fun open(request: CreatePeriodRequest): HttpResponse =
+        client.post("/api/v1/periods") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
 
-    @POST("periods/select/{id}")
-    fun select(@Path("id") id: Int): Call<SimpleApiResponse>
+    suspend fun select(id: Int): HttpResponse =
+        client.post("/api/v1/periods/select/$id")
 
-    @POST("periods/clear-selection")
-    fun clearSelection(): Call<SimpleApiResponse>
+    suspend fun clearSelection(): HttpResponse =
+        client.post("/api/v1/periods/clear-selection")
 
-    @POST("periods/close/{id}")
-    fun close(@Path("id") id: Int): Call<SimpleApiResponse>
+    suspend fun close(id: Int): HttpResponse =
+        client.post("/api/v1/periods/close/$id")
 }

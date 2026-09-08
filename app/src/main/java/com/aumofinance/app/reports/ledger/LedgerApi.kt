@@ -1,8 +1,10 @@
 package com.aumofinance.app.reports.ledger
 
-import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Query
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
 
 data class LedgerLine(
     val journalEntryId: Int,
@@ -32,9 +34,11 @@ data class LedgerResponse(
     val ledgers: List<LedgerAccount>
 )
 
-interface LedgerApi {
+class LedgerApi(private val client: HttpClient = ApiClient.client) {
     // Satu endpoint, dibedakan lewat query isTemporary — BUKAN dua endpoint
     // terpisah seperti dugaan awal saya.
-    @GET("reports/general-ledger")
-    fun getLedger(@Query("isTemporary") isTemporary: Boolean): Call<LedgerResponse>
+    suspend fun getLedger(isTemporary: Boolean): HttpResponse =
+        client.get("/api/v1/reports/general-ledger") {
+            parameter("isTemporary", isTemporary)
+        }
 }

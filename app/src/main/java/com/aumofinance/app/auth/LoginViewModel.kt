@@ -3,12 +3,12 @@ package com.aumofinance.app.auth
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.aumofinance.app.network.ApiClient
+import androidx.lifecycle.viewModelScope
 import com.aumofinance.app.network.SessionManager
 import com.aumofinance.app.network.SessionStore
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.ktor.client.call.body
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.launch
 
 sealed class LoginState {
     object Idle : LoginState()
@@ -18,17 +18,18 @@ sealed class LoginState {
 }
 
 class LoginViewModel : ViewModel() {
-    private val api = ApiClient.retrofit.create(AuthApi::class.java)
+    private val api = AuthApi()
 
     private val _state = MutableLiveData<LoginState>(LoginState.Idle)
     val state: LiveData<LoginState> = _state
 
     fun login(email: String, password: String, keepSignedIn: Boolean, enableBiometric: Boolean) {
         _state.value = LoginState.Loading
-        api.login(LoginRequest(email, password)).enqueue(object : Callback<LoginResponse> {
-            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                val body = response.body()
-                if (response.isSuccessful && body?.success == true) {
+        viewModelScope.launch {
+            try {
+                val response = api.login(LoginRequest(email, password))
+                val body = response.body<LoginResponse>()
+                if (response.status.isSuccess() && body.success) {
                     SessionManager.token = body.token
                     SessionManager.userId = body.userId
                     SessionManager.fullName = body.fullName
@@ -40,13 +41,11 @@ class LoginViewModel : ViewModel() {
                     SessionStore.save(body.token, body.userId, body.fullName, shouldKeepSignedIn, enableBiometric)
                     _state.value = LoginState.Success(body.fullName)
                 } else {
-                    _state.value = LoginState.Error(body?.message ?: "Login gagal (${response.code()})")
+                    _state.value = LoginState.Error(body.message.ifBlank { "Login gagal (${response.status.value})" })
                 }
-            }
-
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+            } catch (t: Throwable) {
                 _state.value = LoginState.Error(t.message ?: "Koneksi gagal")
             }
-        })
+        }
     }
 }

@@ -1,8 +1,10 @@
 package com.aumofinance.app.reports.financials
 
-import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Query
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
 
 data class AccountAmount(val referenceNumber: Int, val accountName: String, val amount: Double)
 
@@ -79,23 +81,25 @@ data class ClosingJournalReport(
     val closingJournal: ClosingJournalData?
 )
 
-interface FinancialsApi {
-    @GET("reports/income-statement")
-    fun getIncomeStatement(): Call<IncomeStatementReport>
+class FinancialsApi(private val client: HttpClient = ApiClient.client) {
+    suspend fun getIncomeStatement(): HttpResponse =
+        client.get("/api/v1/reports/income-statement")
 
-    @GET("reports/retained-earnings")
-    fun getRetainedEarnings(): Call<RetainedEarningsReport>
+    suspend fun getRetainedEarnings(): HttpResponse =
+        client.get("/api/v1/reports/retained-earnings")
 
     // isPostClosing: laporan Neraca versi post-closing (akun Temporary sudah
     // ditutup) — dipisahkan sebagai query, bukan endpoint terpisah.
-    @GET("reports/statement-of-financial-position")
-    fun getFinancialPosition(@Query("isPostClosing") isPostClosing: Boolean = false): Call<FinancialPositionReport>
+    suspend fun getFinancialPosition(isPostClosing: Boolean = false): HttpResponse =
+        client.get("/api/v1/reports/statement-of-financial-position") {
+            parameter("isPostClosing", isPostClosing)
+        }
 
-    @GET("reports/statement-of-cash-flow")
-    fun getCashFlow(): Call<CashFlowReport>
+    suspend fun getCashFlow(): HttpResponse =
+        client.get("/api/v1/reports/statement-of-cash-flow")
 
     // Read-only, murni dihitung dari Trial Balance — TIDAK ADA entri Closing
     // yang benar-benar tersimpan di database.
-    @GET("reports/closing-journal")
-    fun getClosingJournal(): Call<ClosingJournalReport>
+    suspend fun getClosingJournal(): HttpResponse =
+        client.get("/api/v1/reports/closing-journal")
 }

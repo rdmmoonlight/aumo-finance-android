@@ -3,25 +3,23 @@ package com.aumofinance.app.reports.ledger
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.aumofinance.app.network.ApiClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.lifecycle.viewModelScope
+import io.ktor.client.call.body
+import kotlinx.coroutines.launch
 
 class LedgerViewModel : ViewModel() {
-    private val api = ApiClient.retrofit.create(LedgerApi::class.java)
+    private val api = LedgerApi()
 
     private val _report = MutableLiveData<LedgerResponse?>()
     val report: LiveData<LedgerResponse?> = _report
 
     fun load(isTemporary: Boolean) {
-        api.getLedger(isTemporary).enqueue(object : Callback<LedgerResponse> {
-            override fun onResponse(call: Call<LedgerResponse>, response: Response<LedgerResponse>) {
-                _report.value = response.body()
+        viewModelScope.launch {
+            _report.value = try {
+                api.getLedger(isTemporary).body<LedgerResponse>()
+            } catch (t: Throwable) {
+                null
             }
-            override fun onFailure(call: Call<LedgerResponse>, t: Throwable) {
-                _report.value = null
-            }
-        })
+        }
     }
 }

@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.aumofinance.app.coa.Account
 import com.aumofinance.app.coa.AccountsResponse
 import com.aumofinance.app.coa.CoaApi
-import com.aumofinance.app.network.ApiClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.ktor.client.call.body
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -24,8 +24,8 @@ import java.util.Locale
 // reports.journal.JournalReportViewModel, bukan di sini — mengikuti pemisahan
 // endpoint yang sama di aumo-finance-web (journal-entry vs journal-entries).
 class JournalEntryViewModel : ViewModel() {
-    private val api = ApiClient.retrofit.create(JournalApi::class.java)
-    private val coaApi = ApiClient.retrofit.create(CoaApi::class.java)
+    private val api = JournalApi()
+    private val coaApi = CoaApi()
 
     companion object {
         val JOURNAL_TYPES = listOf("General", "Adjusting")
@@ -37,10 +37,10 @@ class JournalEntryViewModel : ViewModel() {
         private set
     private var _journalType: String by mutableStateOf(JOURNAL_TYPES.first())
     val journalType: String get() = _journalType
-    
+
     private var _entryDate: Calendar by mutableStateOf(Calendar.getInstance())
     val entryDate: Calendar get() = _entryDate
-    
+
     var transactionNumber: String by mutableStateOf("")
         private set
     var isLocked: Boolean by mutableStateOf(false)
@@ -100,31 +100,35 @@ class JournalEntryViewModel : ViewModel() {
     fun isBalanced(): Boolean = totalDebit() > 0 && totalDebit() == totalCredit()
 
     private fun loadActiveAccounts() {
-        coaApi.list().enqueue(object : Callback<AccountsResponse> {
-            override fun onResponse(call: Call<AccountsResponse>, response: Response<AccountsResponse>) {
-                accounts = response.body()?.accounts?.filter { it.isActive } ?: emptyList()
+        viewModelScope.launch {
+            try {
+                accounts = coaApi.list().body<AccountsResponse>().accounts.filter { it.isActive }
+            } catch (t: Throwable) {
+                // diam saja, sama seperti onFailure kosong sebelumnya
             }
-            override fun onFailure(call: Call<AccountsResponse>, t: Throwable) = Unit
-        })
+        }
     }
 
     private fun refreshNextTransactionNumber() {
         val entryDateIso = DATE_ONLY_ISO.format(_entryDate.time)
-        api.nextTransactionNumber(_journalType, entryDateIso).enqueue(object : Callback<NextTransactionNumberResponse> {
-            override fun onResponse(call: Call<NextTransactionNumberResponse>, response: Response<NextTransactionNumberResponse>) {
-                response.body()?.let { transactionNumber = it.transactionNumber }
+        viewModelScope.launch {
+            try {
+                val body = api.nextTransactionNumber(_journalType, entryDateIso).body<NextTransactionNumberResponse>()
+                transactionNumber = body.transactionNumber
+            } catch (t: Throwable) {
+                // diam saja, sama seperti onFailure kosong sebelumnya
             }
-            override fun onFailure(call: Call<NextTransactionNumberResponse>, t: Throwable) = Unit
-        })
+        }
     }
 
     private fun loadById(id: Int) {
-        api.getById(id).enqueue(object : Callback<JournalEntryDetailResponse> {
-            override fun onResponse(call: Call<JournalEntryDetailResponse>, response: Response<JournalEntryDetailResponse>) {
-                response.body()?.entry?.let { bindExistingEntry(it) }
+        viewModelScope.launch {
+            try {
+                api.getById(id).body<JournalEntryDetailResponse>().entry?.let { bindExistingEntry(it) }
+            } catch (t: Throwable) {
+                // diam saja, sama seperti onFailure kosong sebelumnya
             }
-            override fun onFailure(call: Call<JournalEntryDetailResponse>, t: Throwable) = Unit
-        })
+        }
     }
 
     private fun bindExistingEntry(detail: JournalEntryDetail) {
@@ -172,32 +176,34 @@ class JournalEntryViewModel : ViewModel() {
     }
 
     private fun create(request: CreateJournalEntryRequest) {
-        api.create(request).enqueue(object : Callback<CreateJournalEntryResponse> {
-            override fun onResponse(call: Call<CreateJournalEntryResponse>, response: Response<CreateJournalEntryResponse>) {
-                if (response.isSuccessful && response.body()?.success == true) {
-                    saveResult = response.body()
+        viewModelScope.launch {
+            try {
+                val response = api.create(request)
+                val body = response.body<CreateJournalEntryResponse>()
+                if (response.status.isSuccess() && body.success) {
+                    saveResult = body
                 } else {
-                    errorMessage = response.body()?.message ?: "Gagal menyimpan entri (${response.code()})"
+                    errorMessage = body.message.ifBlank { "Gagal menyimpan entri (${response.status.value})" }
                 }
-            }
-            override fun onFailure(call: Call<CreateJournalEntryResponse>, t: Throwable) {
+            } catch (t: Throwable) {
                 errorMessage = t.message ?: "Koneksi gagal"
             }
-        })
+        }
     }
 
     private fun update(id: Int, request: UpdateJournalEntryRequest) {
-        api.update(id, request).enqueue(object : Callback<SimpleApiResponse> {
-            override fun onResponse(call: Call<SimpleApiResponse>, response: Response<SimpleApiResponse>) {
-                if (response.isSuccessful && response.body()?.success == true) {
+        viewModelScope.launch {
+            try {
+                val response = api.update(id, request)
+                val body = response.body<SimpleApiResponse>()
+                if (response.status.isSuccess() && body.success) {
                     updateResult = true
                 } else {
-                    errorMessage = response.body()?.message ?: "Gagal memperbarui entri (${response.code()})"
+                    errorMessage = body.message.ifBlank { "Gagal memperbarui entri (${response.status.value})" }
                 }
-            }
-            override fun onFailure(call: Call<SimpleApiResponse>, t: Throwable) {
+            } catch (t: Throwable) {
                 errorMessage = t.message ?: "Koneksi gagal"
             }
-        })
+        }
     }
 }

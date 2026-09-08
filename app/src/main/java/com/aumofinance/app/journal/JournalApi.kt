@@ -1,13 +1,16 @@
 package com.aumofinance.app.journal
 
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 data class JournalLine(
     val accountId: Int,
@@ -59,23 +62,34 @@ data class CreateJournalEntryResponse(val success: Boolean, val message: String,
 data class SimpleApiResponse(val success: Boolean, val message: String)
 data class NextTransactionNumberResponse(val success: Boolean, val transactionNumber: String)
 
-interface JournalApi {
+class JournalApi(private val client: HttpClient = ApiClient.client) {
     // Dipakai oleh halaman Journal Entry (form input/edit satu entri).
-    @GET("journal-entry/{id}")
-    fun getById(@Path("id") id: Int): Call<JournalEntryDetailResponse>
+    suspend fun getById(id: Int): HttpResponse =
+        client.get("/api/v1/journal-entry/$id")
 
-    @POST("journal-entry/create")
-    fun create(@Body request: CreateJournalEntryRequest): Call<CreateJournalEntryResponse>
+    suspend fun create(request: CreateJournalEntryRequest): HttpResponse =
+        client.post("/api/v1/journal-entry/create") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
 
-    @PUT("journal-entry/edit/{id}")
-    fun update(@Path("id") id: Int, @Body request: UpdateJournalEntryRequest): Call<SimpleApiResponse>
+    suspend fun update(id: Int, request: UpdateJournalEntryRequest): HttpResponse =
+        client.put("/api/v1/journal-entry/edit/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
 
-    @DELETE("journal-entry/delete/{id}")
-    fun delete(@Path("id") id: Int): Call<SimpleApiResponse>
+    suspend fun delete(id: Int): HttpResponse =
+        client.delete("/api/v1/journal-entry/delete/$id")
 
-    @GET("journal-entry/search-descriptions")
-    fun searchDescriptions(@Query("q") query: String): Call<List<String>>
+    suspend fun searchDescriptions(query: String): HttpResponse =
+        client.get("/api/v1/journal-entry/search-descriptions") {
+            parameter("q", query)
+        }
 
-    @GET("journal-entry/next-transaction-number")
-    fun nextTransactionNumber(@Query("journalType") journalType: String, @Query("entryDate") entryDate: String? = null): Call<NextTransactionNumberResponse>
+    suspend fun nextTransactionNumber(journalType: String, entryDate: String? = null): HttpResponse =
+        client.get("/api/v1/journal-entry/next-transaction-number") {
+            parameter("journalType", journalType)
+            if (entryDate != null) parameter("entryDate", entryDate)
+        }
 }

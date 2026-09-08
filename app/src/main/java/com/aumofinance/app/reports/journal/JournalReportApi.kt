@@ -1,7 +1,9 @@
 package com.aumofinance.app.reports.journal
 
-import retrofit2.Call
-import retrofit2.http.GET
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 
 data class JournalReportLine(
     val id: Int,
@@ -26,21 +28,21 @@ data class JournalReportEntry(
 
 data class JournalReportResponse(
     val success: Boolean,
-    val hasPeriodSelected: Boolean? ,
+    val hasPeriodSelected: Boolean?,
     val selectedPeriodName: String?,
     val isPeriodClosed: Boolean,
     val entries: List<JournalReportEntry>
 )
 
-interface JournalReportApi {
+class JournalReportApi(private val client: HttpClient = ApiClient.client) {
     // General Journal: seluruh entri tipe "General" di periode yang sedang
     // dipilih. Beda dari "journal-entry" (form input satu entri di
     // journal.JournalApi).
-    @GET("reports/general-journal")
-    fun getGeneralJournal(): Call<JournalReportResponse>
+    suspend fun getGeneralJournal(): HttpResponse =
+        client.get("/api/v1/reports/general-journal")
 
     // Adjusting Journal: sama seperti di atas tapi backend sudah memfilter
     // journalType == "Adjusting" saja.
-    @GET("reports/adjusting-journal")
-    fun getAdjustingJournal(): Call<JournalReportResponse>
+    suspend fun getAdjustingJournal(): HttpResponse =
+        client.get("/api/v1/reports/adjusting-journal")
 }

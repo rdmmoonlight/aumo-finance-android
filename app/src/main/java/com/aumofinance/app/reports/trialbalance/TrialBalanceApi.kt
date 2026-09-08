@@ -1,8 +1,10 @@
 package com.aumofinance.app.reports.trialbalance
 
-import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Query
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
 
 data class TrialBalanceRow(
     val accountId: Int,
@@ -28,10 +30,12 @@ data class TrialBalanceReport(
     val rows: List<TrialBalanceRow>
 )
 
-interface TrialBalanceApi {
+class TrialBalanceApi(private val client: HttpClient = ApiClient.client) {
     // type: "unadjusted" (hanya General), "adjusted" (General+Adjusting),
     // atau "post-closing" (Retained Earnings sudah termasuk efek Closing,
     // walau baris Closing itu sendiri tidak pernah tersimpan sebagai entri).
-    @GET("reports/trial-balance")
-    fun getTrialBalance(@Query("type") type: String): Call<TrialBalanceReport>
+    suspend fun getTrialBalance(type: String): HttpResponse =
+        client.get("/api/v1/reports/trial-balance") {
+            parameter("type", type)
+        }
 }

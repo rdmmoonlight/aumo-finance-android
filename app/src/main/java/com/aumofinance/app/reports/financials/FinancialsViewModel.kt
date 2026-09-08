@@ -3,13 +3,13 @@ package com.aumofinance.app.reports.financials
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.aumofinance.app.network.ApiClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.lifecycle.viewModelScope
+import io.ktor.client.call.body
+import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.launch
 
 class FinancialsViewModel : ViewModel() {
-    private val api = ApiClient.retrofit.create(FinancialsApi::class.java)
+    private val api = FinancialsApi()
 
     val incomeStatement = MutableLiveData<IncomeStatementReport?>()
     val retainedEarnings = MutableLiveData<RetainedEarningsReport?>()
@@ -18,31 +18,32 @@ class FinancialsViewModel : ViewModel() {
     val closingJournal = MutableLiveData<ClosingJournalReport?>()
 
     fun loadIncomeStatement() {
-        api.getIncomeStatement().enqueue(simple(incomeStatement))
+        load(incomeStatement) { api.getIncomeStatement() }
     }
 
     fun loadRetainedEarnings() {
-        api.getRetainedEarnings().enqueue(simple(retainedEarnings))
+        load(retainedEarnings) { api.getRetainedEarnings() }
     }
 
     fun loadFinancialPosition(isPostClosing: Boolean = false) {
-        api.getFinancialPosition(isPostClosing).enqueue(simple(financialPosition))
+        load(financialPosition) { api.getFinancialPosition(isPostClosing) }
     }
 
     fun loadCashFlow() {
-        api.getCashFlow().enqueue(simple(cashFlow))
+        load(cashFlow) { api.getCashFlow() }
     }
 
     fun loadClosingJournal() {
-        api.getClosingJournal().enqueue(simple(closingJournal))
+        load(closingJournal) { api.getClosingJournal() }
     }
 
-    private fun <T> simple(target: MutableLiveData<T?>) = object : Callback<T> {
-        override fun onResponse(call: Call<T>, response: Response<T>) {
-            target.value = response.body()
-        }
-        override fun onFailure(call: Call<T>, t: Throwable) {
-            target.value = null
+    private inline fun <reified T> load(target: MutableLiveData<T?>, crossinline call: suspend () -> HttpResponse) {
+        viewModelScope.launch {
+            target.value = try {
+                call().body<T>()
+            } catch (t: Throwable) {
+                null
+            }
         }
     }
 }

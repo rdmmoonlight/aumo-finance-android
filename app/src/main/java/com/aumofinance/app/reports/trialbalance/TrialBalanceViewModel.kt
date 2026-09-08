@@ -3,25 +3,23 @@ package com.aumofinance.app.reports.trialbalance
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.aumofinance.app.network.ApiClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import androidx.lifecycle.viewModelScope
+import io.ktor.client.call.body
+import kotlinx.coroutines.launch
 
 class TrialBalanceViewModel : ViewModel() {
-    private val api = ApiClient.retrofit.create(TrialBalanceApi::class.java)
+    private val api = TrialBalanceApi()
 
     private val _report = MutableLiveData<TrialBalanceReport?>()
     val report: LiveData<TrialBalanceReport?> = _report
 
     fun load(type: String) {
-        api.getTrialBalance(type).enqueue(object : Callback<TrialBalanceReport> {
-            override fun onResponse(call: Call<TrialBalanceReport>, response: Response<TrialBalanceReport>) {
-                _report.value = response.body()
+        viewModelScope.launch {
+            _report.value = try {
+                api.getTrialBalance(type).body<TrialBalanceReport>()
+            } catch (t: Throwable) {
+                null
             }
-            override fun onFailure(call: Call<TrialBalanceReport>, t: Throwable) {
-                _report.value = null
-            }
-        })
+        }
     }
 }

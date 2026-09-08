@@ -1,13 +1,16 @@
 package com.aumofinance.app.coa
 
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
+import com.aumofinance.app.network.ApiClient
+import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 // Type: salah satu dari "Assets", "Liabilities", "Equity", "OperatingIncome",
 // "OperatingExpenses", "OtherIncome", "OtherExpenses" (lihat
@@ -46,16 +49,25 @@ data class UpdateAccountRequest(
 
 data class SimpleApiResponse(val success: Boolean, val message: String)
 
-interface CoaApi {
-    @GET("chart-of-accounts")
-    fun list(@Query("search") search: String? = null, @Query("category") category: String? = null): Call<AccountsResponse>
+class CoaApi(private val client: HttpClient = ApiClient.client) {
+    suspend fun list(search: String? = null, category: String? = null): HttpResponse =
+        client.get("/api/v1/chart-of-accounts") {
+            if (search != null) parameter("search", search)
+            if (category != null) parameter("category", category)
+        }
 
-    @POST("chart-of-accounts")
-    fun create(@Body request: AccountRequest): Call<SimpleApiResponse>
+    suspend fun create(request: AccountRequest): HttpResponse =
+        client.post("/api/v1/chart-of-accounts") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
 
-    @PUT("chart-of-accounts/{id}")
-    fun update(@Path("id") id: Int, @Body request: UpdateAccountRequest): Call<SimpleApiResponse>
+    suspend fun update(id: Int, request: UpdateAccountRequest): HttpResponse =
+        client.put("/api/v1/chart-of-accounts/$id") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
 
-    @DELETE("chart-of-accounts/{id}")
-    fun delete(@Path("id") id: Int): Call<SimpleApiResponse>
+    suspend fun delete(id: Int): HttpResponse =
+        client.delete("/api/v1/chart-of-accounts/$id")
 }

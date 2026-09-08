@@ -75,10 +75,16 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     implementation("androidx.activity:activity-ktx:1.9.1")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    // --- KLIEN HTTP: KTOR (menggantikan Retrofit + OkHttp manual) ---
+    // Engine OkHttp dipakai di bawah Ktor (bukan dipanggil langsung lagi),
+    // Gson dipertahankan sebagai serializer supaya semua data class model
+    // (request/response) di ApiX.kt tidak perlu anotasi kotlinx.serialization.
+    implementation("io.ktor:ktor-client-core:2.3.12")
+    implementation("io.ktor:ktor-client-okhttp:2.3.12")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+    implementation("io.ktor:ktor-serialization-gson:2.3.12")
+    implementation("io.ktor:ktor-client-logging:2.3.12")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     // Persistensi sesi terenkripsi (EncryptedSharedPreferences) untuk
     // "Ingat saya", dan BiometricPrompt untuk login sidik jari/wajah.
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
