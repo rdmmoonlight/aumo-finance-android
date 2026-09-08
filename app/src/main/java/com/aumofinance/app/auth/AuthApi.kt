@@ -20,12 +20,12 @@ data class LoginResponse(
 
 class AuthApi(private val client: HttpClient = ApiClient.client) {
     suspend fun login(request: LoginRequest): HttpResponse =
-        client.post("/api/v1/auth/login") {
+        client.post("/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
 
-    suspend fun me(): HttpResponse = client.get("/api/v1/auth/me")
+    suspend fun me(): HttpResponse = client.get("/auth/me")
 
-    suspend fun logout(): HttpResponse = client.post("/api/v1/auth/logout")
+    suspend fun logout(): HttpResponse = client.post("/auth/logout")
 }
