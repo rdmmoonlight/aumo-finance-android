@@ -6,10 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    // Deployment aumo-finance-web (backend produksi yang sudah ada, dipindah
-    // dari Railway ke Render) — BUKAN backend baru. App Kotlin ini murni
-    // konsumen dari api/v1/* yang sudah lengkap di backend tersebut.
-    private const val BASE_URL = "https://aumonext-api.onrender.com"
+    private const val BASE_URL = "https://aumonext-api.onrender.com/api/v1"
 
     val retrofit: Retrofit by lazy {
         val logging = HttpLoggingInterceptor().apply {
