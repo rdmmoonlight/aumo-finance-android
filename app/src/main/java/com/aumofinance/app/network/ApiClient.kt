@@ -32,7 +32,7 @@ object ApiClient {
     // endpoint di masing-masing ApiX.kt WAJIB ditulis mulai dengan "/" (mis.
     // "/api/v1/auth/login"), digabung ke host ini lewat defaultRequest di
     // bawah (konvensi path-relatif Ktor).
-    private const val BASE_URL = "https://aumonext-api.onrender.com"
+    private const val BASE_URL = "https://aumonext-api.onrender.com/api/v1"
 
     val client: HttpClient by lazy {
         HttpClient(OkHttp) {
