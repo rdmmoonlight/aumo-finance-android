@@ -25,13 +25,6 @@ private val AuthPlugin = createClientPlugin("AuthPlugin") {
 }
 
 object ApiClient {
-    // Deployment aumo-finance-web (backend produksi yang sudah ada, dipindah
-    // dari Railway ke Render) — BUKAN backend baru. App Kotlin ini murni
-    // konsumen dari api/v1/* yang sudah lengkap di backend tersebut.
-    // BASE_URL di sini HANYA scheme+host (tanpa path/trailing slash) — setiap
-    // endpoint di masing-masing ApiX.kt WAJIB ditulis mulai dengan "/" (mis.
-    // "/api/v1/auth/login"), digabung ke host ini lewat defaultRequest di
-    // bawah (konvensi path-relatif Ktor).
     private const val BASE_URL = "https://aumonext-api.onrender.com/api/v1"
 
     val client: HttpClient by lazy {
