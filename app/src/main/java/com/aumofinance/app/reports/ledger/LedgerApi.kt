@@ -35,6 +35,6 @@ data class LedgerResponse(
 interface LedgerApi {
     // Satu endpoint, dibedakan lewat query isTemporary — BUKAN dua endpoint
     // terpisah seperti dugaan awal saya.
-    @GET("api/v1/reports/general-ledger")
+    @GET("reports/general-ledger")
     fun getLedger(@Query("isTemporary") isTemporary: Boolean): Call<LedgerResponse>
 }

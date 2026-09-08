@@ -15,12 +15,12 @@ data class LoginResponse(
 )
 
 interface AuthApi {
-    @POST("api/v1/auth/login")
+    @POST("auth/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
-    @GET("api/v1/auth/me")
+    @GET("auth/me")
     fun me(): Call<Map<String, Any?>>
 
-    @POST("api/v1/auth/logout")
+    @POST("auth/logout")
     fun logout(): Call<Map<String, Any?>>
 }

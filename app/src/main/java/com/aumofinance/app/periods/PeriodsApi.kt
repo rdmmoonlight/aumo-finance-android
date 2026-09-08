@@ -66,21 +66,21 @@ data class CreatePeriodRequest(
 data class SimpleApiResponse(val success: Boolean, val message: String)
 
 interface PeriodsApi {
-    @GET("api/v1/periods")
+    @GET("periods")
     fun list(): Call<PeriodsResponse>
 
-    @GET("api/v1/periods/open-info")
+    @GET("periods/open-info")
     fun openInfo(): Call<OpenPeriodInfoResponse>
 
-    @POST("api/v1/periods")
+    @POST("periods")
     fun open(@Body request: CreatePeriodRequest): Call<SimpleApiResponse>
 
-    @POST("api/v1/periods/select/{id}")
+    @POST("periods/select/{id}")
     fun select(@Path("id") id: Int): Call<SimpleApiResponse>
 
-    @POST("api/v1/periods/clear-selection")
+    @POST("periods/clear-selection")
     fun clearSelection(): Call<SimpleApiResponse>
 
-    @POST("api/v1/periods/close/{id}")
+    @POST("periods/close/{id}")
     fun close(@Path("id") id: Int): Call<SimpleApiResponse>
 }

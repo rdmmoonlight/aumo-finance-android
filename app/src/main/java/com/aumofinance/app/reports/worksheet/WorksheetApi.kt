@@ -37,6 +37,6 @@ data class WorksheetReport(
 )
 
 interface WorksheetApi {
-    @GET("api/v1/reports/worksheet")
+    @GET("reports/worksheet")
     fun getWorksheet(): Call<WorksheetReport>
 }
