@@ -32,6 +32,6 @@ interface TrialBalanceApi {
     // type: "unadjusted" (hanya General), "adjusted" (General+Adjusting),
     // atau "post-closing" (Retained Earnings sudah termasuk efek Closing,
     // walau baris Closing itu sendiri tidak pernah tersimpan sebagai entri).
-    @GET("api/mobile/reports/trial-balance")
+    @GET("api/v1/reports/trial-balance")
     fun getTrialBalance(@Query("type") type: String): Call<TrialBalanceReport>
 }

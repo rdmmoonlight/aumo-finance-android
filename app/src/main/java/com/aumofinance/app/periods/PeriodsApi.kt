@@ -32,7 +32,7 @@ data class CarryForwardAccount(
     val balance: Double
 )
 
-// Respons GET /api/mobile/periods/open-info. hasExistingPermanentAccounts
+// Respons GET /api/v1/periods/open-info. hasExistingPermanentAccounts
 // menentukan kondisi mana yang harus ditampilkan ke user:
 // - false = belum ada periode sama sekali -> wajib daftar akun baru.
 // - true  = sudah ada periode sebelumnya -> tampilkan carryForwardAccounts,
@@ -66,21 +66,21 @@ data class CreatePeriodRequest(
 data class SimpleApiResponse(val success: Boolean, val message: String)
 
 interface PeriodsApi {
-    @GET("api/mobile/periods")
+    @GET("api/v1/periods")
     fun list(): Call<PeriodsResponse>
 
-    @GET("api/mobile/periods/open-info")
+    @GET("api/v1/periods/open-info")
     fun openInfo(): Call<OpenPeriodInfoResponse>
 
-    @POST("api/mobile/periods/create")
+    @POST("api/v1/periods")
     fun open(@Body request: CreatePeriodRequest): Call<SimpleApiResponse>
 
-    @POST("api/mobile/periods/select/{id}")
+    @POST("api/v1/periods/select/{id}")
     fun select(@Path("id") id: Int): Call<SimpleApiResponse>
 
-    @POST("api/mobile/periods/clear-selection")
+    @POST("api/v1/periods/clear-selection")
     fun clearSelection(): Call<SimpleApiResponse>
 
-    @POST("api/mobile/periods/close/{id}")
+    @POST("api/v1/periods/close/{id}")
     fun close(@Path("id") id: Int): Call<SimpleApiResponse>
 }

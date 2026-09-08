@@ -47,15 +47,15 @@ data class UpdateAccountRequest(
 data class SimpleApiResponse(val success: Boolean, val message: String)
 
 interface CoaApi {
-    @GET("api/mobile/chart-of-accounts")
+    @GET("api/v1/chart-of-accounts")
     fun list(@Query("search") search: String? = null, @Query("category") category: String? = null): Call<AccountsResponse>
 
-    @POST("api/mobile/chart-of-accounts/create")
+    @POST("api/v1/chart-of-accounts")
     fun create(@Body request: AccountRequest): Call<SimpleApiResponse>
 
-    @PUT("api/mobile/chart-of-accounts/update/{id}")
+    @PUT("api/v1/chart-of-accounts/{id}")
     fun update(@Path("id") id: Int, @Body request: UpdateAccountRequest): Call<SimpleApiResponse>
 
-    @DELETE("api/mobile/chart-of-accounts/delete/{id}")
+    @DELETE("api/v1/chart-of-accounts/{id}")
     fun delete(@Path("id") id: Int): Call<SimpleApiResponse>
 }

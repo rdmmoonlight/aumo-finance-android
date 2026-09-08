@@ -33,14 +33,14 @@ data class JournalReportResponse(
 )
 
 interface JournalReportApi {
-    // General Journal: seluruh entri (General+Adjusting) di periode yang
-    // sedang dipilih. Route JAMAK ("journal-entries"), beda dari
-    // "journal-entry" (form input satu entri di journal.JournalApi).
-    @GET("api/mobile/journal-entries")
+    // General Journal: seluruh entri tipe "General" di periode yang sedang
+    // dipilih. Beda dari "journal-entry" (form input satu entri di
+    // journal.JournalApi).
+    @GET("api/v1/reports/general-journal")
     fun getGeneralJournal(): Call<JournalReportResponse>
 
     // Adjusting Journal: sama seperti di atas tapi backend sudah memfilter
     // journalType == "Adjusting" saja.
-    @GET("api/mobile/reports/adjusting-journal")
+    @GET("api/v1/reports/adjusting-journal")
     fun getAdjustingJournal(): Call<JournalReportResponse>
 }

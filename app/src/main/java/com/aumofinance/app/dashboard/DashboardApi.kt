@@ -25,6 +25,6 @@ data class DashboardSummary(
 interface DashboardApi {
     // Tidak menerima periodId — otomatis mengikuti periode yang sedang
     // di-select user (lihat SelectedPeriodHelper di backend).
-    @GET("api/mobile/dashboard")
+    @GET("api/v1/dashboard")
     fun getSummary(): Call<DashboardSummary>
 }

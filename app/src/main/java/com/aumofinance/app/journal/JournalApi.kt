@@ -61,21 +61,21 @@ data class NextTransactionNumberResponse(val success: Boolean, val transactionNu
 
 interface JournalApi {
     // Dipakai oleh halaman Journal Entry (form input/edit satu entri).
-    @GET("api/mobile/journal-entry/{id}")
+    @GET("api/v1/journal-entry/{id}")
     fun getById(@Path("id") id: Int): Call<JournalEntryDetailResponse>
 
-    @POST("api/mobile/journal-entry/create")
+    @POST("api/v1/journal-entry/create")
     fun create(@Body request: CreateJournalEntryRequest): Call<CreateJournalEntryResponse>
 
-    @PUT("api/mobile/journal-entry/edit/{id}")
+    @PUT("api/v1/journal-entry/edit/{id}")
     fun update(@Path("id") id: Int, @Body request: UpdateJournalEntryRequest): Call<SimpleApiResponse>
 
-    @DELETE("api/mobile/journal-entry/delete/{id}")
+    @DELETE("api/v1/journal-entry/delete/{id}")
     fun delete(@Path("id") id: Int): Call<SimpleApiResponse>
 
-    @GET("api/mobile/journal-entry/search-descriptions")
+    @GET("api/v1/journal-entry/search-descriptions")
     fun searchDescriptions(@Query("q") query: String): Call<List<String>>
 
-    @GET("api/mobile/journal-entry/next-transaction-number")
+    @GET("api/v1/journal-entry/next-transaction-number")
     fun nextTransactionNumber(@Query("journalType") journalType: String, @Query("entryDate") entryDate: String? = null): Call<NextTransactionNumberResponse>
 }

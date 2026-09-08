@@ -80,22 +80,22 @@ data class ClosingJournalReport(
 )
 
 interface FinancialsApi {
-    @GET("api/mobile/reports/income-statement")
+    @GET("api/v1/reports/income-statement")
     fun getIncomeStatement(): Call<IncomeStatementReport>
 
-    @GET("api/mobile/reports/retained-earnings")
+    @GET("api/v1/reports/retained-earnings")
     fun getRetainedEarnings(): Call<RetainedEarningsReport>
 
     // isPostClosing: laporan Neraca versi post-closing (akun Temporary sudah
     // ditutup) — dipisahkan sebagai query, bukan endpoint terpisah.
-    @GET("api/mobile/reports/statement-of-financial-position")
+    @GET("api/v1/reports/statement-of-financial-position")
     fun getFinancialPosition(@Query("isPostClosing") isPostClosing: Boolean = false): Call<FinancialPositionReport>
 
-    @GET("api/mobile/reports/cash-flow")
+    @GET("api/v1/reports/statement-of-cash-flow")
     fun getCashFlow(): Call<CashFlowReport>
 
     // Read-only, murni dihitung dari Trial Balance — TIDAK ADA entri Closing
     // yang benar-benar tersimpan di database.
-    @GET("api/mobile/reports/closing-journal")
+    @GET("api/v1/reports/closing-journal")
     fun getClosingJournal(): Call<ClosingJournalReport>
 }
