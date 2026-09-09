@@ -3,7 +3,6 @@ package com.aumofinance.app.reports.ledger
 import com.aumofinance.app.network.ApiClient
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
 
 data class LedgerLine(
@@ -35,10 +34,14 @@ data class LedgerResponse(
 )
 
 class LedgerApi(private val client: HttpClient = ApiClient.client) {
-    // Satu endpoint, dibedakan lewat query isTemporary — BUKAN dua endpoint
-    // terpisah seperti dugaan awal saya.
+    // Backend memisahkan permanent/temporary sebagai dua endpoint sendiri
+    // (bukan satu endpoint dengan query ?isTemporary=), jadi kita routing
+    // di sisi Android saja — signature getLedger(isTemporary) tetap sama
+    // supaya LedgerViewModel & kedua Activity pemanggilnya tidak perlu berubah.
     suspend fun getLedger(isTemporary: Boolean): HttpResponse =
-        client.get("/api/v1/reports/general-ledger") {
-            parameter("isTemporary", isTemporary)
+        if (isTemporary) {
+            client.get("/api/v1/reports/general-ledger/temporary")
+        } else {
+            client.get("/api/v1/reports/general-ledger/permanent")
         }
 }

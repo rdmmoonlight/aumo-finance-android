@@ -99,7 +99,10 @@ class FinancialsApi(private val client: HttpClient = ApiClient.client) {
         client.get("/api/v1/reports/statement-of-cash-flow")
 
     // Read-only, murni dihitung dari Trial Balance — TIDAK ADA entri Closing
-    // yang benar-benar tersimpan di database.
+    // yang benar-benar tersimpan di database. Endpoint-nya ada di bawah route
+    // "/api/v1/reports/journals" backend (satu grup dengan General/Adjusting
+    // Journal, lihat reports.journal.JournalReportApi), bukan endpoint
+    // "closing-journal" tersendiri seperti dugaan awal saya.
     suspend fun getClosingJournal(): HttpResponse =
-        client.get("/api/v1/reports/closing-journal")
+        client.get("/api/v1/reports/journals/closing")
 }

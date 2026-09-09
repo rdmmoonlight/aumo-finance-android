@@ -23,33 +23,49 @@ data class PeriodsResponse(
     val periods: List<Period>
 )
 
-// Akun permanen (Assets/Liabilities/Equity) beserta saldo carry-forward-nya
-// dari periode sebelumnya — ditampilkan apa adanya (read-only), tidak perlu
-// dipilih manual lagi. balance sudah dalam representasi sisi normal akun
-// itu (positif = sisi normal, mis. Debit utk Assets, Credit utk Equity).
-data class CarryForwardAccount(
+// Akun Cash/Bank (Role == "CashAndEquivalents") atau Retained Earnings
+// (Role == "RetainedEarnings") yang tersedia untuk dipilih saat membuka
+// periode baru dalam mode LoadExisting (lanjutan dari periode sebelumnya) —
+// backend TIDAK mengirim saldo carry-forward di sini; saldo berjalan
+// otomatis mengikuti saldo ledger akun tsb, tidak perlu dipilih manual.
+data class AvailableAccount(
+    val id: Int,
+    val referenceNumber: Int,
+    val accountName: String,
+    val displayLabel: String
+)
+
+data class PermanentAccountInfo(
     val id: Int,
     val referenceNumber: Int,
     val accountName: String,
     val type: String,
-    val balance: Double
+    val displayLabel: String
 )
 
 // Respons GET /api/v1/periods/open-info. hasExistingPermanentAccounts
 // menentukan kondisi mana yang harus ditampilkan ke user:
-// - false = belum ada periode sama sekali -> wajib daftar akun baru.
-// - true  = sudah ada periode sebelumnya -> tampilkan carryForwardAccounts,
-//           saldo & jurnal Opening Balance otomatis dari server.
+// - false = belum ada akun Cash/Bank & Retained Earnings sama sekali ->
+//   wajib daftar akun baru (mode CreateNew).
+// - true  = sudah ada -> user memilih akun Cash, Bank, dan Retained Earnings
+//   yang mana yang dilanjutkan (mode LoadExisting) dari
+//   availableCashAndBankAccounts / availableRetainedEarningsAccounts.
 data class OpenPeriodInfoResponse(
     val success: Boolean,
     val hasExistingPermanentAccounts: Boolean,
-    val carryForwardAccounts: List<CarryForwardAccount>
+    val availableCashAndBankAccounts: List<AvailableAccount>,
+    val availableRetainedEarningsAccounts: List<AvailableAccount>,
+    val permanentAccounts: List<PermanentAccountInfo>
 )
 
 data class CreatePeriodRequest(
     val month: Int,
     val year: Int,
     val setupMode: String,
+    // --- Mode LoadExisting (melanjutkan akun permanen yang sudah ada) ---
+    val cashAccountId: Int? = null,
+    val bankAccountId: Int? = null,
+    val retainedEarningsAccountId: Int? = null,
     // --- Mode CreateNew (belum ada periode sama sekali) ---
     val cashAccountCode: String? = null,
     val cashAccountName: String? = null,

@@ -186,12 +186,14 @@ private fun ActionChip(icon: String, label: String, tint: Color, onClick: () -> 
 
 /**
  * Dialog "Open New Period" dengan dua kondisi:
- * - hasExistingPermanentAccounts == false: belum pernah ada periode yang
- *   ditutup -> form daftar akun Cash/Bank/Retained Earnings baru + saldo awal.
- * - hasExistingPermanentAccounts == true: sudah ada periode sebelumnya ->
- *   tampilkan langsung akun-akun permanen & saldo carry-forward-nya
- *   (read-only, tanpa dropdown) — akan otomatis diposting sebagai jurnal
- *   "Opening Balance" oleh server saat "Open" ditekan.
+ * - hasExistingPermanentAccounts == false: belum pernah ada akun Cash/Bank &
+ *   Retained Earnings sama sekali -> form daftar akun baru + saldo awal
+ *   (mode CreateNew).
+ * - hasExistingPermanentAccounts == true: sudah ada -> user MEMILIH akun
+ *   Cash, Bank, dan Retained Earnings mana yang dilanjutkan dari
+ *   availableCashAndBankAccounts / availableRetainedEarningsAccounts (mode
+ *   LoadExisting). Backend tidak lagi mengirim saldo carry-forward di sini —
+ *   saldo berjalan otomatis mengikuti saldo ledger akun yang dipilih.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -205,6 +207,10 @@ fun OpenPeriodDialog(
     var year by remember { mutableStateOf(now.get(Calendar.YEAR).toString()) }
 
     val hasExisting = info.hasExistingPermanentAccounts
+
+    var selectedCashAccount by remember { mutableStateOf<AvailableAccount?>(null) }
+    var selectedBankAccount by remember { mutableStateOf<AvailableAccount?>(null) }
+    var selectedRetainedAccount by remember { mutableStateOf<AvailableAccount?>(null) }
 
     var cashCode by remember { mutableStateOf("") }
     var cashName by remember { mutableStateOf("") }
@@ -252,13 +258,28 @@ fun OpenPeriodDialog(
 
                 if (hasExisting) {
                     Text(
-                        text = "Permanent accounts carried forward from the previous period. Opening Balance will be posted automatically to the General Journal:",
+                        text = "Select which existing accounts to carry forward into this period:",
                         color = AumoColors.TextSecondary,
                         fontSize = MaterialTheme.typography.bodySmall.fontSize
                     )
-                    info.carryForwardAccounts.forEach { account ->
-                        CarryForwardAccountRow(account)
-                    }
+                    AccountPickerField(
+                        label = "Cash Account",
+                        options = info.availableCashAndBankAccounts,
+                        selected = selectedCashAccount,
+                        onSelect = { selectedCashAccount = it }
+                    )
+                    AccountPickerField(
+                        label = "Bank Account",
+                        options = info.availableCashAndBankAccounts,
+                        selected = selectedBankAccount,
+                        onSelect = { selectedBankAccount = it }
+                    )
+                    AccountPickerField(
+                        label = "Retained Earnings Account",
+                        options = info.availableRetainedEarningsAccounts,
+                        selected = selectedRetainedAccount,
+                        onSelect = { selectedRetainedAccount = it }
+                    )
                 } else {
                     Text(
                         text = "No period has been closed yet. Register your permanent accounts and opening balances:",
@@ -277,10 +298,16 @@ fun OpenPeriodDialog(
                 val yearInt = year.toIntOrNull() ?: return@TextButton
 
                 val request = if (hasExisting) {
+                    val cashId = selectedCashAccount?.id ?: return@TextButton
+                    val bankId = selectedBankAccount?.id ?: return@TextButton
+                    val retainedId = selectedRetainedAccount?.id ?: return@TextButton
                     CreatePeriodRequest(
                         month = monthInt,
                         year = yearInt,
-                        setupMode = CreatePeriodRequest.MODE_LOAD_EXISTING
+                        setupMode = CreatePeriodRequest.MODE_LOAD_EXISTING,
+                        cashAccountId = cashId,
+                        bankAccountId = bankId,
+                        retainedEarningsAccountId = retainedId
                     )
                 } else {
                     CreatePeriodRequest(
@@ -310,42 +337,59 @@ fun OpenPeriodDialog(
     )
 }
 
+// Dropdown sederhana untuk memilih salah satu akun yang tersedia dari
+// backend (availableCashAndBankAccounts / availableRetainedEarningsAccounts)
+// saat membuka periode dalam mode LoadExisting.
 @Composable
-private fun CarryForwardAccountRow(account: CarryForwardAccount) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AumoColors.Background, RoundedCornerShape(8.dp))
-            .padding(12.dp, 10.dp)
-    ) {
-        Column {
-            Text(
-                text = "${account.referenceNumber} - ${account.accountName}",
-                color = AumoColors.TextPrimary,
-                fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize
-            )
-            Text(
-                text = account.type,
-                color = AumoColors.TextSecondary,
-                fontSize = MaterialTheme.typography.labelSmall.fontSize
-            )
-        }
-        Text(
-            text = formatRupiah(account.balance),
-            color = if (account.balance < 0) AumoColors.Bad else AumoColors.TextPrimary,
-            fontWeight = FontWeight.Bold,
-            fontSize = MaterialTheme.typography.bodyMedium.fontSize
-        )
-    }
-}
+private fun AccountPickerField(
+    label: String,
+    options: List<AvailableAccount>,
+    selected: AvailableAccount?,
+    onSelect: (AvailableAccount) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
 
-private fun formatRupiah(amount: Double): String {
-    val rounded = kotlin.math.abs(amount).toLong()
-    val formatted = "%,d".format(rounded).replace(",", ".")
-    return if (amount < 0) "-Rp$formatted" else "Rp$formatted"
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(label, color = AumoColors.TextSecondary, fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.labelSmall.fontSize)
+        Box {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(AumoColors.Background, RoundedCornerShape(8.dp))
+                    .clickable { expanded = true }
+                    .padding(12.dp, 12.dp)
+            ) {
+                Text(
+                    text = selected?.displayLabel ?: "Select an account",
+                    color = if (selected != null) AumoColors.TextPrimary else AumoColors.TextSecondary,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                )
+                TablerIcon(TablerIcons.Eye, tint = AumoColors.TextSecondary, size = 14.dp)
+            }
+            androidx.compose.material3.DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                if (options.isEmpty()) {
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text("No accounts available") },
+                        onClick = { expanded = false }
+                    )
+                }
+                options.forEach { account ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(account.displayLabel) },
+                        onClick = {
+                            onSelect(account)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
