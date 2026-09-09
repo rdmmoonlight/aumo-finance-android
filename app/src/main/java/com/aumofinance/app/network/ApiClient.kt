@@ -25,7 +25,15 @@ private val AuthPlugin = createClientPlugin("AuthPlugin") {
 }
 
 object ApiClient {
-    private const val BASE_URL = "https://aumonext-api.onrender.com/api/v1"
+    // HANYA scheme+host, TANPA path — endpoint di setiap ApiX.kt WAJIB
+    // ditulis absolut mulai dari "/" (mis. "/api/v1/auth/login"). Ktor
+    // memperlakukan path yang diawali "/" sebagai path ABSOLUT yang
+    // MENGGANTIKAN seluruh path bawaan di sini (bukan digabung/append) —
+    // jadi kalau BASE_URL ikut menyertakan "/api/v1", bagian itu justru
+    // dibuang begitu request memberi path absolut, dan "/api/v1" harus
+    // ditulis ulang di endpoint itu sendiri. Simpan "/api/v1" di endpoint,
+    // bukan di sini, supaya konsisten dan tidak diam-diam hilang.
+    private const val BASE_URL = "https://aumonext-api.onrender.com"
 
     val client: HttpClient by lazy {
         HttpClient(OkHttp) {
