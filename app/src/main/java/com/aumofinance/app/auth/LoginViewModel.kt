@@ -25,25 +25,32 @@ class LoginViewModel : ViewModel() {
 
     fun login(email: String, password: String, keepSignedIn: Boolean, enableBiometric: Boolean) {
         _state.value = LoginState.Loading
+        // Biometrik cuma masuk akal kalau sesi memang disimpan — kalau
+        // user centang biometrik tapi tidak centang "Ingat saya", anggap
+        // keduanya diminta (tidak ada yang bisa dibuka biometrik kalau
+        // tidak ada sesi tersimpan).
+        val shouldKeepSignedIn = keepSignedIn || enableBiometric
+        // WAJIB diset SEBELUM memanggil api.login(): PersistentCookiesStorage
+        // membaca flag ini saat Set-Cookie dari respons login ini diproses,
+        // untuk memutuskan apakah cookie ikut ditulis ke penyimpanan
+        // terenkripsi atau cukup di memori saja.
+        SessionManager.keepSignedIn = shouldKeepSignedIn
         viewModelScope.launch {
             try {
-                val response = api.login(LoginRequest(email, password))
+                val response = api.login(LoginRequest(email, password, shouldKeepSignedIn))
                 val body = response.body<LoginResponse>()
-                if (response.status.isSuccess() && body.success) {
-                    SessionManager.token = body.token
+                if (response.status.isSuccess() && body.success && body.userId != null && body.fullName != null) {
+                    SessionManager.isLoggedIn = true
                     SessionManager.userId = body.userId
                     SessionManager.fullName = body.fullName
-                    // Biometrik cuma masuk akal kalau sesi memang disimpan —
-                    // kalau user centang biometrik tapi tidak centang "Ingat
-                    // saya", anggap keduanya diminta (tidak ada yang bisa
-                    // dibuka biometrik kalau tidak ada sesi tersimpan).
-                    val shouldKeepSignedIn = keepSignedIn || enableBiometric
-                    SessionStore.save(body.token, body.userId, body.fullName, shouldKeepSignedIn, enableBiometric)
+                    SessionStore.saveSessionInfo(body.userId, body.fullName, shouldKeepSignedIn, enableBiometric)
                     _state.value = LoginState.Success(body.fullName)
                 } else {
+                    SessionManager.keepSignedIn = false
                     _state.value = LoginState.Error(body.message.ifBlank { "Login gagal (${response.status.value})" })
                 }
             } catch (t: Throwable) {
+                SessionManager.keepSignedIn = false
                 _state.value = LoginState.Error(t.message ?: "Koneksi gagal")
             }
         }

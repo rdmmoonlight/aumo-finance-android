@@ -2,27 +2,13 @@ package com.aumofinance.app.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.url
-import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
-
-// Menggantikan AuthInterceptor versi Retrofit/OkHttp — dipasang sebagai Ktor
-// client plugin custom, membaca SessionManager.token di setiap request
-// (bukan fixed di saat client dibuat), supaya tetap berlaku setelah
-// login/logout tanpa perlu rebuild client.
-private val AuthPlugin = createClientPlugin("AuthPlugin") {
-    onRequest { request, _ ->
-        val token = SessionManager.token
-        if (!token.isNullOrBlank()) {
-            request.headers.append(HttpHeaders.Authorization, "Bearer $token")
-        }
-    }
-}
 
 object ApiClient {
     // HANYA scheme+host, TANPA path — endpoint di setiap ApiX.kt WAJIB
@@ -35,6 +21,13 @@ object ApiClient {
     // bukan di sini, supaya konsisten dan tidak diam-diam hilang.
     private const val BASE_URL = "https://aumonext-api.onrender.com"
 
+    // Diekspos (bukan private) supaya Splash/LoginActivity bisa memanggil
+    // restoreFromDisk() sebelum request pertama setelah app di-restart, dan
+    // LogoutActivity bisa memanggil clearAll() saat logout. Lihat
+    // PersistentCookiesStorage untuk kenapa otentikasi sekarang berbasis
+    // cookie ("AumoFinance.Session"), bukan header Authorization Bearer.
+    val cookiesStorage = PersistentCookiesStorage()
+
     val client: HttpClient by lazy {
         HttpClient(OkHttp) {
             // Retrofit dulu selalu mengembalikan Response<T> sukses/gagal
@@ -42,7 +35,9 @@ object ApiClient {
             // = false menjaga perilaku yang sama di Ktor (tidak throw untuk
             // status 4xx/5xx, body error tetap bisa dibaca oleh caller).
             expectSuccess = false
-            install(AuthPlugin)
+            install(HttpCookies) {
+                storage = cookiesStorage
+            }
             install(ContentNegotiation) {
                 gson()
             }

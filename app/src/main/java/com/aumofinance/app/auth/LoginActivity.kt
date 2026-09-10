@@ -10,8 +10,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
 import com.aumofinance.app.home.HomeActivity
+import com.aumofinance.app.network.ApiClient
 import com.aumofinance.app.network.SessionStore
 import com.aumofinance.app.R
+import kotlinx.coroutines.runBlocking
 
 class LoginActivity : AppCompatActivity() {
 
@@ -86,7 +88,11 @@ class LoginActivity : AppCompatActivity() {
             title = "Masuk ke AumoFinance",
             subtitle = "Gunakan sidik jari atau wajah Anda",
             onSuccess = {
+                // Memulihkan cookie otentikasi yang tersimpan ke jar lokal
+                // Ktor SEBELUM ke Home — tanpa ini request pertama di Home
+                // akan 401 walau info tampilan (userId/fullName) sudah balik.
                 SessionStore.restoreIntoSessionManager()
+                runBlocking { ApiClient.cookiesStorage.restoreFromDisk() }
                 goToHome()
             },
             onFailure = { message ->

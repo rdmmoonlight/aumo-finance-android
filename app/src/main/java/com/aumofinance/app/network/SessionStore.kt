@@ -7,23 +7,29 @@ import androidx.security.crypto.MasterKey
 
 // Penyimpanan sesi terenkripsi (AES256-GCM via Android Keystore, lewat
 // EncryptedSharedPreferences) — dipakai untuk fitur "Ingat saya" dan
-// "Masuk dengan biometrik". SessionManager (in-memory) tetap sumber
+// "Masuk dengan biometrik". SessionManager (in-memori) tetap sumber
 // kebenaran SELAMA app berjalan; SessionStore hanya dibaca sekali di
-// SplashActivity untuk memulihkan sesi setelah app di-restart.
+// SplashActivity/LoginActivity untuk memulihkan sesi setelah app di-restart.
+//
+// Yang disimpan di sini HANYA nilai cookie otentikasi mentah ("AumoFinance
+// .Session", ditulis langsung oleh PersistentCookiesStorage.addCookie()
+// tiap kali server mengirim Set-Cookie baru) plus info tampilan (userId,
+// fullName) & flag — BUKAN token JWT seperti desain awal migrasi Ktor,
+// sejak diketahui backend pakai cookie ASP.NET Identity.
 //
 // CATATAN JUJUR soal keamanan biometrik: implementasi ini memakai
 // BiometricPrompt sebagai GERBANG masuk ke sesi yang sudah tersimpan
-// (autentikasi biometrik harus sukses dulu sebelum SessionManager diisi
-// dari sini), BUKAN mengikat token secara kriptografis ke sensor biometrik
-// lewat Cipher/CryptoObject seperti pola paling ketat yang direkomendasikan
-// Android. Ini cukup untuk mencegah orang lain yang pegang HP tak terkunci
-// langsung masuk app tanpa sidik jari/wajah pemilik, tapi bukan proteksi
-// kriptografis penuh terhadap ekstraksi token dari penyimpanan perangkat
-// yang di-root. Peningkatan ke CryptoObject-based binding dicatat sebagai
-// utang teknis di PHASES.md.
+// (autentikasi biometrik harus sukses dulu sebelum SessionManager/cookie
+// jar dipulihkan dari sini), BUKAN mengikat cookie secara kriptografis ke
+// sensor biometrik lewat Cipher/CryptoObject seperti pola paling ketat yang
+// direkomendasikan Android. Ini cukup untuk mencegah orang lain yang pegang
+// HP tak terkunci langsung masuk app tanpa sidik jari/wajah pemilik, tapi
+// bukan proteksi kriptografis penuh terhadap ekstraksi cookie dari
+// penyimpanan perangkat yang di-root. Peningkatan ke CryptoObject-based
+// binding dicatat sebagai utang teknis di PHASES.md.
 object SessionStore {
     private const val PREFS_NAME = "aumo_secure_session"
-    private const val KEY_TOKEN = "token"
+    private const val KEY_COOKIE = "auth_cookie"
     private const val KEY_USER_ID = "user_id"
     private const val KEY_FULL_NAME = "full_name"
     private const val KEY_KEEP_SIGNED_IN = "keep_signed_in"
@@ -44,13 +50,17 @@ object SessionStore {
         )
     }
 
-    fun save(token: String, userId: String, fullName: String, keepSignedIn: Boolean, biometricEnabled: Boolean) {
+    // Dipanggil dari LoginViewModel setelah login sukses, menyimpan info
+    // tampilan + flag. Nilai cookie itu sendiri TIDAK disimpan di sini —
+    // itu ditulis langsung oleh PersistentCookiesStorage.addCookie() saat
+    // Set-Cookie diterima, supaya selalu sinkron dengan cookie yang
+    // benar-benar dipakai Ktor untuk request berikutnya.
+    fun saveSessionInfo(userId: String, fullName: String, keepSignedIn: Boolean, biometricEnabled: Boolean) {
         if (!keepSignedIn) {
             clear()
             return
         }
         prefs.edit()
-            .putString(KEY_TOKEN, token)
             .putString(KEY_USER_ID, userId)
             .putString(KEY_FULL_NAME, fullName)
             .putBoolean(KEY_KEEP_SIGNED_IN, true)
@@ -58,15 +68,26 @@ object SessionStore {
             .apply()
     }
 
+    fun saveCookie(value: String) {
+        prefs.edit().putString(KEY_COOKIE, value).apply()
+    }
+
+    fun loadCookie(): String? = prefs.getString(KEY_COOKIE, null)
+
+    fun clearCookie() {
+        prefs.edit().remove(KEY_COOKIE).apply()
+    }
+
     fun hasSavedSession(): Boolean =
-        prefs.getBoolean(KEY_KEEP_SIGNED_IN, false) && !prefs.getString(KEY_TOKEN, null).isNullOrBlank()
+        prefs.getBoolean(KEY_KEEP_SIGNED_IN, false) && !prefs.getString(KEY_COOKIE, null).isNullOrBlank()
 
     fun isBiometricEnabled(): Boolean = prefs.getBoolean(KEY_BIOMETRIC_ENABLED, false)
 
     fun restoreIntoSessionManager() {
-        SessionManager.token = prefs.getString(KEY_TOKEN, null)
         SessionManager.userId = prefs.getString(KEY_USER_ID, null)
         SessionManager.fullName = prefs.getString(KEY_FULL_NAME, null)
+        SessionManager.keepSignedIn = prefs.getBoolean(KEY_KEEP_SIGNED_IN, false)
+        SessionManager.isLoggedIn = hasSavedSession()
     }
 
     fun clear() {
