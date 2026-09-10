@@ -1,8 +1,7 @@
 name: Android Build (Kotlin & Jetpack Compose)
 
 # Menggantikan production-pipeline.yml lama (build+sign APK .NET MAUI).
-# Hasil akhirnya SATU APK: release, signed, siap install/rilis — bukan
-# beberapa artifact (debug/unsigned/signed) seperti versi sebelumnya.
+# Hasil akhirnya SATU APK: release, signed, siap install/rilis.
 on:
   workflow_dispatch: {}
 
@@ -31,19 +30,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # PENTING: github.run_number itu PER-WORKFLOW, bukan global per-repo.
-      # Baca tag rilis GitHub TERAKHIR yang benar-benar sudah dipublikasikan
-      # (dari workflow manapun), lalu naikkan build number-nya kalau masih
-      # di bulan yang sama, atau mulai dari 1 kalau sudah beda bulan (format
-      # CalVer yy.M.N tetap lebih besar begitu M naik) — supaya auto-updater
-      # (Services/UpdateService.cs) selalu menganggap ini versi lebih baru.
+      # Menghasilkan versi CalVer (yy.M.N) & VersionCode berbasis Epoch Minutes.
       - name: Generate CalVer version (lanjutan dari rilis GitHub terakhir)
         id: version
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           YEAR_MONTH=$(date +'%y.%-m')
           LATEST_TAG=$(gh release view --repo "${{ github.repository }}" --json tagName -q .tagName 2>/dev/null || echo "")
+          
+          # Hapus awalan 'v' jika ada
           LATEST_VERSION="${LATEST_TAG#v}"
 
           if [ -n "$LATEST_VERSION" ]; then
@@ -64,10 +61,7 @@ jobs:
           echo "Rilis terakhir: ${LATEST_TAG:-<tidak ada>} -> versi baru: v${APP_VERSION}"
           echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
 
-          # versionCode Android: integer, harus tetap naik walau lintas bulan/
-          # tahun. Dipakai jumlah menit sejak epoch tetap 2026-01-01 UTC:
-          # selalu naik monoton per menit, jauh di bawah batas maksimum
-          # Android (2.100.000.000).
+          # VersionCode selalu naik (menit sejak epoch 2026-01-01 UTC)
           EPOCH_MINUTES=$(( ( $(date -u +%s) - $(date -u -d '2026-01-01T00:00:00Z' +%s) ) / 60 ))
           echo "version_code=$EPOCH_MINUTES" >> "$GITHUB_OUTPUT"
 
@@ -78,10 +72,6 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          # printf + tr -d '[:space:]' membuang whitespace/newline yang bisa
-          # nyangkut di secret base64 sebelum decode — PKCS12 (.jks) adalah
-          # blob biner terenkripsi, korupsi sedikit saja bisa menghasilkan
-          # "keystore password was incorrect" walau password sebenarnya benar.
           printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > release-key.jks
 
       - name: Zipalign & sign APK
@@ -91,11 +81,9 @@ jobs:
         run: |
           BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           UNSIGNED_APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
+          
           "$BUILD_TOOLS/zipalign" -p 4 "$UNSIGNED_APK" aligned-release.apk
 
-          # PENTING: file ini format PKCS12 — tidak mendukung key-password
-          # beda dari store-password seperti format JKS lama. Pakai
-          # KEYSTORE_PASSWORD untuk --ks-pass MAUPUN --key-pass.
           "$BUILD_TOOLS/apksigner" sign \
             --ks release-key.jks \
             --ks-key-alias "$KEY_ALIAS" \
@@ -104,9 +92,9 @@ jobs:
             --out aumo-release-signed.apk \
             aligned-release.apk
 
-      - name: Bersihkan file keystore
+      - name: Bersihkan file sementara & keystore
         if: always()
-        run: rm -f release-key.jks
+        run: rm -f release-key.jks aligned-release.apk
 
       - name: Upload APK signed (satu-satunya artifact)
         uses: actions/upload-artifact@v4
@@ -114,6 +102,7 @@ jobs:
           name: aumo-release-signed-v${{ steps.version.outputs.app_version }}
           path: aumo-release-signed.apk
           if-no-files-found: error
+          retention-days: 3
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
