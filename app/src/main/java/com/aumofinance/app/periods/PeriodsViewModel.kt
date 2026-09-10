@@ -64,11 +64,12 @@ class PeriodsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = api.open(request)
-                val body = try {
-                    response.body<SimpleApiResponse>()
-                } catch (parseError: Throwable) {
-                    SimpleApiResponse(success = false, message = "Failed to open period (HTTP ${response.status.value}).")
-                }
+                val body =
+                    try {
+                        response.body<SimpleApiResponse>()
+                    } catch (parseError: Throwable) {
+                        SimpleApiResponse(success = false, message = "Failed to open period (HTTP ${response.status.value}).")
+                    }
                 toastMessage = body.message
                 if (body.success) {
                     openPeriodInfo = null

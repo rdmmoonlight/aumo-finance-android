@@ -5,12 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.R
+import com.aumofinance.app.core.CurrencyFormatter
 
 class CashAccountAdapter(private var items: List<CashAccountEntry>) :
     RecyclerView.Adapter<CashAccountAdapter.ViewHolder>() {
-
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.textAccountName)
         val balance: TextView = view.findViewById(R.id.textAccountBalance)
@@ -21,12 +20,18 @@ class CashAccountAdapter(private var items: List<CashAccountEntry>) :
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_cash_account, parent, false)
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = items[position]
         holder.name.text = item.accountName
         holder.balance.text = CurrencyFormatter.format(item.balance)

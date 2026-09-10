@@ -45,7 +45,7 @@ class AdjustingJournalReportActivity : ComponentActivity() {
                     showActions = true,
                     onToggleShowActions = {},
                     onEdit = { entry -> openEdit(entry.id) },
-                    onDeleteRequest = { entry -> confirmDelete(entry) }
+                    onDeleteRequest = { entry -> confirmDelete(entry) },
                 )
             }
         }
@@ -57,9 +57,11 @@ class AdjustingJournalReportActivity : ComponentActivity() {
     }
 
     private fun openEdit(entryId: Int) {
-        startActivity(Intent(this, JournalEntryActivity::class.java).apply {
-            putExtra(JournalEntryActivity.EXTRA_ENTRY_ID, entryId)
-        })
+        startActivity(
+            Intent(this, JournalEntryActivity::class.java).apply {
+                putExtra(JournalEntryActivity.EXTRA_ENTRY_ID, entryId)
+            },
+        )
     }
 
     private fun confirmDelete(entry: JournalReportEntry) {

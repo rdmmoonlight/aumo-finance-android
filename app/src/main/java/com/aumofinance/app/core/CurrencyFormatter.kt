@@ -7,9 +7,10 @@ import java.util.Locale
 // pemisah ribuan titik sesuai locale Indonesia). Nilai negatif ditampilkan
 // dengan tanda minus di depan "Rp", mis. "-Rp 50.000".
 object CurrencyFormatter {
-    private val formatter: NumberFormat = NumberFormat.getNumberInstance(Locale("in", "ID")).apply {
-        maximumFractionDigits = 0
-    }
+    private val formatter: NumberFormat =
+        NumberFormat.getNumberInstance(Locale("in", "ID")).apply {
+            maximumFractionDigits = 0
+        }
 
     fun format(amount: Double): String {
         val rounded = Math.round(amount)

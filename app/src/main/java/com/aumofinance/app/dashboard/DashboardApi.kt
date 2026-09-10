@@ -21,7 +21,7 @@ data class DashboardSummary(
     val cashAccounts: List<CashAccountEntry>,
     val totalCashOnHand: Double,
     val bankAccounts: List<CashAccountEntry>,
-    val totalBankBalance: Double
+    val totalBankBalance: Double,
 )
 
 class DashboardApi(private val client: HttpClient = ApiClient.client) {

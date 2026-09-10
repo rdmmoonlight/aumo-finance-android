@@ -61,54 +61,57 @@ fun JournalReportScreen(
     showActions: Boolean,
     onToggleShowActions: (Boolean) -> Unit,
     onEdit: (JournalReportEntry) -> Unit,
-    onDeleteRequest: (JournalReportEntry) -> Unit
+    onDeleteRequest: (JournalReportEntry) -> Unit,
 ) {
     Scaffold(containerColor = AumoColors.Background) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     text = "${selectedPeriodName ?: defaultPeriodLabel} \u00B7 Nominal dalam Rupiah",
                     color = AumoColors.TextMuted,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 if (showToggle) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .background(
-                                if (showActions) AumoColors.Primary else AumoColors.SurfaceElevated,
-                                RoundedCornerShape(8.dp)
-                            )
-                            .clickable { onToggleShowActions(!showActions) }
-                            .padding(12.dp, 6.dp)
+                        modifier =
+                            Modifier
+                                .background(
+                                    if (showActions) AumoColors.Primary else AumoColors.SurfaceElevated,
+                                    RoundedCornerShape(8.dp),
+                                )
+                                .clickable { onToggleShowActions(!showActions) }
+                                .padding(12.dp, 6.dp),
                     ) {
                         Text(
                             text = if (showActions) "Selesai" else "Edit",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize,
                         )
                     }
                 }
             }
 
-            val grouped = remember(entries) {
-                entries.groupBy { it.entryDate.substringBefore("T") }.toSortedMap()
-            }
+            val grouped =
+                remember(entries) {
+                    entries.groupBy { it.entryDate.substringBefore("T") }.toSortedMap()
+                }
 
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
-                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
+                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
             ) {
                 grouped.forEach { (dateKey, entriesForDate) ->
                     item(key = "header-$dateKey") {
@@ -117,7 +120,7 @@ fun JournalReportScreen(
                             color = AumoColors.TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                            modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                            modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
                         )
                     }
                     items(entriesForDate, key = { it.id }) { entry ->
@@ -125,7 +128,7 @@ fun JournalReportScreen(
                             entry = entry,
                             showActions = showActions,
                             onEdit = { onEdit(entry) },
-                            onDelete = { onDeleteRequest(entry) }
+                            onDelete = { onDeleteRequest(entry) },
                         )
                     }
                 }
@@ -139,27 +142,28 @@ private fun EntryCard(
     entry: JournalReportEntry,
     showActions: Boolean,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp)
-            .background(AumoColors.Surface, RoundedCornerShape(8.dp))
-            .padding(12.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+                .background(AumoColors.Surface, RoundedCornerShape(8.dp))
+                .padding(12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = entry.transactionNumber,
                 color = AumoColors.TextPrimary,
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Text(
                 text = formatTimestampLabel(entry),
                 color = AumoColors.TextMuted,
                 fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                modifier = Modifier.padding(end = 6.dp)
+                modifier = Modifier.padding(end = 6.dp),
             )
             if (showActions) {
                 // Ikon pensil/trash sengaja pakai clickable polos (bukan
@@ -171,14 +175,14 @@ private fun EntryCard(
                     TablerIcons.Edit,
                     tint = AumoColors.TextSecondary,
                     size = 16.dp,
-                    modifier = Modifier.clickable(onClick = onEdit)
+                    modifier = Modifier.clickable(onClick = onEdit),
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 TablerIcon(
                     TablerIcons.Trash,
                     tint = AumoColors.Bad,
                     size = 16.dp,
-                    modifier = Modifier.clickable(onClick = onDelete)
+                    modifier = Modifier.clickable(onClick = onDelete),
                 )
             }
         }
@@ -198,24 +202,25 @@ private fun EntryCard(
 // kosong di akhir teks nominal debit, sama seperti versi View/XML.
 @Composable
 private fun JournalLineRow(line: JournalReportLine) {
-    val label = buildString {
-        append(line.referenceNumber).append(" - ").append(line.accountName)
-        if (!line.lineDescription.isNullOrBlank()) {
-            append(" - ").append(line.lineDescription)
+    val label =
+        buildString {
+            append(line.referenceNumber).append(" - ").append(line.accountName)
+            if (!line.lineDescription.isNullOrBlank()) {
+                append(" - ").append(line.lineDescription)
+            }
         }
-    }
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp)) {
         if (line.debit > 0) {
             Text(
                 text = label,
                 color = AumoColors.TextPrimary,
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Text(
                 text = CurrencyFormatter.formatBare(line.debit) + CREDIT_INDENT,
                 color = AumoColors.TextPrimary,
-                fontSize = MaterialTheme.typography.bodySmall.fontSize
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
             )
         } else {
             // Kredit: indentasi satu tab (spasi) dari debit, nominal di
@@ -224,22 +229,23 @@ private fun JournalLineRow(line: JournalReportLine) {
                 text = "$CREDIT_INDENT$label",
                 color = AumoColors.TextPrimary,
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             Text(
                 text = CurrencyFormatter.formatBare(line.credit),
                 color = AumoColors.TextPrimary,
-                fontSize = MaterialTheme.typography.bodySmall.fontSize
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
             )
         }
     }
 }
 
-private fun formatDateLabel(dateKey: String): String = try {
-    displayDateFormat.format(inputDateTimeFormat.parse("${dateKey}T00:00:00")!!)
-} catch (e: Exception) {
-    dateKey
-}
+private fun formatDateLabel(dateKey: String): String =
+    try {
+        displayDateFormat.format(inputDateTimeFormat.parse("${dateKey}T00:00:00")!!)
+    } catch (e: Exception) {
+        dateKey
+    }
 
 // Timestamp created/edited, ditaruh compact di sebelah kanan baris nomor
 // transaksi (tepat di bawah tanggal entri). Hanya tampilkan "Diubah" jika
@@ -254,9 +260,10 @@ private fun formatTimestampLabel(entry: JournalReportEntry): String {
     }
 }
 
-private fun formatTimestamp(raw: String): String = try {
-    val normalized = raw.substringBefore(".").let { if (it.length == 10) "${it}T00:00:00" else it }
-    displayTimestampFormat.format(inputDateTimeFormat.parse(normalized)!!)
-} catch (e: Exception) {
-    raw
-}
+private fun formatTimestamp(raw: String): String =
+    try {
+        val normalized = raw.substringBefore(".").let { if (it.length == 10) "${it}T00:00:00" else it }
+        displayTimestampFormat.format(inputDateTimeFormat.parse(normalized)!!)
+    } catch (e: Exception) {
+        raw
+    }

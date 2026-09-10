@@ -63,9 +63,17 @@ class JournalEntryViewModel : ViewModel() {
     // Dipanggil oleh Activity setelah menampilkan Toast/navigasi, supaya
     // sinyal ini tidak "nyangkut" dan terpicu ulang tiap recomposition
     // Compose (mis. tiap kali user mengetik di baris lain).
-    fun clearError() { errorMessage = null }
-    fun clearSaveResult() { saveResult = null }
-    fun clearUpdateResult() { updateResult = null }
+    fun clearError() {
+        errorMessage = null
+    }
+
+    fun clearSaveResult() {
+        saveResult = null
+    }
+
+    fun clearUpdateResult() {
+        updateResult = null
+    }
 
     fun initFor(entryId: Int?) {
         this.entryId = entryId
@@ -96,7 +104,9 @@ class JournalEntryViewModel : ViewModel() {
     }
 
     fun totalDebit(): Double = lines.sumOf { it.debitAmount() }
+
     fun totalCredit(): Double = lines.sumOf { it.creditAmount() }
+
     fun isBalanced(): Boolean = totalDebit() > 0 && totalDebit() == totalCredit()
 
     private fun loadActiveAccounts() {
@@ -148,8 +158,7 @@ class JournalEntryViewModel : ViewModel() {
 
     // Nilai existing dari API berupa Double (mis. 150000.0) — dikonversi ke
     // string digit mentah tanpa desimal, sesuai kontrak JournalLineDraft.
-    private fun formatAmount(value: Double): String =
-        if (value == 0.0) "" else Math.round(value).toString()
+    private fun formatAmount(value: Double): String = if (value == 0.0) "" else Math.round(value).toString()
 
     fun save() {
         if (!isBalanced()) {
@@ -163,9 +172,10 @@ class JournalEntryViewModel : ViewModel() {
 
         val entryDateIso = DATE_ONLY_ISO.format(_entryDate.time)
         val now = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).format(Calendar.getInstance().time)
-        val apiLines = lines.mapIndexed { index, l ->
-            JournalLine(l.accountId!!, l.description.ifBlank { null }, l.debitAmount(), l.creditAmount(), index)
-        }
+        val apiLines =
+            lines.mapIndexed { index, l ->
+                JournalLine(l.accountId!!, l.description.ifBlank { null }, l.debitAmount(), l.creditAmount(), index)
+            }
 
         val id = entryId
         if (id == null) {
@@ -191,7 +201,10 @@ class JournalEntryViewModel : ViewModel() {
         }
     }
 
-    private fun update(id: Int, request: UpdateJournalEntryRequest) {
+    private fun update(
+        id: Int,
+        request: UpdateJournalEntryRequest,
+    ) {
         viewModelScope.launch {
             try {
                 val response = api.update(id, request)

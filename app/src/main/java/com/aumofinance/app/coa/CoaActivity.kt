@@ -21,10 +21,16 @@ class CoaActivity : AppCompatActivity() {
     private lateinit var adapter: CoaAdapter
 
     // According to the reference number ranges in AccountClassification.cs in aumo-finance-web.
-    private val accountTypes = listOf(
-        "Assets", "Liabilities", "Equity",
-        "OperatingIncome", "OperatingExpenses", "OtherIncome", "OtherExpenses"
-    )
+    private val accountTypes =
+        listOf(
+            "Assets",
+            "Liabilities",
+            "Equity",
+            "OperatingIncome",
+            "OperatingExpenses",
+            "OtherIncome",
+            "OtherExpenses",
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,13 +42,27 @@ class CoaActivity : AppCompatActivity() {
             adapter = this@CoaActivity.adapter
         }
 
-        findViewById<EditText>(R.id.inputSearch).addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
-            override fun afterTextChanged(s: Editable?) {
-                viewModel.load(search = s?.toString()?.takeIf { it.isNotBlank() })
-            }
-        })
+        findViewById<EditText>(R.id.inputSearch).addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int,
+                ) = Unit
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int,
+                ) = Unit
+
+                override fun afterTextChanged(s: Editable?) {
+                    viewModel.load(search = s?.toString()?.takeIf { it.isNotBlank() })
+                }
+            },
+        )
 
         findViewById<android.widget.Button>(R.id.buttonAddAccount).setOnClickListener {
             showCreateDialog()
@@ -67,8 +87,8 @@ class CoaActivity : AppCompatActivity() {
                     AccountRequest(
                         referenceNumber = refNumber,
                         accountName = nameInput.text.toString(),
-                        type = accountTypes[typeSpinner.selectedItemPosition]
-                    )
+                        type = accountTypes[typeSpinner.selectedItemPosition],
+                    ),
                 )
             }
             .setNegativeButton("Cancel", null)
@@ -77,10 +97,11 @@ class CoaActivity : AppCompatActivity() {
 
     private fun showEditDialog(account: Account) {
         val (container, refInput, nameInput, typeSpinner) = buildForm(account)
-        val activeSwitch = Switch(this).apply {
-            text = "Active"
-            isChecked = account.isActive
-        }
+        val activeSwitch =
+            Switch(this).apply {
+                text = "Active"
+                isChecked = account.isActive
+            }
         container.addView(activeSwitch)
 
         AlertDialog.Builder(this)
@@ -94,8 +115,8 @@ class CoaActivity : AppCompatActivity() {
                         referenceNumber = refNumber,
                         accountName = nameInput.text.toString(),
                         type = accountTypes[typeSpinner.selectedItemPosition],
-                        isActive = activeSwitch.isChecked
-                    )
+                        isActive = activeSwitch.isChecked,
+                    ),
                 )
             }
             // Backend will reject (400) if the account already has journal entries —
@@ -109,23 +130,27 @@ class CoaActivity : AppCompatActivity() {
     private data class FormViews(val container: LinearLayout, val refInput: EditText, val nameInput: EditText, val typeSpinner: Spinner)
 
     private fun buildForm(existing: Account?): FormViews {
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 0)
-        }
-        val refInput = EditText(this).apply {
-            hint = "Reference Number (e.g., 101)"
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            existing?.let { setText(it.referenceNumber.toString()) }
-        }
-        val nameInput = EditText(this).apply {
-            hint = "Account Name"
-            existing?.let { setText(it.accountName) }
-        }
-        val typeSpinner = Spinner(this).apply {
-            adapter = ArrayAdapter(this@CoaActivity, android.R.layout.simple_spinner_dropdown_item, accountTypes)
-            existing?.let { setSelection(accountTypes.indexOf(it.type).coerceAtLeast(0)) }
-        }
+        val container =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(48, 24, 48, 0)
+            }
+        val refInput =
+            EditText(this).apply {
+                hint = "Reference Number (e.g., 101)"
+                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                existing?.let { setText(it.referenceNumber.toString()) }
+            }
+        val nameInput =
+            EditText(this).apply {
+                hint = "Account Name"
+                existing?.let { setText(it.accountName) }
+            }
+        val typeSpinner =
+            Spinner(this).apply {
+                adapter = ArrayAdapter(this@CoaActivity, android.R.layout.simple_spinner_dropdown_item, accountTypes)
+                existing?.let { setSelection(accountTypes.indexOf(it.type).coerceAtLeast(0)) }
+            }
         container.addView(refInput)
         container.addView(nameInput)
         container.addView(typeSpinner)

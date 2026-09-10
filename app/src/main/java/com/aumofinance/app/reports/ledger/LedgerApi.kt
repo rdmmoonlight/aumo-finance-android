@@ -11,7 +11,7 @@ data class LedgerLine(
     val description: String?,
     val debit: Double,
     val credit: Double,
-    val runningBalance: Double
+    val runningBalance: Double,
 )
 
 data class LedgerAccount(
@@ -21,7 +21,7 @@ data class LedgerAccount(
     val type: String,
     val normalBalanceIsDebit: Boolean,
     val endingBalance: Double,
-    val lines: List<LedgerLine>
+    val lines: List<LedgerLine>,
 )
 
 data class LedgerResponse(
@@ -30,7 +30,7 @@ data class LedgerResponse(
     val selectedPeriodName: String?,
     val isTemporary: Boolean,
     val netIncomeBeforeClosing: Double,
-    val ledgers: List<LedgerAccount>
+    val ledgers: List<LedgerAccount>,
 )
 
 class LedgerApi(private val client: HttpClient = ApiClient.client) {

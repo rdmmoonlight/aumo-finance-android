@@ -61,11 +61,12 @@ class JournalReportViewModel : ViewModel() {
                 // Adjusting punya endpoint delete khusus di backend (memfilter
                 // JournalType=="Adjusting" sebagai proteksi tambahan); General
                 // tetap pakai journal-entry/delete/{id} yang generik.
-                val response = if (isAdjusting) {
-                    reportApi.deleteAdjustingEntry(entry.id)
-                } else {
-                    journalApi.delete(entry.id)
-                }
+                val response =
+                    if (isAdjusting) {
+                        reportApi.deleteAdjustingEntry(entry.id)
+                    } else {
+                        journalApi.delete(entry.id)
+                    }
                 val body = response.body<SimpleApiResponse>()
                 if (response.status.isSuccess() && body.success) {
                     reload()

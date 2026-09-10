@@ -29,12 +29,16 @@ class PersistentCookiesStorage : CookiesStorage {
     private val mutex = Mutex()
     private val container = mutableListOf<Cookie>()
 
-    override suspend fun get(requestUrl: Url): List<Cookie> = mutex.withLock {
-        val now = GMTDate()
-        container.filter { it.expires == null || it.expires!! > now }
-    }
+    override suspend fun get(requestUrl: Url): List<Cookie> =
+        mutex.withLock {
+            val now = GMTDate()
+            container.filter { it.expires == null || it.expires!! > now }
+        }
 
-    override suspend fun addCookie(requestUrl: Url, cookie: Cookie) {
+    override suspend fun addCookie(
+        requestUrl: Url,
+        cookie: Cookie,
+    ) {
         mutex.withLock {
             container.removeAll { it.name == cookie.name }
             if (cookie.value.isNotEmpty()) {

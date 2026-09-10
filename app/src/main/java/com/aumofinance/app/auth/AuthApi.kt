@@ -25,7 +25,7 @@ data class LoginResponse(
     val success: Boolean,
     val message: String,
     val userId: String? = null,
-    val fullName: String? = null
+    val fullName: String? = null,
 )
 
 class AuthApi(private val client: HttpClient = ApiClient.client) {

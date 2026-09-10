@@ -14,7 +14,7 @@ class JournalLineDraft(
     accountId: Int? = null,
     description: String = "",
     debit: String = "",
-    credit: String = ""
+    credit: String = "",
 ) {
     var accountId: Int? by mutableStateOf(accountId)
     var description: String by mutableStateOf(description)
@@ -22,5 +22,6 @@ class JournalLineDraft(
     var credit: String by mutableStateOf(credit)
 
     fun debitAmount(): Double = debit.toDoubleOrNull() ?: 0.0
+
     fun creditAmount(): Double = credit.toDoubleOrNull() ?: 0.0
 }

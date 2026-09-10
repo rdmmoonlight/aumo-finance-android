@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.R
+import com.aumofinance.app.core.CurrencyFormatter
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -15,7 +15,6 @@ import java.util.Locale
 // deskripsi, debit ATAU kredit, saldo berjalan) dan saldo akhir di footer.
 class LedgerAdapter(private var accounts: List<LedgerAccount>) :
     RecyclerView.Adapter<LedgerAdapter.ViewHolder>() {
-
     private val inputDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
     private val displayDateFormat = SimpleDateFormat("dd/MM", Locale("in", "ID"))
 
@@ -30,12 +29,18 @@ class LedgerAdapter(private var accounts: List<LedgerAccount>) :
         val endingBalance: TextView = view.findViewById(R.id.textEndingBalance)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_ledger_account, parent, false)
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val account = accounts[position]
         holder.title.text = "${account.referenceNumber} - ${account.accountName}"
         holder.endingBalance.text = CurrencyFormatter.format(account.endingBalance)
@@ -55,9 +60,10 @@ class LedgerAdapter(private var accounts: List<LedgerAccount>) :
 
     override fun getItemCount(): Int = accounts.size
 
-    private fun formatDate(iso: String): String = try {
-        displayDateFormat.format(inputDateFormat.parse(iso)!!)
-    } catch (e: Exception) {
-        iso
-    }
+    private fun formatDate(iso: String): String =
+        try {
+            displayDateFormat.format(inputDateFormat.parse(iso)!!)
+        } catch (e: Exception) {
+            iso
+        }
 }

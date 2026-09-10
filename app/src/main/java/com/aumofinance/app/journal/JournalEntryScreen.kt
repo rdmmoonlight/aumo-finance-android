@@ -3,8 +3,8 @@ package com.aumofinance.app.journal
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,14 +20,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -84,23 +84,22 @@ fun JournalEntryScreen(
     isEditingMode: Boolean,
     submitButtonText: String,
     onCancel: () -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
 ) {
     Scaffold(containerColor = AumoColors.Background) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-
             Text(
                 text = pageTitle,
                 color = AumoColors.TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                modifier = Modifier.padding(16.dp, 14.dp, 16.dp, 0.dp)
+                modifier = Modifier.padding(16.dp, 14.dp, 16.dp, 0.dp),
             )
 
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 if (isLocked) {
                     item { LockedPeriodWarning() }
@@ -113,7 +112,7 @@ fun JournalEntryScreen(
                         entryDate = entryDate,
                         onEntryDateClick = onEntryDateClick,
                         transactionNumber = transactionNumber,
-                        isEditable = isEditable
+                        isEditable = isEditable,
                     )
                 }
 
@@ -121,19 +120,19 @@ fun JournalEntryScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = "Transaction Lines",
                             color = AumoColors.TextPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = MaterialTheme.typography.titleMedium.fontSize
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
                         )
                         if (isEditable) {
                             Button(
                                 onClick = onAddLine,
                                 colors = ButtonDefaults.buttonColors(containerColor = AumoColors.Primary),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(8.dp),
                             ) {
                                 TablerIcon(TablerIcons.Plus, tint = Color.White, size = 14.dp)
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -149,7 +148,7 @@ fun JournalEntryScreen(
                         accounts = accounts,
                         isEditable = isEditable,
                         canRemove = lines.size > 1,
-                        onRemove = { onRemoveLine(line) }
+                        onRemove = { onRemoveLine(line) },
                     )
                 }
             }
@@ -161,7 +160,7 @@ fun JournalEntryScreen(
                 isEditingMode = isEditingMode,
                 submitButtonText = submitButtonText,
                 onCancel = onCancel,
-                onSubmit = onSubmit
+                onSubmit = onSubmit,
             )
         }
     }
@@ -170,12 +169,13 @@ fun JournalEntryScreen(
 @Composable
 private fun LockedPeriodWarning() {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, AumoColors.Bad, RoundedCornerShape(10.dp))
-            .background(AumoColors.Surface, RoundedCornerShape(10.dp))
-            .padding(12.dp, 10.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .border(1.dp, AumoColors.Bad, RoundedCornerShape(10.dp))
+                .background(AumoColors.Surface, RoundedCornerShape(10.dp))
+                .padding(12.dp, 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         TablerIcon(TablerIcons.AlertTriangle, tint = AumoColors.Bad, size = 16.dp)
         Spacer(modifier = Modifier.width(8.dp))
@@ -183,7 +183,7 @@ private fun LockedPeriodWarning() {
             text = "This entry falls in a closed accounting period and cannot be modified.",
             color = AumoColors.Bad,
             fontWeight = FontWeight.Bold,
-            fontSize = MaterialTheme.typography.bodySmall.fontSize
+            fontSize = MaterialTheme.typography.bodySmall.fontSize,
         )
     }
 }
@@ -202,16 +202,15 @@ private fun JournalDetailsCard(
     entryDate: Calendar,
     onEntryDateClick: () -> Unit,
     transactionNumber: String,
-    isEditable: Boolean
+    isEditable: Boolean,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = AumoColors.Surface),
         border = BorderStroke(1.dp, AumoColors.SurfaceElevated),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-
             // --- Journal Type: dropdown, item sekarang selalu terlihat
             // (warna teks & background popup diset eksplisit) ---
             FieldLabel("Journal Type")
@@ -219,7 +218,7 @@ private fun JournalDetailsCard(
             ExposedDropdownMenuBox(
                 expanded = expanded && isEditable,
                 onExpandedChange = { if (isEditable) expanded = it },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 OutlinedTextField(
                     value = journalType,
@@ -229,7 +228,7 @@ private fun JournalDetailsCard(
                     trailingIcon = { TablerIcon(TablerIcons.Selector, tint = AumoColors.TextSecondary) },
                     colors = journalFieldColors(),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
                 )
                 // DropdownMenu biasa (bukan ExposedDropdownMenuDefaults.DropdownMenu
                 // — API itu baru ada di Material3 1.3.0+, project ini masih di 1.2.1
@@ -237,7 +236,7 @@ private fun JournalDetailsCard(
                 DropdownMenu(
                     expanded = expanded && isEditable,
                     onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(AumoColors.SurfaceElevated)
+                    modifier = Modifier.background(AumoColors.SurfaceElevated),
                 ) {
                     JournalEntryViewModel.JOURNAL_TYPES.forEach { option ->
                         DropdownMenuItem(
@@ -245,7 +244,7 @@ private fun JournalDetailsCard(
                             onClick = {
                                 onJournalTypeChange(option)
                                 expanded = false
-                            }
+                            },
                         )
                     }
                 }
@@ -267,17 +266,18 @@ private fun JournalDetailsCard(
                     trailingIcon = { TablerIcon(TablerIcons.Calendar, tint = AumoColors.TextSecondary) },
                     colors = journalFieldColors(),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 if (isEditable) {
                     Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = onEntryDateClick
-                            )
+                        modifier =
+                            Modifier
+                                .matchParentSize()
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = onEntryDateClick,
+                                ),
                     )
                 }
             }
@@ -287,7 +287,7 @@ private fun JournalDetailsCard(
             Text(
                 text = transactionNumber.ifBlank { "…" },
                 color = AumoColors.TextSecondary,
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
             )
         }
     }
@@ -299,22 +299,23 @@ private fun FieldLabel(text: String) {
         text = text,
         color = AumoColors.TextSecondary,
         fontWeight = FontWeight.Bold,
-        fontSize = MaterialTheme.typography.labelSmall.fontSize
+        fontSize = MaterialTheme.typography.labelSmall.fontSize,
     )
 }
 
 @Composable
-private fun journalFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = AumoColors.Background,
-    unfocusedContainerColor = AumoColors.Background,
-    disabledContainerColor = AumoColors.Background,
-    focusedTextColor = AumoColors.TextPrimary,
-    unfocusedTextColor = AumoColors.TextPrimary,
-    disabledTextColor = AumoColors.TextSecondary,
-    focusedBorderColor = AumoColors.Primary,
-    unfocusedBorderColor = AumoColors.SurfaceElevated,
-    disabledBorderColor = AumoColors.SurfaceElevated
-)
+private fun journalFieldColors() =
+    OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = AumoColors.Background,
+        unfocusedContainerColor = AumoColors.Background,
+        disabledContainerColor = AumoColors.Background,
+        focusedTextColor = AumoColors.TextPrimary,
+        unfocusedTextColor = AumoColors.TextPrimary,
+        disabledTextColor = AumoColors.TextSecondary,
+        focusedBorderColor = AumoColors.Primary,
+        unfocusedBorderColor = AumoColors.SurfaceElevated,
+        disabledBorderColor = AumoColors.SurfaceElevated,
+    )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -323,26 +324,26 @@ private fun JournalLineCard(
     accounts: List<Account>,
     isEditable: Boolean,
     canRemove: Boolean,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = AumoColors.Surface),
         border = BorderStroke(1.dp, AumoColors.SurfaceElevated),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-
             // Row 1: Account dropdown & Delete button
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 var expanded by remember { mutableStateOf(false) }
-                val selectedLabel = accounts.firstOrNull { it.id == line.accountId }
-                    ?.let { "${it.referenceNumber} - ${it.accountName}" } ?: ""
+                val selectedLabel =
+                    accounts.firstOrNull { it.id == line.accountId }
+                        ?.let { "${it.referenceNumber} - ${it.accountName}" } ?: ""
 
                 ExposedDropdownMenuBox(
                     expanded = expanded && isEditable,
                     onExpandedChange = { if (isEditable) expanded = it },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     OutlinedTextField(
                         value = selectedLabel,
@@ -353,7 +354,7 @@ private fun JournalLineCard(
                         trailingIcon = { TablerIcon(TablerIcons.Selector, tint = AumoColors.TextSecondary) },
                         colors = journalFieldColors(),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
                     )
                     // Popup di-background eksplisit + teks putih terang —
                     // sebelumnya daftar akun ini TIDAK TERLIHAT karena popup
@@ -361,20 +362,20 @@ private fun JournalLineCard(
                     DropdownMenu(
                         expanded = expanded && isEditable,
                         onDismissRequest = { expanded = false },
-                        modifier = Modifier.background(AumoColors.SurfaceElevated)
+                        modifier = Modifier.background(AumoColors.SurfaceElevated),
                     ) {
                         accounts.forEach { account ->
                             DropdownMenuItem(
                                 text = {
                                     Text(
                                         "${account.referenceNumber} - ${account.accountName}",
-                                        color = AumoColors.TextPrimary
+                                        color = AumoColors.TextPrimary,
                                     )
                                 },
                                 onClick = {
                                     line.accountId = account.id
                                     expanded = false
-                                }
+                                },
                             )
                         }
                     }
@@ -382,11 +383,12 @@ private fun JournalLineCard(
 
                 if (isEditable && canRemove) {
                     Box(
-                        modifier = Modifier
-                            .background(AumoColors.Bad.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
-                            .clickable(onClick = onRemove)
-                            .padding(10.dp),
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .background(AumoColors.Bad.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                                .clickable(onClick = onRemove)
+                                .padding(10.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
                         TablerIcon(TablerIcons.Trash, tint = AumoColors.Bad, size = 16.dp)
                     }
@@ -402,7 +404,7 @@ private fun JournalLineCard(
                 colors = journalFieldColors(),
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             // Debit & Credit — dengan pemisah ribuan otomatis
@@ -412,14 +414,14 @@ private fun JournalLineCard(
                     rawDigits = line.debit,
                     isEditable = isEditable,
                     onValueChange = { line.debit = it },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 ThousandsAmountField(
                     label = "Credit",
                     rawDigits = line.credit,
                     isEditable = isEditable,
                     onValueChange = { line.credit = it },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -437,7 +439,7 @@ private fun ThousandsAmountField(
     rawDigits: String,
     isEditable: Boolean,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         Text(label, color = AumoColors.TextSecondary, fontSize = MaterialTheme.typography.labelSmall.fontSize)
@@ -455,7 +457,7 @@ private fun ThousandsAmountField(
             colors = journalFieldColors(),
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -468,35 +470,47 @@ private fun BottomActionBar(
     isEditingMode: Boolean,
     submitButtonText: String,
     onCancel: () -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AumoColors.Surface, RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
-            .border(1.dp, AumoColors.SurfaceElevated, RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(AumoColors.Surface, RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+                .border(1.dp, AumoColors.SurfaceElevated, RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+                .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("Total Debit", color = AumoColors.TextSecondary, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-                Text(totalDebitText, color = AumoColors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.bodyMedium.fontSize)
+                Text(
+                    totalDebitText,
+                    color = AumoColors.TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                )
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text("Total Credit", color = AumoColors.TextSecondary, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-                Text(totalCreditText, color = AumoColors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.bodyMedium.fontSize)
+                Text(
+                    totalCreditText,
+                    color = AumoColors.TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                )
             }
             Box(
-                modifier = Modifier
-                    .background(if (isBalanced) AumoColors.Good else AumoColors.Bad, RoundedCornerShape(6.dp))
-                    .padding(8.dp, 4.dp)
+                modifier =
+                    Modifier
+                        .background(if (isBalanced) AumoColors.Good else AumoColors.Bad, RoundedCornerShape(6.dp))
+                        .padding(8.dp, 4.dp),
             ) {
                 Text(
                     text = if (isBalanced) "Balanced" else "Unbalanced",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
                 )
             }
         }
@@ -505,8 +519,12 @@ private fun BottomActionBar(
             if (isEditingMode) {
                 TextButton(
                     onClick = onCancel,
-                    colors = ButtonDefaults.textButtonColors(containerColor = AumoColors.SurfaceElevated, contentColor = AumoColors.TextSecondary),
-                    shape = RoundedCornerShape(10.dp)
+                    colors =
+                        ButtonDefaults.textButtonColors(
+                            containerColor = AumoColors.SurfaceElevated,
+                            contentColor = AumoColors.TextSecondary,
+                        ),
+                    shape = RoundedCornerShape(10.dp),
                 ) {
                     Text("Cancel", fontWeight = FontWeight.Bold)
                 }
@@ -515,7 +533,7 @@ private fun BottomActionBar(
                 onClick = onSubmit,
                 colors = ButtonDefaults.buttonColors(containerColor = AumoColors.Good),
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text(submitButtonText, color = Color.White, fontWeight = FontWeight.Bold)
             }

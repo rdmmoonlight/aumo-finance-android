@@ -49,7 +49,7 @@ class GeneralJournalReportActivity : ComponentActivity() {
                     showActions = showActions,
                     onToggleShowActions = { showActions = it },
                     onEdit = { entry -> openEdit(entry.id) },
-                    onDeleteRequest = { entry -> confirmDelete(entry) }
+                    onDeleteRequest = { entry -> confirmDelete(entry) },
                 )
             }
         }
@@ -61,9 +61,11 @@ class GeneralJournalReportActivity : ComponentActivity() {
     }
 
     private fun openEdit(entryId: Int) {
-        startActivity(Intent(this, JournalEntryActivity::class.java).apply {
-            putExtra(JournalEntryActivity.EXTRA_ENTRY_ID, entryId)
-        })
+        startActivity(
+            Intent(this, JournalEntryActivity::class.java).apply {
+                putExtra(JournalEntryActivity.EXTRA_ENTRY_ID, entryId)
+            },
+        )
     }
 
     // Dialog konfirmasi native (bukan Compose) sudah cukup untuk aksi

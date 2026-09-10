@@ -5,12 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.R
+import com.aumofinance.app.core.CurrencyFormatter
 
 class TrialBalanceAdapter(private var rows: List<TrialBalanceRow>) :
     RecyclerView.Adapter<TrialBalanceAdapter.ViewHolder>() {
-
     fun submitList(newRows: List<TrialBalanceRow>) {
         rows = newRows
         notifyDataSetChanged()
@@ -22,12 +21,18 @@ class TrialBalanceAdapter(private var rows: List<TrialBalanceRow>) :
         val credit: TextView = view.findViewById(R.id.textCredit)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_trial_balance_row, parent, false)
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val row = rows[position]
         holder.name.text = "${row.referenceNumber} - ${row.accountName}"
         holder.debit.text = if (row.debit > 0) CurrencyFormatter.format(row.debit) else ""

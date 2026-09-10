@@ -15,11 +15,12 @@ class TrialBalanceViewModel : ViewModel() {
 
     fun load(type: String) {
         viewModelScope.launch {
-            _report.value = try {
-                api.getTrialBalance(type).body<TrialBalanceReport>()
-            } catch (t: Throwable) {
-                null
-            }
+            _report.value =
+                try {
+                    api.getTrialBalance(type).body<TrialBalanceReport>()
+                } catch (t: Throwable) {
+                    null
+                }
         }
     }
 }

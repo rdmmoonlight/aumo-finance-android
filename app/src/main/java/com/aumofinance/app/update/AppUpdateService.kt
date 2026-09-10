@@ -63,10 +63,11 @@ object AppUpdateService {
 
         executor.execute {
             try {
-                val request = Request.Builder()
-                    .url("https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/releases/latest")
-                    .header("User-Agent", "AumoFinance-AutoUpdater")
-                    .build()
+                val request =
+                    Request.Builder()
+                        .url("https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/releases/latest")
+                        .header("User-Agent", "AumoFinance-AutoUpdater")
+                        .build()
 
                 httpClient.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) return@use
@@ -102,7 +103,10 @@ object AppUpdateService {
     // Perbandingan versi dotted-numeric sederhana (mis. "26.9.1" vs "26.8.212")
     // — setara System.Version.CompareTo() yang dipakai versi MAUI lama.
     // Segmen yang tidak ada dianggap 0 (mis. "26.9" vs "26.9.1" -> "26.9" < "26.9.1").
-    private fun compareVersions(a: String, b: String): Int {
+    private fun compareVersions(
+        a: String,
+        b: String,
+    ): Int {
         val partsA = a.split(".").mapNotNull { it.toIntOrNull() }
         val partsB = b.split(".").mapNotNull { it.toIntOrNull() }
         val maxLen = maxOf(partsA.size, partsB.size)
@@ -114,32 +118,41 @@ object AppUpdateService {
         return 0
     }
 
-    private fun downloadAndInstallApk(context: Context, apkUrl: String, version: String) {
+    private fun downloadAndInstallApk(
+        context: Context,
+        apkUrl: String,
+        version: String,
+    ) {
         try {
             val fileName = "AumoFinance_v$version.apk"
-            val request = DownloadManager.Request(Uri.parse(apkUrl)).apply {
-                setTitle("Memperbarui AumoFinance")
-                setDescription("Mengunduh versi v$version...")
-                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
-                setMimeType("application/vnd.android.package-archive")
-            }
+            val request =
+                DownloadManager.Request(Uri.parse(apkUrl)).apply {
+                    setTitle("Memperbarui AumoFinance")
+                    setDescription("Mengunduh versi v$version...")
+                    setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
+                    setMimeType("application/vnd.android.package-archive")
+                }
 
             val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val downloadId = downloadManager.enqueue(request)
 
-            val receiver = object : BroadcastReceiver() {
-                override fun onReceive(ctx: Context?, intent: Intent?) {
-                    val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) ?: -1
-                    if (id == downloadId) {
-                        triggerInstall(context, fileName)
-                        try {
-                            context.unregisterReceiver(this)
-                        } catch (_: Exception) {
+            val receiver =
+                object : BroadcastReceiver() {
+                    override fun onReceive(
+                        ctx: Context?,
+                        intent: Intent?,
+                    ) {
+                        val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) ?: -1
+                        if (id == downloadId) {
+                            triggerInstall(context, fileName)
+                            try {
+                                context.unregisterReceiver(this)
+                            } catch (_: Exception) {
+                            }
                         }
                     }
                 }
-            }
             // App dikunci minimum Android 9 (API 28) — flag RECEIVER_EXPORTED
             // (wajib eksplisit sejak API 33+ lewat ContextCompat) tidak relevan
             // di sini karena minSdk sudah jauh di bawah itu, tapi tetap aman
@@ -150,11 +163,15 @@ object AppUpdateService {
         }
     }
 
-    private fun triggerInstall(context: Context, fileName: String) {
+    private fun triggerInstall(
+        context: Context,
+        fileName: String,
+    ) {
         if (!context.packageManager.canRequestPackageInstalls()) {
-            val settingsIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                .setData(Uri.parse("package:${context.packageName}"))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val settingsIntent =
+                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                    .setData(Uri.parse("package:${context.packageName}"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(settingsIntent)
             return
         }
@@ -164,12 +181,13 @@ object AppUpdateService {
 
         val apkUri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 
-        val installIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(apkUri, "application/vnd.android.package-archive")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
+        val installIntent =
+            Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(apkUri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
         context.startActivity(installIntent)
     }
 }

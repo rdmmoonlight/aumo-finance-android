@@ -38,16 +38,18 @@ object SessionStore {
     private lateinit var prefs: SharedPreferences
 
     fun init(context: Context) {
-        val masterKey = MasterKey.Builder(context.applicationContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-        prefs = EncryptedSharedPreferences.create(
-            context.applicationContext,
-            PREFS_NAME,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        val masterKey =
+            MasterKey.Builder(context.applicationContext)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+        prefs =
+            EncryptedSharedPreferences.create(
+                context.applicationContext,
+                PREFS_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
     }
 
     // Dipanggil dari LoginViewModel setelah login sukses, menyimpan info
@@ -55,7 +57,12 @@ object SessionStore {
     // itu ditulis langsung oleh PersistentCookiesStorage.addCookie() saat
     // Set-Cookie diterima, supaya selalu sinkron dengan cookie yang
     // benar-benar dipakai Ktor untuk request berikutnya.
-    fun saveSessionInfo(userId: String, fullName: String, keepSignedIn: Boolean, biometricEnabled: Boolean) {
+    fun saveSessionInfo(
+        userId: String,
+        fullName: String,
+        keepSignedIn: Boolean,
+        biometricEnabled: Boolean,
+    ) {
         if (!keepSignedIn) {
             clear()
             return
@@ -78,8 +85,7 @@ object SessionStore {
         prefs.edit().remove(KEY_COOKIE).apply()
     }
 
-    fun hasSavedSession(): Boolean =
-        prefs.getBoolean(KEY_KEEP_SIGNED_IN, false) && !prefs.getString(KEY_COOKIE, null).isNullOrBlank()
+    fun hasSavedSession(): Boolean = prefs.getBoolean(KEY_KEEP_SIGNED_IN, false) && !prefs.getString(KEY_COOKIE, null).isNullOrBlank()
 
     fun isBiometricEnabled(): Boolean = prefs.getBoolean(KEY_BIOMETRIC_ENABLED, false)
 

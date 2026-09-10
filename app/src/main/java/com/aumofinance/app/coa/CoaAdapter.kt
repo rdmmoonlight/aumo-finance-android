@@ -5,14 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.R
+import com.aumofinance.app.core.CurrencyFormatter
 
 class CoaAdapter(
     private var items: List<Account>,
-    private val onClick: (Account) -> Unit
+    private val onClick: (Account) -> Unit,
 ) : RecyclerView.Adapter<CoaAdapter.ViewHolder>() {
-
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.textAccountTitle)
         val type: TextView = view.findViewById(R.id.textAccountType)
@@ -25,12 +24,18 @@ class CoaAdapter(
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_account, parent, false)
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val account = items[position]
         holder.title.text = "${account.referenceNumber} - ${account.accountName}"
         holder.type.text = account.type

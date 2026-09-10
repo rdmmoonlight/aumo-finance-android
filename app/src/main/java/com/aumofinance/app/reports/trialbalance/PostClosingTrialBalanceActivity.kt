@@ -6,8 +6,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.R
+import com.aumofinance.app.core.CurrencyFormatter
 
 // Neraca Saldo Pasca-Penutupan: type="post-closing". Retained Earnings sudah
 // termasuk efek Closing (walau baris Closing itu sendiri tidak pernah

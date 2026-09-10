@@ -61,7 +61,7 @@ fun PeriodsScreen(
     selectedPeriodId: Int?,
     onSelect: (Period) -> Unit,
     onCloseRequest: (Period) -> Unit,
-    onOpenNewPeriodClick: () -> Unit
+    onOpenNewPeriodClick: () -> Unit,
 ) {
     Scaffold(containerColor = AumoColors.Background) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
@@ -70,14 +70,14 @@ fun PeriodsScreen(
                 color = AumoColors.TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                modifier = Modifier.padding(16.dp, 14.dp, 16.dp, 0.dp)
+                modifier = Modifier.padding(16.dp, 14.dp, 16.dp, 0.dp),
             )
 
             Button(
                 onClick = onOpenNewPeriodClick,
                 colors = ButtonDefaults.buttonColors(containerColor = AumoColors.Primary),
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp).fillMaxWidth()
+                modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 4.dp).fillMaxWidth(),
             ) {
                 TablerIcon(TablerIcons.CirclePlus, tint = Color.White, size = 16.dp)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -96,14 +96,14 @@ fun PeriodsScreen(
                 LazyColumn(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     contentPadding = PaddingValues(16.dp, 12.dp, 16.dp, 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(periods) { period ->
                         PeriodCard(
                             period = period,
                             isSelected = period.id == selectedPeriodId,
                             onSelect = { onSelect(period) },
-                            onCloseRequest = { onCloseRequest(period) }
+                            onCloseRequest = { onCloseRequest(period) },
                         )
                     }
                 }
@@ -113,35 +113,41 @@ fun PeriodsScreen(
 }
 
 @Composable
-private fun PeriodCard(period: Period, isSelected: Boolean, onSelect: () -> Unit, onCloseRequest: () -> Unit) {
+private fun PeriodCard(
+    period: Period,
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    onCloseRequest: () -> Unit,
+) {
     Card(
         colors = CardDefaults.cardColors(containerColor = AumoColors.Surface),
         border = BorderStroke(1.dp, if (isSelected) AumoColors.Primary else AumoColors.SurfaceElevated),
         shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     text = period.periodName,
                     color = AumoColors.TextPrimary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
                 )
                 Box(
-                    modifier = Modifier
-                        .background(if (period.isClosed) AumoColors.Bad else AumoColors.Good, RoundedCornerShape(6.dp))
-                        .padding(8.dp, 4.dp)
+                    modifier =
+                        Modifier
+                            .background(if (period.isClosed) AumoColors.Bad else AumoColors.Good, RoundedCornerShape(6.dp))
+                            .padding(8.dp, 4.dp),
                 ) {
                     Text(
                         text = if (period.isClosed) "Closed" else "Open",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize,
                     )
                 }
             }
@@ -150,7 +156,7 @@ private fun PeriodCard(period: Period, isSelected: Boolean, onSelect: () -> Unit
             Text(
                 text = "${period.startDate.take(10)} \u2013 ${period.endDate.take(10)}",
                 color = AumoColors.TextSecondary,
-                fontSize = MaterialTheme.typography.bodySmall.fontSize
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -159,7 +165,7 @@ private fun PeriodCard(period: Period, isSelected: Boolean, onSelect: () -> Unit
                     icon = TablerIcons.Eye,
                     label = if (isSelected) "Viewing" else "View",
                     tint = if (isSelected) AumoColors.Primary else AumoColors.TextSecondary,
-                    onClick = onSelect
+                    onClick = onSelect,
                 )
                 if (!period.isClosed) {
                     ActionChip(icon = TablerIcons.Lock, label = "Close", tint = AumoColors.Bad, onClick = onCloseRequest)
@@ -170,13 +176,19 @@ private fun PeriodCard(period: Period, isSelected: Boolean, onSelect: () -> Unit
 }
 
 @Composable
-private fun ActionChip(icon: String, label: String, tint: Color, onClick: () -> Unit) {
+private fun ActionChip(
+    icon: String,
+    label: String,
+    tint: Color,
+    onClick: () -> Unit,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(tint.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .padding(10.dp, 6.dp)
+        modifier =
+            Modifier
+                .background(tint.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                .clickable(onClick = onClick)
+                .padding(10.dp, 6.dp),
     ) {
         TablerIcon(icon, tint = tint, size = 14.dp)
         Spacer(modifier = Modifier.width(6.dp))
@@ -200,7 +212,7 @@ private fun ActionChip(icon: String, label: String, tint: Color, onClick: () -> 
 fun OpenPeriodDialog(
     info: OpenPeriodInfoResponse,
     onDismiss: () -> Unit,
-    onSubmit: (CreatePeriodRequest) -> Unit
+    onSubmit: (CreatePeriodRequest) -> Unit,
 ) {
     val now = remember { Calendar.getInstance() }
     var month by remember { mutableStateOf((now.get(Calendar.MONTH) + 1).toString()) }
@@ -227,11 +239,12 @@ fun OpenPeriodDialog(
         title = { Text("Open New Period", color = AumoColors.TextPrimary, fontWeight = FontWeight.Bold) },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 460.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 460.dp)
+                        .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -242,7 +255,7 @@ fun OpenPeriodDialog(
                         colors = dialogFieldColors(),
                         shape = RoundedCornerShape(8.dp),
                         singleLine = true,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                     OutlinedTextField(
                         value = year,
@@ -252,7 +265,7 @@ fun OpenPeriodDialog(
                         colors = dialogFieldColors(),
                         shape = RoundedCornerShape(8.dp),
                         singleLine = true,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                 }
 
@@ -260,35 +273,63 @@ fun OpenPeriodDialog(
                     Text(
                         text = "Select which existing accounts to carry forward into this period:",
                         color = AumoColors.TextSecondary,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
                     )
                     AccountPickerField(
                         label = "Cash Account",
                         options = info.availableCashAndBankAccounts,
                         selected = selectedCashAccount,
-                        onSelect = { selectedCashAccount = it }
+                        onSelect = { selectedCashAccount = it },
                     )
                     AccountPickerField(
                         label = "Bank Account",
                         options = info.availableCashAndBankAccounts,
                         selected = selectedBankAccount,
-                        onSelect = { selectedBankAccount = it }
+                        onSelect = { selectedBankAccount = it },
                     )
                     AccountPickerField(
                         label = "Retained Earnings Account",
                         options = info.availableRetainedEarningsAccounts,
                         selected = selectedRetainedAccount,
-                        onSelect = { selectedRetainedAccount = it }
+                        onSelect = { selectedRetainedAccount = it },
                     )
                 } else {
                     Text(
                         text = "No period has been closed yet. Register your permanent accounts and opening balances:",
                         color = AumoColors.TextSecondary,
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize,
                     )
-                    NewAccountFields("Cash Account", cashCode, { cashCode = it.filter(Char::isDigit) }, cashName, { cashName = it }, cashBalance) { cashBalance = it.filter { c -> c.isDigit() || c == '.' } }
-                    NewAccountFields("Bank Account", bankCode, { bankCode = it.filter(Char::isDigit) }, bankName, { bankName = it }, bankBalance) { bankBalance = it.filter { c -> c.isDigit() || c == '.' } }
-                    NewAccountFields("Retained Earnings Account", retainedCode, { retainedCode = it.filter(Char::isDigit) }, retainedName, { retainedName = it }, null, null)
+                    NewAccountFields(
+                        "Cash Account",
+                        cashCode,
+                        { cashCode = it.filter(Char::isDigit) },
+                        cashName,
+                        { cashName = it },
+                        cashBalance,
+                    ) {
+                        cashBalance =
+                            it.filter {
+                                    c ->
+                                c.isDigit() || c == '.'
+                            }
+                    }
+                    NewAccountFields(
+                        "Bank Account",
+                        bankCode,
+                        { bankCode = it.filter(Char::isDigit) },
+                        bankName,
+                        { bankName = it },
+                        bankBalance,
+                    ) {
+                        bankBalance =
+                            it.filter {
+                                    c ->
+                                c.isDigit() || c == '.'
+                            }
+                    }
+                    NewAccountFields("Retained Earnings Account", retainedCode, {
+                        retainedCode = it.filter(Char::isDigit)
+                    }, retainedName, { retainedName = it }, null, null)
                 }
             }
         },
@@ -297,33 +338,34 @@ fun OpenPeriodDialog(
                 val monthInt = month.toIntOrNull() ?: return@TextButton
                 val yearInt = year.toIntOrNull() ?: return@TextButton
 
-                val request = if (hasExisting) {
-                    val cashId = selectedCashAccount?.id ?: return@TextButton
-                    val bankId = selectedBankAccount?.id ?: return@TextButton
-                    val retainedId = selectedRetainedAccount?.id ?: return@TextButton
-                    CreatePeriodRequest(
-                        month = monthInt,
-                        year = yearInt,
-                        setupMode = CreatePeriodRequest.MODE_LOAD_EXISTING,
-                        cashAccountId = cashId,
-                        bankAccountId = bankId,
-                        retainedEarningsAccountId = retainedId
-                    )
-                } else {
-                    CreatePeriodRequest(
-                        month = monthInt,
-                        year = yearInt,
-                        setupMode = CreatePeriodRequest.MODE_CREATE_NEW,
-                        cashAccountCode = cashCode,
-                        cashAccountName = cashName,
-                        cashBalance = cashBalance.toDoubleOrNull(),
-                        bankAccountCode = bankCode,
-                        bankAccountName = bankName,
-                        bankBalance = bankBalance.toDoubleOrNull(),
-                        retainedEarningsAccountCode = retainedCode,
-                        retainedEarningsAccountName = retainedName
-                    )
-                }
+                val request =
+                    if (hasExisting) {
+                        val cashId = selectedCashAccount?.id ?: return@TextButton
+                        val bankId = selectedBankAccount?.id ?: return@TextButton
+                        val retainedId = selectedRetainedAccount?.id ?: return@TextButton
+                        CreatePeriodRequest(
+                            month = monthInt,
+                            year = yearInt,
+                            setupMode = CreatePeriodRequest.MODE_LOAD_EXISTING,
+                            cashAccountId = cashId,
+                            bankAccountId = bankId,
+                            retainedEarningsAccountId = retainedId,
+                        )
+                    } else {
+                        CreatePeriodRequest(
+                            month = monthInt,
+                            year = yearInt,
+                            setupMode = CreatePeriodRequest.MODE_CREATE_NEW,
+                            cashAccountCode = cashCode,
+                            cashAccountName = cashName,
+                            cashBalance = cashBalance.toDoubleOrNull(),
+                            bankAccountCode = bankCode,
+                            bankAccountName = bankName,
+                            bankBalance = bankBalance.toDoubleOrNull(),
+                            retainedEarningsAccountCode = retainedCode,
+                            retainedEarningsAccountName = retainedName,
+                        )
+                    }
                 onSubmit(request)
             }) {
                 Text("Open", color = AumoColors.Good, fontWeight = FontWeight.Bold)
@@ -333,7 +375,7 @@ fun OpenPeriodDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancel", color = AumoColors.TextSecondary)
             }
-        }
+        },
     )
 }
 
@@ -345,7 +387,7 @@ private fun AccountPickerField(
     label: String,
     options: List<AvailableAccount>,
     selected: AvailableAccount?,
-    onSelect: (AvailableAccount) -> Unit
+    onSelect: (AvailableAccount) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -355,27 +397,28 @@ private fun AccountPickerField(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(AumoColors.Background, RoundedCornerShape(8.dp))
-                    .clickable { expanded = true }
-                    .padding(12.dp, 12.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(AumoColors.Background, RoundedCornerShape(8.dp))
+                        .clickable { expanded = true }
+                        .padding(12.dp, 12.dp),
             ) {
                 Text(
                     text = selected?.displayLabel ?: "Select an account",
                     color = if (selected != null) AumoColors.TextPrimary else AumoColors.TextSecondary,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                 )
                 TablerIcon(TablerIcons.Eye, tint = AumoColors.TextSecondary, size = 14.dp)
             }
             androidx.compose.material3.DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
             ) {
                 if (options.isEmpty()) {
                     androidx.compose.material3.DropdownMenuItem(
                         text = { Text("No accounts available") },
-                        onClick = { expanded = false }
+                        onClick = { expanded = false },
                     )
                 }
                 options.forEach { account ->
@@ -384,7 +427,7 @@ private fun AccountPickerField(
                         onClick = {
                             onSelect(account)
                             expanded = false
-                        }
+                        },
                     )
                 }
             }
@@ -400,7 +443,7 @@ private fun NewAccountFields(
     name: String,
     onNameChange: (String) -> Unit,
     balance: String?,
-    onBalanceChange: ((String) -> Unit)?
+    onBalanceChange: ((String) -> Unit)?,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(title, color = AumoColors.TextSecondary, fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.labelSmall.fontSize)
@@ -412,7 +455,7 @@ private fun NewAccountFields(
             colors = dialogFieldColors(),
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             value = name,
@@ -421,7 +464,7 @@ private fun NewAccountFields(
             colors = dialogFieldColors(),
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         if (balance != null && onBalanceChange != null) {
             OutlinedTextField(
@@ -432,21 +475,22 @@ private fun NewAccountFields(
                 colors = dialogFieldColors(),
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
 
 @Composable
-private fun dialogFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = AumoColors.Background,
-    unfocusedContainerColor = AumoColors.Background,
-    disabledContainerColor = AumoColors.Background,
-    focusedTextColor = AumoColors.TextPrimary,
-    unfocusedTextColor = AumoColors.TextPrimary,
-    disabledTextColor = AumoColors.TextSecondary,
-    focusedBorderColor = AumoColors.Primary,
-    unfocusedBorderColor = AumoColors.SurfaceElevated,
-    disabledBorderColor = AumoColors.SurfaceElevated
-)
+private fun dialogFieldColors() =
+    OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = AumoColors.Background,
+        unfocusedContainerColor = AumoColors.Background,
+        disabledContainerColor = AumoColors.Background,
+        focusedTextColor = AumoColors.TextPrimary,
+        unfocusedTextColor = AumoColors.TextPrimary,
+        disabledTextColor = AumoColors.TextSecondary,
+        focusedBorderColor = AumoColors.Primary,
+        unfocusedBorderColor = AumoColors.SurfaceElevated,
+        disabledBorderColor = AumoColors.SurfaceElevated,
+    )

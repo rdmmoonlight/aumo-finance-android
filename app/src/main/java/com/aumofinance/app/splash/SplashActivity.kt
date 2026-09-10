@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import com.aumofinance.app.R
 import com.aumofinance.app.auth.BiometricHelper
 import com.aumofinance.app.auth.LoginActivity
 import com.aumofinance.app.home.HomeActivity
 import com.aumofinance.app.network.ApiClient
 import com.aumofinance.app.network.SessionStore
 import com.aumofinance.app.update.AppUpdateService
-import com.aumofinance.app.R
 import kotlinx.coroutines.runBlocking
 
 // Splash screen custom (bukan API splash minimalis Android 12+) karena
@@ -27,7 +27,6 @@ import kotlinx.coroutines.runBlocking
 // - Ada sesi + "Ingat saya" saja (tanpa biometrik) -> langsung ke Home.
 // - Tidak ada sesi tersimpan -> ke Login seperti biasa.
 class SplashActivity : AppCompatActivity() {
-
     companion object {
         private const val SPLASH_DURATION_MS = 1200L
     }
@@ -59,7 +58,7 @@ class SplashActivity : AppCompatActivity() {
                 onSuccess = {
                     restoreSessionAndGoHome()
                 },
-                onFailure = { goToLogin() }
+                onFailure = { goToLogin() },
             )
         } else {
             restoreSessionAndGoHome()

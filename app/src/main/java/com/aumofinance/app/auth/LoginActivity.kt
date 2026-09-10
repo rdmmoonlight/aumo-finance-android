@@ -7,16 +7,15 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.aumofinance.app.R
 import com.aumofinance.app.home.HomeActivity
 import com.aumofinance.app.network.ApiClient
 import com.aumofinance.app.network.SessionStore
-import com.aumofinance.app.R
 import kotlinx.coroutines.runBlocking
 
 class LoginActivity : AppCompatActivity() {
-
     private val viewModel: LoginViewModel by viewModels()
     private lateinit var inputEmail: EditText
     private lateinit var inputPassword: EditText
@@ -53,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
                 inputEmail.text.toString().trim(),
                 inputPassword.text.toString(),
                 checkboxKeepSignedIn.isChecked,
-                checkboxBiometric.isChecked
+                checkboxBiometric.isChecked,
             )
         }
 
@@ -98,7 +97,7 @@ class LoginActivity : AppCompatActivity() {
             onFailure = { message ->
                 textLoginError.text = message
                 textLoginError.visibility = View.VISIBLE
-            }
+            },
         )
     }
 

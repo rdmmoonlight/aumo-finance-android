@@ -14,13 +14,13 @@ data class Period(
     val periodName: String,
     val startDate: String,
     val endDate: String,
-    val isClosed: Boolean
+    val isClosed: Boolean,
 )
 
 data class PeriodsResponse(
     val success: Boolean,
     val selectedPeriodId: Int?,
-    val periods: List<Period>
+    val periods: List<Period>,
 )
 
 // Akun Cash/Bank (Role == "CashAndEquivalents") atau Retained Earnings
@@ -32,7 +32,7 @@ data class AvailableAccount(
     val id: Int,
     val referenceNumber: Int,
     val accountName: String,
-    val displayLabel: String
+    val displayLabel: String,
 )
 
 data class PermanentAccountInfo(
@@ -40,7 +40,7 @@ data class PermanentAccountInfo(
     val referenceNumber: Int,
     val accountName: String,
     val type: String,
-    val displayLabel: String
+    val displayLabel: String,
 )
 
 // Respons GET /api/v1/periods/open-info. hasExistingPermanentAccounts
@@ -55,7 +55,7 @@ data class OpenPeriodInfoResponse(
     val hasExistingPermanentAccounts: Boolean,
     val availableCashAndBankAccounts: List<AvailableAccount>,
     val availableRetainedEarningsAccounts: List<AvailableAccount>,
-    val permanentAccounts: List<PermanentAccountInfo>
+    val permanentAccounts: List<PermanentAccountInfo>,
 )
 
 data class CreatePeriodRequest(
@@ -74,7 +74,7 @@ data class CreatePeriodRequest(
     val bankAccountName: String? = null,
     val bankBalance: Double? = null,
     val retainedEarningsAccountCode: String? = null,
-    val retainedEarningsAccountName: String? = null
+    val retainedEarningsAccountName: String? = null,
 ) {
     companion object {
         const val MODE_LOAD_EXISTING = "LoadExisting"
@@ -95,12 +95,9 @@ class PeriodsApi(private val client: HttpClient = ApiClient.client) {
             setBody(request)
         }
 
-    suspend fun select(id: Int): HttpResponse =
-        client.post("/api/v1/periods/select/$id")
+    suspend fun select(id: Int): HttpResponse = client.post("/api/v1/periods/select/$id")
 
-    suspend fun clearSelection(): HttpResponse =
-        client.post("/api/v1/periods/clear-selection")
+    suspend fun clearSelection(): HttpResponse = client.post("/api/v1/periods/clear-selection")
 
-    suspend fun close(id: Int): HttpResponse =
-        client.post("/api/v1/periods/close/$id")
+    suspend fun close(id: Int): HttpResponse = client.post("/api/v1/periods/close/$id")
 }

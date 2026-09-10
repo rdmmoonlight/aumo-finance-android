@@ -18,13 +18,17 @@ class CoaViewModel : ViewModel() {
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    fun load(search: String? = null, category: String? = null) {
+    fun load(
+        search: String? = null,
+        category: String? = null,
+    ) {
         viewModelScope.launch {
-            _accounts.value = try {
-                api.list(search, category).body<AccountsResponse>().accounts
-            } catch (t: Throwable) {
-                emptyList()
-            }
+            _accounts.value =
+                try {
+                    api.list(search, category).body<AccountsResponse>().accounts
+                } catch (t: Throwable) {
+                    emptyList()
+                }
         }
     }
 
@@ -32,7 +36,10 @@ class CoaViewModel : ViewModel() {
         viewModelScope.launch { handleResult(api.create(request)) }
     }
 
-    fun update(id: Int, request: UpdateAccountRequest) {
+    fun update(
+        id: Int,
+        request: UpdateAccountRequest,
+    ) {
         viewModelScope.launch { handleResult(api.update(id, request)) }
     }
 

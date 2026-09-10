@@ -27,7 +27,7 @@ data class Account(
     val type: String,
     val role: String,
     val isActive: Boolean,
-    val balance: Double
+    val balance: Double,
 )
 
 data class AccountsResponse(val success: Boolean, val selectedPeriodName: String?, val accounts: List<Account>)
@@ -36,7 +36,7 @@ data class AccountRequest(
     val referenceNumber: Int,
     val accountName: String,
     val type: String,
-    val role: String = "Default"
+    val role: String = "Default",
 )
 
 data class UpdateAccountRequest(
@@ -44,13 +44,16 @@ data class UpdateAccountRequest(
     val accountName: String,
     val type: String,
     val role: String = "Default",
-    val isActive: Boolean
+    val isActive: Boolean,
 )
 
 data class SimpleApiResponse(val success: Boolean, val message: String)
 
 class CoaApi(private val client: HttpClient = ApiClient.client) {
-    suspend fun list(search: String? = null, category: String? = null): HttpResponse =
+    suspend fun list(
+        search: String? = null,
+        category: String? = null,
+    ): HttpResponse =
         client.get("/api/v1/chart-of-accounts") {
             if (search != null) parameter("search", search)
             if (category != null) parameter("category", category)
@@ -62,12 +65,14 @@ class CoaApi(private val client: HttpClient = ApiClient.client) {
             setBody(request)
         }
 
-    suspend fun update(id: Int, request: UpdateAccountRequest): HttpResponse =
+    suspend fun update(
+        id: Int,
+        request: UpdateAccountRequest,
+    ): HttpResponse =
         client.put("/api/v1/chart-of-accounts/$id") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
 
-    suspend fun delete(id: Int): HttpResponse =
-        client.delete("/api/v1/chart-of-accounts/$id")
+    suspend fun delete(id: Int): HttpResponse = client.delete("/api/v1/chart-of-accounts/$id")
 }

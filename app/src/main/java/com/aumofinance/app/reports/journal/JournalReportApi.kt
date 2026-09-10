@@ -14,7 +14,7 @@ data class JournalReportLine(
     val lineDescription: String?,
     val debit: Double,
     val credit: Double,
-    val lineOrder: Int
+    val lineOrder: Int,
 )
 
 data class JournalReportEntry(
@@ -24,7 +24,7 @@ data class JournalReportEntry(
     val entryDate: String,
     val createdAt: String,
     val updatedAt: String?,
-    val lines: List<JournalReportLine>
+    val lines: List<JournalReportLine>,
 )
 
 data class JournalReportResponse(
@@ -32,7 +32,7 @@ data class JournalReportResponse(
     val hasPeriodSelected: Boolean?,
     val selectedPeriodName: String?,
     val isPeriodClosed: Boolean,
-    val entries: List<JournalReportEntry>
+    val entries: List<JournalReportEntry>,
 )
 
 class JournalReportApi(private val client: HttpClient = ApiClient.client) {
@@ -41,19 +41,16 @@ class JournalReportApi(private val client: HttpClient = ApiClient.client) {
     // "adjusting-journal" seperti dugaan awal saya) — General Journal berisi
     // seluruh entri tipe "General" di periode yang sedang dipilih. Beda dari
     // "journal-entry" (form input satu entri di journal.JournalApi).
-    suspend fun getGeneralJournal(): HttpResponse =
-        client.get("/api/v1/reports/journals/general")
+    suspend fun getGeneralJournal(): HttpResponse = client.get("/api/v1/reports/journals/general")
 
     // Adjusting Journal: sama seperti di atas tapi backend sudah memfilter
     // journalType == "Adjusting" saja.
-    suspend fun getAdjustingJournal(): HttpResponse =
-        client.get("/api/v1/reports/journals/adjusting")
+    suspend fun getAdjustingJournal(): HttpResponse = client.get("/api/v1/reports/journals/adjusting")
 
     // Backend juga menyediakan DELETE khusus untuk entri Adjusting di bawah
     // route yang sama ("/adjusting/{id}", memfilter JournalType=="Adjusting"
     // sebagai proteksi tambahan) — dipakai JournalReportViewModel untuk
     // delete di halaman Adjusting Journal, sedangkan General Journal tetap
     // pakai journal-entry/delete/{id} yang generik (journal.JournalApi).
-    suspend fun deleteAdjustingEntry(id: Int): HttpResponse =
-        client.delete("/api/v1/reports/journals/adjusting/$id")
+    suspend fun deleteAdjustingEntry(id: Int): HttpResponse = client.delete("/api/v1/reports/journals/adjusting/$id")
 }

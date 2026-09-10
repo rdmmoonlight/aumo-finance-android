@@ -21,30 +21,39 @@ object BiometricHelper {
         title: String,
         subtitle: String,
         onSuccess: () -> Unit,
-        onFailure: (String) -> Unit
+        onFailure: (String) -> Unit,
     ) {
         val executor = ContextCompat.getMainExecutor(activity)
-        val prompt = BiometricPrompt(activity, executor, object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                onSuccess()
-            }
+        val prompt =
+            BiometricPrompt(
+                activity,
+                executor,
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        onSuccess()
+                    }
 
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                onFailure(errString.toString())
-            }
+                    override fun onAuthenticationError(
+                        errorCode: Int,
+                        errString: CharSequence,
+                    ) {
+                        onFailure(errString.toString())
+                    }
 
-            override fun onAuthenticationFailed() {
-                // Sidik jari/wajah tidak cocok — biarkan user coba lagi, prompt
-                // tetap terbuka, BiometricPrompt sendiri yang menangani retry.
-            }
-        })
+                    override fun onAuthenticationFailed() {
+                        // Sidik jari/wajah tidak cocok — biarkan user coba lagi, prompt
+                        // tetap terbuka, BiometricPrompt sendiri yang menangani retry.
+                    }
+                },
+            )
 
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setAllowedAuthenticators(AUTHENTICATORS)
-            .setNegativeButtonText("Gunakan Password")
-            .build()
+        val promptInfo =
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setSubtitle(subtitle)
+                .setAllowedAuthenticators(AUTHENTICATORS)
+                .setNegativeButtonText("Gunakan Password")
+                .build()
 
         prompt.authenticate(promptInfo)
     }

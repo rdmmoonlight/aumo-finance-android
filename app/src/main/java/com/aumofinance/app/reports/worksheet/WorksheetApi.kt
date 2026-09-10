@@ -18,16 +18,21 @@ data class WorksheetRow(
     val isDebit: Double,
     val isCredit: Double,
     val bsDebit: Double,
-    val bsCredit: Double
+    val bsCredit: Double,
 )
 
 data class WorksheetTotals(
-    val tbDebit: Double, val tbCredit: Double,
-    val adjDebit: Double, val adjCredit: Double,
-    val adjTbDebit: Double, val adjTbCredit: Double,
-    val isDebit: Double, val isCredit: Double,
-    val bsDebit: Double, val bsCredit: Double,
-    val netIncome: Double
+    val tbDebit: Double,
+    val tbCredit: Double,
+    val adjDebit: Double,
+    val adjCredit: Double,
+    val adjTbDebit: Double,
+    val adjTbCredit: Double,
+    val isDebit: Double,
+    val isCredit: Double,
+    val bsDebit: Double,
+    val bsCredit: Double,
+    val netIncome: Double,
 )
 
 data class WorksheetReport(
@@ -35,7 +40,7 @@ data class WorksheetReport(
     val hasPeriodSelected: Boolean,
     val selectedPeriodName: String?,
     val rows: List<WorksheetRow>,
-    val totals: WorksheetTotals?
+    val totals: WorksheetTotals?,
 )
 
 class WorksheetApi(private val client: HttpClient = ApiClient.client) {

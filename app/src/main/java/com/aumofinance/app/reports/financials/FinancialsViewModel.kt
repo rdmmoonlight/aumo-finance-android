@@ -1,6 +1,5 @@
 package com.aumofinance.app.reports.financials
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,13 +36,17 @@ class FinancialsViewModel : ViewModel() {
         load(closingJournal) { api.getClosingJournal() }
     }
 
-    private inline fun <reified T> load(target: MutableLiveData<T?>, crossinline call: suspend () -> HttpResponse) {
+    private inline fun <reified T> load(
+        target: MutableLiveData<T?>,
+        crossinline call: suspend () -> HttpResponse,
+    ) {
         viewModelScope.launch {
-            target.value = try {
-                call().body<T>()
-            } catch (t: Throwable) {
-                null
-            }
+            target.value =
+                try {
+                    call().body<T>()
+                } catch (t: Throwable) {
+                    null
+                }
         }
     }
 }

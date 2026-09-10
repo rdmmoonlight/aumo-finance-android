@@ -15,11 +15,12 @@ class LedgerViewModel : ViewModel() {
 
     fun load(isTemporary: Boolean) {
         viewModelScope.launch {
-            _report.value = try {
-                api.getLedger(isTemporary).body<LedgerResponse>()
-            } catch (t: Throwable) {
-                null
-            }
+            _report.value =
+                try {
+                    api.getLedger(isTemporary).body<LedgerResponse>()
+                } catch (t: Throwable) {
+                    null
+                }
         }
     }
 }

@@ -15,7 +15,7 @@ data class TrialBalanceRow(
     val normalBalanceIsDebit: Boolean,
     val netBalance: Double,
     val debit: Double,
-    val credit: Double
+    val credit: Double,
 )
 
 data class TrialBalanceReport(
@@ -27,7 +27,7 @@ data class TrialBalanceReport(
     val totalDebit: Double,
     val totalCredit: Double,
     val isBalanced: Boolean,
-    val rows: List<TrialBalanceRow>
+    val rows: List<TrialBalanceRow>,
 )
 
 class TrialBalanceApi(private val client: HttpClient = ApiClient.client) {

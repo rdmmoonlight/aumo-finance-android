@@ -52,13 +52,13 @@ fun TablerIcon(
     glyph: String,
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current,
-    size: Dp = 18.dp
+    size: Dp = 18.dp,
 ) {
     Text(
         text = glyph,
         modifier = modifier.size(size),
         color = tint,
         fontFamily = TablerIconFont,
-        fontSize = with(LocalDensity.current) { size.toSp() }
+        fontSize = with(LocalDensity.current) { size.toSp() },
     )
 }

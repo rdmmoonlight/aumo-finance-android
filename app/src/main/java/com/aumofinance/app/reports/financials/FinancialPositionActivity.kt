@@ -46,11 +46,12 @@ class FinancialPositionActivity : AppCompatActivity() {
         container.addView(ReportRowBuilder.divider(this))
         container.addView(ReportRowBuilder.row(this, "Total Liabilitas + Ekuitas", report.totalLiabilitiesAndEquity, bold = true))
 
-        val badge = TextView(this).apply {
-            text = if (report.isBalanced) "Neraca Balance" else "Neraca TIDAK Balance"
-            setTextColor(if (report.isBalanced) 0xFF4FA36A.toInt() else 0xFFD7192F.toInt())
-            setPadding(0, 12, 0, 0)
-        }
+        val badge =
+            TextView(this).apply {
+                text = if (report.isBalanced) "Neraca Balance" else "Neraca TIDAK Balance"
+                setTextColor(if (report.isBalanced) 0xFF4FA36A.toInt() else 0xFFD7192F.toInt())
+                setPadding(0, 12, 0, 0)
+            }
         container.addView(badge)
     }
 }

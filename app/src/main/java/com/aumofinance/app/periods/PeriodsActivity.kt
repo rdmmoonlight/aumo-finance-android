@@ -37,14 +37,14 @@ class PeriodsActivity : ComponentActivity() {
                     selectedPeriodId = viewModel.selectedPeriodId,
                     onSelect = { period -> viewModel.select(period.id) },
                     onCloseRequest = { period -> confirmClose(period) },
-                    onOpenNewPeriodClick = { viewModel.openNewPeriodDialog() }
+                    onOpenNewPeriodClick = { viewModel.openNewPeriodDialog() },
                 )
 
                 viewModel.openPeriodInfo?.let { info ->
                     OpenPeriodDialog(
                         info = info,
                         onDismiss = { viewModel.dismissOpenPeriodDialog() },
-                        onSubmit = { request -> viewModel.open(request) }
+                        onSubmit = { request -> viewModel.open(request) },
                     )
                 }
             }

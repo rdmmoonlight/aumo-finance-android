@@ -15,11 +15,12 @@ class DashboardViewModel : ViewModel() {
 
     fun load() {
         viewModelScope.launch {
-            _summary.value = try {
-                api.getSummary().body<DashboardSummary>()
-            } catch (t: Throwable) {
-                null
-            }
+            _summary.value =
+                try {
+                    api.getSummary().body<DashboardSummary>()
+                } catch (t: Throwable) {
+                    null
+                }
         }
     }
 }

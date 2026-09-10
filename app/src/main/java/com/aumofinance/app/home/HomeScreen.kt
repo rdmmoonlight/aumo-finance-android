@@ -46,7 +46,7 @@ data class HomeMenuItem(
     val title: String,
     val subtitle: String,
     val icon: String,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
 )
 
 /**
@@ -66,33 +66,34 @@ fun HomeScreen(
     periods: HomeMenuItem,
     coa: HomeMenuItem,
     reports: HomeMenuItem,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
 ) {
     val greetingMessage = remember { getDynamicGreeting() }
 
     Scaffold(
         containerColor = AumoColors.Background,
-        topBar = { HomeTopBar(onSettingsClick = onSettingsClick) }
+        topBar = { HomeTopBar(onSettingsClick = onSettingsClick) },
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item {
                 Text(
                     text = "Assalaamu'alaikum wa rahmatullahi wa barakaatuh",
                     color = AumoColors.TextMuted,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = greetingMessage,
                     color = AumoColors.TextPrimary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.headlineSmall.fontSize
+                    fontSize = MaterialTheme.typography.headlineSmall.fontSize,
                 )
             }
 
@@ -104,7 +105,7 @@ fun HomeScreen(
                     text = "MAIN MENU",
                     color = AumoColors.TextMuted,
                     fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.labelMedium.fontSize
+                    fontSize = MaterialTheme.typography.labelMedium.fontSize,
                 )
             }
 
@@ -113,14 +114,14 @@ fun HomeScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         GridMenuCard(item = journalEntry, modifier = Modifier.weight(1f))
                         GridMenuCard(item = generalJournal, modifier = Modifier.weight(1f))
                     }
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         GridMenuCard(item = periods, modifier = Modifier.weight(1f))
                         GridMenuCard(item = coa, modifier = Modifier.weight(1f))
@@ -133,7 +134,7 @@ fun HomeScreen(
                     text = "REPORTS",
                     color = AumoColors.TextMuted,
                     fontWeight = FontWeight.Bold,
-                    fontSize = MaterialTheme.typography.labelMedium.fontSize
+                    fontSize = MaterialTheme.typography.labelMedium.fontSize,
                 )
             }
 
@@ -149,36 +150,38 @@ fun HomeScreen(
 @Composable
 private fun HomeTopBar(onSettingsClick: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AumoColors.Background)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(AumoColors.Background)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "Aumo Finance",
                 color = AumoColors.TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.titleLarge.fontSize
+                fontSize = MaterialTheme.typography.titleLarge.fontSize,
             )
             Text(
                 text = "Simple, neat, and accurate bookkeeping",
                 color = AumoColors.TextMuted,
-                fontSize = MaterialTheme.typography.bodySmall.fontSize
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
             )
         }
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(AumoColors.SurfaceElevated)
-                .clickable(onClick = onSettingsClick),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(AumoColors.SurfaceElevated)
+                    .clickable(onClick = onSettingsClick),
+            contentAlignment = Alignment.Center,
         ) {
             TablerIcon(
                 glyph = TablerIcons.Settings,
-                tint = AumoColors.TextPrimary
+                tint = AumoColors.TextPrimary,
             )
         }
     }
@@ -188,25 +191,27 @@ private fun HomeTopBar(onSettingsClick: () -> Unit) {
 @Composable
 private fun FeaturedMenuCard(item: HomeMenuItem) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
-            .background(AumoColors.Primary)
-            .clickable(onClick = item.onClick)
-            .padding(18.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(AumoColors.Primary)
+                .clickable(onClick = item.onClick)
+                .padding(18.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(AumoColors.SurfaceElevated),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(AumoColors.SurfaceElevated),
+            contentAlignment = Alignment.Center,
         ) {
             TablerIcon(
                 glyph = item.icon,
                 tint = AumoColors.TextPrimary,
-                size = 26.dp
+                size = 26.dp,
             )
         }
         Spacer(modifier = Modifier.width(14.dp))
@@ -215,43 +220,48 @@ private fun FeaturedMenuCard(item: HomeMenuItem) {
                 text = item.title,
                 color = AumoColors.TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.titleMedium.fontSize
+                fontSize = MaterialTheme.typography.titleMedium.fontSize,
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = item.subtitle,
                 color = AumoColors.TextPrimary.copy(alpha = 0.75f),
-                fontSize = MaterialTheme.typography.bodySmall.fontSize
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
             )
         }
         TablerIcon(
             glyph = TablerIcons.ChevronRight,
-            tint = AumoColors.TextPrimary.copy(alpha = 0.75f)
+            tint = AumoColors.TextPrimary.copy(alpha = 0.75f),
         )
     }
 }
 
 /** Small card for the 2-column grid — used for the 4 core items. */
 @Composable
-private fun GridMenuCard(item: HomeMenuItem, modifier: Modifier = Modifier) {
+private fun GridMenuCard(
+    item: HomeMenuItem,
+    modifier: Modifier = Modifier,
+) {
     Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(AumoColors.Surface)
-            .clickable(onClick = item.onClick)
-            .padding(16.dp)
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(AumoColors.Surface)
+                .clickable(onClick = item.onClick)
+                .padding(16.dp),
     ) {
         Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(AumoColors.SurfaceElevated),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(AumoColors.SurfaceElevated),
+            contentAlignment = Alignment.Center,
         ) {
             TablerIcon(
                 glyph = item.icon,
                 tint = AumoColors.Primary,
-                size = 22.dp
+                size = 22.dp,
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
@@ -259,13 +269,13 @@ private fun GridMenuCard(item: HomeMenuItem, modifier: Modifier = Modifier) {
             text = item.title,
             color = AumoColors.TextPrimary,
             fontWeight = FontWeight.SemiBold,
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = item.subtitle,
             color = AumoColors.TextMuted,
-            fontSize = MaterialTheme.typography.bodySmall.fontSize
+            fontSize = MaterialTheme.typography.bodySmall.fontSize,
         )
     }
 }

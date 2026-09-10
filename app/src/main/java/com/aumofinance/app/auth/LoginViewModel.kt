@@ -12,8 +12,11 @@ import kotlinx.coroutines.launch
 
 sealed class LoginState {
     object Idle : LoginState()
+
     object Loading : LoginState()
+
     data class Success(val fullName: String) : LoginState()
+
     data class Error(val message: String) : LoginState()
 }
 
@@ -23,7 +26,12 @@ class LoginViewModel : ViewModel() {
     private val _state = MutableLiveData<LoginState>(LoginState.Idle)
     val state: LiveData<LoginState> = _state
 
-    fun login(email: String, password: String, keepSignedIn: Boolean, enableBiometric: Boolean) {
+    fun login(
+        email: String,
+        password: String,
+        keepSignedIn: Boolean,
+        enableBiometric: Boolean,
+    ) {
         _state.value = LoginState.Loading
         // Biometrik cuma masuk akal kalau sesi memang disimpan — kalau
         // user centang biometrik tapi tidak centang "Ingat saya", anggap

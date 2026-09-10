@@ -8,15 +8,14 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.aumofinance.app.BuildConfig
+import com.aumofinance.app.R
 import com.aumofinance.app.crashlog.CrashLogActivity
 import com.aumofinance.app.update.AppUpdateService
-import com.aumofinance.app.R
 
 // Halaman Settings: preferensi notifikasi (disimpan lokal lewat
 // SharedPreferences — belum ada backend untuk ini, murni preferensi
 // perangkat), akses Crash Log, dan tombol Logout.
 class SettingsActivity : AppCompatActivity() {
-
     companion object {
         private const val PREFS_NAME = "aumo_settings"
         private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"

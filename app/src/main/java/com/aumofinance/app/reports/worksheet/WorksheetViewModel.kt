@@ -15,11 +15,12 @@ class WorksheetViewModel : ViewModel() {
 
     fun load() {
         viewModelScope.launch {
-            _report.value = try {
-                api.getWorksheet().body<WorksheetReport>()
-            } catch (t: Throwable) {
-                null
-            }
+            _report.value =
+                try {
+                    api.getWorksheet().body<WorksheetReport>()
+                } catch (t: Throwable) {
+                    null
+                }
         }
     }
 }

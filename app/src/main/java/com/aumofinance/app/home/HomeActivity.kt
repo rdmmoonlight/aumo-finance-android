@@ -22,50 +22,55 @@ import com.aumofinance.app.ui.theme.AumoTheme
 // "Reports" (lihat ReportsMenuActivity), kecuali General Journal yang
 // sengaja punya kotak sendiri karena paling sering dipakai.
 class HomeActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             AumoTheme {
                 HomeScreen(
-                    dashboard = HomeMenuItem(
-                        title = "Dashboard",
-                        subtitle = "Ringkasan posisi keuangan periode berjalan",
-                        icon = HomeIcons.Dashboard,
-                        onClick = { open(DashboardActivity::class.java) }
-                    ),
-                    journalEntry = HomeMenuItem(
-                        title = "Journal Entry",
-                        subtitle = "Catat transaksi baru",
-                        icon = HomeIcons.JournalEntry,
-                        onClick = { open(JournalEntryActivity::class.java) }
-                    ),
-                    generalJournal = HomeMenuItem(
-                        title = "General Journal",
-                        subtitle = "Riwayat jurnal umum",
-                        icon = HomeIcons.GeneralJournal,
-                        onClick = { open(GeneralJournalReportActivity::class.java) }
-                    ),
-                    periods = HomeMenuItem(
-                        title = "Periode",
-                        subtitle = "Kelola periode akuntansi",
-                        icon = HomeIcons.Periods,
-                        onClick = { open(PeriodsActivity::class.java) }
-                    ),
-                    coa = HomeMenuItem(
-                        title = "Chart of Accounts",
-                        subtitle = "Daftar & kategori akun",
-                        icon = HomeIcons.Coa,
-                        onClick = { open(CoaActivity::class.java) }
-                    ),
-                    reports = HomeMenuItem(
-                        title = "Reports",
-                        subtitle = "Buku besar, neraca saldo, laporan keuangan",
-                        icon = HomeIcons.Reports,
-                        onClick = { open(ReportsMenuActivity::class.java) }
-                    ),
-                    onSettingsClick = { open(SettingsActivity::class.java) }
+                    dashboard =
+                        HomeMenuItem(
+                            title = "Dashboard",
+                            subtitle = "Ringkasan posisi keuangan periode berjalan",
+                            icon = HomeIcons.Dashboard,
+                            onClick = { open(DashboardActivity::class.java) },
+                        ),
+                    journalEntry =
+                        HomeMenuItem(
+                            title = "Journal Entry",
+                            subtitle = "Catat transaksi baru",
+                            icon = HomeIcons.JournalEntry,
+                            onClick = { open(JournalEntryActivity::class.java) },
+                        ),
+                    generalJournal =
+                        HomeMenuItem(
+                            title = "General Journal",
+                            subtitle = "Riwayat jurnal umum",
+                            icon = HomeIcons.GeneralJournal,
+                            onClick = { open(GeneralJournalReportActivity::class.java) },
+                        ),
+                    periods =
+                        HomeMenuItem(
+                            title = "Periode",
+                            subtitle = "Kelola periode akuntansi",
+                            icon = HomeIcons.Periods,
+                            onClick = { open(PeriodsActivity::class.java) },
+                        ),
+                    coa =
+                        HomeMenuItem(
+                            title = "Chart of Accounts",
+                            subtitle = "Daftar & kategori akun",
+                            icon = HomeIcons.Coa,
+                            onClick = { open(CoaActivity::class.java) },
+                        ),
+                    reports =
+                        HomeMenuItem(
+                            title = "Reports",
+                            subtitle = "Buku besar, neraca saldo, laporan keuangan",
+                            icon = HomeIcons.Reports,
+                            onClick = { open(ReportsMenuActivity::class.java) },
+                        ),
+                    onSettingsClick = { open(SettingsActivity::class.java) },
                 )
             }
         }

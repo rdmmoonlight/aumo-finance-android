@@ -5,8 +5,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.aumofinance.app.core.CurrencyFormatter
 import com.aumofinance.app.R
+import com.aumofinance.app.core.CurrencyFormatter
 
 // Read-only: entri Closing bersifat system-generated (dihitung on-the-fly
 // dari Trial Balance oleh backend, TIDAK PERNAH tersimpan sebagai entri

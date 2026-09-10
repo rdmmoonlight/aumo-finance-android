@@ -12,7 +12,6 @@ import com.aumofinance.app.ui.theme.AumoTheme
 import java.util.Calendar
 
 class JournalEntryActivity : ComponentActivity() {
-
     companion object {
         const val EXTRA_ENTRY_ID = "extra_entry_id"
     }
@@ -75,7 +74,7 @@ class JournalEntryActivity : ComponentActivity() {
                     isEditingMode = entryId != null,
                     submitButtonText = if (entryId == null) "Save" else "Update",
                     onCancel = { finish() },
-                    onSubmit = { viewModel.save() }
+                    onSubmit = { viewModel.save() },
                 )
             }
         }
@@ -91,7 +90,7 @@ class JournalEntryActivity : ComponentActivity() {
             },
             current.get(Calendar.YEAR),
             current.get(Calendar.MONTH),
-            current.get(Calendar.DAY_OF_MONTH)
+            current.get(Calendar.DAY_OF_MONTH),
         ).show()
     }
 }
