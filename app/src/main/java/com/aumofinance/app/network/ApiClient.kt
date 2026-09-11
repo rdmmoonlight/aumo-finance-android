@@ -17,14 +17,15 @@ import io.ktor.serialization.gson.gson
 // menerima cookie untuk web/nextjs — dua mekanisme berjalan berdampingan di
 // [Authorize(AuthenticationSchemes = "Identity.Application,Bearer")], jadi
 // Android cukup pakai Bearer saja tanpa perlu apa pun dari sisi cookie.
-private val AuthPlugin = createClientPlugin("AuthPlugin") {
-    onRequest { request, _ ->
-        val token = SessionManager.token
-        if (!token.isNullOrBlank()) {
-            request.headers.append(HttpHeaders.Authorization, "Bearer $token")
+private val AuthPlugin =
+    createClientPlugin("AuthPlugin") {
+        onRequest { request, _ ->
+            val token = SessionManager.token
+            if (!token.isNullOrBlank()) {
+                request.headers.append(HttpHeaders.Authorization, "Bearer $token")
+            }
         }
     }
-}
 
 object ApiClient {
     // HANYA scheme+host, TANPA path — endpoint di setiap ApiX.kt WAJIB
