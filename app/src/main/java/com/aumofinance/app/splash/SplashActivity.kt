@@ -9,10 +9,8 @@ import com.aumofinance.app.R
 import com.aumofinance.app.auth.BiometricHelper
 import com.aumofinance.app.auth.LoginActivity
 import com.aumofinance.app.home.HomeActivity
-import com.aumofinance.app.network.ApiClient
 import com.aumofinance.app.network.SessionStore
 import com.aumofinance.app.update.AppUpdateService
-import kotlinx.coroutines.runBlocking
 
 // Splash screen custom (bukan API splash minimalis Android 12+) karena
 // desainnya penuh — logo + teks atribusi "by rdmmoonlight" — bukan cuma
@@ -65,13 +63,12 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    // Memulihkan info tampilan (userId/fullName) DAN cookie otentikasi yang
-    // tersimpan ke jar lokal Ktor sebelum request pertama ke Home — tanpa
-    // ini, cookie yang tersimpan di SessionStore tidak pernah benar-benar
-    // dipakai untuk request, dan Home akan langsung dapat 401.
+    // Token JWT sudah dimuat balik ke SessionManager oleh
+    // restoreIntoSessionManager() di atas — cukup itu saja, tidak perlu
+    // langkah tambahan sebelum request pertama ke Home (beda dari saat
+    // sempat pakai cookie, yang perlu dipulihkan terpisah ke jar Ktor).
     private fun restoreSessionAndGoHome() {
         SessionStore.restoreIntoSessionManager()
-        runBlocking { ApiClient.cookiesStorage.restoreFromDisk() }
         goToHome()
     }
 

@@ -11,9 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.aumofinance.app.R
 import com.aumofinance.app.home.HomeActivity
-import com.aumofinance.app.network.ApiClient
 import com.aumofinance.app.network.SessionStore
-import kotlinx.coroutines.runBlocking
 
 class LoginActivity : AppCompatActivity() {
     private val viewModel: LoginViewModel by viewModels()
@@ -87,11 +85,9 @@ class LoginActivity : AppCompatActivity() {
             title = "Masuk ke AumoFinance",
             subtitle = "Gunakan sidik jari atau wajah Anda",
             onSuccess = {
-                // Memulihkan cookie otentikasi yang tersimpan ke jar lokal
-                // Ktor SEBELUM ke Home — tanpa ini request pertama di Home
-                // akan 401 walau info tampilan (userId/fullName) sudah balik.
+                // Token JWT ikut dipulihkan oleh restoreIntoSessionManager()
+                // di bawah — cukup itu saja untuk request pertama di Home.
                 SessionStore.restoreIntoSessionManager()
-                runBlocking { ApiClient.cookiesStorage.restoreFromDisk() }
                 goToHome()
             },
             onFailure = { message ->
