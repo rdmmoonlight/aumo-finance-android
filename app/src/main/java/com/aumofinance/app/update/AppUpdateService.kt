@@ -28,7 +28,7 @@ object AppUpdateService {
 
     private val httpClient = OkHttpClient.Builder().build()
     private val executor = Executors.newSingleThreadExecutor()
-    
+
     fun checkForUpdateSilently(context: Context) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "Lewati cek update: build debug.")
@@ -137,7 +137,7 @@ object AppUpdateService {
                 context,
                 receiver,
                 IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                ContextCompat.RECEIVER_EXPORTED
+                ContextCompat.RECEIVER_EXPORTED,
             )
         } catch (e: Exception) {
             Log.e(TAG, "Download/install gagal: ${e.message}")
