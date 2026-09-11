@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.aumofinance.app.BuildConfig
 import okhttp3.OkHttpClient
@@ -17,40 +18,19 @@ import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.Executors
 
-// Porting persis dari Services/UpdateService.cs (app MAUI lama) — sebelumnya
-// TIDAK ADA SAMA SEKALI di app Kotlin ini, itu sebabnya auto-update tidak
-// pernah terdeteksi sejak migrasi. Alur & keputusan desain dipertahankan
-// sama seperti versi MAUI:
-// - Cek GET api.github.com/repos/{user}/{repo}/releases/latest
-// - Bandingkan tag_name (tanpa prefix "v") terhadap versionName APK ini
-// - Kalau lebih baru, unduh asset .apk pertama lewat Android DownloadManager
-// - Setelah unduhan selesai, langsung minta install lewat FileProvider +
-//   Intent.ACTION_VIEW (kalau izin "install dari sumber tidak dikenal"
-//   belum diberikan, arahkan ke halaman Settings yang relevan dulu)
 object AppUpdateService {
     private const val TAG = "AppUpdateService"
     private const val GITHUB_USER = "rdmmoonlight"
     private const val GITHUB_REPO = "aumo-finance-android"
 
-    // Nama & key preference DISENGAJA sama gaya dengan Preferences.Default
-    // ("AutoUpdateEnabled") di App.xaml.cs versi MAUI lama, supaya konsisten
-    // — walau storage-nya beda (SharedPreferences Android, bukan MAUI
-    // Preferences), defaultnya sama: true.
     const val PREFS_NAME = "aumo_update_prefs"
     const val KEY_AUTO_UPDATE_ENABLED = "auto_update_enabled"
 
     private val httpClient = OkHttpClient.Builder().build()
     private val executor = Executors.newSingleThreadExecutor()
-
-    // Dipanggil sekali setiap app start (lihat SplashActivity) — silent,
-    // tidak menampilkan apapun ke user kecuali notifikasi unduhan bawaan
-    // Android DownloadManager, sama seperti perilaku isSilent=true di
-    // UpdateService.cs lama.
+    
     fun checkForUpdateSilently(context: Context) {
         if (BuildConfig.DEBUG) {
-            // Build debug punya versionNameSuffix "-debug" (mis. "26.9.1-debug")
-            // yang tidak bisa dibandingkan apel-ke-apel dengan tag rilis GitHub
-            // ("26.9.1") — auto-update hanya masuk akal untuk build release.
             Log.d(TAG, "Lewati cek update: build debug.")
             return
         }
@@ -100,9 +80,6 @@ object AppUpdateService {
         }
     }
 
-    // Perbandingan versi dotted-numeric sederhana (mis. "26.9.1" vs "26.8.212")
-    // — setara System.Version.CompareTo() yang dipakai versi MAUI lama.
-    // Segmen yang tidak ada dianggap 0 (mis. "26.9" vs "26.9.1" -> "26.9" < "26.9.1").
     private fun compareVersions(
         a: String,
         b: String,
@@ -153,11 +130,15 @@ object AppUpdateService {
                         }
                     }
                 }
-            // App dikunci minimum Android 9 (API 28) — flag RECEIVER_EXPORTED
-            // (wajib eksplisit sejak API 33+ lewat ContextCompat) tidak relevan
-            // di sini karena minSdk sudah jauh di bawah itu, tapi tetap aman
-            // dipakai di semua versi >= 28.
-            context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
+            // Menggunakan ContextCompat.registerReceiver dengan ContextCompat.RECEIVER_EXPORTED
+            // agar memenuhi standar Android 14+ (API 34) untuk sistem broadcast.
+            ContextCompat.registerReceiver(
+                context,
+                receiver,
+                IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+                ContextCompat.RECEIVER_EXPORTED
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Download/install gagal: ${e.message}")
         }
