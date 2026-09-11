@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,16 +15,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.automirrored.outlined.TrendingUp
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.Balance
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.PieChart
-import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Savings
 import androidx.compose.material.icons.outlined.TableChart
-import androidx.compose.material.icons.outlined.TrendingUp
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -97,7 +99,7 @@ fun ReportsMenuScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = MaterialTheme.typography.labelMedium.fontSize,
                     )
-                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = 8.dp))
+                    Spacer(modifier = Modifier.padding(top = 8.dp))
                     Column(
                         modifier =
                             Modifier
@@ -108,10 +110,10 @@ fun ReportsMenuScreen(
                         section.items.forEachIndexed { index, item ->
                             ReportRow(item = item)
                             if (index != section.items.lastIndex) {
-                                androidx.compose.material3.Divider(
-                                    color = AumoColors.Border.copy(alpha = 0.4f),
-                                    thickness = 1.dp,
+                                HorizontalDivider(
                                     modifier = Modifier.padding(start = 56.dp),
+                                    thickness = 1.dp,
+                                    color = AumoColors.Border.copy(alpha = 0.4f),
                                 )
                             }
                         }
@@ -152,16 +154,15 @@ private fun ReportRow(item: ReportMenuItem) {
     }
 }
 
-/** Ikon bawaan tiap baris laporan, dipisah agar Activity ringkas. */
 object ReportMenuIcons {
-    val AdjustingJournal = Icons.Outlined.MenuBook
+    val AdjustingJournal = Icons.AutoMirrored.Outlined.MenuBook
     val LedgerPermanent = Icons.Outlined.AccountBalance
     val LedgerTemporary = Icons.Outlined.AccountBalance
     val TrialBalance = Icons.Outlined.Balance
     val Worksheet = Icons.Outlined.TableChart
-    val IncomeStatement = Icons.Outlined.TrendingUp
+    val IncomeStatement = Icons.AutoMirrored.Outlined.TrendingUp
     val RetainedEarnings = Icons.Outlined.Savings
     val FinancialPosition = Icons.Outlined.PieChart
     val CashFlow = Icons.Outlined.Payments
-    val ClosingJournal = Icons.Outlined.ReceiptLong
+    val ClosingJournal = Icons.AutoMirrored.Outlined.ReceiptLong
 }
