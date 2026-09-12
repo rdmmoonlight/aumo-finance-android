@@ -10,11 +10,11 @@ import com.aumofinance.app.reports.financials.financialposition.FinancialPositio
 import com.aumofinance.app.reports.financials.incomestatement.IncomeStatementActivity
 import com.aumofinance.app.reports.financials.retainedearnings.RetainedEarningsActivity
 import com.aumofinance.app.reports.journal.AdjustingJournalReportActivity
-import com.aumofinance.app.reports.ledger.GeneralLedgerPermanentActivity
-import com.aumofinance.app.reports.ledger.GeneralLedgerTemporaryActivity
-import com.aumofinance.app.reports.trialbalance.AdjustedTrialBalanceActivity
-import com.aumofinance.app.reports.trialbalance.PostClosingTrialBalanceActivity
-import com.aumofinance.app.reports.trialbalance.TrialBalanceActivity
+import com.aumofinance.app.reports.ledger.permanent.GeneralLedgerPermanentActivity
+import com.aumofinance.app.reports.ledger.temporary.GeneralLedgerTemporaryActivity
+import com.aumofinance.app.reports.trialbalance.adjusted.AdjustedTrialBalanceActivity
+import com.aumofinance.app.reports.trialbalance.postclosing.PostClosingTrialBalanceActivity
+import com.aumofinance.app.reports.trialbalance.unadjusted.TrialBalanceActivity
 import com.aumofinance.app.reports.worksheet.WorksheetActivity
 import com.aumofinance.app.ui.theme.AumoTheme
 

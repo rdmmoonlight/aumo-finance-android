@@ -51,19 +51,19 @@
             android:name=".reports.journal.AdjustingJournalReportActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.ledger.GeneralLedgerPermanentActivity"
+            android:name=".reports.ledger.permanent.GeneralLedgerPermanentActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.ledger.GeneralLedgerTemporaryActivity"
+            android:name=".reports.ledger.temporary.GeneralLedgerTemporaryActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.trialbalance.TrialBalanceActivity"
+            android:name=".reports.trialbalance.unadjusted.TrialBalanceActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.trialbalance.AdjustedTrialBalanceActivity"
+            android:name=".reports.trialbalance.adjusted.AdjustedTrialBalanceActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.trialbalance.PostClosingTrialBalanceActivity"
+            android:name=".reports.trialbalance.postclosing.PostClosingTrialBalanceActivity"
             android:exported="false" />
         <activity
             android:name=".reports.worksheet.WorksheetActivity"

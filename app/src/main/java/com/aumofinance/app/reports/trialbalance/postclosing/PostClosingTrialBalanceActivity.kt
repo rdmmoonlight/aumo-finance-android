@@ -1,20 +1,21 @@
-package com.aumofinance.app.reports.worksheet
+package com.aumofinance.app.reports.trialbalance.postclosing
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import com.aumofinance.app.reports.trialbalance.TrialBalanceScreen
 import com.aumofinance.app.ui.theme.AumoTheme
 
-class WorksheetActivity : ComponentActivity() {
-    private val viewModel: WorksheetViewModel by viewModels()
+class PostClosingTrialBalanceActivity : ComponentActivity() {
+    private val viewModel: PostClosingTrialBalanceViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             AumoTheme {
-                WorksheetScreen(report = viewModel.report)
+                TrialBalanceScreen(report = viewModel.report, fallbackTitle = "Neraca Saldo Pasca-Penutupan")
             }
         }
 
