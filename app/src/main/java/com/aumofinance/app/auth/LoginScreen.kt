@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -152,7 +152,11 @@ fun LoginScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = AumoColors.Background),
                         modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     ) {
-                        Text("\uD83D\uDD12  Masuk dengan Biometrik", color = AumoColors.TextPrimary, fontSize = MaterialTheme.typography.bodyMedium.fontSize)
+                        Text(
+                            "\uD83D\uDD12  Masuk dengan Biometrik",
+                            color = AumoColors.TextPrimary,
+                            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        )
                     }
                 }
             }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -64,9 +63,24 @@ fun DashboardScreen(summary: DashboardSummary?) {
                         .background(AumoColors.Surface)
                         .padding(16.dp),
             ) {
-                BalanceLine(label = "Total Aset", value = summary.totalAssets, valueSize = MaterialTheme.typography.titleMedium.fontSize, bold = true)
-                BalanceLine(label = "Total Liabilitas", value = summary.totalLiabilities, valueSize = MaterialTheme.typography.bodyLarge.fontSize, topPadding = 12.dp)
-                BalanceLine(label = "Total Ekuitas", value = summary.totalEquity, valueSize = MaterialTheme.typography.bodyLarge.fontSize, topPadding = 12.dp)
+                BalanceLine(
+                    label = "Total Aset",
+                    value = summary.totalAssets,
+                    valueSize = MaterialTheme.typography.titleMedium.fontSize,
+                    bold = true,
+                )
+                BalanceLine(
+                    label = "Total Liabilitas",
+                    value = summary.totalLiabilities,
+                    valueSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    topPadding = 12.dp,
+                )
+                BalanceLine(
+                    label = "Total Ekuitas",
+                    value = summary.totalEquity,
+                    valueSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    topPadding = 12.dp,
+                )
             }
 
             // Ringkasan Laba Rugi
@@ -86,7 +100,9 @@ fun DashboardScreen(summary: DashboardSummary?) {
                     fontSize = MaterialTheme.typography.headlineSmall.fontSize,
                 )
                 Text(
-                    text = "Pendapatan ${CurrencyFormatter.format(summary.totalRevenue)}  \u2022  Beban ${CurrencyFormatter.format(summary.totalExpenses)}",
+                    text = "Pendapatan ${CurrencyFormatter.format(
+                        summary.totalRevenue,
+                    )}  \u2022  Beban ${CurrencyFormatter.format(summary.totalExpenses)}",
                     color = AumoColors.TextMuted,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                     modifier = Modifier.padding(top = 6.dp),
@@ -141,8 +157,17 @@ private fun CashBankSection(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(entry.accountName, color = AumoColors.TextPrimary, fontSize = MaterialTheme.typography.bodySmall.fontSize, modifier = Modifier.weight(1f))
-                Text(CurrencyFormatter.format(entry.balance), color = AumoColors.TextPrimary, fontSize = MaterialTheme.typography.bodySmall.fontSize)
+                Text(
+                    entry.accountName,
+                    color = AumoColors.TextPrimary,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    CurrencyFormatter.format(entry.balance),
+                    color = AumoColors.TextPrimary,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                )
             }
         }
     }
