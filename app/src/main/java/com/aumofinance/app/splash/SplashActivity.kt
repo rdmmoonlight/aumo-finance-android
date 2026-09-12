@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity
-import com.aumofinance.app.R
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import com.aumofinance.app.auth.BiometricHelper
 import com.aumofinance.app.auth.LoginActivity
 import com.aumofinance.app.home.HomeActivity
@@ -24,14 +24,14 @@ import com.aumofinance.app.update.AppUpdateService
 //   Biometrik" di layar Login.
 // - Ada sesi + "Ingat saya" saja (tanpa biometrik) -> langsung ke Home.
 // - Tidak ada sesi tersimpan -> ke Login seperti biasa.
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : ComponentActivity() {
     companion object {
         private const val SPLASH_DURATION_MS = 1200L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+        setContent { SplashScreen() }
 
         // Cek update di background, silent, setiap app dibuka — porting
         // persis perilaku App.xaml.cs di versi MAUI lama (dulu TIDAK ADA

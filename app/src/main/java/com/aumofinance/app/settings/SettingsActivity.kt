@@ -3,19 +3,21 @@ package com.aumofinance.app.settings
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.Switch
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import com.aumofinance.app.BuildConfig
-import com.aumofinance.app.R
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.aumofinance.app.crashlog.CrashLogActivity
+import com.aumofinance.app.logout.LogoutActivity
+import com.aumofinance.app.ui.theme.AumoTheme
 import com.aumofinance.app.update.AppUpdateService
 
 // Halaman Settings: preferensi notifikasi (disimpan lokal lewat
 // SharedPreferences — belum ada backend untuk ini, murni preferensi
 // perangkat), akses Crash Log, dan tombol Logout.
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : ComponentActivity() {
     companion object {
         private const val PREFS_NAME = "aumo_settings"
         private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
@@ -23,31 +25,34 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
 
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val switchNotifications = findViewById<Switch>(R.id.switchNotifications)
-        switchNotifications.isChecked = prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true)
-        switchNotifications.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, isChecked).apply()
-        }
-
-        findViewById<Button>(R.id.buttonCrashLog).setOnClickListener {
-            startActivity(Intent(this, CrashLogActivity::class.java))
-        }
-
         val updatePrefs = getSharedPreferences(AppUpdateService.PREFS_NAME, Context.MODE_PRIVATE)
-        val switchAutoUpdate = findViewById<Switch>(R.id.switchAutoUpdate)
-        switchAutoUpdate.isChecked = updatePrefs.getBoolean(AppUpdateService.KEY_AUTO_UPDATE_ENABLED, true)
-        switchAutoUpdate.setOnCheckedChangeListener { _, isChecked ->
-            updatePrefs.edit().putBoolean(AppUpdateService.KEY_AUTO_UPDATE_ENABLED, isChecked).apply()
-        }
 
-        findViewById<Button>(R.id.buttonLogout).setOnClickListener {
-            startActivity(Intent(this, LogoutActivity::class.java))
-        }
+        setContent {
+            var notificationsEnabled by remember {
+                mutableStateOf(prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true))
+            }
+            var autoUpdateEnabled by remember {
+                mutableStateOf(updatePrefs.getBoolean(AppUpdateService.KEY_AUTO_UPDATE_ENABLED, true))
+            }
 
-        findViewById<TextView>(R.id.textAppVersion).text =
-            "Versi ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+            AumoTheme {
+                SettingsScreen(
+                    notificationsEnabled = notificationsEnabled,
+                    onNotificationsChange = { checked ->
+                        notificationsEnabled = checked
+                        prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, checked).apply()
+                    },
+                    autoUpdateEnabled = autoUpdateEnabled,
+                    onAutoUpdateChange = { checked ->
+                        autoUpdateEnabled = checked
+                        updatePrefs.edit().putBoolean(AppUpdateService.KEY_AUTO_UPDATE_ENABLED, checked).apply()
+                    },
+                    onCrashLogClick = { startActivity(Intent(this, CrashLogActivity::class.java)) },
+                    onLogoutClick = { startActivity(Intent(this, LogoutActivity::class.java)) },
+                )
+            }
+        }
     }
 }

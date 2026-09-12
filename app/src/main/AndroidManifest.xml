@@ -87,7 +87,7 @@
             android:name=".settings.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".settings.LogoutActivity"
+            android:name=".logout.LogoutActivity"
             android:exported="false" />
         <activity
             android:name=".crashlog.CrashLogActivity"
