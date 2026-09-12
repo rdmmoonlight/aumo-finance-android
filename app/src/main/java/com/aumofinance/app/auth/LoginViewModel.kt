@@ -1,7 +1,8 @@
 package com.aumofinance.app.auth
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aumofinance.app.network.SessionManager
@@ -20,11 +21,13 @@ sealed class LoginState {
     data class Error(val message: String) : LoginState()
 }
 
+// State Compose (bukan LiveData) — mengikuti pola JournalEntryViewModel/PeriodsViewModel
+// sejak halaman ini dipindah dari Activity/View ke Jetpack Compose.
 class LoginViewModel : ViewModel() {
     private val api = AuthApi()
 
-    private val _state = MutableLiveData<LoginState>(LoginState.Idle)
-    val state: LiveData<LoginState> = _state
+    var state: LoginState by mutableStateOf(LoginState.Idle)
+        private set
 
     fun login(
         email: String,
@@ -32,7 +35,7 @@ class LoginViewModel : ViewModel() {
         keepSignedIn: Boolean,
         enableBiometric: Boolean,
     ) {
-        _state.value = LoginState.Loading
+        state = LoginState.Loading
         // Biometrik cuma masuk akal kalau sesi memang disimpan — kalau
         // user centang biometrik tapi tidak centang "Ingat saya", anggap
         // keduanya diminta (tidak ada yang bisa dibuka biometrik kalau
@@ -47,12 +50,12 @@ class LoginViewModel : ViewModel() {
                     SessionManager.userId = body.userId
                     SessionManager.fullName = body.fullName
                     SessionStore.save(body.token, body.userId, body.fullName, shouldKeepSignedIn, enableBiometric)
-                    _state.value = LoginState.Success(body.fullName)
+                    state = LoginState.Success(body.fullName)
                 } else {
-                    _state.value = LoginState.Error(body.message.ifBlank { "Login gagal (${response.status.value})" })
+                    state = LoginState.Error(body.message.ifBlank { "Login gagal (${response.status.value})" })
                 }
             } catch (t: Throwable) {
-                _state.value = LoginState.Error(t.message ?: "Koneksi gagal")
+                state = LoginState.Error(t.message ?: "Koneksi gagal")
             }
         }
     }

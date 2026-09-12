@@ -1,159 +1,73 @@
 package com.aumofinance.app.coa
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.Spinner
-import android.widget.Switch
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.aumofinance.app.R
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.aumofinance.app.ui.theme.AumoTheme
 
-class CoaActivity : AppCompatActivity() {
+class CoaActivity : ComponentActivity() {
     private val viewModel: CoaViewModel by viewModels()
-    private lateinit var adapter: CoaAdapter
-
-    // According to the reference number ranges in AccountClassification.cs in aumo-finance-web.
-    private val accountTypes =
-        listOf(
-            "Assets",
-            "Liabilities",
-            "Equity",
-            "OperatingIncome",
-            "OperatingExpenses",
-            "OtherIncome",
-            "OtherExpenses",
-        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_coa)
 
-        adapter = CoaAdapter(emptyList()) { account -> showEditDialog(account) }
-        findViewById<RecyclerView>(R.id.recyclerAccounts).apply {
-            layoutManager = LinearLayoutManager(this@CoaActivity)
-            adapter = this@CoaActivity.adapter
-        }
+        setContent {
+            var searchQuery by remember { mutableStateOf("") }
+            var accountBeingAdded by remember { mutableStateOf(false) }
+            var accountBeingEdited by remember { mutableStateOf<Account?>(null) }
 
-        findViewById<EditText>(R.id.inputSearch).addTextChangedListener(
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int,
-                ) = Unit
+            LaunchedEffect(searchQuery) {
+                viewModel.load(search = searchQuery.takeIf { it.isNotBlank() })
+            }
 
-                override fun onTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    before: Int,
-                    count: Int,
-                ) = Unit
-
-                override fun afterTextChanged(s: Editable?) {
-                    viewModel.load(search = s?.toString()?.takeIf { it.isNotBlank() })
+            LaunchedEffect(viewModel.errorMessage) {
+                viewModel.errorMessage?.let {
+                    Toast.makeText(this@CoaActivity, it, Toast.LENGTH_LONG).show()
+                    viewModel.clearError()
                 }
-            },
-        )
+            }
 
-        findViewById<android.widget.Button>(R.id.buttonAddAccount).setOnClickListener {
-            showCreateDialog()
-        }
-
-        viewModel.accounts.observe(this) { accounts -> adapter.submitList(accounts) }
-        viewModel.errorMessage.observe(this) { message ->
-            message?.let { Toast.makeText(this, it, Toast.LENGTH_LONG).show() }
-        }
-        viewModel.load()
-    }
-
-    private fun showCreateDialog() {
-        val (container, refInput, nameInput, typeSpinner) = buildForm(null)
-
-        AlertDialog.Builder(this)
-            .setTitle("Add Account")
-            .setView(container)
-            .setPositiveButton("Save") { _, _ ->
-                val refNumber = refInput.text.toString().toIntOrNull() ?: return@setPositiveButton
-                viewModel.create(
-                    AccountRequest(
-                        referenceNumber = refNumber,
-                        accountName = nameInput.text.toString(),
-                        type = accountTypes[typeSpinner.selectedItemPosition],
-                    ),
+            AumoTheme {
+                CoaScreen(
+                    accounts = viewModel.accounts,
+                    searchQuery = searchQuery,
+                    onSearchChange = { searchQuery = it },
+                    onAddClick = { accountBeingAdded = true },
+                    onAccountClick = { account -> accountBeingEdited = account },
                 )
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
 
-    private fun showEditDialog(account: Account) {
-        val (container, refInput, nameInput, typeSpinner) = buildForm(account)
-        val activeSwitch =
-            Switch(this).apply {
-                text = "Active"
-                isChecked = account.isActive
-            }
-        container.addView(activeSwitch)
+                if (accountBeingAdded) {
+                    AddAccountDialog(
+                        onDismiss = { accountBeingAdded = false },
+                        onSubmit = { request ->
+                            viewModel.create(request)
+                            accountBeingAdded = false
+                        },
+                    )
+                }
 
-        AlertDialog.Builder(this)
-            .setTitle("Edit Account")
-            .setView(container)
-            .setPositiveButton("Save") { _, _ ->
-                val refNumber = refInput.text.toString().toIntOrNull() ?: return@setPositiveButton
-                viewModel.update(
-                    account.id,
-                    UpdateAccountRequest(
-                        referenceNumber = refNumber,
-                        accountName = nameInput.text.toString(),
-                        type = accountTypes[typeSpinner.selectedItemPosition],
-                        isActive = activeSwitch.isChecked,
-                    ),
-                )
+                accountBeingEdited?.let { account ->
+                    EditAccountDialog(
+                        account = account,
+                        onDismiss = { accountBeingEdited = null },
+                        onSubmit = { request ->
+                            viewModel.update(account.id, request)
+                            accountBeingEdited = null
+                        },
+                        onDelete = {
+                            viewModel.delete(account.id)
+                            accountBeingEdited = null
+                        },
+                    )
+                }
             }
-            // Backend will reject (400) if the account already has journal entries —
-            // the message (prompting to set to Inactive via the toggle above)
-            // will automatically appear via viewModel.errorMessage.
-            .setNeutralButton("Delete") { _, _ -> viewModel.delete(account.id) }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private data class FormViews(val container: LinearLayout, val refInput: EditText, val nameInput: EditText, val typeSpinner: Spinner)
-
-    private fun buildForm(existing: Account?): FormViews {
-        val container =
-            LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(48, 24, 48, 0)
-            }
-        val refInput =
-            EditText(this).apply {
-                hint = "Reference Number (e.g., 101)"
-                inputType = android.text.InputType.TYPE_CLASS_NUMBER
-                existing?.let { setText(it.referenceNumber.toString()) }
-            }
-        val nameInput =
-            EditText(this).apply {
-                hint = "Account Name"
-                existing?.let { setText(it.accountName) }
-            }
-        val typeSpinner =
-            Spinner(this).apply {
-                adapter = ArrayAdapter(this@CoaActivity, android.R.layout.simple_spinner_dropdown_item, accountTypes)
-                existing?.let { setSelection(accountTypes.indexOf(it.type).coerceAtLeast(0)) }
-            }
-        container.addView(refInput)
-        container.addView(nameInput)
-        container.addView(typeSpinner)
-        return FormViews(container, refInput, nameInput, typeSpinner)
+        }
     }
 }

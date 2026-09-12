@@ -1,7 +1,8 @@
 package com.aumofinance.app.coa
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.call.body
@@ -9,21 +10,23 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.launch
 
+// State Compose (bukan LiveData) — mengikuti pola JournalEntryViewModel/PeriodsViewModel
+// sejak halaman ini dipindah dari Activity/View ke Jetpack Compose.
 class CoaViewModel : ViewModel() {
     private val api = CoaApi()
 
-    private val _accounts = MutableLiveData<List<Account>>(emptyList())
-    val accounts: LiveData<List<Account>> = _accounts
+    var accounts: List<Account> by mutableStateOf(emptyList())
+        private set
 
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> = _errorMessage
+    var errorMessage: String? by mutableStateOf(null)
+        private set
 
     fun load(
         search: String? = null,
         category: String? = null,
     ) {
         viewModelScope.launch {
-            _accounts.value =
+            accounts =
                 try {
                     api.list(search, category).body<AccountsResponse>().accounts
                 } catch (t: Throwable) {
@@ -50,16 +53,20 @@ class CoaViewModel : ViewModel() {
         viewModelScope.launch { handleResult(api.delete(id)) }
     }
 
+    fun clearError() {
+        errorMessage = null
+    }
+
     private suspend fun handleResult(response: HttpResponse) {
         try {
             val body = response.body<SimpleApiResponse>()
             if (response.status.isSuccess() && body.success) {
                 load()
             } else {
-                _errorMessage.value = body.message.ifBlank { "Gagal memproses permintaan (${response.status.value})" }
+                errorMessage = body.message.ifBlank { "Gagal memproses permintaan (${response.status.value})" }
             }
         } catch (t: Throwable) {
-            _errorMessage.value = t.message ?: "Koneksi gagal"
+            errorMessage = t.message ?: "Koneksi gagal"
         }
     }
 }

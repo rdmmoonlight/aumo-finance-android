@@ -2,99 +2,90 @@ package com.aumofinance.app.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import com.aumofinance.app.R
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.aumofinance.app.home.HomeActivity
 import com.aumofinance.app.network.SessionStore
+import com.aumofinance.app.ui.theme.AumoTheme
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : ComponentActivity() {
     private val viewModel: LoginViewModel by viewModels()
-    private lateinit var inputEmail: EditText
-    private lateinit var inputPassword: EditText
-    private lateinit var buttonLogin: Button
-    private lateinit var checkboxKeepSignedIn: CheckBox
-    private lateinit var checkboxBiometric: CheckBox
-    private lateinit var buttonBiometricLogin: Button
-    private lateinit var textLoginError: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
 
-        inputEmail = findViewById(R.id.inputUsername)
-        inputPassword = findViewById(R.id.inputPassword)
-        buttonLogin = findViewById(R.id.buttonLogin)
-        checkboxKeepSignedIn = findViewById(R.id.checkboxKeepSignedIn)
-        checkboxBiometric = findViewById(R.id.checkboxBiometric)
-        buttonBiometricLogin = findViewById(R.id.buttonBiometricLogin)
-        textLoginError = findViewById(R.id.textLoginError)
-
-        setupBiometricVisibility()
-
-        // "Aktifkan biometrik" cuma masuk akal kalau sesi juga disimpan —
-        // centang otomatis "Ingat saya" dan kunci (tidak bisa dicentang lepas
-        // tanpa "Ingat saya" ikut aktif).
-        checkboxBiometric.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) checkboxKeepSignedIn.isChecked = true
-        }
-
-        buttonLogin.setOnClickListener {
-            textLoginError.visibility = View.GONE
-            viewModel.login(
-                inputEmail.text.toString().trim(),
-                inputPassword.text.toString(),
-                checkboxKeepSignedIn.isChecked,
-                checkboxBiometric.isChecked,
-            )
-        }
-
-        buttonBiometricLogin.setOnClickListener { attemptBiometricLogin() }
-
-        viewModel.state.observe(this) { state ->
-            when (state) {
-                is LoginState.Success -> goToHome()
-                is LoginState.Error -> {
-                    textLoginError.text = state.message
-                    textLoginError.visibility = View.VISIBLE
-                }
-                else -> Unit
-            }
-        }
-    }
-
-    // Kalau biometrik sudah pernah diaktifkan dan ada sesi tersimpan,
-    // tawarkan tombol "Masuk dengan Biometrik" alih-alih checkbox aktivasi
-    // (checkbox aktivasi cuma relevan saat SETUP pertama kali).
-    private fun setupBiometricVisibility() {
+        // Kalau biometrik sudah pernah diaktifkan dan ada sesi tersimpan,
+        // tawarkan tombol "Masuk dengan Biometrik" alih-alih checkbox aktivasi
+        // (checkbox aktivasi cuma relevan saat SETUP pertama kali).
         val biometricAvailable = BiometricHelper.isAvailable(this)
         val alreadyEnabled = SessionStore.isBiometricEnabled() && SessionStore.hasSavedSession()
+        val showBiometricSetupCheckbox = biometricAvailable && !alreadyEnabled
+        val showBiometricLoginButton = biometricAvailable && alreadyEnabled
 
-        checkboxBiometric.visibility = if (biometricAvailable && !alreadyEnabled) View.VISIBLE else View.GONE
-        buttonBiometricLogin.visibility = if (biometricAvailable && alreadyEnabled) View.VISIBLE else View.GONE
-    }
+        setContent {
+            var email by remember { mutableStateOf("") }
+            var password by remember { mutableStateOf("") }
+            var keepSignedIn by remember { mutableStateOf(false) }
+            var biometricSetupChecked by remember { mutableStateOf(false) }
+            var biometricError by remember { mutableStateOf<String?>(null) }
 
-    private fun attemptBiometricLogin() {
-        BiometricHelper.authenticate(
-            activity = this,
-            title = "Masuk ke AumoFinance",
-            subtitle = "Gunakan sidik jari atau wajah Anda",
-            onSuccess = {
-                // Token JWT ikut dipulihkan oleh restoreIntoSessionManager()
-                // di bawah — cukup itu saja untuk request pertama di Home.
-                SessionStore.restoreIntoSessionManager()
-                goToHome()
-            },
-            onFailure = { message ->
-                textLoginError.text = message
-                textLoginError.visibility = View.VISIBLE
-            },
-        )
+            val state = viewModel.state
+            LaunchedEffect(state) {
+                if (state is LoginState.Success) goToHome()
+            }
+
+            val errorMessage =
+                biometricError ?: (state as? LoginState.Error)?.message
+
+            AumoTheme {
+                LoginScreen(
+                    email = email,
+                    onEmailChange = { email = it },
+                    password = password,
+                    onPasswordChange = { password = it },
+                    keepSignedIn = keepSignedIn,
+                    onKeepSignedInChange = { keepSignedIn = it },
+                    showBiometricSetupCheckbox = showBiometricSetupCheckbox,
+                    biometricSetupChecked = biometricSetupChecked,
+                    onBiometricSetupChange = { checked ->
+                        biometricSetupChecked = checked
+                        // "Aktifkan biometrik" cuma masuk akal kalau sesi juga
+                        // disimpan — centang otomatis "Ingat saya" (tidak bisa
+                        // dicentang lepas tanpa "Ingat saya" ikut aktif).
+                        if (checked) keepSignedIn = true
+                    },
+                    showBiometricLoginButton = showBiometricLoginButton,
+                    onBiometricLoginClick = {
+                        biometricError = null
+                        BiometricHelper.authenticate(
+                            activity = this@LoginActivity,
+                            title = "Masuk ke AumoFinance",
+                            subtitle = "Gunakan sidik jari atau wajah Anda",
+                            onSuccess = {
+                                // Token JWT ikut dipulihkan oleh
+                                // restoreIntoSessionManager() di bawah — cukup
+                                // itu saja untuk request pertama di Home.
+                                SessionStore.restoreIntoSessionManager()
+                                goToHome()
+                            },
+                            onFailure = { message -> biometricError = message },
+                        )
+                    },
+                    errorMessage = errorMessage,
+                    isLoading = state is LoginState.Loading,
+                    onLoginClick = {
+                        biometricError = null
+                        viewModel.login(email.trim(), password, keepSignedIn, biometricSetupChecked)
+                    },
+                )
+            }
+        }
     }
 
     private fun goToHome() {
