@@ -69,19 +69,19 @@
             android:name=".reports.worksheet.WorksheetActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.financials.IncomeStatementActivity"
+            android:name=".reports.financials.incomestatement.IncomeStatementActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.financials.RetainedEarningsActivity"
+            android:name=".reports.financials.retainedearnings.RetainedEarningsActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.financials.FinancialPositionActivity"
+            android:name=".reports.financials.financialposition.FinancialPositionActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.financials.CashFlowActivity"
+            android:name=".reports.financials.cashflow.CashFlowActivity"
             android:exported="false" />
         <activity
-            android:name=".reports.financials.ClosingJournalActivity"
+            android:name=".reports.financials.closingjournal.ClosingJournalActivity"
             android:exported="false" />
         <activity
             android:name=".settings.SettingsActivity"

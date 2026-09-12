@@ -4,11 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.aumofinance.app.reports.financials.CashFlowActivity
-import com.aumofinance.app.reports.financials.ClosingJournalActivity
-import com.aumofinance.app.reports.financials.FinancialPositionActivity
-import com.aumofinance.app.reports.financials.IncomeStatementActivity
-import com.aumofinance.app.reports.financials.RetainedEarningsActivity
+import com.aumofinance.app.reports.financials.cashflow.CashFlowActivity
+import com.aumofinance.app.reports.financials.closingjournal.ClosingJournalActivity
+import com.aumofinance.app.reports.financials.financialposition.FinancialPositionActivity
+import com.aumofinance.app.reports.financials.incomestatement.IncomeStatementActivity
+import com.aumofinance.app.reports.financials.retainedearnings.RetainedEarningsActivity
 import com.aumofinance.app.reports.journal.AdjustingJournalReportActivity
 import com.aumofinance.app.reports.ledger.GeneralLedgerPermanentActivity
 import com.aumofinance.app.reports.ledger.GeneralLedgerTemporaryActivity
