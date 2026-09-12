@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.fragment.app.FragmentActivity
 import com.aumofinance.app.auth.BiometricHelper
 import com.aumofinance.app.auth.LoginActivity
 import com.aumofinance.app.home.HomeActivity
@@ -24,7 +24,7 @@ import com.aumofinance.app.update.AppUpdateService
 //   Biometrik" di layar Login.
 // - Ada sesi + "Ingat saya" saja (tanpa biometrik) -> langsung ke Home.
 // - Tidak ada sesi tersimpan -> ke Login seperti biasa.
-class SplashActivity : ComponentActivity() {
+class SplashActivity : FragmentActivity() {
     companion object {
         private const val SPLASH_DURATION_MS = 1200L
     }
