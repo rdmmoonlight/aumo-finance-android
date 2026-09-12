@@ -46,7 +46,9 @@ fun TrialBalanceScreen(
 
             if (report != null) {
                 Text(
-                    text = "Debit: ${CurrencyFormatter.format(report.totalDebit)}   Kredit: ${CurrencyFormatter.format(report.totalCredit)}",
+                    text = "Debit: ${CurrencyFormatter.format(
+                        report.totalDebit,
+                    )}   Kredit: ${CurrencyFormatter.format(report.totalCredit)}",
                     color = AumoColors.TextPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize,
