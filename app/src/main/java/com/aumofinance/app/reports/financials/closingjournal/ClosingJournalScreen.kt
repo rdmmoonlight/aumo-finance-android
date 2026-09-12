@@ -27,8 +27,9 @@ fun ClosingJournalScreen(report: ClosingJournalReport?) {
 
     FinancialReportScaffold(periodName = report?.selectedPeriodName) {
         Text(
-            text = "Laba Bersih (ditutup ke ${data?.retainedEarningsAccountName ?: "Retained Earnings"}): " +
-                CurrencyFormatter.format(data?.netIncome ?: 0.0),
+            text =
+                "Laba Bersih (ditutup ke ${data?.retainedEarningsAccountName ?: "Retained Earnings"}): " +
+                    CurrencyFormatter.format(data?.netIncome ?: 0.0),
             color = AumoColors.TextPrimary,
             fontWeight = FontWeight.Bold,
             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
