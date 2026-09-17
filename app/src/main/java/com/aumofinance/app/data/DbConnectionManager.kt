@@ -10,7 +10,7 @@ object DbConnectionManager {
     val isDbConnected: StateFlow<Boolean> = _isDbConnected.asStateFlow()
 
     // Render free tier butuh waktu ~30-40 detik untuk murni ready dari mode sleep
-    private const val COLD_START_DELAY_MS = 40_000L 
+    private const val COLD_START_DELAY_MS = 40_000L
 
     /**
      * Menahan indikator tetap KUNING (berkedip) selama jeda waktu cold start Render.
@@ -18,7 +18,7 @@ object DbConnectionManager {
      */
     suspend fun ensureConnected(onPingDb: suspend () -> Unit) {
         // Jika sudah hijau dari layar sebelumnya, tidak perlu menunggu ulang
-        if (_isDbConnected.value) return 
+        if (_isDbConnected.value) return
 
         _isDbConnected.value = false // Tetap kuning berkedip
 
