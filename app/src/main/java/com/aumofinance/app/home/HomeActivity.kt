@@ -5,31 +5,31 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.aumofinance.app.coa.CoaActivity
 import com.aumofinance.app.dashboard.DashboardActivity
+import com.aumofinance.app.data.DbConnectionManager
 import com.aumofinance.app.journal.JournalEntryActivity
 import com.aumofinance.app.periods.PeriodsActivity
 import com.aumofinance.app.reports.journal.GeneralJournalReportActivity
 import com.aumofinance.app.reports.menu.ReportsMenuActivity
 import com.aumofinance.app.settings.SettingsActivity
 import com.aumofinance.app.ui.theme.AumoTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class HomeActivity : ComponentActivity() {
-    // Default false: langsung berkedip kuning saat pertama kali aplikasi/screen dibuka
-    private var isDbConnected by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Langsung panggil load/koneksi DB di onCreate
-        connectToDatabase()
+        // Memicu koneksi/ping ke DB tunggal (Render.com)
+        initDatabaseConnection()
 
         setContent {
+            // Mengambil status koneksi global dari Singleton
+            val isDbConnected by DbConnectionManager.isDbConnected.collectAsStateWithLifecycle()
+
             AumoTheme {
                 HomeScreen(
                     dashboard =
@@ -81,14 +81,13 @@ class HomeActivity : ComponentActivity() {
         }
     }
 
-    private fun connectToDatabase() {
+    private fun initDatabaseConnection() {
         lifecycleScope.launch {
-            // Sesuaikan pemanggilan query/koneksi database kamu di sini
-            // Contoh simulasi delay proses inisialisasi DB:
-            delay(1500)
-
-            // Set ke true setelah DB siap/terhubung
-            isDbConnected = true
+            DbConnectionManager.ensureConnected {
+                // Ganti dengan pemanggilan Retrofit / Ktor / Room / API Render.com kamu yang sebenarnya.
+                // Contoh jika menggunakan API health check:
+                // apiService.pingServer()
+            }
         }
     }
 
