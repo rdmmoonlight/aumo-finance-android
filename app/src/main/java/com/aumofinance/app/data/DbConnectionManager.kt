@@ -4,20 +4,35 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Singleton penampung status koneksi DB tunggal (Render.com).
+ * Menjamin status koneksi tidak ter-reset saat pengguna berpindah halaman.
+ */
 object DbConnectionManager {
-    private val _isConnected = MutableStateFlow(false)
-    val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
+    private val _isDbConnected = MutableStateFlow(false)
+    val isDbConnected: StateFlow<Boolean> = _isDbConnected.asStateFlow()
 
-    suspend fun checkOrInitConnection() {
-        if (_isConnected.value) return // Kalau sudah terkoneksi, tidak perlu re-connect
+    /**
+     * Memanggil ping/koneksi ke DB Render.com.
+     * Jika sudah pernah terhubung, tidak akan melakukan reconnect/reset state.
+     */
+    suspend fun ensureConnected(onPingDb: suspend () -> Unit) {
+        if (_isDbConnected.value) return // Sudah terhubung, jangan reset ke kuning lagi
 
-        _isConnected.value = false // Default kuning berkedip saat connecting
         try {
-            // Panggil endpoint health check/ping API Render.com di sini
-            // contoh: apiService.pingDatabase()
-            _isConnected.value = true // Hijau saat sukses
+            // Eksekusi ping/query riil ke backend Render.com
+            onPingDb()
+            _isDbConnected.value = true
         } catch (e: Exception) {
-            _isConnected.value = false // Tetap/kembali berkedip jika gagal/retrying
+            _isDbConnected.value = false
         }
+    }
+
+    /**
+     * Panggil ini jika API call di halaman manapun mengalami network error/timeout
+     * agar indikator kembali ke kuning saat mencoba memulihkan koneksi.
+     */
+    fun setDisconnected() {
+        _isDbConnected.value = false
     }
 }
