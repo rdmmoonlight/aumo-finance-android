@@ -15,7 +15,7 @@ object DbConnectionManager {
         _isDbConnected.value = false // Default tetap KUNING berkedip saat belum siap
 
         try {
-            // Eksekusi Ktor GET request. 
+            // Eksekusi Ktor GET request.
             // Selama Render.com cold start, baris ini akan gantung (suspending)
             // menahan indikator tetap berkedip kuning hingga server me-return respon.
             onPingDb()
