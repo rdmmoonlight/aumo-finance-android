@@ -4,6 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
 import com.aumofinance.app.coa.CoaActivity
 import com.aumofinance.app.dashboard.DashboardActivity
 import com.aumofinance.app.journal.JournalEntryActivity
@@ -12,18 +16,19 @@ import com.aumofinance.app.reports.journal.GeneralJournalReportActivity
 import com.aumofinance.app.reports.menu.ReportsMenuActivity
 import com.aumofinance.app.settings.SettingsActivity
 import com.aumofinance.app.ui.theme.AumoTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-// Landing page pasca-login: hub navigasi ke seluruh fitur app. Ini SATU-
-// SATUNYA layar tujuan setelah LoginActivity.
-//
-// Ditulis ulang dengan Jetpack Compose (sebelumnya RecyclerView + XML).
-// Hanya 6 kotak yang ditampilkan di Home — 13 halaman laporan TIDAK
-// dipisah satu-satu di sini, melainkan dikelompokkan di balik satu kotak
-// "Reports" (lihat ReportsMenuActivity), kecuali General Journal yang
-// sengaja punya kotak sendiri karena paling sering dipakai.
 class HomeActivity : ComponentActivity() {
+
+    // Default false: langsung berkedip kuning saat pertama kali aplikasi/screen dibuka
+    private var isDbConnected by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Langsung panggil load/koneksi DB di onCreate
+        connectToDatabase()
 
         setContent {
             AumoTheme {
@@ -70,9 +75,21 @@ class HomeActivity : ComponentActivity() {
                             icon = HomeIcons.Reports,
                             onClick = { open(ReportsMenuActivity::class.java) },
                         ),
+                    isDbConnected = isDbConnected,
                     onSettingsClick = { open(SettingsActivity::class.java) },
                 )
             }
+        }
+    }
+
+    private fun connectToDatabase() {
+        lifecycleScope.launch {
+            // Sesuaikan pemanggilan query/koneksi database kamu di sini
+            // Contoh simulasi delay proses inisialisasi DB:
+            delay(1500) 
+
+            // Set ke true setelah DB siap/terhubung
+            isDbConnected = true
         }
     }
 
