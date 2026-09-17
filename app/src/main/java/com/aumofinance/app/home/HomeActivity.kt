@@ -21,7 +21,6 @@ import io.ktor.client.request.get
 import kotlinx.coroutines.launch
 
 class HomeActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -87,7 +86,7 @@ class HomeActivity : ComponentActivity() {
                 // Tembak endpoint API Render lewat Ktor Client.
                 // Jika server Render masih 'cold start'/tidur, request ini akan menunggu/delay
                 // sampai server benar-benar merespon.
-                ApiClient.client.get("/api/v1/periods") 
+                ApiClient.client.get("/api/v1/periods")
             }
         }
     }
