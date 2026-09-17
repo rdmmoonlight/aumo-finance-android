@@ -19,7 +19,6 @@ import com.aumofinance.app.ui.theme.AumoTheme
 import kotlinx.coroutines.launch
 
 class HomeActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
