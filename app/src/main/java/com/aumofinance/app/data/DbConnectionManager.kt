@@ -10,7 +10,7 @@ object DbConnectionManager {
 
     /**
      * Memastikan koneksi ke backend Render.com aktif.
-     * 
+     *
      * Jika server dalam posisi 'warm', fungsi ini akan selesai cepat (1-2 detik) dan indikator langsung hijau.
      * Jika server dalam posisi 'cold start', Ktor client di `onPingDb()` akan menggantung (suspending)
      * secara alami sampai server Render selesai booting up, menjaga indikator tetap kuning.
