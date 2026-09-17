@@ -20,7 +20,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class HomeActivity : ComponentActivity() {
-
     // Default false: langsung berkedip kuning saat pertama kali aplikasi/screen dibuka
     private var isDbConnected by mutableStateOf(false)
 
@@ -86,7 +85,7 @@ class HomeActivity : ComponentActivity() {
         lifecycleScope.launch {
             // Sesuaikan pemanggilan query/koneksi database kamu di sini
             // Contoh simulasi delay proses inisialisasi DB:
-            delay(1500) 
+            delay(1500)
 
             // Set ke true setelah DB siap/terhubung
             isDbConnected = true
