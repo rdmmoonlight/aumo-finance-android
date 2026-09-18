@@ -65,12 +65,9 @@ class LoginActivity : FragmentActivity() {
                         biometricError = null
                         BiometricHelper.authenticate(
                             activity = this@LoginActivity,
-                            title = "Masuk ke AumoFinance",
-                            subtitle = "Gunakan sidik jari atau wajah Anda",
+                            title = "Masuk ke Aumo Finance",
+                            subtitle = "Gunakan biometrik",
                             onSuccess = {
-                                // Token JWT ikut dipulihkan oleh
-                                // restoreIntoSessionManager() di bawah — cukup
-                                // itu saja untuk request pertama di Home.
                                 SessionStore.restoreIntoSessionManager()
                                 goToHome()
                             },
