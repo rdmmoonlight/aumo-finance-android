@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aumofinance.app.data.DbConnectionManager
 import io.ktor.client.call.body
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.launch
@@ -37,6 +38,10 @@ class PeriodsViewModel : ViewModel() {
                 val body = api.list().body<PeriodsResponse>()
                 periods = body.periods
                 selectedPeriodId = body.selectedPeriodId
+                // Request ke backend TERBUKTI berhasil di sini — berarti server Render
+                // sudah bangun. Tandai langsung supaya indikator di Home ikut hijau
+                // tanpa harus menunggu ping Home selesai sendiri.
+                DbConnectionManager.markConnected()
             } catch (t: Throwable) {
                 periods = emptyList()
             }

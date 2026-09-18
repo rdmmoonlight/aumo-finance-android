@@ -2,6 +2,7 @@ package com.aumofinance.app.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -10,6 +11,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.url
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
+import java.util.concurrent.TimeUnit
 
 // Sempat diganti cookie ASP.NET Identity (lihat riwayat PersistentCookiesStorage
 // yang sudah dihapus), lalu diminta dikembalikan ke JWT Bearer. Backend
@@ -38,6 +40,13 @@ object ApiClient {
     // bukan di sini, supaya konsisten dan tidak diam-diam hilang.
     private const val BASE_URL = "https://aumonext-api.onrender.com"
 
+    // Render free-tier bisa cold start 30-60 detik kalau server sempat tidur.
+    // Timeout 10 detik bawaan OkHttp/Ktor terlalu pendek untuk itu — request
+    // keburu dianggap gagal (SocketTimeoutException) padahal server sebenarnya
+    // cuma masih booting. Nilai ini dipakai di dua lapis (OkHttp engine DAN
+    // plugin HttpTimeout) supaya keduanya konsisten memberi waktu cukup.
+    private const val NETWORK_TIMEOUT_SECONDS = 45L
+
     val client: HttpClient by lazy {
         HttpClient(OkHttp) {
             // Retrofit dulu selalu mengembalikan Response<T> sukses/gagal
@@ -51,6 +60,18 @@ object ApiClient {
             }
             install(Logging) {
                 level = LogLevel.INFO
+            }
+            install(HttpTimeout) {
+                requestTimeoutMillis = NETWORK_TIMEOUT_SECONDS * 1000
+                connectTimeoutMillis = NETWORK_TIMEOUT_SECONDS * 1000
+                socketTimeoutMillis = NETWORK_TIMEOUT_SECONDS * 1000
+            }
+            engine {
+                config {
+                    connectTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    readTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    writeTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                }
             }
             defaultRequest {
                 url(BASE_URL)
