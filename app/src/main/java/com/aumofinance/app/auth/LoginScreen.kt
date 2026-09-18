@@ -65,14 +65,14 @@ fun LoginScreen(
                 modifier = Modifier.size(88.dp),
             )
             Text(
-                text = "AumoFinance",
+                text = "Aumo Finance",
                 color = AumoColors.TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.headlineSmall.fontSize,
                 modifier = Modifier.padding(top = 16.dp),
             )
             Text(
-                text = "Kelola pembukuan usaha Anda",
+                text = "Kelola pembukuan keuangan Anda",
                 color = AumoColors.TextMuted,
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
                 modifier = Modifier.padding(top = 4.dp),
@@ -90,7 +90,7 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = email,
                     onValueChange = onEmailChange,
-                    placeholder = { Text("nama@email.com") },
+                    placeholder = { Text("admin@email.com") },
                     singleLine = true,
                     colors = loginFieldColors(),
                     modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
@@ -121,7 +121,7 @@ fun LoginScreen(
 
                 if (showBiometricSetupCheckbox) {
                     LoginCheckboxRow(
-                        label = "Masuk dengan sidik jari/wajah lain kali",
+                        label = "Masuk dengan biometrik lain kali",
                         checked = biometricSetupChecked,
                         onCheckedChange = onBiometricSetupChange,
                         modifier = Modifier.padding(top = 4.dp),
@@ -153,7 +153,7 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     ) {
                         Text(
-                            "\uD83D\uDD12  Masuk dengan Biometrik",
+                            "\uD83D\uDD12  Masuk dengan biometrik",
                             color = AumoColors.TextPrimary,
                             fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         )
