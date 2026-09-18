@@ -89,6 +89,13 @@ class HomeActivity : ComponentActivity() {
                 ApiClient.client.get("/api/v1/periods")
             }
         }
+
+        // Heartbeat berkala (di scope milik DbConnectionManager sendiri, bukan
+        // lifecycleScope Activity ini) supaya server Render tidak sempat idle
+        // 15 menit dan status koneksi selalu akurat, walau user pindah halaman.
+        DbConnectionManager.startHeartbeat {
+            ApiClient.client.get("/api/v1/periods")
+        }
     }
 
     private fun open(activity: Class<*>) {
